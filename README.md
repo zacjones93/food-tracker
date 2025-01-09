@@ -1,36 +1,42 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Cloudflare Workers SaaS Template
 
-## Getting Started
+This is a SaaS template for Cloudflare Workers. It uses the [OpenNext](https://opennextjs.com/) framework to build a SaaS application.
 
-First, run the development server:
+It is based on https://github.com/flarelabs-net/workers-next
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Supported Features:
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- ✅ Authentication with NextAuth
+- ✅ Database with Drizzle and Cloudflare D1
+- ✅ Deployment with Github Actions
+- ✅ Tailwind CSS
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Planned features (TODO):
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+- [ ] Billing
+- [ ] Admin dashboard
+- [ ] Email
+- [ ] Notifications
+- [ ] Payments
+- [ ] Webhooks
 
-## Learn More
+## Running it locally
 
-To learn more about Next.js, take a look at the following resources:
+1. `pnpm install`
+2. Copy `.env.example` to `.env` and fill in the values
+3. `pnpm db:migrate:dev` - Creates a local SQLite database and applies migrations
+4. Update the documentation in `./cursor-docs` with your project details so that Cursor AI can give you better suggestions
+5. `pnpm dev`
+6. Open http://localhost:3000
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Changes to wrangler.toml
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+After making a change to wrangler.toml, you need to run `pnpm cf-typegen` to generate the new types.
 
-## Deploy on Vercel
+## Deploying to Cloudflare with Github Actions
+TODO
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### How to upgrade this template
+Go [here](https://github.com/cloudflare/workers-sdk/tree/main/packages/create-cloudflare/templates-experimental/next/templates) and check which have have recent commits.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+[This](https://github.com/cloudflare/workers-sdk/tree/a5725bdb32f0b1c67063b988d09e1b76266aa19e/packages/create-cloudflare/templates-experimental/next/templates) is the git commit we are using
