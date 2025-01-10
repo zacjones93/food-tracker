@@ -13,6 +13,7 @@ Supported Features:
 
 Planned features (TODO):
 
+- [ ] Fotgot password
 - [ ] Billing
 - [ ] Admin dashboard
 - [ ] Email
