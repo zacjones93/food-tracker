@@ -5,7 +5,8 @@ CREATE TABLE `user` (
 	`firstName` text(255),
 	`lastName` text(255),
 	`email` text(255),
-	`passwordHash` text
+	`passwordHash` text,
+	`role` text DEFAULT 'user' NOT NULL
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `user_email_unique` ON `user` (`email`);

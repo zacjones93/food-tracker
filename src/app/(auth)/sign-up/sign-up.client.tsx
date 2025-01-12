@@ -15,7 +15,7 @@ import { useEffect } from "react";
 import Link from "next/link";
 
 const SignUpPage = () => {
-  const { execute: signUp, error, isPending, isSuccess } = useServerAction(signUpAction)
+  const { execute: signUp, error } = useServerAction(signUpAction)
   const form = useForm<SignUpSchema>({
     resolver: zodResolver(signUpSchema),
   });
@@ -23,25 +23,16 @@ const SignUpPage = () => {
   useEffect(() => {
     toast.dismiss()
 
-    if (isPending) {
-      toast.loading("Creating your account...")
-    }
-
-    if (isSuccess) {
-      toast.success("Account created successfully")
-    }
-
     if (error) {
       toast.error(error.message)
     }
-  }, [
-    isSuccess,
-    error,
-    isPending
-  ]);
+  }, [error]);
 
   const onSubmit = async (data: SignUpSchema) => {
-    await signUp(data)
+    toast.promise(signUp(data), {
+      loading: "Creating your account...",
+      success: "Account created successfully",
+    })
   }
 
   return (

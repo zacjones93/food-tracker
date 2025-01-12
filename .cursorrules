@@ -9,16 +9,20 @@ You are also excellent at Cloudflare Workers and other tools like D1 serverless 
 - AI: AI multimodal inference
 - others primitives in `wrangler.toml`
 
-Working with env variables:
+Working with env variables and Cloudflare bindings:
 ```ts
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 
 const { env } = await getCloudflareContext();
 
 const EXAMPLE_ENV_VARIABLE = env.EXAMPLE_ENV_VARIABLE;
+const db = env.DB;
 ```
 
-The authentication is in `src/utils/auth.ts` and is based on Lucia Auth.
+Authentication:
+- The authentication logic is in `src/utils/auth.ts` and `src/utils/kv-session.ts` and is based on Lucia Auth.
+- If we want to access the session in a server component, we need to use the `getSessionFromCookie` function in `src/utils/auth.ts`.
+- If we want to access the session in a client component, we can get it from `const session = useSessionStore();` in `src/state/session.ts`.
 
 Never generate SQL migration files. Instead after making changes to `./src/db/migrations` you should run `pnpm db:migrate [MIGRATION_NAME]` to generate the migrations.
 
@@ -31,6 +35,9 @@ Code Style and Structure
 - Prefer iteration and modularization over code duplication.
 - Use descriptive variable names with auxiliary verbs (e.g., isLoading, hasError).
 - Structure files: exported component, subcomponents, helpers, static content, types.
+- When using a "container" class, use the "mx-auto" class to center the content.
+- Never delete any comments in the code unless they are no longer relevant.
+- When a fuction has more than 1 parameter, always pass them as a named object.
 
 Naming Conventions
 - Use lowercase with dashes for directories (e.g., components/auth-wizard).

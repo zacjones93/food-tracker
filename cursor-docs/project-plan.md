@@ -53,9 +53,9 @@
 - [x] Initialize Next.js project with TypeScript
 - [x] Configure Cloudflare Workers
 - [x] Set up D1 database with DrizzleORM
-  - Implemented user table
-  - Added common columns (id, createdAt, updatedAt)
-  - Set up CUID2 for ID generation
+  - [x] Implemented user table
+  - [x] Added common columns (id, createdAt, updatedAt)
+  - [x] Set up CUID2 for ID generation
 - [x] Implement authentication with Lucia Auth
   - [x] Basic sign-up page structure created
   - [x] Password hashing implementation
@@ -63,15 +63,32 @@
   - [x] Sign-in functionality
   - [x] Sign-up functionality
   - [x] Session management with KV storage
+  - [x] Protected routes and layouts
 - [x] Configure development environment
+  - [x] Development workflow with wrangler
+  - [x] Local database setup
 - [ ] Set up CI/CD pipeline
 
 ### Phase 2: Core Features
-- [ ] User management system
+- [x] User management system
+  - [x] User profile settings page
+  - [x] Profile information update
+  - [x] Session management with KV
+  - [x] Protected routes and layouts
 - [ ] Dashboard layout
+  - [x] Navigation component
+  - [x] Protected layout structure
+  - [ ] Responsive design
 - [ ] Basic CRUD operations
+  - [x] User profile updates
+  - [ ] Resource management
 - [ ] API routes implementation
-- [ ] Database schema design
+  - [x] Authentication endpoints
+  - [x] User profile endpoints
+- [x] Database schema design
+  - [x] User table schema
+  - [x] Session management
+  - [ ] Resource tables
 - [ ] File upload system with R2
 
 ### Phase 3: Billing & Subscriptions
@@ -99,7 +116,7 @@
 
 ### User Management
 - Authentication (Lucia Auth)
-- User profiles
+- [x] User profiles and settings
 - Team management
 - Role-based access control
 
@@ -167,10 +184,15 @@
 ## Development Guidelines
 
 ### Code Style
-- Functional components
-- TypeScript strict mode
-- ESLint + Prettier
-- Conventional commits
+- Functional components with TypeScript
+- Server Components by default, 'use client' only when needed
+- Modular file structure with clear separation of concerns
+- Form validation with Zod schemas
+- State management:
+  - Server state with React Server Components
+  - Client state with Zustand where needed
+  - URL state with NUQS
+- Cloudflare bindings accessed through getCloudflareContext
 
 ### Testing Strategy
 - Unit tests (Vitest)
@@ -194,6 +216,7 @@ Current Implementation:
   - Basic user fields (firstName, lastName, email)
   - Password hash storage
   - Authentication provider fields
+  - Profile information fields
 - Session storage in KV with:
   - User relationship
   - Expiration tracking
@@ -204,4 +227,36 @@ Current Implementation:
   - Session-based auth with KV storage
   - Secure password hashing
   - Sign-in/Sign-up flows
-  - Protected routes
+  - Protected routes and layouts
+  - User settings management
+
+### Project Structure Updates
+- Added (protected) layout for authenticated routes
+- Implemented settings page with profile management
+- Added session state management with Zustand
+- Implemented server-side session validation
+- Added form validation with Zod schemas
+- Integrated Shadcn UI components for forms and layouts
+
+### Development Guidelines
+
+#### Code Style
+- Functional components with TypeScript
+- Server Components by default, 'use client' only when needed
+- Modular file structure with clear separation of concerns
+- Form validation with Zod schemas
+- State management:
+  - Server state with React Server Components
+  - Client state with Zustand where needed
+  - URL state with NUQS
+- Cloudflare bindings accessed through getCloudflareContext
+
+#### Component Structure
+- Server Components for data fetching and business logic
+- Client Components for interactivity
+- Form components with controlled inputs
+- Reusable UI components from Shadcn UI
+- Responsive design with Tailwind CSS
+- Dark mode support
+
+This plan will be regularly updated as the project progresses.

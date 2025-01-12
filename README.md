@@ -1,8 +1,8 @@
 # Cloudflare Workers SaaS Template
 
-This is a SaaS template for Cloudflare Workers. It uses the [OpenNext](https://opennextjs.com/) framework to build a SaaS application.
+https://github.com/LubomirGeorgiev/cloudflare-workers-nextjs-saas-template
 
-It is based on https://github.com/flarelabs-net/workers-next
+This is a SaaS template for Cloudflare Workers. It uses the [OpenNext](https://opennextjs.com/) framework to build a SaaS application.
 
 Supported Features:
 
@@ -14,9 +14,10 @@ Supported Features:
 Planned features (TODO):
 
 - [ ] Fotgot password
+- [ ] Change password
 - [ ] Billing
 - [ ] Admin dashboard
-- [ ] Email
+- [ ] Emails
 - [ ] Notifications
 - [ ] Payments
 - [ ] Webhooks

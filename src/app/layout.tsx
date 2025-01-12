@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/providers";
 import { Toaster } from "@/components/ui/sonner";
 import { getSessionFromCookie } from "@/utils/auth";
 import { Navigation } from "@/components/navigation";
+import { Footer } from "@/components/footer";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,6 +19,8 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await getSessionFromCookie();
+
   return (
     <html lang="en">
       <body className={inter.className}>
@@ -25,9 +28,15 @@ export default async function RootLayout({
           attribute="class"
           defaultTheme="system"
           enableSystem
+          session={session}
         >
-          <Navigation />
-          {children}
+          <div className="min-h-screen flex flex-col">
+            <Navigation />
+            <main className="flex-1">
+              {children}
+            </main>
+            <Footer />
+          </div>
 
           <Toaster richColors closeButton position="top-right" expand duration={2500} />
         </ThemeProvider>

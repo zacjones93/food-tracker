@@ -17,7 +17,7 @@ import Link from "next/link";
 
 const SignInPage = () => {
   const router = useRouter();
-  const { execute: signIn, error, isPending, isSuccess } = useServerAction(signInAction)
+  const { execute: signIn, error } = useServerAction(signInAction)
   const form = useForm<SignInSchema>({
     resolver: zodResolver(signInSchema),
   });
@@ -25,27 +25,16 @@ const SignInPage = () => {
   useEffect(() => {
     toast.dismiss()
 
-    if (isPending) {
-      toast.loading("Signing you in...")
-    }
-
-    if (isSuccess) {
-      toast.success("Signed in successfully")
-      router.push("/")
-    }
-
     if (error) {
       toast.error(error.message)
     }
-  }, [
-    isSuccess,
-    error,
-    isPending,
-    router
-  ]);
+  }, [error]);
 
   const onSubmit = async (data: SignInSchema) => {
-    await signIn(data)
+    toast.promise(signIn(data), {
+      loading: "Signing you in...",
+      success: "Signed in successfully",
+    })
   }
 
   return (
