@@ -28,16 +28,4 @@ export const userTable = sqliteTable("user", {
   passwordHash: text(),
 });
 
-export const sessionTable = sqliteTable("session", {
-  ...commonColumns,
-  id: text().primaryKey(),
-  userId: text()
-    .notNull()
-    .references(() => userTable.id),
-  expiresAt: integer({
-    mode: "timestamp"
-  }).notNull()
-});
-
 export type User = InferSelectModel<typeof userTable>;
-export type Session = InferSelectModel<typeof sessionTable>;

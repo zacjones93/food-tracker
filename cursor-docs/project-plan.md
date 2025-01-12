@@ -23,20 +23,28 @@
 ## Project Structure
 
 ```
-├── app/
-│   ├── (auth)/         # Auth-required routes
-│   ├── (marketing)/    # Public marketing pages
-│   ├── api/           # API routes
-│   └── layout.tsx     # Root layout
-├── components/
-│   ├── ui/           # Shadcn components
-│   ├── shared/       # Reusable components
-│   └── features/     # Feature-specific components
-├── lib/
-│   ├── db/           # Database schemas & utils
-│   ├── utils/        # Helper functions
-│   └── config/       # Configuration
-└── styles/          # Global styles
+├── src/                # Source directory
+│   ├── app/           # Next.js App Router
+│   │   ├── (auth)/    # Auth-related routes
+│   │   │   ├── sign-in/ # Sign in functionality
+│   │   │   └── sign-up/ # Sign up functionality
+│   │   ├── (legal)/   # Legal pages (terms, privacy)
+│   │   ├── api/       # API routes
+│   │   └── globals.css # Global styles
+│   ├── components/    # React components
+│   │   └── ui/       # Shadcn UI components
+│   ├── db/           # Database related code
+│   │   ├── migrations/ # Database migrations
+│   │   └── schema.ts  # DrizzleORM schema
+│   ├── lib/          # Shared utilities
+│   │   └── utils.ts  # Helper functions
+│   └── utils/        # Core utilities
+│       ├── auth.ts   # Authentication logic
+│       ├── passwordHasher.ts # Password hashing
+│       └── kv-session.ts # Session handling with Cloudflare KV
+├── public/           # Static assets
+├── cursor-docs/      # Project documentation
+└── .wrangler/        # Cloudflare Workers config
 ```
 
 ## Development Phases
@@ -45,13 +53,16 @@
 - [x] Initialize Next.js project with TypeScript
 - [x] Configure Cloudflare Workers
 - [x] Set up D1 database with DrizzleORM
-  - Implemented user and session tables
+  - Implemented user table
   - Added common columns (id, createdAt, updatedAt)
   - Set up CUID2 for ID generation
-- [ ] Implement authentication with Lucia Auth
-  - Basic sign-up page structure created
-  - Password hashing implementation pending
-  - Session management pending
+- [x] Implement authentication with Lucia Auth
+  - [x] Basic sign-up page structure created
+  - [x] Password hashing implementation
+  - [x] Set up KV for session storage
+  - [x] Sign-in functionality
+  - [x] Sign-up functionality
+  - [x] Session management with KV storage
 - [x] Configure development environment
 - [ ] Set up CI/CD pipeline
 
@@ -182,7 +193,15 @@ Current Implementation:
   - Timestamps (created/updated)
   - Basic user fields (firstName, lastName, email)
   - Password hash storage
-- Session table with:
+  - Authentication provider fields
+- Session storage in KV with:
   - User relationship
   - Expiration tracking
   - Secure session management
+  - Auto-cleanup via KV TTL
+- Authentication features:
+  - Email/password authentication
+  - Session-based auth with KV storage
+  - Secure password hashing
+  - Sign-in/Sign-up flows
+  - Protected routes

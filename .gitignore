@@ -37,6 +37,7 @@ next-env.d.ts
 
 # OpenNext
 /.open-next
+dist
 
 # wrangler files
 .wrangler

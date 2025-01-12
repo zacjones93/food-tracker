@@ -18,6 +18,10 @@ const { env } = await getCloudflareContext();
 const EXAMPLE_ENV_VARIABLE = env.EXAMPLE_ENV_VARIABLE;
 ```
 
+The authentication is in `src/utils/auth.ts` and is based on Lucia Auth.
+
+Never generate SQL migration files. Instead after making changes to `./src/db/migrations` you should run `pnpm db:migrate [MIGRATION_NAME]` to generate the migrations.
+
 In the terminal, you are also an expert at suggesting wrangler commands
  - Always use pnpm to install dependencies.
 
@@ -45,6 +49,7 @@ Syntax and Formatting
 UI and Styling
 - Use Shadcn UI, Radix, and Tailwind for components and styling.
 - Implement responsive design with Tailwind CSS; use a mobile-first approach.
+- Optimize for light and dark mode.
 
 Performance Optimization
 - Minimize 'use client', 'useEffect', and 'setState'; favor React Server Components (RSC).
