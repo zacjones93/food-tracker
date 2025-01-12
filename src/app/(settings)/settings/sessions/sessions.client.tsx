@@ -27,6 +27,7 @@ import { UAParser } from 'ua-parser-js'
 import { toast } from "sonner";
 import React from "react";
 import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
 
 interface SessionWithMeta extends KVSession {
   isCurrentSession: boolean;
@@ -52,12 +53,11 @@ export function SessionsClient({ sessions }: { sessions: SessionWithMeta[] }) {
       {sessions.map((session) => {
         const parser = new UAParser(session.userAgent ?? '');
         const browser = parser.getBrowser();
-        const devide = parser.getResult();
         const device = parser.getDevice();
         const os = parser.getOS();
 
         return (
-          <Card key={session.id}>
+          <Card key={session.id} className={cn(session.isCurrentSession && "border-3 shadow-lg bg-card-background")}>
             <CardHeader>
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div className="space-y-2">
@@ -66,7 +66,7 @@ export function SessionsClient({ sessions }: { sessions: SessionWithMeta[] }) {
                       {session.city && session.country
                         ? `${session.city}, ${regionNames.of(session.country)}`
                         : session.country || "Unknown location"}
-                      {session.isCurrentSession && <Badge>Current</Badge>}
+                      {session.isCurrentSession && <Badge>Current Session</Badge>}
                     </CardTitle>
                     <div className="text-sm text-muted-foreground whitespace-nowrap">
                       · {formatDistanceToNow(session.createdAt)} ago

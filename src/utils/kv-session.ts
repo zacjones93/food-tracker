@@ -60,6 +60,9 @@ export async function createKVSession({
     user
   };
 
+  // TODO We should limit the number of sessions per user to 10
+  // If we have more than 10 sessions, we should delete the oldest session
+
   await kv.put(
     getSessionKey(userId, sessionId),
     JSON.stringify(session),
