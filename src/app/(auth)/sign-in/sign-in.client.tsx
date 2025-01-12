@@ -36,8 +36,8 @@ const SignInPage = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="w-full max-w-md space-y-8 p-10 bg-card rounded-xl shadow-lg border border-border">
+    <div className="min-h-screen flex items-center px-4 justify-center bg-background">
+      <div className="w-full max-w-md space-y-8 p-6 md:p-10 bg-card rounded-xl shadow-lg border border-border">
         <div>
           <h2 className="mt-6 text-3xl font-bold tracking-tight text-foreground">
             Sign in to your account

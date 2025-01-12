@@ -37,7 +37,25 @@ Planned features (TODO):
 After making a change to wrangler.toml, you need to run `pnpm cf-typegen` to generate the new types.
 
 ## Deploying to Cloudflare with Github Actions
-TODO
+
+1. Create D1 and KV namespaces
+2. Update the `wrangler.toml` file with the new database and KV namespaces
+3. Create a Cloudflare API token with the following permissions:
+    - Workers Builds Configuration:Edit
+    - AI Gateway:Edit
+    - Workers AI:Edit
+    - Queues:Edit
+    - Vectorize:Edit
+    - D1:Edit
+    - Workers R2 Storage:Edit
+    - Cloudflare Images:Edit
+    - Workers Tail:Read
+    - Workers KV Storage:Edit
+    - Workers Scripts:Edit
+4. Add the API token to the Github repository secrets as `CF_API_TOKEN`
+5. Add the Cloudflare account id to the Github repository secrets as `CF_ACCOUNT_ID`
+6. Add the database name to the Github repository secrets as `DATABASE_ID`. This should match the database name in the `wrangler.toml` file.
+7. Push to the main branch
 
 ### How to upgrade this template
 Go [here](https://github.com/cloudflare/workers-sdk/tree/main/packages/create-cloudflare/templates-experimental/next/templates) and check which have have recent commits.
