@@ -10,6 +10,7 @@
     "lint": "next lint",
     "deploy": "opennextjs-cloudflare && wrangler deploy",
     "preview": "opennextjs-cloudflare && wrangler dev",
+    "ci:build": "opennextjs-cloudflare",
     "cf-typegen": "wrangler types --env-interface CloudflareEnv env.d.ts",
     "db:generate": "drizzle-kit generate --name",
     "db:migrate:dev": "wrangler d1 migrations apply cloudflare-workers-nextjs-saas --local"
