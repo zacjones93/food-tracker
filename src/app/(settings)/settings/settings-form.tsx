@@ -15,16 +15,33 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { updateUserProfileAction } from "@/app/(protected)/settings/settings.actions";
+import { updateUserProfileAction } from "./settings.actions";
 import { useEffect } from "react";
 import { useSessionStore } from "@/state/session";
 import { userSettingsSchema } from "@/schemas/settings.schema";
 import { useServerAction } from "zsa-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useRouter } from "next/navigation";
 
 export function SettingsForm() {
-  const { execute: updateUserProfile, error } = useServerAction(updateUserProfileAction)
+  const router = useRouter()
+
+  const { execute: updateUserProfile } = useServerAction(updateUserProfileAction, {
+    onError: (error) => {
+      toast.dismiss()
+      toast.error(error.err?.message)
+    },
+    onStart: () => {
+      toast.loading("Signing you in...")
+    },
+    onSuccess: () => {
+      toast.dismiss()
+      toast.success("Signed in successfully")
+      router.refresh()
+    }
+  })
+
   const { session, isLoading } = useSessionStore();
   const form = useForm<z.infer<typeof userSettingsSchema>>({
     resolver: zodResolver(userSettingsSchema)
@@ -36,13 +53,6 @@ export function SettingsForm() {
       lastName: session?.user.lastName ?? '',
     });
   }, [session])
-
-  useEffect(() => {
-    if (error) {
-      toast.dismiss()
-      toast.error(error?.message);
-    }
-  }, [error]);
 
   if (!session || isLoading) {
     return (
@@ -82,10 +92,7 @@ export function SettingsForm() {
   }
 
   async function onSubmit(values: z.infer<typeof userSettingsSchema>) {
-    toast.promise(updateUserProfile(values), {
-      loading: "Updating settings...",
-      success: "Settings updated successfully",
-    });
+    updateUserProfile(values)
   }
 
   return (

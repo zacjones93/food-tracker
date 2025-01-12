@@ -15,6 +15,7 @@ Planned features (TODO):
 
 - [ ] Fotgot password
 - [ ] Change password
+- [ ] Update Meta SEO tags
 - [ ] Billing
 - [ ] Admin dashboard
 - [ ] Emails

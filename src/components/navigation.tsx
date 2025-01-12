@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { BringToFront, Menu } from 'lucide-react'
+import { ComponentIcon, Menu } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { useSessionStore } from "@/state/session"
@@ -48,13 +48,21 @@ export function Navigation() {
     ...(session ? [{ name: "Settings", href: "/settings" }] : []),
   ]
 
+  const isActiveLink = (itemHref: string) => {
+    if (itemHref === "/") {
+      return pathname === "/"
+    }
+    return pathname === itemHref || pathname.startsWith(`${itemHref}/`)
+  }
+
   return (
     <nav className="bg-background shadow dark:shadow-xl z-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
-            <Link href="/" className="text-2xl font-bold text-primary">
-              <BringToFront className="w-6 h-6" />
+            <Link href="/" className="text-2xl font-bold text-primary flex items-center gap-3">
+              <ComponentIcon className="w-7 h-7" />
+              SaaS Template
             </Link>
           </div>
           <div className="hidden md:flex md:items-center md:space-x-6">
@@ -73,7 +81,7 @@ export function Navigation() {
                     href={item.href}
                     className={cn(
                       "text-muted-foreground hover:text-foreground no-underline px-3 py-2 rounded-md text-sm font-medium transition-colors",
-                      pathname === item.href && "bg-muted text-foreground"
+                      isActiveLink(item.href) && "bg-muted text-foreground"
                     )}
                   >
                     {item.name}
@@ -108,7 +116,7 @@ export function Navigation() {
                           href={item.href}
                           className={cn(
                             "block px-3 py-2 rounded-md text-base font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 no-underline transition-colors",
-                            pathname === item.href && "bg-muted text-foreground"
+                            isActiveLink(item.href) && "bg-muted text-foreground"
                           )}
                           onClick={() => setIsOpen(false)}
                         >

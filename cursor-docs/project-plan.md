@@ -29,6 +29,7 @@
 │   │   │   ├── sign-in/ # Sign in functionality
 │   │   │   └── sign-up/ # Sign up functionality
 │   │   ├── (legal)/   # Legal pages (terms, privacy)
+│   │   ├── (settings)/ # User settings pages
 │   │   ├── api/       # API routes
 │   │   └── globals.css # Global styles
 │   ├── components/    # React components
@@ -36,11 +37,10 @@
 │   ├── db/           # Database related code
 │   │   ├── migrations/ # Database migrations
 │   │   └── schema.ts  # DrizzleORM schema
-│   ├── lib/          # Shared utilities
-│   │   └── utils.ts  # Helper functions
+│   ├── schemas/      # Zod validation schemas
+│   ├── state/        # Client state management (Zustand)
 │   └── utils/        # Core utilities
 │       ├── auth.ts   # Authentication logic
-│       ├── passwordHasher.ts # Password hashing
 │       └── kv-session.ts # Session handling with Cloudflare KV
 ├── public/           # Static assets
 ├── cursor-docs/      # Project documentation
@@ -49,7 +49,7 @@
 
 ## Development Phases
 
-### Phase 1: Setup & Infrastructure
+### Phase 1: Setup & Infrastructure ✅
 - [x] Initialize Next.js project with TypeScript
 - [x] Configure Cloudflare Workers
 - [x] Set up D1 database with DrizzleORM
@@ -69,22 +69,25 @@
   - [x] Local database setup
 - [ ] Set up CI/CD pipeline
 
-### Phase 2: Core Features
+### Phase 2: Core Features (In Progress)
 - [x] User management system
   - [x] User profile settings page
   - [x] Profile information update
   - [x] Session management with KV
   - [x] Protected routes and layouts
-- [ ] Dashboard layout
+  - [x] Settings form with validation
+- [x] Dashboard layout
   - [x] Navigation component
   - [x] Protected layout structure
-  - [ ] Responsive design
+  - [x] Responsive design
 - [ ] Basic CRUD operations
   - [x] User profile updates
   - [ ] Resource management
-- [ ] API routes implementation
+- [x] API routes implementation
   - [x] Authentication endpoints
   - [x] User profile endpoints
+  - [x] Settings update endpoints
+  - [x] Settings update endpoints
 - [x] Database schema design
   - [x] User table schema
   - [x] Session management
@@ -216,6 +219,7 @@ Current Implementation:
   - Basic user fields (firstName, lastName, email)
   - Password hash storage
   - Authentication provider fields
+  - Settings fields with validation
   - Profile information fields
 - Session storage in KV with:
   - User relationship
@@ -227,7 +231,7 @@ Current Implementation:
   - Session-based auth with KV storage
   - Secure password hashing
   - Sign-in/Sign-up flows
-  - Protected routes and layouts
+  - User settings management with validation
   - User settings management
 
 ### Project Structure Updates
@@ -236,6 +240,8 @@ Current Implementation:
 - Added session state management with Zustand
 - Implemented server-side session validation
 - Added form validation with Zod schemas
+- Added settings form with real-time validation
+- Implemented navigation component with responsive design
 - Integrated Shadcn UI components for forms and layouts
 
 ### Development Guidelines
@@ -253,10 +259,11 @@ Current Implementation:
 
 #### Component Structure
 - Server Components for data fetching and business logic
-- Client Components for interactivity
+- Form components with controlled inputs and validation
 - Form components with controlled inputs
 - Reusable UI components from Shadcn UI
 - Responsive design with Tailwind CSS
+- Proper error handling and loading states
 - Dark mode support
 
 This plan will be regularly updated as the project progresses.

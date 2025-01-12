@@ -10,7 +10,8 @@ import {
   CreditCard,
   Lock,
   Settings,
-  Shield
+  Shield,
+  Smartphone
 } from "lucide-react";
 
 interface SidebarNavItem {
@@ -24,6 +25,11 @@ const sidebarNavItems: SidebarNavItem[] = [
     title: "Profile",
     href: "/settings",
     icon: User,
+  },
+  {
+    title: "Sessions",
+    href: "/settings/sessions",
+    icon: Smartphone,
   },
   // {
   //   title: "Account",

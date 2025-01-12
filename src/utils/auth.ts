@@ -139,49 +139,6 @@ export async function setSessionTokenCookie({ token, userId, expiresAt }: SetSes
   });
 }
 
-export async function getAllSessionIdsOfUser(userId: string) {
-  const kv = await getKV();
-  const sessions = await kv.list({ prefix: getSessionKey(userId, "") });
-
-  return sessions.keys.map((session) => ({
-    key: session.name,
-    expiration: session.expiration ? new Date(session.expiration * 1000) : undefined
-  }))
-}
-
-/**
- * Update all sessions of a user. It can only be called in a server actions and api routes.
- * @param userId
- */
-export async function updateAllSessionsOfUser(userId: string) {
-  const sessions = await getAllSessionIdsOfUser(userId);
-  const kv = await getKV();
-  const newUserData = await getUserFromDB(userId);
-
-  if (!newUserData) return;
-
-  for (const sessionObj of sessions) {
-    const session = await kv.get(sessionObj.key);
-    if (!session) continue;
-
-    const sessionData = JSON.parse(session) as KVSession;
-
-    // Only update non-expired sessions
-    if (sessionObj.expiration && sessionObj.expiration.getTime() > Date.now()) {
-      const ttlInSeconds = Math.floor((sessionObj.expiration.getTime() - Date.now()) / 1000) + 1;
-
-      await kv.put(
-        sessionObj.key,
-        JSON.stringify({
-          ...sessionData,
-          user: newUserData,
-        }),
-        { expirationTtl: ttlInSeconds }
-      );
-    }
-  }
-}
-
 export async function deleteSessionTokenCookie(): Promise<void> {
   const cookieStore = await cookies();
   cookieStore.delete(SESSION_COOKIE_NAME);

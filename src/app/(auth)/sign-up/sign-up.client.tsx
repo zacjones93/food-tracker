@@ -11,28 +11,29 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { useServerAction } from "zsa-react";
-import { useEffect } from "react";
 import Link from "next/link";
 
 const SignUpPage = () => {
-  const { execute: signUp, error } = useServerAction(signUpAction)
+  const { execute: signUp } = useServerAction(signUpAction, {
+    onError: (error) => {
+      toast.dismiss()
+      toast.error(error.err?.message)
+    },
+    onStart: () => {
+      toast.loading("Signing you in...")
+    },
+    onSuccess: () => {
+      toast.dismiss()
+      toast.success("Signed in successfully")
+    }
+  })
+
   const form = useForm<SignUpSchema>({
     resolver: zodResolver(signUpSchema),
   });
 
-  useEffect(() => {
-    toast.dismiss()
-
-    if (error) {
-      toast.error(error.message)
-    }
-  }, [error]);
-
   const onSubmit = async (data: SignUpSchema) => {
-    toast.promise(signUp(data), {
-      loading: "Creating your account...",
-      success: "Account created successfully",
-    })
+    signUp(data)
   }
 
   return (

@@ -3,10 +3,11 @@
 import { createServerAction, ZSAError } from "zsa";
 import { getDB } from "@/db";
 import { userTable } from "@/db/schema";
-import { getSessionFromCookie, updateAllSessionsOfUser } from "@/utils/auth";
+import { getSessionFromCookie } from "@/utils/auth";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { userSettingsSchema } from "@/schemas/settings.schema";
+import { updateAllSessionsOfUser } from "@/utils/kv-session";
 
 export const updateUserProfileAction = createServerAction()
   .input(userSettingsSchema)

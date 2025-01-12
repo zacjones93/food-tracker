@@ -1,10 +1,13 @@
 import { getSessionFromCookie } from "@/utils/auth";
 import { redirect } from "next/navigation";
-import { SettingsForm } from "@/app/(protected)/settings/settings-form";
 import { Separator } from "@/components/ui/separator";
 import { SettingsSidebar } from "./settings-sidebar";
 
-export default async function SettingsPage() {
+export default async function SettingsLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const session = await getSessionFromCookie();
 
   if (!session) {
@@ -26,9 +29,8 @@ export default async function SettingsPage() {
         <aside className="lg:w-1/5">
           <SettingsSidebar />
         </aside>
-
         <div className="flex-1">
-          <SettingsForm />
+          {children}
         </div>
       </div>
     </div>

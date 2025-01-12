@@ -1,7 +1,6 @@
+import "server-only";
+
 import { getCloudflareContext } from "@opennextjs/cloudflare";
-import { userTable, type User } from "@/db/schema";
-import { eq } from "drizzle-orm";
-import { getDB } from "@/db";
 import { headers } from "next/headers";
 import { getUserFromDB } from "@/utils/auth";
 
@@ -85,10 +84,7 @@ export async function updateKVSession(sessionId: string, userId: string, expires
   const session = await getKVSession(sessionId, userId);
   if (!session) return null;
 
-  const db = await getDB();
-  const updatedUser = await db.query.userTable.findFirst({
-    where: eq(userTable.id, userId)
-  });
+  const updatedUser = await getUserFromDB(userId);
 
   if (!updatedUser) {
     throw new Error("User not found");
@@ -118,4 +114,47 @@ export async function deleteKVSession(sessionId: string, userId: string): Promis
 
   const kv = await getKV();
   await kv.delete(getSessionKey(userId, sessionId));
+}
+
+export async function getAllSessionIdsOfUser(userId: string) {
+  const kv = await getKV();
+  const sessions = await kv.list({ prefix: getSessionKey(userId, "") });
+
+  return sessions.keys.map((session) => ({
+    key: session.name,
+    expiration: session.expiration ? new Date(session.expiration * 1000) : undefined
+  }))
+}
+
+/**
+ * Update all sessions of a user. It can only be called in a server actions and api routes.
+ * @param userId
+ */
+export async function updateAllSessionsOfUser(userId: string) {
+  const sessions = await getAllSessionIdsOfUser(userId);
+  const kv = await getKV();
+  const newUserData = await getUserFromDB(userId);
+
+  if (!newUserData) return;
+
+  for (const sessionObj of sessions) {
+    const session = await kv.get(sessionObj.key);
+    if (!session) continue;
+
+    const sessionData = JSON.parse(session) as KVSession;
+
+    // Only update non-expired sessions
+    if (sessionObj.expiration && sessionObj.expiration.getTime() > Date.now()) {
+      const ttlInSeconds = Math.floor((sessionObj.expiration.getTime() - Date.now()) / 1000) + 1;
+
+      await kv.put(
+        sessionObj.key,
+        JSON.stringify({
+          ...sessionData,
+          user: newUserData,
+        }),
+        { expirationTtl: ttlInSeconds }
+      );
+    }
+  }
 }

@@ -11,30 +11,28 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { useServerAction } from "zsa-react";
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 const SignInPage = () => {
-  const router = useRouter();
-  const { execute: signIn, error } = useServerAction(signInAction)
+  const { execute: signIn } = useServerAction(signInAction, {
+    onError: (error) => {
+      toast.dismiss()
+      toast.error(error.err?.message)
+    },
+    onStart: () => {
+      toast.loading("Signing you in...")
+    },
+    onSuccess: () => {
+      toast.dismiss()
+      toast.success("Signed in successfully")
+    }
+  })
   const form = useForm<SignInSchema>({
     resolver: zodResolver(signInSchema),
   });
 
-  useEffect(() => {
-    toast.dismiss()
-
-    if (error) {
-      toast.error(error.message)
-    }
-  }, [error]);
-
   const onSubmit = async (data: SignInSchema) => {
-    toast.promise(signIn(data), {
-      loading: "Signing you in...",
-      success: "Signed in successfully",
-    })
+    signIn(data)
   }
 
   return (

@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { getSessionFromCookie } from "@/utils/auth";
 import { Navigation } from "@/components/navigation";
 import { Footer } from "@/components/footer";
+import { TooltipProvider } from "@radix-ui/react-tooltip";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -30,15 +31,20 @@ export default async function RootLayout({
           enableSystem
           session={session}
         >
-          <div className="min-h-screen flex flex-col">
-            <Navigation />
-            <main className="flex-1">
-              {children}
-            </main>
-            <Footer />
-          </div>
+          <TooltipProvider
+            delayDuration={100}
+            skipDelayDuration={50}
+          >
+            <div className="min-h-screen flex flex-col">
+              <Navigation />
+              <main className="flex-1">
+                {children}
+              </main>
+              <Footer />
+            </div>
 
-          <Toaster richColors closeButton position="top-right" expand duration={2500} />
+            <Toaster richColors closeButton position="top-right" expand duration={2500} />
+          </TooltipProvider>
         </ThemeProvider>
       </body>
     </html>
