@@ -25,6 +25,9 @@ export const forgotPasswordAction = createServerAction()
     const db = await getDB();
     const { env } = await getCloudflareContext();
 
+    // TODO: If we have a logged in user we need to check if the email is the same as the user's email
+    // And also in the page we need to make the email field disabled
+
     try {
       // Find user by email
       const user = await db.query.userTable.findFirst({

@@ -37,11 +37,6 @@ export function Footer() {
                     About Us
                   </Link>
                 </li>
-                <li>
-                  <Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground text-center sm:text-left">
-                    Contact
-                  </Link>
-                </li>
               </ul>
             </div>
 
