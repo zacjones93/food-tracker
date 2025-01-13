@@ -10,7 +10,9 @@
             "vars": "all",
             "varsIgnorePattern": "^__ignore",
             "args": "after-used",
-            "argsIgnorePattern": "^__ignore"
+            "argsIgnorePattern": "^__ignore",
+            "destructuredArrayIgnorePattern": "^__ignore",
+            "ignoreRestSiblings": true
         }
     ]
   }

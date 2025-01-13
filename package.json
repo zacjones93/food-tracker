@@ -47,6 +47,7 @@
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7",
     "ua-parser-js": "^2.0.0",
+    "usehooks-ts": "^3.1.0",
     "zod": "^3.24.1",
     "zsa": "^0.6.0",
     "zsa-react": "^0.2.3",

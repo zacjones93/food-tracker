@@ -7,18 +7,18 @@ This is a SaaS template for Cloudflare Workers. It uses the [OpenNext](https://o
 Supported Features:
 
 - ✅ Authentication with NextAuth
+  - ✅ Forgot password
+  - ✅ Change password
 - ✅ Database with Drizzle and Cloudflare D1
 - ✅ Deployment with Github Actions
 - ✅ Tailwind CSS
 
 Planned features (TODO):
 
-- [ ] Fotgot password
-- [ ] Change password
 - [ ] Update Meta SEO tags
 - [ ] Billing
 - [ ] Admin dashboard
-- [ ] Emails
+- [ ] Email verification on sign up
 - [ ] Notifications
 - [ ] Payments
 - [ ] Webhooks

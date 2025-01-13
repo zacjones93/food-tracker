@@ -35,6 +35,7 @@ export const getUserFromDB = async (userId: string) => {
       lastName: true,
       email: true,
       role: true,
+      emailVerified: true,
     }
   })
 }
@@ -144,6 +145,9 @@ export async function deleteSessionTokenCookie(): Promise<void> {
   cookieStore.delete(SESSION_COOKIE_NAME);
 }
 
+/**
+ * This function can only be called in a Server Components, Server Action or Route Handler
+ */
 export const getSessionFromCookie = cache(async (): Promise<SessionValidationResult | null> => {
   const cookieStore = await cookies();
   const sessionCookie = cookieStore.get(SESSION_COOKIE_NAME)?.value;
