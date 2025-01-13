@@ -28,4 +28,4 @@ binding = "NEXT_CACHE_WORKERS_KV"
 id = "f5c002f17bc9406bb24a9adc9f451fd9"
 
 [vars]
-RESEND_FROM_EMAIL = "hello@saas-stack.startup-studio.dev"
+RESEND_FROM_EMAIL = "Startup Studio <hello@saas-stack.startup-studio.dev>"

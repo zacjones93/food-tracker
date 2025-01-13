@@ -25,12 +25,13 @@ Planned features (TODO):
 
 ## Running it locally
 
-1. `pnpm install`
-2. Copy `.dev.vars.example` to `.dev.vars` and fill in the values
-3. `pnpm db:migrate:dev` - Creates a local SQLite database and applies migrations
-4. Update the documentation in `./cursor-docs` with your project details so that Cursor AI can give you better suggestions
-5. `pnpm dev`
-6. Open http://localhost:3000
+1. Go to `src/constants.ts` and update it with your project details
+2. `pnpm install`
+3. Copy `.dev.vars.example` to `.dev.vars` and fill in the values
+4. `pnpm db:migrate:dev` - Creates a local SQLite database and applies migrations
+5. Update the documentation in `./cursor-docs` with your project details so that Cursor AI can give you better suggestions
+6. `pnpm dev`
+7. Open http://localhost:3000
 
 ## Changes to wrangler.toml
 

@@ -79,7 +79,7 @@ export default function ForgotPasswordClientComponent() {
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>
-            {session ? "Reset Password" : "Forgot Password"}
+            {session ? "Change Password" : "Forgot Password"}
           </CardTitle>
           <CardDescription>
             Enter your email address and we&apos;ll send you instructions to reset your password.

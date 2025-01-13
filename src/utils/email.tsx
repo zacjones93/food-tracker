@@ -2,7 +2,7 @@ import "server-only";
 
 import { Resend } from "resend";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
-import { SITE_URL } from "@/constants";
+import { SITE_DOMAIN, SITE_URL } from "@/constants";
 import isProd from "./isProd";
 import { render } from '@react-email/render'
 import { ResetPasswordEmail } from "@/react-email/reset-password";
@@ -31,7 +31,7 @@ export async function sendPasswordResetEmail({
   await resend.emails.send({
     from: env.RESEND_FROM_EMAIL,
     to: email,
-    subject: "Reset your password",
+    subject: `Reset your password for ${SITE_DOMAIN}`,
     html
   });
 }
