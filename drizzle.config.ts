@@ -28,7 +28,6 @@ export default defineConfig({
     ? {
       driver: "d1-http",
       dbCredentials: {
-        // TODO Set these up in Github Actions
         accountId: process.env.CLOUDFLARE_ACCOUNT_ID,
         databaseId: process.env.DATABASE_ID,
         token: process.env.CLOUDFLARE_API_TOKEN,

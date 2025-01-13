@@ -35,10 +35,11 @@ Planned features (TODO):
 
 After making a change to wrangler.toml, you need to run `pnpm cf-typegen` to generate the new types.
 
-## Things to change and customize before deploying
+## Things to change and customize before deploying to production
 1. Go to `src/constants.ts` and update it with your project details
 2. Update the documentation in `./cursor-docs` with your project details so that Cursor AI can give you better suggestions
-3. Update the footer in `src/components/footer.tsx` with your project details
+3. Update the footer in `src/components/footer.tsx` with your project details and links
+4. Optional: Update the color palette in `src/app/globals.css`
 
 ## Deploying to Cloudflare with Github Actions
 
@@ -57,9 +58,9 @@ After making a change to wrangler.toml, you need to run `pnpm cf-typegen` to gen
     - Workers Tail:Read
     - Workers KV Storage:Edit
     - Workers Scripts:Edit
-4. Add the API token to the Github repository secrets as `CF_API_TOKEN`
-5. Add the Cloudflare account id to the Github repository secrets as `CF_ACCOUNT_ID`
-6. Add the database name to the Github repository secrets as `DATABASE_ID`. This should match the database name in the `wrangler.toml` file.
+4. Add the API token to the Github repository secrets as `CLOUDFLARE_API_TOKEN`
+5. Add the Cloudflare account id to the Github repository variables as `CLOUDFLARE_ACCOUNT_ID`
+6. Add the database name to the Github repository variables as `DATABASE_ID`. This should match the database name in the `wrangler.toml` file.
 7. Push to the main branch
 
 ## Email templates
