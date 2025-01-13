@@ -4,7 +4,8 @@ import { Resend } from "resend";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { SITE_URL } from "@/constants";
 import isProd from "./isProd";
-import { ResetPasswordEmail } from "@/react-email/emails/reset-password";
+import { render } from '@react-email/render'
+import { ResetPasswordEmail } from "@/react-email/reset-password";
 
 export async function sendPasswordResetEmail({
   email,
@@ -25,10 +26,12 @@ export async function sendPasswordResetEmail({
 
   const resend = new Resend(env.RESEND_API_KEY);
 
+  const html = await render(ResetPasswordEmail({ resetLink: resetUrl, username }))
+
   await resend.emails.send({
     from: env.RESEND_FROM_EMAIL,
     to: email,
     subject: "Reset your password",
-    react: <ResetPasswordEmail resetLink={resetUrl} username={username} />,
+    html
   });
 }

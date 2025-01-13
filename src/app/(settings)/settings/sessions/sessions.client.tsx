@@ -22,7 +22,6 @@ import {
   DialogTrigger,
   DialogClose,
 } from "@/components/ui/dialog";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { UAParser } from 'ua-parser-js'
 import { toast } from "sonner";
 import React from "react";

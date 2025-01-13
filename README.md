@@ -60,11 +60,9 @@ After making a change to wrangler.toml, you need to run `pnpm cf-typegen` to gen
 
 ## Email templates
 If you want to preview and edit the email templates you can:
-1. `cd src/react-email`
-2. `pnpm install`
-3. `pnpm dev`
-4. Open http://localhost:3001
-5. Edit the email templates in the `src/react-email/emails` folder
+1. `pnpm email:dev`
+2. Open http://localhost:3001
+3. Edit the email templates in the `src/react-email` folder
 
 
 ### How to upgrade this template
