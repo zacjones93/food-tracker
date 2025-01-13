@@ -1,6 +1,5 @@
-const ForgotPasswordPage = () => {
-  // TODO: Implement forgot password logic
-  return <div>Forgot Password</div>
-}
+import ForgotPasswordClientComponent from "./forgot-password.client";
 
-export default ForgotPasswordPage;
+export default function ForgotPasswordPage() {
+  return <ForgotPasswordClientComponent />;
+}

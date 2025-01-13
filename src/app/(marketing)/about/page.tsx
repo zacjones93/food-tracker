@@ -1,12 +1,12 @@
 import { Metadata } from "next";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { SITE_NAME } from "@/constants";
+import { SITE_DESCRIPTION, SITE_NAME } from "@/constants";
 import { CheckCircle2, Clock, Github } from "lucide-react";
 import Link from "next/link";
 
 export const metadata: Metadata = {
   title: `About - ${SITE_NAME}`,
-  description: "A modern SaaS template built with Next.js 14 and Cloudflare Workers.",
+  description: SITE_DESCRIPTION
 };
 
 function FeatureItem({ text }: { text: string }) {
@@ -29,12 +29,12 @@ function PlannedFeature({ text }: { text: string }) {
 
 export default function AboutPage() {
   return (
-    <div className="container mx-auto py-10">
+    <div className="container mx-auto px-4 py-10">
       <div className="mx-auto max-w-4xl space-y-8">
         <div className="space-y-2">
           <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">About {SITE_NAME}</h1>
           <p className="text-muted-foreground">
-            A modern SaaS template built with Next.js 14 and Cloudflare Workers, designed for scalability and performance.
+            {SITE_DESCRIPTION}
           </p>
           <div className="pt-4">
             <Link

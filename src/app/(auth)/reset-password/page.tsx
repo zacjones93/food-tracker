@@ -1,0 +1,25 @@
+import { notFound } from "next/navigation";
+import { getCloudflareContext } from "@opennextjs/cloudflare";
+import ResetPasswordClientComponent from "./reset-password.client";
+import { getResetTokenKey } from "@/utils/auth-utils";
+
+export default async function ResetPasswordPage({
+  searchParams,
+}: {
+  searchParams: { token?: string };
+}) {
+  const token = searchParams.token;
+
+  if (!token) {
+    return notFound();
+  }
+
+  const { env } = await getCloudflareContext();
+  const resetTokenStr = await env.NEXT_CACHE_WORKERS_KV.get(getResetTokenKey(token));
+
+  if (!resetTokenStr) {
+    return notFound();
+  }
+
+  return <ResetPasswordClientComponent />;
+}

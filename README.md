@@ -26,7 +26,7 @@ Planned features (TODO):
 ## Running it locally
 
 1. `pnpm install`
-2. Copy `.env.example` to `.env` and fill in the values
+2. Copy `.dev.vars.example` to `.dev.vars` and fill in the values
 3. `pnpm db:migrate:dev` - Creates a local SQLite database and applies migrations
 4. Update the documentation in `./cursor-docs` with your project details so that Cursor AI can give you better suggestions
 5. `pnpm dev`
@@ -39,6 +39,7 @@ After making a change to wrangler.toml, you need to run `pnpm cf-typegen` to gen
 ## Deploying to Cloudflare with Github Actions
 
 1. Create D1 and KV namespaces
+2. Create a Resend account, and set the `RESEND_API_KEY` as a secret in your Cloudflare Worker.
 2. Update the `wrangler.toml` file with the new database and KV namespaces
 3. Create a Cloudflare API token with the following permissions:
     - Workers Builds Configuration:Edit
@@ -56,6 +57,15 @@ After making a change to wrangler.toml, you need to run `pnpm cf-typegen` to gen
 5. Add the Cloudflare account id to the Github repository secrets as `CF_ACCOUNT_ID`
 6. Add the database name to the Github repository secrets as `DATABASE_ID`. This should match the database name in the `wrangler.toml` file.
 7. Push to the main branch
+
+## Email templates
+If you want to preview and edit the email templates you can:
+1. `cd src/react-email`
+2. `pnpm install`
+3. `pnpm dev`
+4. Open http://localhost:3001
+5. Edit the email templates in the `src/react-email/emails` folder
+
 
 ### How to upgrade this template
 Go [here](https://github.com/cloudflare/workers-sdk/tree/main/packages/create-cloudflare/templates-experimental/next/templates) and check which have have recent commits.

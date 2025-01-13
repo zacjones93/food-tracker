@@ -11,6 +11,9 @@ minify = true
 # Use the new Workers + Assets to host the static frontend files
 assets = { directory = ".open-next/assets", binding = "ASSETS" }
 
+[observability]
+enabled = true
+
 [placement]
 mode = "smart"
 
@@ -23,3 +26,6 @@ migrations_dir = "src/db/migrations"
 [[kv_namespaces]]
 binding = "NEXT_CACHE_WORKERS_KV"
 id = "f5c002f17bc9406bb24a9adc9f451fd9"
+
+[vars]
+RESEND_FROM_EMAIL = "hello@saas-stack.startup-studio.dev"

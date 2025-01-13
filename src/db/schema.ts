@@ -36,6 +36,9 @@ export const userTable = sqliteTable("user", {
   role: text({
     enum: roleTuple,
   }).default(ROLES_ENUM.USER).notNull(),
+  emailVerified: integer({
+    mode: "timestamp",
+  }),
 });
 
 export type User = InferSelectModel<typeof userTable>;

@@ -60,8 +60,8 @@ export function Navigation() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
-            <Link href="/" className="text-2xl font-bold text-primary flex items-center gap-3">
-              <ComponentIcon className="w-7 h-7" />
+            <Link href="/" className="text-xl md:text-2xl font-bold text-primary flex items-center gap-2 md:gap-3">
+              <ComponentIcon className="w-6 h-6 md:w-7 md:h-7" />
               SaaS Template
             </Link>
           </div>
@@ -92,11 +92,10 @@ export function Navigation() {
             <ActionButtons />
           </div>
           <div className="md:hidden flex items-center">
-            <ActionButtons />
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="ml-3">
-                  <Menu className="h-6 w-6" />
+                <Button variant="ghost" size="icon" className="p-6">
+                  <Menu className="w-9 h-9" />
                   <span className="sr-only">Open menu</span>
                 </Button>
               </SheetTrigger>
@@ -110,19 +109,24 @@ export function Navigation() {
                         <Skeleton className="h-10 w-full" />
                       </>
                     ) : (
-                      navItems.map((item) => (
-                        <Link
-                          key={item.name}
-                          href={item.href}
-                          className={cn(
-                            "block px-3 py-2 rounded-md text-base font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 no-underline transition-colors",
-                            isActiveLink(item.href) && "bg-muted text-foreground"
-                          )}
-                          onClick={() => setIsOpen(false)}
-                        >
-                          {item.name}
-                        </Link>
-                      ))
+                      <>
+                        {navItems.map((item) => (
+                          <Link
+                            key={item.name}
+                            href={item.href}
+                            className={cn(
+                              "block px-3 py-2 rounded-md text-base font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 no-underline transition-colors",
+                              isActiveLink(item.href) && "bg-muted text-foreground"
+                            )}
+                            onClick={() => setIsOpen(false)}
+                          >
+                            {item.name}
+                          </Link>
+                        ))}
+                        <div className="px-3 pt-4">
+                          <ActionButtons />
+                        </div>
+                      </>
                     )}
                   </div>
                 </div>

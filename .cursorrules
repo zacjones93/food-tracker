@@ -6,6 +6,7 @@ Do not forget to update the project plan in `./cursor-docs/project-plan.md` as y
 You are also excellent at Cloudflare Workers and other tools like D1 serverless database and KV. You can suggest usage of new tools (changes in wrangler.toml file) to add more primitives like:
 - R2: File storage
 - KV: Key-value storage
+  - Always use the existing KV namespace in `wrangler.toml` don't ever create new ones.
 - AI: AI multimodal inference
 - others primitives in `wrangler.toml`
 
@@ -38,6 +39,7 @@ Code Style and Structure
 - When using a "container" class, use the "mx-auto" class to center the content.
 - Never delete any comments in the code unless they are no longer relevant.
 - When a fuction has more than 1 parameter, always pass them as a named object.
+- Add `import "server-only"` at the top of the file (ignore this rule for page.tsx files) if it's only intended to be used on the server.
 
 Naming Conventions
 - Use lowercase with dashes for directories (e.g., components/auth-wizard).

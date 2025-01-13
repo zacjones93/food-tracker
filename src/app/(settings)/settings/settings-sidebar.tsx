@@ -6,12 +6,8 @@ import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 import {
   User,
-  Bell,
-  CreditCard,
-  Lock,
-  Settings,
-  Shield,
-  Smartphone
+  Smartphone,
+  Lock
 } from "lucide-react";
 
 interface SidebarNavItem {
@@ -30,6 +26,11 @@ const sidebarNavItems: SidebarNavItem[] = [
     title: "Sessions",
     href: "/settings/sessions",
     icon: Smartphone,
+  },
+  {
+    title: "Change Password",
+    href: "/forgot-password",
+    icon: Lock,
   },
   // {
   //   title: "Account",

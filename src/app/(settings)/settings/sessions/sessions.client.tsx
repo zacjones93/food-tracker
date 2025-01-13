@@ -57,7 +57,7 @@ export function SessionsClient({ sessions }: { sessions: SessionWithMeta[] }) {
         const os = parser.getOS();
 
         return (
-          <Card key={session.id} className={cn(session.isCurrentSession && "border-3 shadow-lg bg-card-background")}>
+          <Card key={session.id} className={cn(!session.isCurrentSession ? "bg-card/40" : "border-3 border-primary/20 shadow-lg bg-secondary/30")}>
             <CardHeader>
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div className="space-y-2">
@@ -77,23 +77,10 @@ export function SessionsClient({ sessions }: { sessions: SessionWithMeta[] }) {
                   </CardDescription>
                 </div>
                 <div>
-                  {session.isCurrentSession ? (
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <span>
-                          <Button size="sm" variant="destructive" disabled className="w-full sm:w-auto">
-                            Delete session
-                          </Button>
-                        </span>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        You cannot delete your current session
-                      </TooltipContent>
-                    </Tooltip>
-                  ) : (
+                  {!session?.isCurrentSession && (
                     <Dialog>
                       <DialogTrigger asChild>
-                        <Button size="sm" variant="destructive" className="w-full sm:w-auto">Delete</Button>
+                        <Button size="sm" variant="destructive" className="w-full sm:w-auto">Delete session</Button>
                       </DialogTrigger>
                       <DialogContent>
                         <DialogHeader>
