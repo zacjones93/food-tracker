@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { SiX as XIcon, SiGithub as GithubIcon } from '@icons-pack/react-simple-icons'
 import ThemeSwitch from "@/components/theme-switch";
-import { SITE_NAME } from "@/constants";
+import { GITHUB_REPO_URL, SITE_NAME } from "@/constants";
 import { Button } from "./ui/button";
 
 export function Footer() {
@@ -76,7 +76,7 @@ export function Footer() {
               <div className="flex items-center space-x-3 sm:space-x-4">
                 <Button variant="outline" size="sm" className="h-8 sm:h-9" asChild>
                   <Link
-                    href="https://github.com/LubomirGeorgiev/cloudflare-workers-nextjs-saas-template"
+                    href={GITHUB_REPO_URL}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center space-x-2"

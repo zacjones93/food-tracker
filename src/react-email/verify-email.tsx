@@ -16,6 +16,7 @@ interface VerifyEmailProps {
   username?: string;
 }
 
+// eslint-disable-next-line import/no-unused-modules
 export const VerifyEmail = ({
   verificationLink = "https://example.com/verify-email",
   username = "User",
@@ -57,6 +58,7 @@ VerifyEmail.PreviewProps = {
   username: "johndoe",
 } as VerifyEmailProps;
 
+// eslint-disable-next-line import/no-unused-modules
 export default VerifyEmail;
 
 const main = {

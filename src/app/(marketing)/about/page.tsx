@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { SITE_DESCRIPTION, SITE_NAME } from "@/constants";
+import { GITHUB_REPO_URL, SITE_DESCRIPTION, SITE_NAME } from "@/constants";
 import { CheckCircle2, Clock, Github } from "lucide-react";
 import Link from "next/link";
 
@@ -38,7 +38,7 @@ export default function AboutPage() {
           </p>
           <div className="pt-4">
             <Link
-              href="https://github.com/LubomirGeorgiev/cloudflare-workers-nextjs-saas-template"
+              href={GITHUB_REPO_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-primary-foreground hover:bg-primary/90"

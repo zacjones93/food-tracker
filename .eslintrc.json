@@ -1,10 +1,40 @@
 {
-  "plugins": ["unused-imports", "@typescript-eslint"],
+  "plugins": [
+    "unused-imports",
+    "@typescript-eslint",
+    "import"
+  ],
+  "parser": "@typescript-eslint/parser",
   "extends": [
     "next/core-web-vitals",
-    "plugin:@typescript-eslint/recommended"
+    "plugin:@typescript-eslint/recommended",
+    "plugin:import/recommended",
+    "plugin:import/react",
+    "plugin:import/typescript"
   ],
   "rules": {
+    "import/no-dynamic-require": "error",
+    "import/no-nodejs-modules": "error",
+    "import/no-unused-modules": ["error", {
+      "unusedExports": true,
+      "ignoreExports": [
+        "src/app/page.tsx",
+        "src/app/**/*/page.tsx",
+        "src/app/layout.tsx",
+        "src/app/**/*/layout.tsx",
+        "src/app/**/*/not-found.tsx",
+        "src/app/**/*/loading.tsx",
+        "src/app/api/**/*/route.ts",
+        "src/components/ui/**/*.tsx"
+      ]
+    }],
+    "import/no-cycle": "error",
+    "import/no-empty-named-blocks": "error",
+    "import/export": "error",
+    "import/no-unresolved": ["error", {
+      "ignore": ["server-only"]
+    }],
+
     "react-hooks/exhaustive-deps": "off",
     "unused-imports/no-unused-imports": "error",
     "no-unused-vars": "off",
@@ -21,5 +51,6 @@
         "caughtErrorsIgnorePattern": "^__ignore"
       }
     ]
-  }
+  },
+  "settings": {}
 }

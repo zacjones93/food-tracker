@@ -9,6 +9,7 @@ import { getDB } from "@/db";
 import { eq } from "drizzle-orm";
 import { cookies } from "next/headers";
 import isProd from "@/utils/isProd";
+// eslint-disable-next-line import/no-cycle
 import {
   createKVSession,
   deleteKVSession,
@@ -80,7 +81,7 @@ export async function createSession(token: string, userId: string): Promise<KVSe
   });
 }
 
-export async function validateSessionToken(token: string, userId: string): Promise<SessionValidationResult | null> {
+async function validateSessionToken(token: string, userId: string): Promise<SessionValidationResult | null> {
   const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
   const kv = await getKV();
 
@@ -123,7 +124,7 @@ export async function invalidateSession(sessionId: string, userId: string): Prom
   await deleteKVSession(sessionId, userId);
 }
 
-export interface SetSessionTokenCookieParams {
+interface SetSessionTokenCookieParams {
   token: string;
   userId: string;
   expiresAt: Date;
