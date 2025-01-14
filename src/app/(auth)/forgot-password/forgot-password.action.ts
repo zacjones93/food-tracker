@@ -6,22 +6,41 @@ import { userTable } from "@/db/schema";
 import { sendPasswordResetEmail } from "@/utils/email";
 import { init } from "@paralleldrive/cuid2";
 import { eq } from "drizzle-orm";
-import { z } from "zod";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { getResetTokenKey } from "@/utils/auth-utils";
 import ms from "ms";
+import { turnstileEnabled } from "@/schemas/catcha.schema";
+import { validateTurnstileToken } from "@/utils/validateCaptcha";
+import { forgotPasswordSchema } from "@/schemas/forgot-password.schema";
+import { getSessionFromCookie } from "@/utils/auth";
 
 const createId = init({
   length: 32,
 });
 
-const forgotPasswordSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
-});
-
 export const forgotPasswordAction = createServerAction()
   .input(forgotPasswordSchema)
   .handler(async ({ input }) => {
+    if (turnstileEnabled && input.captchaToken) {
+      const success = await validateTurnstileToken(input.captchaToken)
+
+      if (!success) {
+        throw new ZSAError(
+          "INPUT_PARSE_ERROR",
+          "Please complete the captcha"
+        )
+      }
+    }
+
+    const session = await getSessionFromCookie()
+
+    if (session?.user && session?.user?.email !== input.email) {
+      throw new ZSAError(
+        "INPUT_PARSE_ERROR",
+        "You cannot reset the password for another user"
+      );
+    }
+
     const db = await getDB();
     const { env } = await getCloudflareContext();
 
@@ -51,7 +70,7 @@ export const forgotPasswordAction = createServerAction()
           expiresAt: expiresAt.toISOString(),
         }),
         {
-          expirationTtl: Math.floor(expiresAt.getTime() / 1000),
+          expirationTtl: Math.floor((expiresAt.getTime() - Date.now()) / 1000),
         }
       );
 
@@ -66,6 +85,8 @@ export const forgotPasswordAction = createServerAction()
 
       return { success: true };
     } catch (error) {
+      console.error(error)
+
       if (error instanceof ZSAError) {
         throw error;
       }

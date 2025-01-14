@@ -125,7 +125,7 @@ export async function getAllSessionIdsOfUser(userId: string) {
 
   return sessions.keys.map((session) => ({
     key: session.name,
-    expiration: session.expiration ? new Date(session.expiration * 1000) : undefined
+    absoluteExpiration: session.expiration ? new Date(session.expiration * 1000) : undefined
   }))
 }
 
@@ -147,8 +147,8 @@ export async function updateAllSessionsOfUser(userId: string) {
     const sessionData = JSON.parse(session) as KVSession;
 
     // Only update non-expired sessions
-    if (sessionObj.expiration && sessionObj.expiration.getTime() > Date.now()) {
-      const ttlInSeconds = Math.floor((sessionObj.expiration.getTime() - Date.now()) / 1000) + 1;
+    if (sessionObj.absoluteExpiration && sessionObj.absoluteExpiration.getTime() > Date.now()) {
+      const ttlInSeconds = Math.floor((sessionObj.absoluteExpiration.getTime() - Date.now()) / 1000);
 
       await kv.put(
         sessionObj.key,

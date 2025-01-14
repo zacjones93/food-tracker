@@ -4,18 +4,32 @@ https://github.com/LubomirGeorgiev/cloudflare-workers-nextjs-saas-template
 
 This is a SaaS template for Cloudflare Workers. It uses the [OpenNext](https://opennext.js.org/cloudflare) framework to build a SaaS application.
 
-Supported Features:
+Have a look at the [project plan](./cursor-docs/project-plan.md) to get an overview of the project.
 
-- ✅ Authentication with NextAuth
-  - ✅ Forgot password
-  - ✅ Change password
+# Supported Features:
+
+- ✅ Authentication with Lucia Auth
+  - ✅ Email/Password Sign In
+  - ✅ Email/Password Sign Up
+  - ✅ Forgot Password Flow
+  - ✅ Change Password
+  - ✅ Session Management with Cloudflare KV
 - ✅ Database with Drizzle and Cloudflare D1
+- ✅ Email Service with React Email and Resend
+  - ✅ Beautiful Email Templates
+  - ✅ Email Preview Mode
 - ✅ Deployment with Github Actions
-- ✅ Tailwind CSS
+- ✅ Modern UI
+  - ✅ Tailwind CSS
+  - ✅ Shadcn UI Components
+  - ✅ Dark/Light Mode
+  - ✅ Responsive Design
+- ✅ Validations with Zod and React Hook Form
 
-Planned features (TODO):
+## Planned features (TODO):
 
 - [ ] Update Meta SEO tags
+- [ ] Multi-language support (i18n)
 - [ ] Billing
 - [ ] Admin dashboard
 - [ ] Email verification on sign up
@@ -23,13 +37,13 @@ Planned features (TODO):
 - [ ] Payments
 - [ ] Webhooks
 
-## Running it locally
+# Running it locally
 
 1. `pnpm install`
-2. Copy `.dev.vars.example` to `.dev.vars` and fill in the values
+2.  Copy `.env.development.example` to `.env.development` and fill in the values
 3. `pnpm db:migrate:dev` - Creates a local SQLite database and applies migrations
 4. `pnpm dev`
-5. Open http://localhost:3000
+5.  Open http://localhost:3000
 
 ## Changes to wrangler.toml
 
@@ -45,8 +59,10 @@ After making a change to wrangler.toml, you need to run `pnpm cf-typegen` to gen
 
 1. Create D1 and KV namespaces
 2. Create a Resend account, and set the `RESEND_API_KEY` as a secret in your Cloudflare Worker.
-2. Update the `wrangler.toml` file with the new database and KV namespaces
-3. Create a Cloudflare API token with the following permissions:
+3. Create a Turnstile catcha in your Cloudflare account, and set the `NEXT_PUBLIC_TURNSTILE_SITE_KEY` as a Github Actions variable.
+4. Set `TURNSTILE_SECRET_KEY` as a secret in your Cloudflare Worker.
+5. Update the `wrangler.toml` file with the new database and KV namespaces
+6. Create a Cloudflare API token with the following permissions:
     - Workers Builds Configuration:Edit
     - AI Gateway:Edit
     - Workers AI:Edit
@@ -58,10 +74,10 @@ After making a change to wrangler.toml, you need to run `pnpm cf-typegen` to gen
     - Workers Tail:Read
     - Workers KV Storage:Edit
     - Workers Scripts:Edit
-4. Add the API token to the Github repository secrets as `CLOUDFLARE_API_TOKEN`
-5. Add the Cloudflare account id to the Github repository variables as `CLOUDFLARE_ACCOUNT_ID`
-6. Add the database name to the Github repository variables as `DATABASE_ID`. This should match the database name in the `wrangler.toml` file.
-7. Push to the main branch
+7. Add the API token to the Github repository secrets as `CLOUDFLARE_API_TOKEN`
+8. Add the Cloudflare account id to the Github repository variables as `CLOUDFLARE_ACCOUNT_ID`
+9. Add the database name to the Github repository variables as `DATABASE_ID`. This should match the database name in the `wrangler.toml` file.
+10. Push to the main branch
 
 ## Email templates
 If you want to preview and edit the email templates you can:

@@ -1,19 +1,25 @@
 {
-  "plugins": ["unused-imports"],
-  "extends": "next/core-web-vitals",
+  "plugins": ["unused-imports", "@typescript-eslint"],
+  "extends": [
+    "next/core-web-vitals",
+    "plugin:@typescript-eslint/recommended"
+  ],
   "rules": {
     "react-hooks/exhaustive-deps": "off",
     "unused-imports/no-unused-imports": "error",
-    "unused-imports/no-unused-vars": [
-        "error",
-        {
-            "vars": "all",
-            "varsIgnorePattern": "^__ignore",
-            "args": "after-used",
-            "argsIgnorePattern": "^__ignore",
-            "destructuredArrayIgnorePattern": "^__ignore",
-            "ignoreRestSiblings": true
-        }
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      {
+        "vars": "all",
+        "args": "after-used",
+        "ignoreRestSiblings": false,
+        "varsIgnorePattern": "^__ignore",
+        "argsIgnorePattern": "^__ignore",
+        "destructuredArrayIgnorePattern": "^__ignore",
+        "caughtErrors": "all",
+        "caughtErrorsIgnorePattern": "^__ignore"
+      }
     ]
   }
 }

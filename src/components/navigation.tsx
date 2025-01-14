@@ -15,7 +15,7 @@ const ActionButtons = () => {
   const { session, clearSession, isLoading } = useSessionStore()
 
   if (isLoading) {
-    return <Skeleton className="h-10 w-[70px] bg-primary" />
+    return <Skeleton className="h-10 w-[80px] bg-primary" />
   }
 
   if (session) {
@@ -69,10 +69,9 @@ export function Navigation() {
             <div className="flex items-baseline space-x-4">
               {isLoading ? (
                 <>
-                  <Skeleton className="h-8 w-10" />
-                  <Skeleton className="h-8 w-10" />
-                  {/* Show Settings skeleton if we don't know session state yet */}
-                  <Skeleton className="h-8 w-14" />
+                  <Skeleton className="h-8 w-16" />
+                  <Skeleton className="h-8 w-16" />
+                  <Skeleton className="h-8 w-16" />
                 </>
               ) : (
                 navItems.map((item) => (

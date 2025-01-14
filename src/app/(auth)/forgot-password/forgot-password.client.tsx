@@ -13,15 +13,14 @@ import { useRouter } from "next/navigation";
 import { forgotPasswordAction } from "./forgot-password.action";
 import { useServerAction } from "zsa-react";
 import { toast } from "sonner";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { z } from "zod";
 import { useSessionStore } from "@/state/session";
-
-const forgotPasswordSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
-});
+import { Captcha } from "@/components/captcha";
+import { forgotPasswordSchema } from "@/schemas/forgot-password.schema";
+import { turnstileEnabled } from "@/schemas/catcha.schema";
 
 type ForgotPasswordSchema = z.infer<typeof forgotPasswordSchema>;
 
@@ -33,6 +32,8 @@ export default function ForgotPasswordClientComponent() {
     resolver: zodResolver(forgotPasswordSchema),
   });
 
+  const captchaToken = useWatch({ control: form.control, name: 'captchaToken' })
+
   const { execute: sendResetLink, isSuccess } = useServerAction(forgotPasswordAction, {
     onError: (error) => {
       toast.dismiss();
@@ -43,11 +44,12 @@ export default function ForgotPasswordClientComponent() {
     },
     onSuccess: () => {
       toast.dismiss();
+      toast.success("Reset instructions sent");
     },
   });
 
   const onSubmit = async (data: ForgotPasswordSchema) => {
-    sendResetLink({ email: data.email });
+    sendResetLink(data);
   };
 
   if (isSuccess) {
@@ -75,7 +77,7 @@ export default function ForgotPasswordClientComponent() {
   }
 
   return (
-    <div className="container mx-auto px-4 flex items-center justify-center min-h-screen">
+    <div className="container mx-auto px-4 flex flex-col items-center justify-center min-h-screen">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>
@@ -87,10 +89,12 @@ export default function ForgotPasswordClientComponent() {
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
               <FormField
                 control={form.control}
                 name="email"
+                disabled={Boolean(session?.user?.email)}
+                defaultValue={session?.user?.email || undefined}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-sm font-medium">Email</FormLabel>
@@ -106,35 +110,47 @@ export default function ForgotPasswordClientComponent() {
                   </FormItem>
                 )}
               />
-              <div className="space-y-10">
-                <Button type="submit" className="w-full">
+              <div className="flex flex-col justify-center items-center">
+                <Captcha
+                  onSuccess={(token) => form.setValue('captchaToken', token)}
+                  validationError={form.formState.errors.captchaToken?.message}
+                />
+
+                <Button
+                  type="submit"
+                  className="mt-8 mb-2"
+                  disabled={turnstileEnabled && !captchaToken}
+                >
                   Send Reset Instructions
                 </Button>
-
-                {session ? (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full"
-                    onClick={() => router.push("/settings")}
-                  >
-                    Back to settings
-                  </Button>
-                ) : (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full"
-                    onClick={() => router.push("/sign-in")}
-                  >
-                    Back to login
-                  </Button>
-                )}
               </div>
             </form>
           </Form>
         </CardContent>
       </Card>
+
+      <div className="mt-4 w-full">
+        {session ? (
+          <Button
+            type="button"
+            variant="link"
+            className="w-full"
+            onClick={() => router.push("/settings")}
+          >
+            Back to settings
+          </Button>
+        ) : (
+          <Button
+            type="button"
+            variant="link"
+            className="w-full"
+            onClick={() => router.push("/sign-in")}
+          >
+            Back to login
+          </Button>
+        )}
+      </div>
+
     </div>
   );
 }

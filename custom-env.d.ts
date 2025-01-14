@@ -1,6 +1,6 @@
 // eslint-disable-next-line
 interface CloudflareEnv {
-	RESEND_API_KEY?: string;
-	RESEND_FROM_EMAIL: string;
+  RESEND_API_KEY?: string;
+  NEXT_PUBLIC_TURNSTILE_SITE_KEY?: string;
+  TURNSTILE_SECRET_KEY?: string;
 }
-

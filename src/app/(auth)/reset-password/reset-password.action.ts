@@ -61,6 +61,8 @@ export const resetPasswordAction = createServerAction()
 
       return { success: true };
     } catch (error) {
+      console.error(error)
+
       if (error instanceof ZSAError) {
         throw error;
       }

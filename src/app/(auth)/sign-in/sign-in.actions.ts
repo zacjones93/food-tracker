@@ -50,6 +50,8 @@ export const signInAction = createServerAction()
 
       return { success: true };
     } catch (error) {
+      console.error(error)
+
       if (error instanceof ZSAError) {
         throw error;
       }

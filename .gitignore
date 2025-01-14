@@ -42,8 +42,6 @@ dist
 
 # wrangler files
 .wrangler
-.dev.vars
 .env
-.env.local
-.env.development
-.dev.vars
+.env.*
+!.env*example
