@@ -35,6 +35,7 @@ export const updateUserProfileAction = createServerAction()
       revalidatePath("/settings");
       return { success: true };
     } catch (error) {
+      console.error(error)
       throw new ZSAError(
         "INTERNAL_SERVER_ERROR",
         "Failed to update profile"

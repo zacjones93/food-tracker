@@ -11,8 +11,10 @@ interface SessionWithMeta extends KVSession {
   createdAt: number;
 }
 
-function isValidSession(session: any): session is SessionWithMeta {
-  return session !== null && typeof session?.createdAt === 'number';
+function isValidSession(session: unknown): session is SessionWithMeta {
+  if (!session || typeof session !== 'object') return false;
+  const sessionObj = session as Record<string, unknown>;
+  return 'createdAt' in sessionObj && typeof sessionObj.createdAt === 'number';
 }
 
 export const getSessionsAction = createServerAction()
@@ -29,14 +31,14 @@ export const getSessionsAction = createServerAction()
 
     const sessionIds = await getAllSessionIdsOfUser(session.user.id);
     const sessions = await Promise.all(
-      sessionIds.map(async ({ key, expiration }) => {
+      sessionIds.map(async ({ key, absoluteExpiration }) => {
         const sessionId = key.split(":")[2]; // Format is "session:userId:sessionId"
         const sessionData = await getKVSession(sessionId, session.user.id);
         if (!sessionData) return null;
         return {
           ...sessionData,
           isCurrentSession: sessionId === session.id,
-          expiration,
+          expiration: absoluteExpiration,
           createdAt: sessionData.createdAt ?? 0,
         } as SessionWithMeta;
       })

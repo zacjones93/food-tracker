@@ -50,6 +50,8 @@ export const signUpAction = createServerAction()
         expiresAt: new Date(session.expiresAt)
       });
     } catch (error) {
+      console.error(error)
+
       throw new ZSAError(
         "INTERNAL_SERVER_ERROR",
         "Failed to create session after signup"
