@@ -8,9 +8,24 @@ import { ScrollShadow } from '@nextui-org/react'
 import {
   User,
   Smartphone,
-  Lock
+  Lock,
+  LogOut
 } from "lucide-react";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { useSessionStore } from "@/state/session";
+import { signOutAction } from "@/actions/sign-out.action";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { useRef } from "react";
 
 interface SidebarNavItem {
   title: string;
@@ -39,6 +54,16 @@ const sidebarNavItems: SidebarNavItem[] = [
 export function SettingsSidebar() {
   const pathname = usePathname();
   const isLgAndSmaller = useMediaQuery('LG_AND_SMALLER')
+  const { clearSession } = useSessionStore();
+  const dialogCloseRef = useRef<HTMLButtonElement>(null);
+
+  const handleSignOut = () => {
+    signOutAction().then(() => {
+      setTimeout(() => {
+        clearSession()
+      }, 200)
+    })
+  };
 
   return (
     <ScrollShadow
@@ -46,7 +71,7 @@ export function SettingsSidebar() {
       orientation="horizontal"
       isEnabled={isLgAndSmaller}
     >
-      <nav className="flex min-w-full space-x-2 pb-2 lg:pb-0 lg:flex-col lg:space-x-0 lg:space-y-1">
+      <nav className="flex items-center lg:items-stretch min-w-full space-x-2 pb-2 lg:pb-0 lg:flex-col lg:space-x-0 lg:space-y-1">
         {sidebarNavItems.map((item) => (
           <Link
             key={item.href}
@@ -63,6 +88,42 @@ export function SettingsSidebar() {
             {item.title}
           </Link>
         ))}
+
+        <Dialog>
+          <DialogTrigger asChild>
+            <button
+              className={cn(
+                buttonVariants({ variant: "destructive" }),
+                "justify-start hover:no-underline whitespace-nowrap lg:mt-4"
+              )}
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              Sign out
+            </button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Sign out?</DialogTitle>
+              <DialogDescription>
+                Are you sure you want to sign out of your account?
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="mt-4">
+              <DialogClose ref={dialogCloseRef} asChild>
+                <Button variant="outline">Cancel</Button>
+              </DialogClose>
+              <Button
+                variant="destructive"
+                onClick={() => {
+                  handleSignOut();
+                  dialogCloseRef.current?.click();
+                }}
+              >
+                Sign out
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </nav>
     </ScrollShadow>
   );

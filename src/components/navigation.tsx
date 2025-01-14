@@ -6,28 +6,19 @@ import { ComponentIcon, Menu } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { useSessionStore } from "@/state/session"
-import { signOutAction } from "@/actions/sign-out.action"
 import { cn } from "@/lib/utils"
 import { useNavStore } from "@/state/nav"
 import { Skeleton } from "@/components/ui/skeleton"
 
 const ActionButtons = () => {
-  const { session, clearSession, isLoading } = useSessionStore()
+  const { session, isLoading } = useSessionStore()
 
   if (isLoading) {
     return <Skeleton className="h-10 w-[80px] bg-primary" />
   }
 
   if (session) {
-    return (
-      <Button onClick={() => {
-        signOutAction().then(() => {
-          setTimeout(() => {
-            clearSession()
-          }, 200)
-        })
-      }}>Sign out</Button>
-    )
+    return null;
   }
 
   return (
@@ -79,8 +70,8 @@ export function Navigation() {
                     key={item.name}
                     href={item.href}
                     className={cn(
-                      "text-muted-foreground hover:text-foreground no-underline px-3 py-2 rounded-md text-sm font-medium transition-colors",
-                      isActiveLink(item.href) && "bg-muted text-foreground"
+                      "text-muted-foreground hover:text-foreground no-underline px-3 h-16 flex items-center text-sm font-medium transition-colors relative",
+                      isActiveLink(item.href) && "text-foreground after:absolute after:left-0 after:bottom-0 after:h-0.5 after:w-full after:bg-foreground"
                     )}
                   >
                     {item.name}
@@ -114,8 +105,8 @@ export function Navigation() {
                             key={item.name}
                             href={item.href}
                             className={cn(
-                              "block px-3 py-2 rounded-md text-base font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 no-underline transition-colors",
-                              isActiveLink(item.href) && "bg-muted text-foreground"
+                              "block px-3 py-2 text-base font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 no-underline transition-colors relative",
+                              isActiveLink(item.href) && "text-foreground"
                             )}
                             onClick={() => setIsOpen(false)}
                           >
