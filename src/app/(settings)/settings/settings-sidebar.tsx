@@ -93,7 +93,7 @@ export function SettingsSidebar() {
             <button
               className={cn(
                 buttonVariants({ variant: "destructive" }),
-                "justify-start hover:no-underline whitespace-nowrap lg:mt-4"
+                "justify-start hover:no-underline whitespace-nowrap lg:mt-4 bg-red-700/25 hover:bg-red-600/40"
               )}
             >
               <LogOut className="mr-2 h-4 w-4" />

@@ -39,13 +39,13 @@ const SignUpPage = () => {
   return (
     <div className="min-h-screen flex items-center px-4 justify-center bg-background">
       <div className="w-full max-w-md space-y-8 p-6 md:p-10 bg-card rounded-xl shadow-lg border border-border">
-        <div>
+        <div className="text-center">
           <h2 className="mt-6 text-3xl font-bold tracking-tight text-foreground">
             Create your account
           </h2>
-          <p className="mt-2 text-sm text-muted-foreground">
+          <p className="mt-2 text-muted-foreground">
             Already have an account?{" "}
-            <Link href="/sign-in" className="font-medium text-primary hover:text-primary/90">
+            <Link href="/sign-in" className="font-medium text-primary hover:text-primary/90 underline">
               Sign in
             </Link>
           </p>
@@ -135,11 +135,11 @@ const SignUpPage = () => {
         <div className="mt-6">
           <p className="text-xs text-center text-muted-foreground">
             By signing up, you agree to our{" "}
-            <Link href="/terms" className="font-medium text-primary hover:text-primary/90">
+            <Link href="/terms" className="font-medium text-primary hover:text-primary/90 underline">
               Terms of Service
             </Link>{" "}
             and{" "}
-            <Link href="/privacy" className="font-medium text-primary hover:text-primary/90">
+            <Link href="/privacy" className="font-medium text-primary hover:text-primary/90 underline">
               Privacy Policy
             </Link>
           </p>

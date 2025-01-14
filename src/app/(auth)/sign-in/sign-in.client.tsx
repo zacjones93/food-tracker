@@ -38,13 +38,13 @@ const SignInPage = () => {
   return (
     <div className="min-h-screen flex items-center px-4 justify-center bg-background">
       <div className="w-full max-w-md space-y-8 p-6 md:p-10 bg-card rounded-xl shadow-lg border border-border">
-        <div>
+        <div className="text-center">
           <h2 className="mt-6 text-3xl font-bold tracking-tight text-foreground">
             Sign in to your account
           </h2>
-          <p className="mt-2 text-sm text-muted-foreground">
+          <p className="mt-2 text-muted-foreground">
             Or{" "}
-            <Link href="/sign-up" className="font-medium text-primary hover:text-primary/90">
+            <Link href="/sign-up" className="font-medium text-primary hover:text-primary/90 underline">
               create a new account
             </Link>
           </p>

@@ -12,6 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 
 const ActionButtons = () => {
   const { session, isLoading } = useSessionStore()
+  const { setIsOpen } = useNavStore()
 
   if (isLoading) {
     return <Skeleton className="h-10 w-[80px] bg-primary" />
@@ -22,7 +23,7 @@ const ActionButtons = () => {
   }
 
   return (
-    <Button asChild>
+    <Button asChild onClick={() => setIsOpen(false)}>
       <Link href="/sign-in">Sign In</Link>
     </Button>
   )
