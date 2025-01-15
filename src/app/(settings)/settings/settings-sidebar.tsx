@@ -25,10 +25,11 @@ import {
 } from "@/components/ui/dialog";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { useRef } from "react";
+import type { Route } from "next";
 
 interface SidebarNavItem {
   title: string;
-  href: string;
+  href: Route;
   icon: React.ComponentType<{ className?: string }>;
 }
 
