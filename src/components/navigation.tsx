@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import type { Route } from 'next'
 import { usePathname } from "next/navigation"
 import { ComponentIcon, Menu } from 'lucide-react'
 import { Button } from "@/components/ui/button"
@@ -9,6 +10,11 @@ import { useSessionStore } from "@/state/session"
 import { cn } from "@/lib/utils"
 import { useNavStore } from "@/state/nav"
 import { Skeleton } from "@/components/ui/skeleton"
+
+type NavItem = {
+  name: string;
+  href: Route;
+}
 
 const ActionButtons = () => {
   const { session, isLoading } = useSessionStore()
@@ -34,10 +40,13 @@ export function Navigation() {
   const { isOpen, setIsOpen } = useNavStore()
   const pathname = usePathname()
 
-  const navItems = [
+  const navItems: NavItem[] = [
     { name: "Home", href: "/" },
     { name: "About", href: "/about" },
-    ...(session ? [{ name: "Settings", href: "/settings" }] : []),
+    ...(session ? [
+      { name: "Dashboard", href: "/dashboard" },
+      { name: "Settings", href: "/settings" }
+    ] as NavItem[] : []),
   ]
 
   const isActiveLink = (itemHref: string) => {
@@ -48,7 +57,7 @@ export function Navigation() {
   }
 
   return (
-    <nav className="bg-background shadow dark:shadow-xl z-10">
+    <nav className="dark:bg-muted/30 bg-muted/60 shadow dark:shadow-xl z-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">

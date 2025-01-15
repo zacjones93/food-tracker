@@ -130,30 +130,6 @@ export default function AboutPage() {
                 After making changes to <code className="rounded bg-muted px-2 py-1">wrangler.toml</code>, run <code className="rounded bg-muted px-2 py-1">pnpm cf-typegen</code> to generate new types.
               </p>
             </div>
-
-            <div className="space-y-2">
-              <h3 className="font-semibold">Resources</h3>
-              <ul className="space-y-1 text-sm">
-                <li>
-                  <Link
-                    href="https://opennextjs.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    OpenNext Documentation
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="https://github.com/cloudflare/workers-sdk/tree/main/packages/create-cloudflare/templates-experimental/next/templates"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Cloudflare Workers Templates
-                  </Link>
-                </li>
-              </ul>
-            </div>
           </CardContent>
         </Card>
       </div>

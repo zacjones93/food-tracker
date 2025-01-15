@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+
 import { ThemeProvider } from "@/components/providers";
 import { Toaster } from "@/components/ui/sonner";
 import { getSessionFromCookie } from "@/utils/auth";
-import { Navigation } from "@/components/navigation";
-import { Footer } from "@/components/footer";
-import { TooltipProvider } from "@radix-ui/react-tooltip";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { SITE_NAME, SITE_DESCRIPTION, SITE_URL } from "@/constants";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -48,7 +47,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function RootLayout({
+export default async function BaseLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -68,14 +67,7 @@ export default async function RootLayout({
             delayDuration={100}
             skipDelayDuration={50}
           >
-            <div className="min-h-screen flex flex-col">
-              <Navigation />
-              <main className="flex-1">
-                {children}
-              </main>
-              <Footer />
-            </div>
-
+            {children}
             <Toaster richColors closeButton position="top-right" expand duration={2500} />
           </TooltipProvider>
         </ThemeProvider>

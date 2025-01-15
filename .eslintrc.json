@@ -18,14 +18,7 @@
     "import/no-unused-modules": ["error", {
       "unusedExports": true,
       "ignoreExports": [
-        "src/app/page.tsx",
-        "src/app/**/*/page.tsx",
-        "src/app/layout.tsx",
-        "src/app/**/*/layout.tsx",
-        "src/app/**/*/not-found.tsx",
-        "src/app/**/*/loading.tsx",
-        "src/app/api/**/*/route.ts",
-        "src/components/ui/**/*.tsx"
+        "src/{app/{page.tsx,layout.tsx,**/*/page.tsx,**/*/layout.tsx,**/*/not-found.tsx,**/*/loading.tsx,api/**/*/route.ts},components/ui/**/*.tsx}"
       ]
     }],
     "import/no-cycle": "error",

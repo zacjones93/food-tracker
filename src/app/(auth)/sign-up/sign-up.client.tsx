@@ -12,19 +12,21 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { useServerAction } from "zsa-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const SignUpPage = () => {
+  const router = useRouter();
   const { execute: signUp } = useServerAction(signUpAction, {
     onError: (error) => {
       toast.dismiss()
       toast.error(error.err?.message)
     },
     onStart: () => {
-      toast.loading("Signing you in...")
+      toast.loading("Creating your account...")
     },
     onSuccess: () => {
       toast.dismiss()
-      toast.success("Signed in successfully")
+      toast.success("Account created successfully")
     }
   })
 
@@ -33,7 +35,9 @@ const SignUpPage = () => {
   });
 
   const onSubmit = async (data: SignUpSchema) => {
-    signUp(data)
+    signUp(data).then(() => {
+      router.push("/dashboard")
+    })
   }
 
   return (
