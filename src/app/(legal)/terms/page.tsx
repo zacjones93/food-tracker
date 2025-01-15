@@ -1,5 +1,11 @@
+import { Metadata } from "next";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Terms of Service",
+  description: "Read our terms of service and usage agreement",
+};
 
 export default function TermsPage() {
   return (

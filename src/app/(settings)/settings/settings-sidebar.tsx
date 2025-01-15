@@ -107,7 +107,7 @@ export function SettingsSidebar() {
                 Are you sure you want to sign out of your account?
               </DialogDescription>
             </DialogHeader>
-            <DialogFooter className="mt-4">
+            <DialogFooter className="mt-4 flex flex-col gap-4">
               <DialogClose ref={dialogCloseRef} asChild>
                 <Button variant="outline">Cancel</Button>
               </DialogClose>

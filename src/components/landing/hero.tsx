@@ -6,10 +6,10 @@ import ShinyButton from "@/components/ui/shiny-button";
 export function Hero() {
   return (
     <div className="relative isolate pt-14 dark:bg-gray-900">
-      <div className="py-24 sm:py-32 lg:pb-40">
+      <div className="pt-20 pb-24 sm:pt-20 sm:pb-32 lg:pb-40">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
-            <div className="mb-8 flex justify-center">
+            <div className="mb-10 flex justify-center">
               <ShinyButton className="rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 ring-1 ring-inset ring-indigo-500/20">
                 100% Free & Open Source
               </ShinyButton>

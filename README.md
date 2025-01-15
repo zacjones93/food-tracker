@@ -17,17 +17,36 @@ Have a look at the [project plan](./cursor-docs/project-plan.md) to get an overv
   - ✅ Forgot Password Flow
   - ✅ Change Password
   - ✅ Session Management with Cloudflare KV
+  - ✅ Turnstile Captcha Integration
 - ✅ Database with Drizzle and Cloudflare D1
+  - ✅ Type-safe Database Operations
+  - ✅ Automatic Migration Generation
+  - ✅ SQLite for Local Development
 - ✅ Email Service with React Email and Resend
   - ✅ Beautiful Email Templates
   - ✅ Email Preview Mode
+  - ✅ Local Email Development Server
 - ✅ Deployment with Github Actions
+  - ✅ Automatic Deployments
+  - ✅ Environment Variables Management
+  - ✅ Database Migrations
 - ✅ Modern UI
   - ✅ Tailwind CSS
   - ✅ Shadcn UI Components
   - ✅ Dark/Light Mode
   - ✅ Responsive Design
+  - ✅ Loading States and Animations
+  - ✅ Toast Notifications
 - ✅ Validations with Zod and React Hook Form
+  - ✅ Type-safe Form Validations
+  - ✅ Server-side Validations
+  - ✅ Client-side Validations
+- ✅ Developer Experience
+  - ✅ TypeScript Support
+  - ✅ ESLint Configuration
+  - ✅ Prettier Configuration
+  - ✅ Type-safe Environment Variables
+  - ✅ Cloudflare Types Generation
 
 ## Planned features (TODO):
 
@@ -39,6 +58,7 @@ Have a look at the [project plan](./cursor-docs/project-plan.md) to get an overv
 - [ ] Notifications
 - [ ] Payments
 - [ ] Webhooks
+- [ ] Track bundle size with https://www.npmjs.com/package/webpack-bundle-analyzer
 
 # Running it locally
 

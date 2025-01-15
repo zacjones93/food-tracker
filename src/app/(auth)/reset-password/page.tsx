@@ -1,7 +1,13 @@
+import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import ResetPasswordClientComponent from "./reset-password.client";
 import { getResetTokenKey } from "@/utils/auth-utils";
+
+export const metadata: Metadata = {
+  title: "Reset Password",
+  description: "Set a new password for your account",
+};
 
 export default async function ResetPasswordPage({
   searchParams,

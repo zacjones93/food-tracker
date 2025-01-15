@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "build:prod": "opennextjs-cloudflare && wrangler deploy --dry-run --outdir=dist",
+    "build:analyze": "ANALYZE=true next build",
     "start": "next start",
     "lint": "next lint",
     "deploy": "opennextjs-cloudflare && wrangler deploy",
@@ -60,6 +61,7 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20250109.0",
+    "@next/bundle-analyzer": "^15.1.4",
     "@opennextjs/cloudflare": "^0.3.8",
     "@tailwindcss/typography": "^0.5.16",
     "@types/ms": "^0.7.34",
