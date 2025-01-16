@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { ThemeProvider as NextThemesProvider } from "next-themes"
-import { NextUIProvider } from "@nextui-org/react"
+import { HeroUIProvider } from "@heroui/react"
 import type { SessionValidationResult } from "@/types"
 import { useSessionStore } from "@/state/session"
 import { useEffect } from "react"
@@ -19,10 +19,10 @@ export function ThemeProvider({
   }, [session, sessionState]);
 
   return (
-    <NextUIProvider>
+    <HeroUIProvider>
       <NextThemesProvider {...props} attribute="class">
         {children}
       </NextThemesProvider>
-    </NextUIProvider>
+    </HeroUIProvider>
   )
 }

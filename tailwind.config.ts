@@ -1,5 +1,5 @@
 import type { Config } from "tailwindcss";
-import { nextui } from '@nextui-org/react'
+import { heroui } from "@heroui/react"
 
 const config: Config = {
     darkMode: ["class"],
@@ -7,7 +7,7 @@ const config: Config = {
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
-    "./node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}",
+    "./node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
   	extend: {
@@ -101,7 +101,8 @@ const config: Config = {
     require('@tailwindcss/typography'),
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     require("tailwindcss-animate"),
-    nextui(),
+    heroui(),
   ],
 };
+// eslint-disable-next-line
 export default config;
