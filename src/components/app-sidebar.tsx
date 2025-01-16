@@ -115,24 +115,20 @@ const data = {
     },
     {
       title: "Settings",
-      url: "#",
+      url: "/settings",
       icon: Settings2,
       items: [
         {
-          title: "General",
-          url: "#",
+          title: "Profile",
+          url: "/settings",
         },
         {
-          title: "Team",
-          url: "#",
+          title: "Sessions",
+          url: "/settings/sessions",
         },
         {
-          title: "Billing",
-          url: "#",
-        },
-        {
-          title: "Limits",
-          url: "#",
+          title: "Change Password",
+          url: "/forgot-password",
         },
       ],
     },

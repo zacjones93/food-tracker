@@ -13,6 +13,7 @@ import { turnstileEnabled } from "@/schemas/catcha.schema";
 import { validateTurnstileToken } from "@/utils/validateCaptcha";
 import { forgotPasswordSchema } from "@/schemas/forgot-password.schema";
 import { getSessionFromCookie } from "@/utils/auth";
+import { withRateLimit, RATE_LIMITS } from "@/utils/with-rate-limit";
 
 const createId = init({
   length: 32,
@@ -21,79 +22,81 @@ const createId = init({
 export const forgotPasswordAction = createServerAction()
   .input(forgotPasswordSchema)
   .handler(async ({ input }) => {
-    if (turnstileEnabled && input.captchaToken) {
-      const success = await validateTurnstileToken(input.captchaToken)
+    return withRateLimit(
+      async () => {
+        if (turnstileEnabled && input.captchaToken) {
+          const success = await validateTurnstileToken(input.captchaToken)
 
-      if (!success) {
-        throw new ZSAError(
-          "INPUT_PARSE_ERROR",
-          "Please complete the captcha"
-        )
-      }
-    }
-
-    const session = await getSessionFromCookie()
-
-    if (session?.user && session?.user?.email !== input.email) {
-      throw new ZSAError(
-        "INPUT_PARSE_ERROR",
-        "You cannot reset the password for another user"
-      );
-    }
-
-    const db = await getDB();
-    const { env } = await getCloudflareContext();
-
-    // TODO: If we have a logged in user we need to check if the email is the same as the user's email
-    // And also in the page we need to make the email field disabled
-
-    try {
-      // Find user by email
-      const user = await db.query.userTable.findFirst({
-        where: eq(userTable.email, input.email.toLowerCase()),
-      });
-
-      // Even if user is not found, return success to prevent email enumeration
-      if (!user) {
-        return { success: true };
-      }
-
-      // Generate reset token
-      const token = createId();
-      const expiresAt = new Date(Date.now() + ms("1 hour"));
-
-      // Save reset token in KV with expiration
-      await env.NEXT_CACHE_WORKERS_KV.put(
-        getResetTokenKey(token),
-        JSON.stringify({
-          userId: user.id,
-          expiresAt: expiresAt.toISOString(),
-        }),
-        {
-          expirationTtl: Math.floor((expiresAt.getTime() - Date.now()) / 1000),
+          if (!success) {
+            throw new ZSAError(
+              "INPUT_PARSE_ERROR",
+              "Please complete the captcha"
+            )
+          }
         }
-      );
 
-      // Send reset email
-      if (user?.email) {
-        await sendPasswordResetEmail({
-          email: user.email,
-          resetToken: token,
-          username: user.firstName ?? user.email,
-        });
-      }
+        const session = await getSessionFromCookie()
 
-      return { success: true };
-    } catch (error) {
-      console.error(error)
+        if (session?.user && session?.user?.email !== input.email) {
+          throw new ZSAError(
+            "INPUT_PARSE_ERROR",
+            "You cannot reset the password for another user"
+          );
+        }
 
-      if (error instanceof ZSAError) {
-        throw error;
-      }
+        const db = await getDB();
+        const { env } = await getCloudflareContext();
 
-      throw new ZSAError(
-        "INTERNAL_SERVER_ERROR",
-        "An unexpected error occurred"
-      );
-    }
+        try {
+          // Find user by email
+          const user = await db.query.userTable.findFirst({
+            where: eq(userTable.email, input.email.toLowerCase()),
+          });
+
+          // Even if user is not found, return success to prevent email enumeration
+          if (!user) {
+            return { success: true };
+          }
+
+          // Generate reset token
+          const token = createId();
+          const expiresAt = new Date(Date.now() + ms("1 hour"));
+
+          // Save reset token in KV with expiration
+          await env.NEXT_CACHE_WORKERS_KV.put(
+            getResetTokenKey(token),
+            JSON.stringify({
+              userId: user.id,
+              expiresAt: expiresAt.toISOString(),
+            }),
+            {
+              expirationTtl: Math.floor((expiresAt.getTime() - Date.now()) / 1000),
+            }
+          );
+
+          // Send reset email
+          if (user?.email) {
+            await sendPasswordResetEmail({
+              email: user.email,
+              resetToken: token,
+              username: user.firstName ?? user.email,
+            });
+          }
+
+          return { success: true };
+        } catch (error) {
+          console.error(error)
+
+          if (error instanceof ZSAError) {
+            throw error;
+          }
+
+          throw new ZSAError(
+            "INTERNAL_SERVER_ERROR",
+            "An unexpected error occurred"
+          );
+        }
+      },
+      RATE_LIMITS.EMAIL
+    );
   });

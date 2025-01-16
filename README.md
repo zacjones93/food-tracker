@@ -18,6 +18,7 @@ Have a look at the [project plan](./cursor-docs/project-plan.md) to get an overv
   - ✅ Change Password
   - ✅ Session Management with Cloudflare KV
   - ✅ Turnstile Captcha Integration
+  - ✅ Rate Limiting for Auth Endpoints
 - ✅ Database with Drizzle and Cloudflare D1
   - ✅ Type-safe Database Operations
   - ✅ Automatic Migration Generation
@@ -37,6 +38,8 @@ Have a look at the [project plan](./cursor-docs/project-plan.md) to get an overv
   - ✅ Responsive Design
   - ✅ Loading States and Animations
   - ✅ Toast Notifications
+  - ✅ Settings Dashboard
+  - ✅ Landing Page
 - ✅ Validations with Zod and React Hook Form
   - ✅ Type-safe Form Validations
   - ✅ Server-side Validations
@@ -47,6 +50,7 @@ Have a look at the [project plan](./cursor-docs/project-plan.md) to get an overv
   - ✅ Prettier Configuration
   - ✅ Type-safe Environment Variables
   - ✅ Cloudflare Types Generation
+  - ✅ AI-powered Development with Cursor
 
 ## Planned features (TODO):
 

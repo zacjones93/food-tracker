@@ -11,8 +11,6 @@ import {
   LogOut
 } from "lucide-react";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
-import { useSessionStore } from "@/state/session";
-import { signOutAction } from "@/actions/sign-out.action";
 import {
   Dialog,
   DialogContent,
@@ -26,6 +24,7 @@ import {
 import { Button, buttonVariants } from "@/components/ui/button";
 import { useRef } from "react";
 import type { Route } from "next";
+import useSignOut from "@/hooks/useSignOut";
 
 interface SidebarNavItem {
   title: string;
@@ -54,16 +53,8 @@ const sidebarNavItems: SidebarNavItem[] = [
 export function SettingsSidebar() {
   const pathname = usePathname();
   const isLgAndSmaller = useMediaQuery('LG_AND_SMALLER')
-  const { clearSession } = useSessionStore();
   const dialogCloseRef = useRef<HTMLButtonElement>(null);
-
-  const handleSignOut = () => {
-    signOutAction().then(() => {
-      setTimeout(() => {
-        clearSession()
-      }, 200)
-    })
-  };
+  const { signOut } = useSignOut();
 
   return (
     <ScrollShadow
@@ -115,7 +106,7 @@ export function SettingsSidebar() {
               <Button
                 variant="destructive"
                 onClick={() => {
-                  handleSignOut();
+                  signOut();
                   dialogCloseRef.current?.click();
                 }}
               >

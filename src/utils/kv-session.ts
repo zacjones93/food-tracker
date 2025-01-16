@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 
 // eslint-disable-next-line import/no-cycle
 import { getUserFromDB } from "@/utils/auth";
+import { getIP } from "./getIP";
 
 const SESSION_PREFIX = "session:";
 
@@ -57,7 +58,7 @@ export async function createKVSession({
     country: cf?.country,
     city: cf?.city,
     continent: cf?.continent,
-    ip: headersList.get('cf-connecting-ip') || headersList.get('x-forwarded-for'),
+    ip: await getIP(),
     userAgent: headersList.get('user-agent'),
     user
   };

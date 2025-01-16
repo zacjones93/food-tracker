@@ -4,6 +4,7 @@ import { createServerAction, ZSAError } from "zsa";
 import { getSessionFromCookie } from "@/utils/auth";
 import { getAllSessionIdsOfUser, getKVSession, deleteKVSession, type KVSession } from "@/utils/kv-session";
 import { z } from "zod";
+import { withRateLimit, RATE_LIMITS } from "@/utils/with-rate-limit";
 
 interface SessionWithMeta extends KVSession {
   isCurrentSession: boolean;
@@ -20,34 +21,39 @@ function isValidSession(session: unknown): session is SessionWithMeta {
 export const getSessionsAction = createServerAction()
   .input(z.void())
   .handler(async () => {
-    const session = await getSessionFromCookie();
+    return withRateLimit(
+      async () => {
+        const session = await getSessionFromCookie();
 
-    if (!session) {
-      throw new ZSAError(
-        "NOT_AUTHORIZED",
-        "Not authenticated"
-      );
-    }
+        if (!session) {
+          throw new ZSAError(
+            "NOT_AUTHORIZED",
+            "Not authenticated"
+          );
+        }
 
-    const sessionIds = await getAllSessionIdsOfUser(session.user.id);
-    const sessions = await Promise.all(
-      sessionIds.map(async ({ key, absoluteExpiration }) => {
-        const sessionId = key.split(":")[2]; // Format is "session:userId:sessionId"
-        const sessionData = await getKVSession(sessionId, session.user.id);
-        if (!sessionData) return null;
-        return {
-          ...sessionData,
-          isCurrentSession: sessionId === session.id,
-          expiration: absoluteExpiration,
-          createdAt: sessionData.createdAt ?? 0,
-        } as SessionWithMeta;
-      })
+        const sessionIds = await getAllSessionIdsOfUser(session.user.id);
+        const sessions = await Promise.all(
+          sessionIds.map(async ({ key, absoluteExpiration }) => {
+            const sessionId = key.split(":")[2]; // Format is "session:userId:sessionId"
+            const sessionData = await getKVSession(sessionId, session.user.id);
+            if (!sessionData) return null;
+            return {
+              ...sessionData,
+              isCurrentSession: sessionId === session.id,
+              expiration: absoluteExpiration,
+              createdAt: sessionData.createdAt ?? 0,
+            } as SessionWithMeta;
+          })
+        );
+
+        // Filter out any null sessions and sort by creation date
+        return sessions
+          .filter(isValidSession)
+          .sort((a, b) => b.createdAt - a.createdAt);
+      },
+      RATE_LIMITS.SETTINGS
     );
-
-    // Filter out any null sessions and sort by creation date
-    return sessions
-      .filter(isValidSession)
-      .sort((a, b) => b.createdAt - a.createdAt);
   });
 
 export const deleteSessionAction = createServerAction()
@@ -55,16 +61,21 @@ export const deleteSessionAction = createServerAction()
     sessionId: z.string(),
   }))
   .handler(async ({ input }) => {
-    const session = await getSessionFromCookie();
+    return withRateLimit(
+      async () => {
+        const session = await getSessionFromCookie();
 
-    if (!session) {
-      throw new ZSAError(
-        "NOT_AUTHORIZED",
-        "Not authenticated"
-      );
-    }
+        if (!session) {
+          throw new ZSAError(
+            "NOT_AUTHORIZED",
+            "Not authenticated"
+          );
+        }
 
-    await deleteKVSession(input.sessionId, session.user.id);
+        await deleteKVSession(input.sessionId, session.user.id);
 
-    return { success: true };
+        return { success: true };
+      },
+      RATE_LIMITS.DELETE_SESSION
+    );
   });
