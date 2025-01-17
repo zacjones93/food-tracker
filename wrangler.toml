@@ -30,6 +30,7 @@ id = "c6f2b077e0a34a84b3598558eb833055"
 [vars]
 EMAIL_FROM = "hello@saas-stack.startup-studio.dev"
 EMAIL_FROM_NAME = "Startup Studio"
+EMAIL_REPLY_TO = "startupstudio.dev@gmail.com"
 
 # If using Resend don't forget to set the RESEND_API_KEY as a worker secret
 # If using Brevo don't forget to set the BREVO_API_KEY as a worker secret

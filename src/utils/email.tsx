@@ -10,6 +10,7 @@ import isProd from "./isProd";
 interface BrevoEmailOptions {
   to: { email: string; name?: string }[];
   subject: string;
+  replyTo?: string;
   htmlContent: string;
   textContent?: string;
   templateId?: number;
@@ -48,20 +49,22 @@ async function sendResendEmail({
   subject,
   html,
   from,
-  replyTo,
+  replyTo: originalReplyTo,
   text,
   tags,
 }: ResendEmailOptions) {
-  const { env } = await getCloudflareContext();
-
   if (!isProd) {
     console.warn("\n\n\nEmail content:", { to, subject, html }, "\n\n\n");
     return;
   }
 
+  const { env } = await getCloudflareContext();
+
   if (!env.RESEND_API_KEY) {
     throw new Error("RESEND_API_KEY is not set");
   }
+
+  const replyTo = originalReplyTo ?? env.EMAIL_REPLY_TO;
 
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -91,22 +94,25 @@ async function sendResendEmail({
 async function sendBrevoEmail({
   to,
   subject,
+  replyTo: originalReplyTo,
   htmlContent,
   textContent,
   templateId,
   params,
   tags,
 }: BrevoEmailOptions) {
-  const { env } = await getCloudflareContext();
-
   if (!isProd) {
     console.warn("\n\n\nEmail content:", { to, subject, htmlContent }, "\n\n\n");
     return;
   }
 
+  const { env } = await getCloudflareContext();
+
   if (!env.BREVO_API_KEY) {
     throw new Error("BREVO_API_KEY is not set");
   }
+
+  const replyTo = originalReplyTo ?? env.EMAIL_REPLY_TO;
 
   const response = await fetch("https://api.brevo.com/v3/smtp/email", {
     method: "POST",
@@ -127,6 +133,7 @@ async function sendBrevoEmail({
       templateId,
       params,
       tags,
+      replyTo,
     }),
   });
 
