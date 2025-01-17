@@ -89,7 +89,7 @@ After making a change to wrangler.toml, you need to run `pnpm cf-typegen` to gen
 2. Create a Resend account, and set the `RESEND_API_KEY` as a secret in your Cloudflare Worker.
 3. Create a Turnstile catcha in your Cloudflare account, and set the `NEXT_PUBLIC_TURNSTILE_SITE_KEY` as a Github Actions variable.
 4. Set `TURNSTILE_SECRET_KEY` as a secret in your Cloudflare Worker.
-5. Update the `wrangler.toml` file with the new database and KV namespaces
+5. Update the `wrangler.toml` file with the new database and KV namespaces and env variables.
 6. Create a Cloudflare API token with the following permissions:
     - Workers Builds Configuration:Edit
     - AI Gateway:Edit

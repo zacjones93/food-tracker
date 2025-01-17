@@ -12,7 +12,7 @@ import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { getVerificationTokenKey } from "@/utils/auth-utils";
 import { sendVerificationEmail } from "@/utils/email";
 import { withRateLimit, RATE_LIMITS } from "@/utils/with-rate-limit";
-import ms from "ms";
+import { EMAIL_VERIFICATION_TOKEN_EXPIRATION_SECONDS } from "@/constants";
 
 export const signUpAction = createServerAction()
   .input(signUpSchema)
@@ -21,6 +21,8 @@ export const signUpAction = createServerAction()
       async () => {
         const db = await getDB();
         const { env } = await getCloudflareContext();
+
+        // TODO Implement a captcha
 
         // Check if email is already taken
         const existingUser = await db.query.userTable.findFirst({
@@ -68,7 +70,7 @@ export const signUpAction = createServerAction()
 
           // Generate verification token
           const verificationToken = createId();
-          const expiresAt = new Date(Date.now() + ms("24h"));
+          const expiresAt = new Date(Date.now() + EMAIL_VERIFICATION_TOKEN_EXPIRATION_SECONDS * 1000);
 
           // Save verification token in KV with expiration
           await env.NEXT_CACHE_WORKERS_KV.put(

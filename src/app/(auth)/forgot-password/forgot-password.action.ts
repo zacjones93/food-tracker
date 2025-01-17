@@ -8,12 +8,12 @@ import { init } from "@paralleldrive/cuid2";
 import { eq } from "drizzle-orm";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { getResetTokenKey } from "@/utils/auth-utils";
-import ms from "ms";
 import { turnstileEnabled } from "@/schemas/catcha.schema";
 import { validateTurnstileToken } from "@/utils/validateCaptcha";
 import { forgotPasswordSchema } from "@/schemas/forgot-password.schema";
 import { getSessionFromCookie } from "@/utils/auth";
 import { withRateLimit, RATE_LIMITS } from "@/utils/with-rate-limit";
+import { PASSWORD_RESET_TOKEN_EXPIRATION_SECONDS } from "@/constants";
 
 const createId = init({
   length: 32,
@@ -60,7 +60,7 @@ export const forgotPasswordAction = createServerAction()
 
           // Generate reset token
           const token = createId();
-          const expiresAt = new Date(Date.now() + ms("1 hour"));
+          const expiresAt = new Date(Date.now() + PASSWORD_RESET_TOKEN_EXPIRATION_SECONDS * 1000);
 
           // Save reset token in KV with expiration
           await env.NEXT_CACHE_WORKERS_KV.put(

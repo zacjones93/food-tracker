@@ -9,7 +9,7 @@ import {
   Text,
 } from "@react-email/components";
 import * as React from "react";
-import { SITE_DOMAIN } from "@/constants";
+import { EMAIL_VERIFICATION_TOKEN_EXPIRATION_SECONDS, SITE_DOMAIN } from "@/constants";
 
 interface VerifyEmailProps {
   verificationLink?: string;
@@ -20,38 +20,42 @@ interface VerifyEmailProps {
 export const VerifyEmail = ({
   verificationLink = "https://example.com/verify-email",
   username = "User",
-}: VerifyEmailProps) => (
-  <Html>
-    <Head />
-    <Body style={main}>
-      <Container style={container}>
-        <Heading style={preheader}>Verify your {SITE_DOMAIN} email</Heading>
-        <Text style={paragraph}>Hi {username},</Text>
-        <Text style={paragraph}>
-          Thanks for signing up for {SITE_DOMAIN}! We need to verify your email address to complete your registration. Please click the button below to verify your email address.
+}: VerifyEmailProps) => {
+  const expirationHours = EMAIL_VERIFICATION_TOKEN_EXPIRATION_SECONDS / 60 / 60
+
+  return (
+    <Html>
+      <Head />
+      <Body style={main}>
+        <Container style={container}>
+          <Heading style={preheader}>Verify your {SITE_DOMAIN} email</Heading>
+          <Text style={paragraph}>Hi {username},</Text>
+          <Text style={paragraph}>
+            Thanks for signing up for {SITE_DOMAIN}! We need to verify your email address to complete your registration. Please click the button below to verify your email address.
+          </Text>
+          <Section style={buttonContainer}>
+            <Link style={button} href={verificationLink}>
+              Verify Email Address
+            </Link>
+          </Section>
+          <Text style={paragraph}>
+            This verification link will expire in {expirationHours} hour{expirationHours > 1 ? "s" : ""}. After that, you&apos;ll need to request a new verification email.
+          </Text>
+          <Text style={paragraph}>
+            If you&apos;re having trouble with the button above, copy and paste this URL into your browser:
+          </Text>
+          <Text style={link}>{verificationLink}</Text>
+          <Text style={paragraph}>
+            If you didn&apos;t create an account on {SITE_DOMAIN}, you can safely ignore this email.
+          </Text>
+        </Container>
+        <Text style={footer}>
+          This is an automated message from {SITE_DOMAIN}. Please do not reply to this email.
         </Text>
-        <Section style={buttonContainer}>
-          <Link style={button} href={verificationLink}>
-            Verify Email Address
-          </Link>
-        </Section>
-        <Text style={paragraph}>
-          This verification link will expire in 24 hours. After that, you&apos;ll need to request a new verification email.
-        </Text>
-        <Text style={paragraph}>
-          If you&apos;re having trouble with the button above, copy and paste this URL into your browser:
-        </Text>
-        <Text style={link}>{verificationLink}</Text>
-        <Text style={paragraph}>
-          If you didn&apos;t create an account on {SITE_DOMAIN}, you can safely ignore this email.
-        </Text>
-      </Container>
-      <Text style={footer}>
-        This is an automated message from {SITE_DOMAIN}. Please do not reply to this email.
-      </Text>
-    </Body>
-  </Html>
-);
+      </Body>
+    </Html>
+  )
+};
 
 VerifyEmail.PreviewProps = {
   verificationLink: "https://example.com/verify-email?token=123",
