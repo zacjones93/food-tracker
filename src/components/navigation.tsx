@@ -10,6 +10,7 @@ import { useSessionStore } from "@/state/session"
 import { cn } from "@/lib/utils"
 import { useNavStore } from "@/state/nav"
 import { Skeleton } from "@/components/ui/skeleton"
+import { SITE_NAME } from "@/constants"
 
 type NavItem = {
   name: string;
@@ -63,7 +64,7 @@ export function Navigation() {
           <div className="flex items-center">
             <Link href="/" className="text-xl md:text-2xl font-bold text-primary flex items-center gap-2 md:gap-3">
               <ComponentIcon className="w-6 h-6 md:w-7 md:h-7" />
-              SaaS Template
+              {SITE_NAME}
             </Link>
           </div>
           <div className="hidden md:flex md:items-center md:space-x-6">
