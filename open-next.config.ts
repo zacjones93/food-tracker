@@ -25,4 +25,5 @@ const config = {
   },
 };
 
+// eslint-disable-next-line
 export default config;

@@ -2,7 +2,8 @@
 
 interface CloudflareEnv {
 	NEXT_CACHE_WORKERS_KV: KVNamespace;
-	RESEND_FROM_EMAIL: "Startup Studio <hello@saas-stack.startup-studio.dev>";
+	EMAIL_FROM: "hello@saas-stack.startup-studio.dev";
+	EMAIL_FROM_NAME: "Startup Studio";
 	NEXTJS_ENV: string;
 	DATABASE: D1Database;
 	ASSETS: Fetcher;
