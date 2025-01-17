@@ -74,17 +74,19 @@ export function Footer() {
               </p>
 
               <div className="flex items-center space-x-3 sm:space-x-4">
-                <Button variant="outline" size="sm" className="h-8 sm:h-9" asChild>
-                  <Link
-                    href={GITHUB_REPO_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center space-x-2"
-                  >
-                    <GithubIcon className="h-4 w-4" />
-                    <span>Fork on Github</span>
-                  </Link>
-                </Button>
+                {GITHUB_REPO_URL && (
+                  <Button variant="outline" size="sm" className="h-8 sm:h-9" asChild>
+                    <Link
+                      href={GITHUB_REPO_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center space-x-2"
+                    >
+                      <GithubIcon className="h-4 w-4" />
+                      <span>Fork on Github</span>
+                    </Link>
+                  </Button>
+                )}
                 <ThemeSwitch />
               </div>
             </div>
