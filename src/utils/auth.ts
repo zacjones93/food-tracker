@@ -19,6 +19,7 @@ import {
 } from "./kv-session";
 import { cache } from "react"
 import type { SessionValidationResult } from "@/types";
+import { SESSION_COOKIE_NAME } from "@/constants";
 
 const getSessionLength = () => {
   return ms("30d");
@@ -40,9 +41,6 @@ export const getUserFromDB = async (userId: string) => {
     }
   })
 }
-
-
-const SESSION_COOKIE_NAME = "session";
 
 const createId = init({
   length: 32,

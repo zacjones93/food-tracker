@@ -105,7 +105,7 @@ After making a change to wrangler.toml, you need to run `pnpm cf-typegen` to gen
 2. Set either `RESEND_API_KEY` or `SENDGRID_API_KEY` as a secret in your Cloudflare Worker depending on which email service you want to use.
 3. Create a Turnstile catcha in your Cloudflare account, and set the `NEXT_PUBLIC_TURNSTILE_SITE_KEY` as a Github Actions variable.
 4. Set `TURNSTILE_SECRET_KEY` as a secret in your Cloudflare Worker.
-5. Update the `wrangler.toml` file with the new database and KV namespaces and env variables.
+5. Update the `wrangler.toml` file with the new database and KV namespaces and env variables. If you change the D1 database name, you also need to update the `db:migrate:dev` script in the `package.json` file.
 6. Create a Cloudflare API token with the following permissions:
     - Workers Builds Configuration:Edit
     - AI Gateway:Edit
