@@ -44,22 +44,22 @@ export const RATE_LIMITS = {
   },
   SIGN_UP: {
     identifier: "sign-up",
-    limit: 2,
-    windowInSeconds: Math.floor(ms("12 hours") / 1000),
+    limit: 3,
+    windowInSeconds: Math.floor(ms("1 hour") / 1000),
   },
   DELETE_SESSION: {
     identifier: "delete-session",
     limit: 10,
-    windowInSeconds: Math.floor(ms("1 minute") / 1000),
+    windowInSeconds: Math.floor(ms("10 minutes") / 1000),
   },
   EMAIL: {
     identifier: "email",
-    limit: 5,
+    limit: 10,
     windowInSeconds: Math.floor(ms("2 hours") / 1000),
   },
   SETTINGS: {
     identifier: "settings",
-    limit: 3,
-    windowInSeconds: Math.floor(ms("1 minute") / 1000),
+    limit: 8,
+    windowInSeconds: Math.floor(ms("10 minutes") / 1000),
   },
 } as const;

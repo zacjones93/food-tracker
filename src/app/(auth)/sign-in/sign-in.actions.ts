@@ -7,7 +7,8 @@ import { signInSchema } from "@/schemas/signin.schema";
 import { verifyPassword } from "@/utils/passwordHasher";
 import { createSession, generateSessionToken, setSessionTokenCookie } from "@/utils/auth";
 import { eq } from "drizzle-orm";
-import { withRateLimit, RATE_LIMITS } from "@/utils/with-rate-limit";
+import { withRateLimit } from "@/utils/with-rate-limit";
+import ms from "ms";
 
 export const signInAction = createServerAction()
   .input(signInSchema)
@@ -65,6 +66,10 @@ export const signInAction = createServerAction()
           );
         }
       },
-      RATE_LIMITS.AUTH
+      {
+        identifier: "sign-in",
+        limit: 15,
+        windowInSeconds: Math.floor(ms("60 minutes") / 1000),
+      }
     );
   });

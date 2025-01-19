@@ -61,7 +61,7 @@ export async function checkRateLimit({
   // Normalize the key if it looks like an IP address
   const normalizedKey = ipaddr.isValid(key) ? normalizeIP(key) : key;
 
-  const windowKey = `${options.identifier}:${normalizedKey}:${Math.floor(
+  const windowKey = `rate-limit:${options.identifier}:${normalizedKey}:${Math.floor(
     now / options.windowInSeconds
   )}`;
 
