@@ -2,15 +2,13 @@
 
 import { createServerAction, ZSAError } from "zsa";
 import { getSessionFromCookie } from "@/utils/auth";
-import { getAllSessionIdsOfUser, getKVSession, deleteKVSession, type KVSession } from "@/utils/kv-session";
+import { getAllSessionIdsOfUser, getKVSession, deleteKVSession } from "@/utils/kv-session";
 import { z } from "zod";
 import { withRateLimit, RATE_LIMITS } from "@/utils/with-rate-limit";
+import { UAParser } from 'ua-parser-js';
+import { SessionWithMeta } from "@/types";
 
-interface SessionWithMeta extends KVSession {
-  isCurrentSession: boolean;
-  expiration?: Date;
-  createdAt: number;
-}
+
 
 function isValidSession(session: unknown): session is SessionWithMeta {
   if (!session || typeof session !== 'object') return false;
@@ -38,11 +36,36 @@ export const getSessionsAction = createServerAction()
             const sessionId = key.split(":")[2]; // Format is "session:userId:sessionId"
             const sessionData = await getKVSession(sessionId, session.user.id);
             if (!sessionData) return null;
+
+            // Parse user agent on the server
+            const result = new UAParser(sessionData.userAgent ?? '').getResult();
+
             return {
               ...sessionData,
               isCurrentSession: sessionId === session.id,
               expiration: absoluteExpiration,
               createdAt: sessionData.createdAt ?? 0,
+              parsedUserAgent: {
+                ua: result.ua,
+                browser: {
+                  name: result.browser.name,
+                  version: result.browser.version,
+                  major: result.browser.major
+                },
+                device: {
+                  model: result.device.model,
+                  type: result.device.type,
+                  vendor: result.device.vendor
+                },
+                engine: {
+                  name: result.engine.name,
+                  version: result.engine.version
+                },
+                os: {
+                  name: result.os.name,
+                  version: result.os.version
+                }
+              },
             } as SessionWithMeta;
           })
         );

@@ -132,7 +132,7 @@ export async function setSessionTokenCookie({ token, userId, expiresAt }: SetSes
   const cookieStore = await cookies();
   cookieStore.set(SESSION_COOKIE_NAME, encodeSessionCookie(userId, token), {
     httpOnly: true,
-    sameSite: "lax" as const,
+    sameSite: isProd ? "strict" : "lax",
     secure: isProd,
     expires: expiresAt,
     path: "/",

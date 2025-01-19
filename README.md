@@ -106,18 +106,14 @@ After making a change to wrangler.toml, you need to run `pnpm cf-typegen` to gen
 3. Create a Turnstile catcha in your Cloudflare account, and set the `NEXT_PUBLIC_TURNSTILE_SITE_KEY` as a Github Actions variable.
 4. Set `TURNSTILE_SECRET_KEY` as a secret in your Cloudflare Worker.
 5. Update the `wrangler.toml` file with the new database and KV namespaces and env variables. If you change the D1 database name, you also need to update the `db:migrate:dev` script in the `package.json` file.
-6. Create a Cloudflare API token with the following permissions:
-    - Workers Builds Configuration:Edit
+6. Go to https://dash.cloudflare.com/profile/api-tokens and click on "Use template" next to "Edit Cloudflare Workers". On the next, page add the following permissions in addition to the ones from the template:
     - AI Gateway:Edit
     - Workers AI:Edit
     - Queues:Edit
     - Vectorize:Edit
     - D1:Edit
-    - Workers R2 Storage:Edit
     - Cloudflare Images:Edit
-    - Workers Tail:Read
     - Workers KV Storage:Edit
-    - Workers Scripts:Edit
 7. Add the API token to the Github repository secrets as `CLOUDFLARE_API_TOKEN`
 8. Add the Cloudflare account id to the Github repository variables as `CLOUDFLARE_ACCOUNT_ID`
 9. Add the database name to the Github repository variables as `DATABASE_ID`. This should match the database name in the `wrangler.toml` file.
