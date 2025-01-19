@@ -1,5 +1,6 @@
 import withBundleAnalyzer from '@next/bundle-analyzer';
 
+// TODO cache-control headers don't work for static files
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {

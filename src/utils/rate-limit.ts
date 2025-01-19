@@ -1,5 +1,6 @@
 import "server-only";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
+import * as ipaddr from "ipaddr.js";
 
 interface RateLimitOptions {
   // Maximum number of requests allowed within the window
@@ -17,6 +18,36 @@ interface RateLimitResult {
   limit: number;
 }
 
+// Normalize an IP address for rate limiting
+// For IPv6, we use the /64 subnet to prevent rate limit bypassing
+// For IPv4, we use the /24 subnet
+function normalizeIP(ip: string): string {
+  try {
+    const addr = ipaddr.parse(ip);
+
+    if (addr.kind() === 'ipv6') {
+      // Get the first 64 bits for IPv6
+      const ipv6 = addr as ipaddr.IPv6;
+      const bytes = ipv6.toByteArray();
+      // Zero out the last 8 bytes (64 bits)
+      for (let i = 8; i < 16; i++) {
+        bytes[i] = 0;
+      }
+      return `${ipaddr.fromByteArray(bytes).toString()}/64`;
+    } else {
+      // For IPv4, use /24 subnet (first three octets)
+      const ipv4 = addr as ipaddr.IPv4;
+      const octets = ipv4.octets;
+
+      octets[3] = 0; // Zero out the last octet
+      return `${ipaddr.fromByteArray(octets).toString()}/24`;
+    }
+  } catch {
+    // If parsing fails, return the original IP
+    return ip;
+  }
+}
+
 export async function checkRateLimit({
   key,
   options,
@@ -26,7 +57,11 @@ export async function checkRateLimit({
 }): Promise<RateLimitResult> {
   const { env } = await getCloudflareContext();
   const now = Math.floor(Date.now() / 1000);
-  const windowKey = `${options.identifier}:${key}:${Math.floor(
+
+  // Normalize the key if it looks like an IP address
+  const normalizedKey = ipaddr.isValid(key) ? normalizeIP(key) : key;
+
+  const windowKey = `${options.identifier}:${normalizedKey}:${Math.floor(
     now / options.windowInSeconds
   )}`;
 

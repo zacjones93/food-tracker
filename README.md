@@ -19,18 +19,22 @@ Have a look at the [project plan](./cursor-docs/project-plan.md) to get an overv
   - ✅ Session Management with Cloudflare KV
   - ✅ Turnstile Captcha Integration
   - ✅ Rate Limiting for Auth Endpoints
+  - ✅ Protected Routes and Layouts
 - ✅ Database with Drizzle and Cloudflare D1
   - ✅ Type-safe Database Operations
   - ✅ Automatic Migration Generation
   - ✅ SQLite for Local Development
-- ✅ Email Service with React Email and Resend
+  - ✅ Efficient Data Fetching
+- ✅ Email Service with React Email and Resend or Brevo
   - ✅ Beautiful Email Templates
   - ✅ Email Preview Mode
   - ✅ Local Email Development Server
+  - ✅ Transactional Emails
 - ✅ Deployment with Github Actions
   - ✅ Automatic Deployments
   - ✅ Environment Variables Management
   - ✅ Database Migrations
+  - ✅ Comprehensive CI/CD Pipeline
 - ✅ Modern UI
   - ✅ Tailwind CSS
   - ✅ Shadcn UI Components
@@ -40,10 +44,12 @@ Have a look at the [project plan](./cursor-docs/project-plan.md) to get an overv
   - ✅ Toast Notifications
   - ✅ Settings Dashboard
   - ✅ Landing Page
+  - ✅ Beautiful Email Templates
 - ✅ Validations with Zod and React Hook Form
   - ✅ Type-safe Form Validations
   - ✅ Server-side Validations
   - ✅ Client-side Validations
+  - ✅ Input Sanitization
 - ✅ Developer Experience
   - ✅ TypeScript Support
   - ✅ ESLint Configuration
@@ -51,6 +57,16 @@ Have a look at the [project plan](./cursor-docs/project-plan.md) to get an overv
   - ✅ Type-safe Environment Variables
   - ✅ Cloudflare Types Generation
   - ✅ AI-powered Development with Cursor
+  - ✅ Comprehensive Documentation
+  - ✅ Project Structure Best Practices
+- ✅ Edge Computing
+  - ✅ Global Deployment with Cloudflare Workers
+  - ✅ Zero Cold Starts
+  - ✅ Edge Caching
+  - ✅ React Server Components
+  - ✅ Server-side Rendering
+  - ✅ Edge Database with D1
+  - ✅ Session Storage with KV
 
 ## Planned features (TODO):
 
