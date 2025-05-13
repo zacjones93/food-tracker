@@ -4,6 +4,7 @@
  */
  {
     "$schema": "node_modules/wrangler/config-schema.json",
+    "account_id": "82e5aa3e06eba55221231ef482269452",
     "name": "cloudflare-workers-nextjs-saas-template",
     "main": ".open-next/worker.js",
     "compatibility_date": "2024-09-26",
