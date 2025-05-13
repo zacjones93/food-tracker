@@ -8,7 +8,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NextTopLoader from 'nextjs-toploader'
 import { SITE_NAME, SITE_DESCRIPTION, SITE_URL } from "@/constants";
-import { StartupStudioStickyBanner } from "@/components/startup-studio-sticky-banner";
+import { AgenticDevStudioStickyBanner } from "@/components/startup-studio-sticky-banner";
 
 export const dynamic = "force-dynamic";
 
@@ -77,7 +77,7 @@ export default function BaseLayout({
           </TooltipProvider>
         </ThemeProvider>
         <Toaster richColors closeButton position="top-right" expand duration={7000} />
-        <StartupStudioStickyBanner />
+        <AgenticDevStudioStickyBanner />
       </body>
     </html>
   );

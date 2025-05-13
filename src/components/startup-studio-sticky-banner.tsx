@@ -3,12 +3,12 @@
 import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { cn } from "@/lib/utils";
-import StartupStudioLogo from "./startupstudio-logo";
+import AgenticDevStudioLogo from "./agenticdev-studio-logo";
 import { ChevronLeft, X } from "lucide-react";
 
-const STORAGE_KEY = 'startup-studio-banner-collapsed';
+const STORAGE_KEY = 'agenticdev-studio-banner-collapsed';
 
-export function StartupStudioStickyBanner() {
+export function AgenticDevStudioStickyBanner() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
 
@@ -66,14 +66,14 @@ export function StartupStudioStickyBanner() {
             </Button>
             <div className="flex items-center flex-col py-3 px-3">
               <a
-                href="https://startupstudio.dev?ref=saas-template-sticky-banner"
+                href="https://agenticdev.agency?ref=saas-template-sticky-banner"
                 target="_blank"
                 className="flex flex-col items-center font-medium text-sm hover:text-foreground transition-colors"
               >
                 <div className="flex items-center">
                   <span className="whitespace-nowrap">Built by</span>
-                  <StartupStudioLogo className="h-7 w-7 mx-1.5" />
-                  <span className="whitespace-nowrap">startupstudio.dev</span>
+                  <AgenticDevStudioLogo className="h-7 w-7 mx-1.5" />
+                  <span className="whitespace-nowrap">AgenticDev</span>
                 </div>
 
                 <div className="text-tiny text-muted-foreground mt-3">
@@ -81,7 +81,7 @@ export function StartupStudioStickyBanner() {
                 </div>
               </a>
               <Button size="sm" className="mt-4" asChild>
-                <a href="https://startupstudio.dev?ref=saas-template-sticky-banner" target="_blank">Book a free consultation</a>
+                <a href="https://agenticdev.agency?ref=saas-template-sticky-banner" target="_blank">Book a free consultation</a>
               </Button>
             </div>
           </div>

@@ -4,7 +4,7 @@ interface CloudflareEnv {
 	NEXT_CACHE_WORKERS_KV: KVNamespace;
 	EMAIL_FROM: "hello@saas-stack.startup-studio.dev";
 	EMAIL_FROM_NAME: "Startup Studio";
-	EMAIL_REPLY_TO: "startupstudio.dev@gmail.com";
+	EMAIL_REPLY_TO: "support@agenticdev.agency";
 	NEXT_CACHE_D1: D1Database;
 	NEXT_CACHE_REVALIDATION_WORKER: Fetcher;
 	ASSETS: Fetcher;
