@@ -19,7 +19,11 @@ export async function withKVCache<T>(
   }
 
   const { env } = await getCloudflareContext({ async: true });
-  const kv = env.NEXT_CACHE_WORKERS_KV;
+  const kv = env.NEXT_INC_CACHE_KV;
+
+  if (!kv) {
+    throw new Error("Can't connect to KV store");
+  }
 
   // Try to get the cached value
   const cached = await kv.get<T>(key, "json");

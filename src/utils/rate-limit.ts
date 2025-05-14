@@ -53,6 +53,10 @@ export async function checkRateLimit({
   const { env } = getCloudflareContext();
   const now = Math.floor(Date.now() / 1000);
 
+  if (!env?.NEXT_INC_CACHE_KV) {
+    throw new Error("Can't connect to KV store");
+  }
+
   // Normalize the key if it looks like an IP address
   const normalizedKey = ipaddr.isValid(key) ? normalizeIP(key) : key;
 
@@ -61,7 +65,7 @@ export async function checkRateLimit({
   )}`;
 
   // Get the current count from KV
-  const currentCount = parseInt((await env.NEXT_CACHE_WORKERS_KV.get(windowKey)) || "0");
+  const currentCount = parseInt((await env.NEXT_INC_CACHE_KV.get(windowKey)) || "0");
   const reset = (Math.floor(now / options.windowInSeconds) + 1) * options.windowInSeconds;
 
   if (currentCount >= options.limit) {
@@ -74,7 +78,7 @@ export async function checkRateLimit({
   }
 
   // Increment the counter
-  await env.NEXT_CACHE_WORKERS_KV.put(windowKey, (currentCount + 1).toString(), {
+  await env.NEXT_INC_CACHE_KV.put(windowKey, (currentCount + 1).toString(), {
     expirationTtl: options.windowInSeconds,
   });
 

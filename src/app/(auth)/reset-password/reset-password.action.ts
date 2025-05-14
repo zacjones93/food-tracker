@@ -18,9 +18,13 @@ export const resetPasswordAction = createServerAction()
         const db = getDB();
         const { env } = getCloudflareContext();
 
+        if (!env?.NEXT_INC_CACHE_KV) {
+          throw new Error("Can't connect to KV store");
+        }
+
         try {
           // Find valid reset token
-          const resetTokenStr = await env.NEXT_CACHE_WORKERS_KV.get(getResetTokenKey(input.token));
+          const resetTokenStr = await env.NEXT_INC_CACHE_KV.get(getResetTokenKey(input.token));
           if (!resetTokenStr) {
             throw new ZSAError(
               "NOT_FOUND",
@@ -60,7 +64,7 @@ export const resetPasswordAction = createServerAction()
             .where(eq(userTable.id, resetToken.userId));
 
           // Delete the used token
-          await env.NEXT_CACHE_WORKERS_KV.delete(getResetTokenKey(input.token));
+          await env.NEXT_INC_CACHE_KV.delete(getResetTokenKey(input.token));
 
           return { success: true };
         } catch (error) {

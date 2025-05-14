@@ -16,8 +16,12 @@ export function parseWranglerConfig() {
   // Remove comments from the JSONC content
   const jsonContent = wranglerContent.replace(/\/\*[\s\S]*?\*\/|\/\/.*/g, '');
 
+  // Fix trailing commas in objects and arrays (which are valid in JSONC but not in JSON)
+  const fixedJsonContent = jsonContent
+    .replace(/,\s*([}\]])/g, '$1'); // Replace trailing commas before closing brackets
+
   try {
-    return JSON.parse(jsonContent);
+    return JSON.parse(fixedJsonContent);
   } catch (error) {
     throw new Error(`Failed to parse wrangler.jsonc: ${error.message}`);
   }

@@ -52,8 +52,12 @@ export const forgotPasswordAction = createServerAction()
           const token = createId();
           const expiresAt = new Date(Date.now() + PASSWORD_RESET_TOKEN_EXPIRATION_SECONDS * 1000);
 
+          if (!env?.NEXT_INC_CACHE_KV) {
+            throw new Error("Can't connect to KV store");
+          }
+
           // Save reset token in KV with expiration
-          await env.NEXT_CACHE_WORKERS_KV.put(
+          await env.NEXT_INC_CACHE_KV.put(
             getResetTokenKey(token),
             JSON.stringify({
               userId: user.id,

@@ -1,10 +1,11 @@
 import { defineCloudflareConfig } from "@opennextjs/cloudflare";
-import kvIncrementalCache from "@opennextjs/cloudflare/kv-cache";
-import d1TagCache from "@opennextjs/cloudflare/d1-tag-cache";
-import memoryQueue from "@opennextjs/cloudflare/memory-queue";
+import kvIncrementalCache from "@opennextjs/cloudflare/overrides/incremental-cache/kv-incremental-cache";
+import d1NextTagCache from "@opennextjs/cloudflare/overrides/tag-cache/d1-next-tag-cache";
+import doQueue from "@opennextjs/cloudflare/overrides/queue/do-queue";
 
 export default defineCloudflareConfig({
   incrementalCache: kvIncrementalCache,
-  tagCache: d1TagCache,
-  queue: memoryQueue,
+  tagCache: d1NextTagCache,
+  queue: doQueue,
+  enableCacheInterception: true
 });

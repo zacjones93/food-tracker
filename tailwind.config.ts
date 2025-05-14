@@ -1,6 +1,7 @@
 import type { Config } from "tailwindcss";
 import { heroui } from "@heroui/react"
 
+// TODO: Upgrade to Tailwind V4 and move all of this to global.css
 const config: Config = {
     darkMode: ["class"],
     content: [

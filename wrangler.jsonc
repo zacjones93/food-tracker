@@ -7,10 +7,10 @@
     "account_id": "82e5aa3e06eba55221231ef482269452",
     "name": "cloudflare-workers-nextjs-saas-template",
     "main": ".open-next/worker.js",
-    "compatibility_date": "2024-09-26",
+    "compatibility_date": "2025-03-01",
     "compatibility_flags": [
       "nodejs_compat",
-      "nodejs_compat_populate_process_env"
+      "global_fetch_strictly_public"
     ],
     // Minification helps to keep the Worker bundle size down and improve start up time.
     "minify": true,
@@ -54,14 +54,30 @@
      */
      "services": [
       {
-        "binding": "NEXT_CACHE_REVALIDATION_WORKER",
+        "binding": "WORKER_SELF_REFERENCE",
         "service": "cloudflare-workers-nextjs-saas-template"
       }
     ],
 
+    "durable_objects": {
+      "bindings": [
+        {
+          "name": "NEXT_CACHE_DO_QUEUE",
+          "class_name": "DOQueueHandler",
+        }
+      ]
+    },
+
+    "migrations": [
+      {
+        "tag": "v1",
+        "new_sqlite_classes": ["DOQueueHandler"],
+      },
+    ],
+
     "d1_databases": [
         {
-            "binding": "NEXT_CACHE_D1",
+            "binding": "NEXT_TAG_CACHE_D1",
             "database_name": "cloudflare-workers-nextjs-saas",
             "database_id": "94dd1269-a29c-4621-adff-1762d1af6926",
             "migrations_dir": "src/db/migrations"
@@ -69,7 +85,7 @@
     ],
     "kv_namespaces": [
         {
-            "binding": "NEXT_CACHE_WORKERS_KV",
+            "binding": "NEXT_INC_CACHE_KV",
             "id": "c6f2b077e0a34a84b3598558eb833055"
         }
     ]

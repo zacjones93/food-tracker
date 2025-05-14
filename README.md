@@ -163,9 +163,3 @@ If you want to preview and edit the email templates you can:
 2. Open http://localhost:3001
 3. Edit the email templates in the `src/react-email` folder
 4. For inspiration you can checkout https://react.email/templates
-
-
-### How to upgrade this template
-Since this template is based on the [OpenNext](https://opennext.js.org/cloudflare) framework we need to make sure that we are following the changes they are making and update this template accordingly.
-
-To see the changes clone https://github.com/cloudflare/workers-sdk and then do `git diff 869ec7b...main -- packages/create-cloudflare/templates-experimental/next/` you will see the changes that we need to make to this template.

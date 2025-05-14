@@ -52,7 +52,7 @@ export const CURRENT_SESSION_VERSION = 1;
 
 export async function getKV() {
   const { env } = getCloudflareContext();
-  return env.NEXT_CACHE_WORKERS_KV;
+  return env.NEXT_INC_CACHE_KV;
 }
 
 export interface CreateKVSessionParams extends Omit<KVSession, "id" | "createdAt" | "expiresAt"> {
@@ -71,6 +71,10 @@ export async function createKVSession({
   const { cf } = getCloudflareContext();
   const headersList = await headers();
   const kv = await getKV();
+
+  if (!kv) {
+    throw new Error("Can't connect to KV store");
+  }
 
   const session: KVSession = {
     id: sessionId,
@@ -122,6 +126,10 @@ export async function createKVSession({
 export async function getKVSession(sessionId: string, userId: string): Promise<KVSession | null> {
   const kv = await getKV();
 
+  if (!kv) {
+    throw new Error("Can't connect to KV store");
+  }
+
   const sessionStr = await kv.get(getSessionKey(userId, sessionId));
   if (!sessionStr) return null;
 
@@ -164,6 +172,11 @@ export async function updateKVSession(sessionId: string, userId: string, expires
   };
 
   const kv = await getKV();
+
+  if (!kv) {
+    throw new Error("Can't connect to KV store");
+  }
+
   await kv.put(
     getSessionKey(userId, sessionId),
     JSON.stringify(updatedSession),
@@ -180,11 +193,21 @@ export async function deleteKVSession(sessionId: string, userId: string): Promis
   if (!session) return;
 
   const kv = await getKV();
+
+  if (!kv) {
+    throw new Error("Can't connect to KV store");
+  }
+
   await kv.delete(getSessionKey(userId, sessionId));
 }
 
 export async function getAllSessionIdsOfUser(userId: string) {
   const kv = await getKV();
+
+  if (!kv) {
+    throw new Error("Can't connect to KV store");
+  }
+
   const sessions = await kv.list({ prefix: getSessionKey(userId, "") });
 
   return sessions.keys.map((session) => ({
@@ -200,6 +223,11 @@ export async function getAllSessionIdsOfUser(userId: string) {
 export async function updateAllSessionsOfUser(userId: string) {
   const sessions = await getAllSessionIdsOfUser(userId);
   const kv = await getKV();
+
+  if (!kv) {
+    throw new Error("Can't connect to KV store");
+  }
+
   const newUserData = await getUserFromDB(userId);
 
   if (!newUserData) return;
