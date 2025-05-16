@@ -18,15 +18,18 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { useServerAction } from "zsa-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import SSOButtons from "../_components/sso-buttons";
 import { useState } from "react";
 import { startRegistration } from "@simplewebauthn/browser";
 import { KeyIcon } from 'lucide-react'
 import { useConfigStore } from "@/state/config";
 import { REDIRECT_AFTER_SIGN_IN } from "@/constants";
-const SignUpPage = () => {
-  const router = useRouter();
+
+interface SignUpClientProps {
+  redirectPath: string;
+}
+
+const SignUpPage = ({ redirectPath }: SignUpClientProps) => {
   const { isTurnstileEnabled } = useConfigStore();
   const [isPasskeyModalOpen, setIsPasskeyModalOpen] = useState(false);
   const [isRegistering, setIsRegistering] = useState(false);
@@ -42,7 +45,7 @@ const SignUpPage = () => {
     onSuccess: () => {
       toast.dismiss()
       toast.success("Account created successfully")
-      router.push(REDIRECT_AFTER_SIGN_IN)
+      window.location.href = redirectPath || REDIRECT_AFTER_SIGN_IN
     }
   })
 
@@ -55,7 +58,7 @@ const SignUpPage = () => {
     onSuccess: () => {
       toast.dismiss()
       toast.success("Account created successfully")
-      router.push(REDIRECT_AFTER_SIGN_IN)
+      window.location.href = redirectPath || REDIRECT_AFTER_SIGN_IN
     }
   })
 
@@ -119,7 +122,7 @@ const SignUpPage = () => {
           </h2>
           <p className="mt-2 text-muted-foreground">
             Already have an account?{" "}
-            <Link href="/sign-in" className="font-medium text-primary hover:text-primary/90 underline">
+            <Link href={`/sign-in?redirect=${encodeURIComponent(redirectPath)}`} className="font-medium text-primary hover:text-primary/90 underline">
               Sign in
             </Link>
           </p>
