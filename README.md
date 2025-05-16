@@ -103,6 +103,14 @@ Have a look at the [project plan](./cursor-docs/project-plan.md) to get an overv
   - 💾 Edge Database with D1
   - 🗄️ Session Storage with KV
   - ⚡ API Rate Limiting
+- 🏢 Multi-tenancy Support
+  - 👥 Organization Management
+  - 👤 User Roles and Permissions
+  - 🔍 Tenant Isolation
+  - 🔄 Resource Sharing Controls
+  - 📊 Per-tenant Analytics
+  - 🔐 Tenant-specific Configurations
+  - 💼 Team Collaboration Features
 
 ## Planned features (TODO):
 

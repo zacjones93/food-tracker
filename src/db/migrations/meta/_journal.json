@@ -57,6 +57,13 @@
       "when": 1743721891587,
       "tag": "0007_add_update_counter_and_payment_intent_id",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1747391678728,
+      "tag": "0008_add_multi_tenancy",
+      "breakpoints": true
     }
   ]
 }

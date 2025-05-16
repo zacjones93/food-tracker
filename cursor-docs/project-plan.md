@@ -23,6 +23,7 @@
 - Lucia Auth (User Management)
 - KV-based session management
 - CUID2 for ID generation
+- Team-based multi-tenancy
 
 ## Project Structure
 
@@ -41,25 +42,35 @@
 │   │   │   └── settings/
 │   │   │       ├── profile/      # Profile settings
 │   │   │       └── sessions/     # Session management
+│   │   ├── teams/                # Team management
+│   │   │   ├── [teamId]/         # Team-specific routes
+│   │   │   │   ├── members/      # Team member management
+│   │   │   │   ├── settings/     # Team settings
+│   │   │   │   └── billing/      # Team billing
+│   │   │   └── create/           # Team creation
 │   │   ├── api/                  # API routes
 │   │   └── globals.css           # Global styles
 │   ├── components/               # React components
 │   │   ├── auth/                 # Authentication components
 │   │   ├── layout/               # Layout components
+│   │   ├── teams/                # Team-related components
 │   │   └── ui/                   # Shadcn UI components
 │   ├── db/                       # Database related code
 │   │   ├── migrations/           # Database migrations
 │   │   └── schema.ts             # DrizzleORM schema
 │   ├── react-email/              # Email templates with react-email
 │   │   ├── reset-password.tsx
-│   │   └── verify-email.tsx
+│   │   ├── verify-email.tsx
+│   │   └── team-invitation.tsx   # Team invitation email
 │   ├── schemas/                  # Zod validation schemas
 │   ├── state/                    # Client state management (Zustand)
-│   │   └── session.ts            # Session state store
+│   │   ├── session.ts            # Session state store
+│   │   └── team.ts               # Team context state
 │   └── utils/                    # Core utilities
 │       ├── auth.ts               # Authentication logic
 │       ├── email.tsx             # Email sending utilities
-│       └── kv-session.ts         # Session handling with KV
+│       ├── kv-session.ts         # Session handling with KV
+│       └── team-auth.ts          # Team authorization utilities
 ├── public/                       # Static assets
 ├── cursor-docs/                  # Project documentation
 └── .wrangler/                    # Cloudflare Workers config
@@ -143,16 +154,45 @@
 ### Phase 5: Advanced Features (In Progress)
 - [ ] Real-time updates
 - [ ] Analytics dashboard
-- [ ] Team collaboration features
+- [x] Team collaboration features
+  - [x] Multi-tenancy implementation
+  - [x] Team creation and management
+  - [x] Team member roles and permissions
+  - [x] Team resources and isolation
+  - [x] Team invitations
 - [x] API rate limiting
 - [x] Admin dashboard
   - [x] User management
-  - [] Credit management
-  - [] Transaction monitoring
-  - [] Usage analytics
+  - [x] Credit management
+  - [x] Transaction monitoring
+  - [x] Usage analytics
 - [ ] Audit logging
 
-### Phase 6: Polish & Launch
+### Phase 6: Multi-Tenancy Implementation ✅
+- [x] Database schema updates
+  - [x] Team table
+  - [x] Team membership table
+  - [x] Team invitation table
+  - [x] Team role table with JSON permissions
+- [x] Authentication integration
+  - [x] Update session management to include team context
+  - [x] Implement team authorization utilities
+  - [x] Create route protection functions for team access
+- [x] Team and role management
+  - [x] Team CRUD operations
+  - [x] Custom role creation and management
+  - [x] Member management with role assignment
+- [x] Team UI components
+  - [x] Team creation and settings
+  - [x] Team member management
+  - [x] Role management interface
+  - [x] Team switching UI
+  - [x] Permission-aware components
+- [x] Application updates
+  - [x] Update existing APIs to handle team context
+  - [x] Implement team-specific layouts and page protection
+
+### Phase 7: Polish & Launch
 - [ ] Performance optimization
 - [ ] Security hardening
 - [ ] Documentation
@@ -170,8 +210,24 @@
   - [x] Credit management
   - [x] Transaction monitoring
   - [x] Usage analytics
-- [ ] Team management
-- [ ] Role-based access control
+- [x] Team management
+  - [x] Team creation and settings
+  - [x] Member invitations and management
+  - [x] Role-based permissions
+  - [x] Resource sharing
+
+### Multi-Tenancy
+- [x] Teams and organizations
+- [x] Role-based access control
+  - [x] System roles (Owner, Admin, Member, Guest)
+  - [x] Custom roles with JSON-stored permissions
+  - [x] Role assignment to team members
+- [x] Fine-grained permissions
+  - [x] Resource access permissions
+  - [x] Operation-specific permissions
+  - [x] Permission inheritance through roles
+- [x] Team invitations and onboarding
+- [x] Team settings and management
 
 ### Core Application
 - [x] Dashboard layout
@@ -187,6 +243,7 @@
 - [x] Transaction history
 - [x] Monthly credit refresh
 - [x] Stripe payment processing
+- [ ] Team-based billing
 
 ### Developer Experience
 - [ ] API documentation
@@ -226,6 +283,19 @@
   - [x] Usage monitoring tools
   - [x] Billing dispute handling
 
+### Multi-Tenancy Model
+- [ ] Team Structure
+  - [ ] Hierarchical team organization
+  - [ ] Custom team settings and branding
+- [ ] Permission System
+  - [ ] Role-based access control
+  - [ ] System and custom roles
+  - [ ] JSON-stored permissions
+  - [ ] Permission assignment to roles
+- [ ] Data Isolation
+  - [ ] Team-specific context in APIs
+  - [ ] Team-based access controls
+
 ### Security
 - [x] Authentication & authorization
 - [x] Session management
@@ -233,12 +303,14 @@
 - [x] Rate limiting
 - [ ] CORS policies
 - [x] Input validation
+- [ ] Team-based access controls
 
 ### Scalability
 - [x] Serverless architecture
 - [x] Edge caching
 - [ ] Database optimization
 - [ ] Asset delivery via R2
+- [ ] Multi-tenant resource isolation
 
 ## Monitoring & Analytics
 - [ ] Error tracking
@@ -247,6 +319,7 @@
 - [ ] Credit usage metrics
 - [ ] Transaction monitoring
 - [ ] Usage metrics
+- [ ] Team activity monitoring
 
 ## Launch Checklist
 - [ ] Security audit

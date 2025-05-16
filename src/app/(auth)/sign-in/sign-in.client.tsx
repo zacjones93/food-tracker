@@ -18,15 +18,19 @@ import SSOButtons from "../_components/sso-buttons";
 import { KeyIcon } from "lucide-react";
 import { generateAuthenticationOptionsAction, verifyAuthenticationAction } from "@/app/(settings)/settings/security/passkey-settings.actions";
 import { startAuthentication } from "@simplewebauthn/browser";
-import { REDIRECT_AFTER_SIGN_IN } from "@/constants";
+
+interface SignInClientProps {
+  redirectPath: string;
+}
 
 interface PasskeyAuthenticationButtonProps {
   className?: string;
   disabled?: boolean;
   children?: ReactNode;
+  redirectPath: string;
 }
 
-function PasskeyAuthenticationButton({ className, disabled, children }: PasskeyAuthenticationButtonProps) {
+function PasskeyAuthenticationButton({ className, disabled, children, redirectPath }: PasskeyAuthenticationButtonProps) {
   const { execute: generateOptions } = useServerAction(generateAuthenticationOptionsAction, {
     onError: (error) => {
       toast.dismiss();
@@ -42,7 +46,7 @@ function PasskeyAuthenticationButton({ className, disabled, children }: PasskeyA
     onSuccess: () => {
       toast.dismiss();
       toast.success("Authentication successful");
-      window.location.href = REDIRECT_AFTER_SIGN_IN;
+      window.location.href = redirectPath;
     },
   });
 
@@ -90,7 +94,7 @@ function PasskeyAuthenticationButton({ className, disabled, children }: PasskeyA
   );
 }
 
-const SignInPage = () => {
+const SignInPage = ({ redirectPath }: SignInClientProps) => {
   const { execute: signIn } = useServerAction(signInAction, {
     onError: (error) => {
       toast.dismiss()
@@ -102,6 +106,7 @@ const SignInPage = () => {
     onSuccess: () => {
       toast.dismiss()
       toast.success("Signed in successfully")
+      window.location.href = redirectPath;
     }
   })
   const form = useForm<SignInSchema>({
@@ -121,7 +126,7 @@ const SignInPage = () => {
           </h2>
           <p className="mt-2 text-muted-foreground">
             Or{" "}
-            <Link href="/sign-up" className="font-medium text-primary hover:text-primary/90 underline">
+            <Link href={`/sign-up?redirect=${encodeURIComponent(redirectPath)}`} className="font-medium text-primary hover:text-primary/90 underline">
               create a new account
             </Link>
           </p>
@@ -130,7 +135,7 @@ const SignInPage = () => {
         <div className="space-y-4">
           <SSOButtons isSignIn />
 
-          <PasskeyAuthenticationButton className="w-full">
+          <PasskeyAuthenticationButton className="w-full" redirectPath={redirectPath}>
             <KeyIcon className="w-5 h-5 mr-2" />
             Sign in with a Passkey
           </PasskeyAuthenticationButton>
