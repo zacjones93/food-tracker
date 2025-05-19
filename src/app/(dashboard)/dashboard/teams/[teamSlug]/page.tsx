@@ -145,6 +145,7 @@ export default async function TeamDashboardPage({ params }: TeamPageProps) {
 
             {team.avatarUrl ? (
               <div className="h-16 w-16 rounded-md overflow-hidden">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={team.avatarUrl || ""}
                   alt={`${team.name} avatar`}
