@@ -26,7 +26,7 @@
     "@hookform/resolvers": "^3.10.0",
     "@icons-pack/react-simple-icons": "^11.2.0",
     "@marsidev/react-turnstile": "^1.1.0",
-    "@opennextjs/cloudflare": "^1.0.3",
+    "@opennextjs/cloudflare": "^1.0.4",
     "@oslojs/crypto": "^1.0.1",
     "@oslojs/encoding": "^1.1.0",
     "@paralleldrive/cuid2": "^2.2.2",
@@ -82,7 +82,7 @@
     "@simplewebauthn/types": "^12.0.0",
     "@tailwindcss/typography": "^0.5.16",
     "@types/ms": "^0.7.34",
-    "@types/node": "^20.17.48",
+    "@types/node": "^20.17.49",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "drizzle-kit": "^0.30.4",
@@ -92,7 +92,7 @@
     "react-email": "3.0.6",
     "tailwindcss": "^3.4.1",
     "typescript": "^5",
-    "wrangler": "^4.15.2"
+    "wrangler": "^4.16.0"
   },
   "packageManager": "pnpm@9.12.1+sha512.e5a7e52a4183a02d5931057f7a0dbff9d5e9ce3161e33fa68ae392125b79282a8a8a470a51dfc8a0ed86221442eb2fb57019b0990ed24fab519bf0e1bc5ccfc4"
 }
