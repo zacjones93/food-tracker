@@ -39,8 +39,8 @@
      * https://developers.cloudflare.com/workers/wrangler/configuration/#environment-variables
      */
     "vars": {
-        "EMAIL_FROM": "hello@saas-stack.startup-studio.dev",
-        "EMAIL_FROM_NAME": "Startup Studio",
+        "EMAIL_FROM": "no-reply@notifications.agenticdev.agency",
+        "EMAIL_FROM_NAME": "AgenticDev.agency",
         "EMAIL_REPLY_TO": "support@agenticdev.agency"
     },
     /**
