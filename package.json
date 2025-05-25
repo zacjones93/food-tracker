@@ -12,7 +12,7 @@
     "lint": "next lint",
     "deploy": "pnpm run opennext:build && opennextjs-cloudflare deploy",
     "preview": "pnpm run opennext:build && opennextjs-cloudflare preview",
-    "cf-typegen": "wrangler types --env-interface CloudflareBindings ./cloudflare-env.d.ts",
+    "cf-typegen": "wrangler types --env-interface CloudflareEnv ./cloudflare-env.d.ts",
     "db:generate": "drizzle-kit generate --name",
     "db:migrate:dev": "wrangler d1 migrations apply $(node scripts/get-db-name.mjs) --local",
     "d1:cache:clean": "wrangler d1 execute $(node scripts/get-db-name.mjs) --command \"DELETE FROM tags; DELETE FROM revalidations\" --remote",
