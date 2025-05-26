@@ -26,9 +26,6 @@ importers:
       '@opennextjs/cloudflare':
         specifier: ^1.0.4
         version: 1.0.4(wrangler@4.16.1)
-      '@oslojs/crypto':
-        specifier: ^1.0.1
-        version: 1.0.1
       '@oslojs/encoding':
         specifier: ^1.1.0
         version: 1.1.0
