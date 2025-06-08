@@ -25,6 +25,11 @@ alwaysApply: true
 - Add `import "server-only"` at the top of the file (ignore this rule for page.tsx files) if it's only intended to be used on the server.
 - When creating React server actions always use `import { useServerAction } from "zsa-react"`
 
+## Package Management
+
+- Before adding any new packages, always check if we already have them in `package.json` to avoid duplicates.
+- Use `pnpm` for all package management operations.
+
 ## Type Definitions
 
 - When you have to add a global type, add it to `custom-env.d.ts` instead of `cloudflare-env.d.ts`, because otherwise it will be overridden by `pnpm run cf-typegen`.
