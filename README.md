@@ -114,6 +114,9 @@ Have a look at the [project plan](./cursor-docs/project-plan.md) to get an overv
 
 ## Planned features (TODO):
 
+- [ ] Add an eslint rule to check for unused imports and exports
+- [ ] Add an eslint rule to check for unused variables and functions
+- [ ] Upgrade to Tailwind 4 and fix the errors and visual regressions. Already started here https://github.com/LubomirGeorgiev/cloudflare-workers-nextjs-saas-template/tree/tailwind-4-upgrade
 - [ ] Update Meta SEO tags 🔍
 - [ ] Dynamic OpenGraph images 📸
 - [ ] sitemap.xml 📄
@@ -121,7 +124,6 @@ Have a look at the [project plan](./cursor-docs/project-plan.md) to get an overv
 - [ ] Multi-language support (i18n) 🌐
 - [ ] Notifications 🔔
 - [ ] Webhooks 🔗
-- [ ] Track bundle size with https://www.npmjs.com/package/webpack-bundle-analyzer 📊
 
 # Running it locally
 
