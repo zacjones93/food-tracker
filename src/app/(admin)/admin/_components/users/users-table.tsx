@@ -28,8 +28,8 @@ export function UsersTable() {
   }
 
   return (
-    <div className="container mx-auto py-10 px-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="p-6 w-full min-w-0 flex flex-col overflow-hidden">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between flex-shrink-0">
         <h1 className="text-3xl font-bold">Users</h1>
         <Input
           placeholder="Filter emails..."
@@ -39,8 +39,8 @@ export function UsersTable() {
           className="max-w-sm"
         />
       </div>
-      <div className="mt-8">
-        <div className="space-y-4">
+      <div className="mt-8 flex-1 min-h-0">
+        <div className="space-y-4 h-full">
           {status === 'pending' || status === 'idle' ? (
             <div>Loading...</div>
           ) : error ? (
@@ -48,19 +48,21 @@ export function UsersTable() {
           ) : !data ? (
             <div>No users found</div>
           ) : (
-            <DataTable
-              columns={columns}
-              data={data.users}
-              pageCount={data.totalPages}
-              pageIndex={page - 1}
-              pageSize={pageSize}
-              onPageChange={handlePageChange}
-              onPageSizeChange={setPageSize}
-              totalCount={data.totalCount}
-              itemNameSingular="user"
-              itemNamePlural="users"
-              pageSizeOptions={PAGE_SIZE_OPTIONS}
-            />
+            <div className="w-full min-w-0">
+              <DataTable
+                columns={columns}
+                data={data.users}
+                pageCount={data.totalPages}
+                pageIndex={page - 1}
+                pageSize={pageSize}
+                onPageChange={handlePageChange}
+                onPageSizeChange={setPageSize}
+                totalCount={data.totalCount}
+                itemNameSingular="user"
+                itemNamePlural="users"
+                pageSizeOptions={PAGE_SIZE_OPTIONS}
+              />
+            </div>
           )}
         </div>
       </div>
