@@ -10,6 +10,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table"
+import Link from "next/link"
 
 import {
   Table,
@@ -47,6 +48,8 @@ interface DataTableProps<TData, TValue> {
   itemNameSingular: string
   itemNamePlural: string
   pageSizeOptions?: number[]
+  getRowHref?: (row: TData) => string
+  excludeClickableColumns?: string[]
 }
 
 export function DataTable<TData, TValue>({
@@ -61,6 +64,8 @@ export function DataTable<TData, TValue>({
   itemNameSingular,
   itemNamePlural,
   pageSizeOptions = [10, 20, 100],
+  getRowHref,
+  excludeClickableColumns = ["actions"],
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
@@ -161,21 +166,51 @@ export function DataTable<TData, TValue>({
           </TableHeader>
           <TableBody>
             {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
+              table.getRowModel().rows.map((row) => {
+                const href = getRowHref?.(row.original)
+
+                return (
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && "selected"}
+                    className={href ? "hover:bg-muted/50 transition-colors" : ""}
+                  >
+                    {row.getVisibleCells().map((cell) => {
+                      const isExcludedColumn = excludeClickableColumns.includes(cell.column.id)
+                      const cellContent = flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
+                      )
+
+                      if (href && !isExcludedColumn) {
+                        return (
+                          <TableCell key={cell.id} className="p-0 h-full">
+                            <Link
+                              href={href as Parameters<typeof Link>[0]['href']}
+                              className="flex items-center px-4 py-2 h-full w-full cursor-pointer min-h-[inherit]"
+                              onClick={(e) => {
+                                // Prevent navigation if clicking on interactive elements
+                                const target = e.target as HTMLElement
+                                if (target.closest('button, a[href], [role="button"], [role="menuitem"]')) {
+                                  e.preventDefault()
+                                }
+                              }}
+                            >
+                              {cellContent}
+                            </Link>
+                          </TableCell>
+                        )
+                      } else {
+                        return (
+                          <TableCell key={cell.id}>
+                            {cellContent}
+                          </TableCell>
+                        )
+                      }
+                    })}
+                  </TableRow>
+                )
+              })
             ) : (
               <TableRow>
                 <TableCell

@@ -1,17 +1,19 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useEffect } from "react"
 import { DataTable } from "@/components/data-table"
-import { columns } from "./columns"
+import { columns, type User } from "./columns"
 import { getUsersAction } from "../../_actions/get-users.action"
 import { useServerAction } from "zsa-react"
 import { toast } from "sonner"
 import { Input } from "@/components/ui/input"
 import { PAGE_SIZE_OPTIONS } from "../../admin-constants"
+import { useQueryState } from "nuqs"
+
 export function UsersTable() {
-  const [page, setPage] = useState(1)
-  const [pageSize, setPageSize] = useState(10)
-  const [emailFilter, setEmailFilter] = useState("")
+  const [page, setPage] = useQueryState("page", { defaultValue: "1" })
+  const [pageSize, setPageSize] = useQueryState("pageSize", { defaultValue: PAGE_SIZE_OPTIONS[0].toString() })
+  const [emailFilter, setEmailFilter] = useQueryState("email", { defaultValue: "" })
 
   const { execute: fetchUsers, data, error, status } = useServerAction(getUsersAction, {
     onError: () => {
@@ -20,11 +22,25 @@ export function UsersTable() {
   })
 
   useEffect(() => {
-    fetchUsers({ page, pageSize, emailFilter })
+    fetchUsers({ page: parseInt(page), pageSize: parseInt(pageSize), emailFilter })
   }, [fetchUsers, page, pageSize, emailFilter])
 
   const handlePageChange = (newPage: number) => {
-    setPage(newPage + 1) // Convert from 0-based to 1-based
+    setPage((newPage + 1).toString()) // Convert from 0-based to 1-based and store as string
+  }
+
+  const handlePageSizeChange = (newPageSize: number) => {
+    setPageSize(newPageSize.toString())
+    setPage("1") // Reset to first page when changing page size
+  }
+
+  const handleEmailFilterChange = (value: string) => {
+    setEmailFilter(value)
+    setPage("1") // Reset to first page when filtering
+  }
+
+  const getRowHref = (user: User) => {
+    return `/admin/users/${user.id}`
   }
 
   return (
@@ -35,7 +51,7 @@ export function UsersTable() {
           placeholder="Filter emails..."
           type="search"
           value={emailFilter}
-          onChange={(event) => setEmailFilter(event.target.value)}
+          onChange={(event) => handleEmailFilterChange(event.target.value)}
           className="max-w-sm"
         />
       </div>
@@ -53,14 +69,15 @@ export function UsersTable() {
                 columns={columns}
                 data={data.users}
                 pageCount={data.totalPages}
-                pageIndex={page - 1}
-                pageSize={pageSize}
+                pageIndex={parseInt(page) - 1}
+                pageSize={parseInt(pageSize)}
                 onPageChange={handlePageChange}
-                onPageSizeChange={setPageSize}
+                onPageSizeChange={handlePageSizeChange}
                 totalCount={data.totalCount}
                 itemNameSingular="user"
                 itemNamePlural="users"
                 pageSizeOptions={PAGE_SIZE_OPTIONS}
+                getRowHref={getRowHref}
               />
             </div>
           )}
