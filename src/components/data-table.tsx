@@ -169,6 +169,8 @@ export function DataTable<TData, TValue>({
               table.getRowModel().rows.map((row) => {
                 const href = getRowHref?.(row.original)
 
+                console.log('---href', href)
+
                 return (
                   <TableRow
                     key={row.id}
@@ -188,13 +190,6 @@ export function DataTable<TData, TValue>({
                             <Link
                               href={href as Parameters<typeof Link>[0]['href']}
                               className="flex items-center px-4 py-2 h-full w-full cursor-pointer min-h-[inherit]"
-                              onClick={(e) => {
-                                // Prevent navigation if clicking on interactive elements
-                                const target = e.target as HTMLElement
-                                if (target.closest('button, a[href], [role="button"], [role="menuitem"]')) {
-                                  e.preventDefault()
-                                }
-                              }}
                             >
                               {cellContent}
                             </Link>
