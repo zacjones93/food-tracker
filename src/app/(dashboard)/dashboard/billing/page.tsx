@@ -9,7 +9,7 @@ export default async function BillingPage() {
   const session = await getSessionFromCookie();
 
   if (!session) {
-    redirect("/auth/login");
+    redirect("/sign-in");
   }
 
   return (
