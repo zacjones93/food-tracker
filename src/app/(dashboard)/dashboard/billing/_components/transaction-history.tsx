@@ -18,6 +18,7 @@ import { format, isPast } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { useTransactionStore } from "@/state/transaction";
 import { useQueryState } from "nuqs";
+import { DISABLE_CREDIT_BILLING_SYSTEM } from "@/constants";
 
 type TransactionData = Awaited<ReturnType<typeof getTransactions>>
 
@@ -50,6 +51,10 @@ export function TransactionHistory() {
   const handlePageChange = (newPage: number) => {
     setPage(newPage.toString());
   };
+
+  if (DISABLE_CREDIT_BILLING_SYSTEM) {
+    return null;
+  }
 
   if (isLoading) {
     return (

@@ -3,7 +3,7 @@ import { eq, sql, desc, and, lt, isNull, gt, or, asc } from "drizzle-orm";
 import { getDB } from "@/db";
 import { userTable, creditTransactionTable, CREDIT_TRANSACTION_TYPE, purchasedItemsTable } from "@/db/schema";
 import { updateAllSessionsOfUser, KVSession } from "./kv-session";
-import { CREDIT_PACKAGES, FREE_MONTHLY_CREDITS } from "@/constants";
+import { CREDIT_PACKAGES, FREE_MONTHLY_CREDITS, DISABLE_CREDIT_BILLING_SYSTEM } from "@/constants";
 
 export type CreditPackage = typeof CREDIT_PACKAGES[number];
 
@@ -26,6 +26,10 @@ function shouldRefreshCredits(session: KVSession, currentTime: Date): boolean {
 }
 
 async function processExpiredCredits(userId: string, currentTime: Date) {
+  if (DISABLE_CREDIT_BILLING_SYSTEM) {
+    return;
+  }
+
   const db = getDB();
   // Find all expired transactions that haven't been processed and have remaining credits
   // Order by type to process MONTHLY_REFRESH first, then by creation date
@@ -82,6 +86,10 @@ async function processExpiredCredits(userId: string, currentTime: Date) {
 }
 
 export async function addUserCredits(userId: string, creditsToAdd: number) {
+  if (DISABLE_CREDIT_BILLING_SYSTEM) {
+    return;
+  }
+
   const db = getDB();
   await db
     .update(userTable)
@@ -106,6 +114,10 @@ export async function logTransaction({
   expirationDate?: Date;
   paymentIntentId?: string;
 }) {
+  if (DISABLE_CREDIT_BILLING_SYSTEM) {
+    return;
+  }
+
   const db = getDB();
   await db.insert(creditTransactionTable).values({
     userId,
@@ -119,6 +131,10 @@ export async function logTransaction({
 }
 
 export async function addFreeMonthlyCreditsIfNeeded(session: KVSession): Promise<number> {
+  if (DISABLE_CREDIT_BILLING_SYSTEM) {
+    return 0;
+  }
+
   const currentTime = new Date();
 
   // Check if it's been at least a month since last refresh
@@ -203,6 +219,10 @@ export async function addFreeMonthlyCreditsIfNeeded(session: KVSession): Promise
 }
 
 export async function hasEnoughCredits({ userId, requiredCredits }: { userId: string; requiredCredits: number }) {
+  if (DISABLE_CREDIT_BILLING_SYSTEM) {
+    return true;
+  }
+
   const user = await getDB().query.userTable.findFirst({
     where: eq(userTable.id, userId),
     columns: {
@@ -215,6 +235,10 @@ export async function hasEnoughCredits({ userId, requiredCredits }: { userId: st
 }
 
 export async function consumeCredits({ userId, amount, description }: { userId: string; amount: number; description: string }) {
+  if (DISABLE_CREDIT_BILLING_SYSTEM) {
+    return 0;
+  }
+
   const db = getDB();
 
   // First check if user has enough credits
@@ -322,6 +346,17 @@ export async function getCreditTransactions({
   page?: number;
   limit?: number;
 }) {
+  if (DISABLE_CREDIT_BILLING_SYSTEM) {
+    return {
+      transactions: [],
+      pagination: {
+        total: 0,
+        pages: 0,
+        current: page,
+      },
+    };
+  }
+
   const db = getDB();
   const transactions = await db.query.creditTransactionTable.findMany({
     where: eq(creditTransactionTable.userId, userId),
