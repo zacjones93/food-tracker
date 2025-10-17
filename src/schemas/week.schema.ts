@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 export const createWeekSchema = z.object({
+  teamId: z.string(),
   name: z.string().min(2).max(255),
   emoji: z.string().max(10).optional(),
   status: z.enum(['current', 'upcoming', 'archived']).default('upcoming'),
