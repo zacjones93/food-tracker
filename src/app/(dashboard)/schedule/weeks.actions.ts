@@ -2,7 +2,7 @@
 
 import { createServerAction, ZSAError } from "zsa";
 import { getDB } from "@/db";
-import { weeksTable, weekRecipesTable } from "@/db/schema";
+import { weeksTable, weekRecipesTable, teamMembershipTable, TEAM_PERMISSIONS } from "@/db/schema";
 import {
   createWeekSchema,
   updateWeekSchema,
@@ -12,8 +12,11 @@ import {
   removeRecipeFromWeekSchema,
   reorderWeekRecipesSchema,
 } from "@/schemas/week.schema";
-import { eq, and } from "drizzle-orm";
+import { eq, and, inArray } from "drizzle-orm";
 import { getSessionFromCookie } from "@/utils/auth";
+import { requirePermission } from "@/utils/team-auth";
+import { z } from "zod";
+import { revalidatePath } from "next/cache";
 
 export const createWeekAction = createServerAction()
   .input(createWeekSchema)
@@ -23,10 +26,14 @@ export const createWeekAction = createServerAction()
       throw new ZSAError("UNAUTHORIZED", "You must be logged in");
     }
 
+    // Require permission
+    await requirePermission(user.id, input.teamId, TEAM_PERMISSIONS.CREATE_SCHEDULES);
+
     const db = getDB();
 
     const [week] = await db.insert(weeksTable)
       .values({
+        teamId: input.teamId,
         name: input.name,
         emoji: input.emoji,
         status: input.status,
@@ -50,14 +57,24 @@ export const updateWeekAction = createServerAction()
     const db = getDB();
     const { id, ...updateData } = input;
 
+    // Get week to verify team ownership
+    const existingWeek = await db.query.weeksTable.findFirst({
+      where: eq(weeksTable.id, id),
+    });
+
+    if (!existingWeek) {
+      throw new ZSAError("NOT_FOUND", "Week not found");
+    }
+
+    await requirePermission(user.id, existingWeek.teamId, TEAM_PERMISSIONS.EDIT_SCHEDULES);
+
     const [week] = await db.update(weeksTable)
       .set(updateData)
       .where(eq(weeksTable.id, id))
       .returning();
 
-    if (!week) {
-      throw new ZSAError("NOT_FOUND", "Week not found");
-    }
+    revalidatePath("/schedule");
+    revalidatePath(`/schedule/${id}`);
 
     return { week };
   });
@@ -71,6 +88,16 @@ export const deleteWeekAction = createServerAction()
     }
 
     const db = getDB();
+
+    const existingWeek = await db.query.weeksTable.findFirst({
+      where: eq(weeksTable.id, input.id),
+    });
+
+    if (!existingWeek) {
+      throw new ZSAError("NOT_FOUND", "Week not found");
+    }
+
+    await requirePermission(user.id, existingWeek.teamId, TEAM_PERMISSIONS.DELETE_SCHEDULES);
 
     await db.delete(weeksTable)
       .where(eq(weeksTable.id, input.id));
@@ -97,6 +124,9 @@ export const getWeekByIdAction = createServerAction()
           },
           orderBy: (weekRecipes, { asc }) => [asc(weekRecipes.order)],
         },
+        groceryItems: {
+          orderBy: (groceryItems, { asc }) => [asc(groceryItems.order)],
+        },
       },
     });
 
@@ -116,18 +146,121 @@ export const getWeeksAction = createServerAction()
 
     const db = getDB();
 
+    // Get user's team memberships
+    const memberships = await db.query.teamMembershipTable.findMany({
+      where: and(
+        eq(teamMembershipTable.userId, user.id),
+        eq(teamMembershipTable.isActive, 1)
+      ),
+    });
+
+    const teamIds = memberships.map(m => m.teamId);
+
+    if (teamIds.length === 0) {
+      return { weeks: [] };
+    }
+
+    // Only return weeks from user's teams
     const weeks = await db.query.weeksTable.findMany({
+      where: inArray(weeksTable.teamId, teamIds),
       orderBy: (weeks, { desc }) => [desc(weeks.startDate)],
       with: {
         recipes: {
           with: {
             recipe: true,
           },
+          orderBy: (weekRecipes, { asc }) => [asc(weekRecipes.order)],
         },
       },
     });
 
     return { weeks };
+  });
+
+export const getCurrentAndUpcomingWeeksAction = createServerAction()
+  .handler(async () => {
+    const { user } = await getSessionFromCookie();
+    if (!user) {
+      throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+    }
+
+    const db = getDB();
+
+    // Get user's team memberships
+    const memberships = await db.query.teamMembershipTable.findMany({
+      where: and(
+        eq(teamMembershipTable.userId, user.id),
+        eq(teamMembershipTable.isActive, 1)
+      ),
+    });
+
+    const teamIds = memberships.map(m => m.teamId);
+
+    if (teamIds.length === 0) {
+      return { weeks: [] };
+    }
+
+    const weeks = await db.query.weeksTable.findMany({
+      where: (weeks, { or, eq, and: andFn }) => andFn(
+        inArray(weeks.teamId, teamIds),
+        or(
+          eq(weeks.status, 'current'),
+          eq(weeks.status, 'upcoming')
+        )
+      ),
+      orderBy: (weeks, { asc }) => [asc(weeks.startDate)],
+    });
+
+    return { weeks };
+  });
+
+export const getWeeksForRecipeAction = createServerAction()
+  .input(z.object({ recipeId: z.string() }))
+  .handler(async ({ input }) => {
+    const { user } = await getSessionFromCookie();
+    if (!user) {
+      throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+    }
+
+    const db = getDB();
+
+    // Get user's team memberships
+    const memberships = await db.query.teamMembershipTable.findMany({
+      where: and(
+        eq(teamMembershipTable.userId, user.id),
+        eq(teamMembershipTable.isActive, 1)
+      ),
+    });
+
+    const teamIds = memberships.map(m => m.teamId);
+
+    if (teamIds.length === 0) {
+      return { weeks: [] };
+    }
+
+    const weeks = await db.query.weeksTable.findMany({
+      where: (weeks, { or, eq, and: andFn }) => andFn(
+        inArray(weeks.teamId, teamIds),
+        or(
+          eq(weeks.status, 'current'),
+          eq(weeks.status, 'upcoming')
+        )
+      ),
+      orderBy: (weeks, { asc }) => [asc(weeks.startDate)],
+      with: {
+        recipes: {
+          where: (weekRecipes, { eq }) => eq(weekRecipes.recipeId, input.recipeId),
+        },
+      },
+    });
+
+    // Transform to include hasRecipe flag
+    const weeksWithFlag = weeks.map(week => ({
+      ...week,
+      hasRecipe: week.recipes.length > 0,
+    }));
+
+    return { weeks: weeksWithFlag };
   });
 
 export const addRecipeToWeekAction = createServerAction()
@@ -152,13 +285,23 @@ export const addRecipeToWeekAction = createServerAction()
       throw new ZSAError("CONFLICT", "Recipe is already in this week");
     }
 
+    // Get max order for this week to add at bottom
+    const weekRecipes = await db.query.weekRecipesTable.findMany({
+      where: eq(weekRecipesTable.weekId, input.weekId),
+    });
+
+    const maxOrder = weekRecipes.reduce((max, wr) => Math.max(max, wr.order ?? 0), -1);
+
     const [weekRecipe] = await db.insert(weekRecipesTable)
       .values({
         weekId: input.weekId,
         recipeId: input.recipeId,
-        order: input.order ?? 0,
+        order: input.order ?? maxOrder + 1,
       })
       .returning();
+
+    revalidatePath("/schedule");
+    revalidatePath(`/schedule/${input.weekId}`);
 
     return { weekRecipe };
   });
@@ -180,6 +323,9 @@ export const removeRecipeFromWeekAction = createServerAction()
           eq(weekRecipesTable.recipeId, input.recipeId)
         )
       );
+
+    revalidatePath("/schedule");
+    revalidatePath(`/schedule/${input.weekId}`);
 
     return { success: true };
   });
@@ -205,6 +351,9 @@ export const reorderWeekRecipesAction = createServerAction()
           )
         );
     }
+
+    revalidatePath("/schedule");
+    revalidatePath(`/schedule/${input.weekId}`);
 
     return { success: true };
   });
