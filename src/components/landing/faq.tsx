@@ -4,128 +4,71 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { GITHUB_REPO_URL } from "@/constants";
 
 const faqs = [
   {
-    question: "Is this template really free?",
+    question: "How does the weekly meal planning work?",
     answer: (
       <>
-        Yes, this template is completely free and <a href={GITHUB_REPO_URL} target="_blank">open source</a>! You can use it for both personal and commercial projects without any licensing fees. You can fork, copy, modify, and distribute it as you see fit without any restrictions and attribution.
-      </>
-    ),
-  },
-  {
-    question: "What features are included?",
-    answer: (
-      <>
-        The template includes a comprehensive set of features:
+        <p>Create weeks to organize your meal plans. Each week has three states:</p>
         <ul className="list-disc pl-6 mt-2 space-y-1">
-          <li>Authentication with email/password and forgot password flow</li>
-          <li>Database integration with Drizzle ORM and Cloudflare D1</li>
-          <li>Email service powered by React Email and Resend</li>
-          <li>Modern UI components from Shadcn UI and Tailwind CSS</li>
-          <li>Form validations and error handling</li>
-          <li>Dark mode support</li>
-          <li>Responsive design</li>
-          <li>TypeScript throughout the codebase</li>
-          <li>Automated deployments with GitHub Actions</li>
-          <li>Captcha integration with Turnstile</li>
-          <li>SEO optimization with Next.js</li>
-          <li>And countless other features...</li>
+          <li><strong>Current:</strong> Your active meal plan for this week</li>
+          <li><strong>Upcoming:</strong> Future weeks you&apos;re planning ahead for</li>
+          <li><strong>Archived:</strong> Past weeks for reference and history</li>
         </ul>
+        <p className="mt-2">Add recipes to each week and arrange them in any order you like.</p>
       </>
     ),
   },
   {
-    question: "What's the tech stack?",
+    question: "How do I organize my recipes?",
     answer: (
       <>
-        <p>The template uses modern and reliable technologies:</p>
+        <p>Recipes can be organized with multiple properties:</p>
         <ul className="list-disc pl-6 mt-2 space-y-1">
-          <li>Next.js 15 with App Router and React Server Components</li>
-          <li>TypeScript for type safety</li>
-          <li>Tailwind CSS and Shadcn UI for styling</li>
-          <li>DrizzleORM with Cloudflare D1 for database</li>
-          <li>Lucia Auth for authentication</li>
-          <li>Cloudflare Workers for serverless deployment</li>
-          <li>Cloudflare KV for session storage</li>
-          <li>React Email for beautiful email templates</li>
+          <li><strong>Tags:</strong> Custom labels like &quot;Italian&quot;, &quot;Quick&quot;, &quot;Vegetarian&quot;</li>
+          <li><strong>Meal Type:</strong> Breakfast, Lunch, Dinner, Snack, Dessert</li>
+          <li><strong>Difficulty:</strong> Easy, Medium, Hard</li>
+          <li><strong>Emoji:</strong> A fun visual identifier for each recipe</li>
         </ul>
+        <p className="mt-2">Search and filter your recipe collection to find exactly what you need.</p>
       </>
     ),
   },
   {
-    question: "How do I deploy my application?",
+    question: "What is meal tracking?",
     answer: (
       <>
-        <p>Deployment is automated with GitHub Actions. You&apos;ll need to:</p>
-        <ol className="list-decimal pl-6 mt-2 space-y-1">
-          <li>Create Cloudflare D1 and KV namespaces</li>
-          <li>Set up Resend for email service</li>
-          <li>Configure Turnstile for captcha</li>
-          <li>Add your Cloudflare API token to GitHub secrets</li>
-          <li>Push to the main branch</li>
-        </ol>
-        <p className="mt-2">The deployment process is fully documented in the <a href={`${GITHUB_REPO_URL}/blob/main/README.md`} target="_blank">GitHub repository</a>.</p>
-      </>
-    ),
-  },
-  {
-    question: "What do I need to get started?",
-    answer: (
-      <>
-        <p>You&apos;ll need a Cloudflare account (free tier is fine), Node.js installed locally, and basic knowledge of React and TypeScript. The template includes detailed documentation to guide you through the setup.</p>
-        <p>You can also check out the <a href={`${GITHUB_REPO_URL}/blob/main/README.md`} target="_blank">documentation</a> for more information.</p>
-      </>
-    ),
-  },
-  {
-    question: "What are the upcoming features?",
-    answer: (
-      <>
-        <p>We have an exciting roadmap ahead! Planned features include:</p>
+        <p>Track how often you make each recipe! The app automatically records:</p>
         <ul className="list-disc pl-6 mt-2 space-y-1">
-          <li>Multi-language support (i18n)</li>
-          <li>Billing and payment processing</li>
-          <li>Admin dashboard</li>
-          <li>Email verification on sign up</li>
-          <li>Notifications system</li>
-          <li>Webhooks support</li>
-          <li>Team collaboration features</li>
-          <li>Real-time updates</li>
-          <li>Analytics dashboard</li>
+          <li>Total number of times you&apos;ve made each dish</li>
+          <li>When you last cooked it</li>
         </ul>
+        <p className="mt-2">Use the increment button to log when you cook a recipe. Great for discovering favorites and forgotten gems!</p>
       </>
     ),
   },
   {
-    question: "Can I preview the email templates?",
+    question: "Can I link recipes together?",
     answer: (
       <>
-        Yes! Run <code>pnpm email:dev</code> and open <a href="http://localhost:3001" target="_blank">http://localhost:3001</a> to preview and edit the email templates. They&apos;re built with React Email for a great developer experience.
+        <p>Yes! Connect recipes as sides or accompaniments. For example, link &quot;Mashed Potatoes&quot; as a side to &quot;Roast Chicken&quot;. This helps you plan complete meals with main dishes and sides all organized together.</p>
       </>
     ),
   },
   {
-    question: "How do I customize the template?",
+    question: "Is my data private?",
     answer: (
       <>
-        <p>Before deploying to production, you should:</p>
-        <ul className="list-disc pl-6 mt-2 space-y-1">
-          <li>Update project details in <code>src/constants.ts</code></li>
-          <li>Customize the documentation in <code>./cursor-docs</code></li>
-          <li>Modify the footer in <code>src/components/footer.tsx</code></li>
-          <li>Optionally update the color palette in <code>src/app/globals.css</code></li>
-        </ul>
+        <p>Yes, your recipes and meal plans are completely private. Each user has their own account with secure authentication. Your data is stored securely and only you can access it.</p>
       </>
     ),
   },
   {
-    question: "How can I contribute?",
+    question: "Does it work on mobile?",
     answer: (
       <>
-        Contributions are welcome! Feel free to open issues, submit pull requests, or help improve the documentation on <a href={GITHUB_REPO_URL} target="_blank">GitHub</a>. The project follows standard open source contribution guidelines.
+        <p>Absolutely! The app is fully responsive and works great on phones and tablets. Access your recipes and meal plans from anywhere - perfect for grocery shopping or cooking in the kitchen.</p>
       </>
     ),
   },

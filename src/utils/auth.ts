@@ -1,13 +1,12 @@
 import "server-only";
 
-import { ROLES_ENUM, userTable, teamMembershipTable, SYSTEM_ROLES_ENUM, teamRoleTable, TEAM_PERMISSIONS } from "@/db/schema";
+import { ROLES_ENUM, userTable } from "@/db/schema";
 import { init } from "@paralleldrive/cuid2";
 import { encodeHexLowerCase } from "@oslojs/encoding"
 import ms from "ms"
 import { getDB } from "@/db";
 import { eq } from "drizzle-orm";
 import { cookies } from "next/headers";
-import isProd from "@/utils/is-prod";
 import {
   createKVSession,
   deleteKVSession,
@@ -21,8 +20,9 @@ import { cache } from "react"
 import type { SessionValidationResult } from "@/types";
 import { SESSION_COOKIE_NAME } from "@/constants";
 import { ZSAError } from "zsa";
-import { addFreeMonthlyCreditsIfNeeded } from "./credits";
 import { getInitials } from "./name-initials";
+
+const isProd = process.env.NODE_ENV === "production";
 
 const getSessionLength = () => {
   return ms("30d");
@@ -42,12 +42,9 @@ export async function getUserFromDB(userId: string) {
       firstName: true,
       lastName: true,
       role: true,
-      emailVerified: true,
       avatar: true,
       createdAt: true,
       updatedAt: true,
-      currentCredits: true,
-      lastCreditRefreshAt: true,
     },
   });
 }
@@ -79,72 +76,6 @@ interface CreateSessionParams extends Pick<CreateKVSessionParams, "authenticatio
   token: string;
 }
 
-export async function getUserTeamsWithPermissions(userId: string) {
-  const db = getDB();
-
-  // Get user's team memberships
-  const userTeamMemberships = await db.query.teamMembershipTable.findMany({
-    where: eq(teamMembershipTable.userId, userId),
-    with: {
-      team: true,
-    },
-  });
-
-  // Fetch permissions for each membership
-  return Promise.all(
-    userTeamMemberships.map(async (membership) => {
-      let roleName = '';
-      let permissions: string[] = [];
-
-      // Handle system roles
-      if (membership.isSystemRole) {
-        roleName = membership.roleId; // For system roles, roleId contains the role name
-
-        // For system roles, get permissions based on role
-        if (membership.roleId === SYSTEM_ROLES_ENUM.OWNER || membership.roleId === SYSTEM_ROLES_ENUM.ADMIN) {
-          // Owners and admins have all permissions
-          permissions = Object.values(TEAM_PERMISSIONS);
-        } else if (membership.roleId === SYSTEM_ROLES_ENUM.MEMBER) {
-          // Default permissions for members
-          permissions = [
-            TEAM_PERMISSIONS.ACCESS_DASHBOARD,
-            TEAM_PERMISSIONS.CREATE_COMPONENTS,
-            TEAM_PERMISSIONS.EDIT_COMPONENTS,
-          ];
-        } else if (membership.roleId === SYSTEM_ROLES_ENUM.GUEST) {
-          // Guest permissions are limited
-          permissions = [
-            TEAM_PERMISSIONS.ACCESS_DASHBOARD,
-          ];
-        }
-      } else {
-        // Handle custom roles
-        const role = await db.query.teamRoleTable.findFirst({
-          where: eq(teamRoleTable.id, membership.roleId),
-        });
-
-        if (role) {
-          roleName = role.name;
-          // Parse the stored JSON permissions
-          permissions = role.permissions as string[];
-        }
-      }
-
-      return {
-        id: membership.teamId,
-        name: membership.team.name,
-        slug: membership.team.slug,
-        role: {
-          id: membership.roleId,
-          name: roleName,
-          isSystemRole: !!membership.isSystemRole,
-        },
-        permissions,
-      };
-    })
-  );
-}
-
 export async function createSession({
   token,
   userId,
@@ -160,16 +91,13 @@ export async function createSession({
     throw new Error("User not found");
   }
 
-  const teamsWithPermissions = await getUserTeamsWithPermissions(userId);
-
   return createKVSession({
     sessionId,
     userId,
     expiresAt,
     user,
     authenticationType,
-    passkeyCredentialId,
-    teams: teamsWithPermissions
+    passkeyCredentialId
   });
 }
 
@@ -217,17 +145,6 @@ async function validateSessionToken(token: string, userId: string): Promise<Sess
     updatedSession.user.initials = getInitials(`${updatedSession.user.firstName} ${updatedSession.user.lastName}`);
 
     return updatedSession;
-  }
-
-  // Check and refresh credits if needed
-  const currentCredits = await addFreeMonthlyCreditsIfNeeded(session);
-
-  // If credits were refreshed, update the session
-  if (
-    session?.user?.currentCredits &&
-    currentCredits !== session.user.currentCredits
-  ) {
-    session.user.currentCredits = currentCredits;
   }
 
   // Update the user initials
@@ -283,28 +200,6 @@ export const getSessionFromCookie = cache(async (): Promise<SessionValidationRes
   return validateSessionToken(decoded.token, decoded.userId);
 })
 
-export const requireVerifiedEmail = cache(async ({
-  doNotThrowError = false,
-}: {
-  doNotThrowError?: boolean;
-} = {}) => {
-  const session = await getSessionFromCookie();
-
-  if (!session) {
-    throw new ZSAError("NOT_AUTHORIZED", "Not authenticated");
-  }
-
-  if (!session?.user?.emailVerified) {
-    if (doNotThrowError) {
-      return null;
-    }
-
-    throw new ZSAError("FORBIDDEN", "Please verify your email first");
-  }
-
-  return session;
-});
-
 export const requireAdmin = cache(async ({
   doNotThrowError = false,
 }: {
@@ -326,111 +221,3 @@ export const requireAdmin = cache(async ({
 
   return session;
 });
-
-interface DisposableEmailResponse {
-  disposable: string;
-}
-
-interface MailcheckResponse {
-  status: number;
-  email: string;
-  domain: string;
-  mx: boolean;
-  disposable: boolean;
-  public_domain: boolean;
-  relay_domain: boolean;
-  alias: boolean;
-  role_account: boolean;
-  did_you_mean: string | null;
-}
-
-type ValidatorResult = {
-  success: boolean;
-  isDisposable: boolean;
-};
-
-/**
- * Checks if an email is disposable using debounce.io
- */
-async function checkWithDebounce(email: string): Promise<ValidatorResult> {
-  try {
-    const response = await fetch(`https://disposable.debounce.io/?email=${encodeURIComponent(email)}`);
-
-    if (!response.ok) {
-      console.error("Debounce.io API error:", response.status);
-      return { success: false, isDisposable: false };
-    }
-
-    const data = await response.json() as DisposableEmailResponse;
-
-    return { success: true, isDisposable: data.disposable === "true" };
-  } catch (error) {
-    console.error("Failed to check disposable email with debounce.io:", error);
-    return { success: false, isDisposable: false };
-  }
-}
-
-/**
- * Checks if an email is disposable using mailcheck.ai
- */
-async function checkWithMailcheck(email: string): Promise<ValidatorResult> {
-  try {
-    const response = await fetch(`https://api.mailcheck.ai/email/${encodeURIComponent(email)}`);
-
-    if (!response.ok) {
-      console.error("Mailcheck.ai API error:", response.status);
-      return { success: false, isDisposable: false };
-    }
-
-    const data = await response.json() as MailcheckResponse;
-    return { success: true, isDisposable: data.disposable };
-  } catch (error) {
-    console.error("Failed to check disposable email with mailcheck.ai:", error);
-    return { success: false, isDisposable: false };
-  }
-}
-
-
-/**
- * Checks if an email is allowed for sign up by verifying it's not a disposable email
- * Uses multiple services in sequence for redundancy.
- *
- * @throws {ZSAError} If email is disposable or if all services fail
- */
-export async function canSignUp({ email }: { email: string }): Promise<void> {
-  // Skip disposable email check in development
-  if (!isProd) {
-    return;
-  }
-
-  const validators = [
-    checkWithDebounce,
-    checkWithMailcheck,
-  ];
-
-  for (const validator of validators) {
-    const result = await validator(email);
-
-    // If the validator failed (network error, rate limit, etc), try the next one
-    if (!result.success) {
-      continue;
-    }
-
-    // If we got a successful response and it's disposable, reject the signup
-    if (result.isDisposable) {
-      throw new ZSAError(
-        "PRECONDITION_FAILED",
-        "Disposable email addresses are not allowed"
-      );
-    }
-
-    // If we got a successful response and it's not disposable, allow the signup
-    return;
-  }
-
-  // If all validators failed, we can't verify the email
-  throw new ZSAError(
-    "PRECONDITION_FAILED",
-    "Unable to verify email address at this time. Please try again later."
-  );
-}

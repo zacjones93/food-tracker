@@ -8,7 +8,6 @@ import { useSessionStore } from "@/state/session"
 import { Suspense, useEffect, useRef, RefObject, useCallback } from "react"
 import { useConfigStore } from "@/state/config"
 import type { getConfig } from "@/flags"
-import { EmailVerificationDialog } from "./email-verification-dialog"
 import { useTopLoader } from 'nextjs-toploader'
 import { usePathname, useRouter, useSearchParams, useParams } from "next/navigation"
 import { useEventListener, useDebounceCallback } from 'usehooks-ts';
@@ -113,7 +112,6 @@ export function ThemeProvider({
       </Suspense>
       <NextThemesProvider {...props} attribute="class">
         {children}
-        <EmailVerificationDialog />
       </NextThemesProvider>
     </HeroUIProvider>
   )

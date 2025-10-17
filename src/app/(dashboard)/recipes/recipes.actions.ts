@@ -9,8 +9,9 @@ import {
   deleteRecipeSchema,
   getRecipeByIdSchema,
   incrementMealsEatenSchema,
+  getRecipesSchema,
 } from "@/schemas/recipe.schema";
-import { eq } from "drizzle-orm";
+import { eq, and, gte, lte, like, sql, or } from "drizzle-orm";
 import { getSessionFromCookie } from "@/utils/auth";
 
 export const createRecipeAction = createServerAction()
@@ -30,6 +31,8 @@ export const createRecipeAction = createServerAction()
         tags: input.tags,
         mealType: input.mealType,
         difficulty: input.difficulty,
+        ingredients: input.ingredients,
+        recipeBody: input.recipeBody,
       })
       .returning();
 
@@ -97,19 +100,71 @@ export const getRecipeByIdAction = createServerAction()
   });
 
 export const getRecipesAction = createServerAction()
-  .handler(async () => {
+  .input(getRecipesSchema)
+  .handler(async ({ input }) => {
     const { user } = await getSessionFromCookie();
     if (!user) {
       throw new ZSAError("UNAUTHORIZED", "You must be logged in");
     }
 
     const db = getDB();
+    const { search, page, limit, mealType, difficulty, tags, minMealsEaten, maxMealsEaten } = input;
 
-    const recipes = await db.query.recipesTable.findMany({
-      orderBy: (recipes, { desc }) => [desc(recipes.createdAt)],
-    });
+    // Build WHERE conditions
+    const conditions = [];
 
-    return { recipes };
+    if (search) {
+      conditions.push(like(recipesTable.name, `%${search}%`));
+    }
+
+    if (mealType) {
+      conditions.push(eq(recipesTable.mealType, mealType));
+    }
+
+    if (difficulty) {
+      conditions.push(eq(recipesTable.difficulty, difficulty));
+    }
+
+    if (minMealsEaten !== undefined) {
+      conditions.push(gte(recipesTable.mealsEatenCount, minMealsEaten));
+    }
+
+    if (maxMealsEaten !== undefined) {
+      conditions.push(lte(recipesTable.mealsEatenCount, maxMealsEaten));
+    }
+
+    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
+    // Fetch all matching recipes (before pagination)
+    let allRecipes = await db
+      .select()
+      .from(recipesTable)
+      .where(whereClause)
+      .orderBy(recipesTable.name);
+
+    // Filter by tags in memory (since JSON filtering is complex in SQLite/D1)
+    // Must be done BEFORE pagination to get correct counts
+    if (tags && tags.length > 0) {
+      allRecipes = allRecipes.filter(recipe =>
+        recipe.tags && tags.some(tag => recipe.tags?.includes(tag))
+      );
+    }
+
+    // Get total count after tag filtering
+    const total = allRecipes.length;
+
+    // Apply pagination to filtered results
+    const recipes = allRecipes.slice((page - 1) * limit, page * limit);
+
+    return {
+      recipes,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      }
+    };
   });
 
 export const incrementMealsEatenAction = createServerAction()

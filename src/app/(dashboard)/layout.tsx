@@ -5,6 +5,7 @@ import {
   SidebarProvider,
 } from "@/components/ui/sidebar"
 import { redirect } from "next/navigation"
+import { NuqsAdapter } from 'nuqs/adapters/next/app'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await getSessionFromCookie()
@@ -14,11 +15,13 @@ export default async function DashboardLayout({ children }: { children: React.Re
   }
 
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset>
-        {children}
-      </SidebarInset>
-    </SidebarProvider>
+    <NuqsAdapter>
+      <SidebarProvider>
+        <AppSidebar />
+        <SidebarInset>
+          {children}
+        </SidebarInset>
+      </SidebarProvider>
+    </NuqsAdapter>
   )
 }

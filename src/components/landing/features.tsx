@@ -1,62 +1,48 @@
 import {
-  CloudIcon,
-  BoltIcon,
-  ShieldCheckIcon,
-  RocketLaunchIcon,
-  EnvelopeIcon,
-  CommandLineIcon,
-  SunIcon,
-  UserGroupIcon,
+  BookOpenIcon,
+  CalendarDaysIcon,
+  TagIcon,
+  ChartBarIcon,
+  ClockIcon,
+  SparklesIcon,
 } from "@heroicons/react/24/outline";
 
 const features = [
   {
-    name: "Authentication Ready",
+    name: "Recipe Library",
     description:
-      "Complete authentication system with email/password sign in, sign up, forgot password flow, and session management using Lucia Auth.",
-    icon: ShieldCheckIcon,
+      "Store all your favorite recipes in one place. Add emojis, tags, difficulty levels, and meal types to organize your collection.",
+    icon: BookOpenIcon,
   },
   {
-    name: "Database & Email",
+    name: "Weekly Planning",
     description:
-      "Drizzle ORM with Cloudflare D1 for the database, and React Email with Resend for beautiful email templates.",
-    icon: EnvelopeIcon,
+      "Plan your meals week by week with visual boards. Move weeks through Current, Upcoming, and Archived states.",
+    icon: CalendarDaysIcon,
   },
   {
-    name: "Modern Stack",
+    name: "Smart Organization",
     description:
-      "Next.js 15 App Router with React Server Components, Server Actions, and Edge Runtime for optimal performance.",
-    icon: BoltIcon,
+      "Tag recipes by cuisine, dietary preferences, or any custom category. Filter and find exactly what you're looking for.",
+    icon: TagIcon,
   },
   {
-    name: "Beautiful UI",
+    name: "Usage Tracking",
     description:
-      "Polished UI with Tailwind CSS, Shadcn UI components, dark/light mode, and responsive design out of the box.",
-    icon: SunIcon,
+      "Track how many times you've made each recipe and when you last cooked it. Rediscover forgotten favorites.",
+    icon: ChartBarIcon,
   },
   {
-    name: "Edge Deployment",
+    name: "Meal Scheduling",
     description:
-      "Deploy globally with Cloudflare Workers for zero cold starts and leverage Cloudflare's edge network for blazing-fast performance.",
-    icon: CloudIcon,
+      "Arrange recipes in your weekly plan with custom ordering. See all your planned meals at a glance.",
+    icon: ClockIcon,
   },
   {
-    name: "Developer Experience",
+    name: "Simple & Clean",
     description:
-      "GitHub Actions for deployment, comprehensive documentation, and TypeScript for type safety.",
-    icon: CommandLineIcon,
-  },
-  {
-    name: "Form Handling",
-    description:
-      "Built-in form validation with Zod and React Hook Form for a smooth user experience.",
-    icon: RocketLaunchIcon,
-  },
-  {
-    name: "Team Ready",
-    description:
-      "Built with collaboration in mind. Easy to customize and extend with your team's requirements.",
-    icon: UserGroupIcon,
+      "Beautiful, intuitive interface that makes meal planning a joy. Dark mode support and responsive design included.",
+    icon: SparklesIcon,
   },
 ];
 
@@ -65,24 +51,23 @@ export function Features() {
     <div className="py-24 sm:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-2xl lg:text-center">
-          <h2 className="text-base font-semibold leading-7 text-indigo-600 dark:text-indigo-400">
-            Production Ready
+          <h2 className="text-base font-semibold leading-7 text-orange-600 dark:text-orange-400">
+            Everything You Need
           </h2>
           <p className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
-            Everything you need to build a SaaS
+            Meal planning made simple
           </p>
           <p className="mt-6 text-lg leading-8 text-muted-foreground">
-            Start with a complete foundation. All the essential features are built-in,
-            so you can focus on what makes your SaaS unique.
+            All the tools you need to organize recipes, plan meals, and keep track of your favorite dishes.
           </p>
         </div>
         <div className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
-          <dl className="grid max-w-xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-4">
+          <dl className="grid max-w-xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-3">
             {features.map((feature) => (
               <div key={feature.name} className="flex flex-col">
                 <dt className="flex items-center gap-x-3 text-base font-semibold leading-7">
                   <feature.icon
-                    className="h-5 w-5 flex-none text-indigo-600 dark:text-indigo-400"
+                    className="h-5 w-5 flex-none text-orange-600 dark:text-orange-400"
                     aria-hidden="true"
                   />
                   {feature.name}

@@ -66,9 +66,9 @@ export const recipesTable = sqliteTable("recipes", {
   lastMadeDate: integer({ mode: 'timestamp' }),
   mealsEatenCount: integer().default(0).notNull(),
 
-  // Content (stored separately, not in DB)
-  // - ingredients list (markdown)
-  // - instructions (markdown)
+  // Content
+  ingredients: text({ mode: 'json' }).$type<string[]>(),  // JSON array of ingredients
+  recipeBody: text(),  // Full recipe instructions (markdown)
 }, (table) => ([
   index("recipes_name_idx").on(table.name),
 ]));
@@ -121,6 +121,23 @@ export const recipeRelationsTable = sqliteTable("recipe_relations", {
   index("rr_side_idx").on(table.sideRecipeId),
 ]));
 
+// Grocery items for weeks
+export const groceryItemsTable = sqliteTable("grocery_items", {
+  id: text().primaryKey().$defaultFn(() => `gi_${createId()}`).notNull(),
+  weekId: text().notNull().references(() => weeksTable.id, { onDelete: 'cascade' }),
+
+  name: text({ length: 500 }).notNull(),
+  checked: integer({ mode: 'boolean' }).default(false).notNull(),
+  order: integer().default(0),
+  category: text({ length: 100 }),  // Optional: "Produce", "Meat", "Dairy", etc.
+
+  createdAt: integer({ mode: 'timestamp' }).$defaultFn(() => new Date()).notNull(),
+  updatedAt: integer({ mode: 'timestamp' }).$onUpdateFn(() => new Date()).notNull(),
+}, (table) => ([
+  index("gi_week_idx").on(table.weekId),
+  index("gi_order_idx").on(table.weekId, table.order),
+]));
+
 // Relations
 export const recipesRelations = relations(recipesTable, ({ many }) => ({
   weeks: many(weekRecipesTable),
@@ -130,6 +147,14 @@ export const recipesRelations = relations(recipesTable, ({ many }) => ({
 
 export const weeksRelations = relations(weeksTable, ({ many }) => ({
   recipes: many(weekRecipesTable),
+  groceryItems: many(groceryItemsTable),
+}));
+
+export const groceryItemsRelations = relations(groceryItemsTable, ({ one }) => ({
+  week: one(weeksTable, {
+    fields: [groceryItemsTable.weekId],
+    references: [weeksTable.id],
+  }),
 }));
 
 export const weekRecipesRelations = relations(weekRecipesTable, ({ one }) => ({
@@ -167,3 +192,4 @@ export type Recipe = InferSelectModel<typeof recipesTable>;
 export type Week = InferSelectModel<typeof weeksTable>;
 export type WeekRecipe = InferSelectModel<typeof weekRecipesTable>;
 export type RecipeRelation = InferSelectModel<typeof recipeRelationsTable>;
+export type GroceryItem = InferSelectModel<typeof groceryItemsTable>;
