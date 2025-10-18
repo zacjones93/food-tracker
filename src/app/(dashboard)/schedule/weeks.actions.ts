@@ -2,7 +2,7 @@
 
 import { createServerAction, ZSAError } from "zsa";
 import { getDB } from "@/db";
-import { weeksTable, weekRecipesTable, teamMembershipTable, TEAM_PERMISSIONS } from "@/db/schema";
+import { weeksTable, weekRecipesTable, groceryItemsTable, recipesTable, TEAM_PERMISSIONS } from "@/db/schema";
 import {
   createWeekSchema,
   updateWeekSchema,
@@ -12,7 +12,7 @@ import {
   removeRecipeFromWeekSchema,
   reorderWeekRecipesSchema,
 } from "@/schemas/week.schema";
-import { eq, and, inArray } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { getSessionFromCookie } from "@/utils/auth";
 import { requirePermission } from "@/utils/team-auth";
 import { z } from "zod";
@@ -134,35 +134,30 @@ export const getWeekByIdAction = createServerAction()
       throw new ZSAError("NOT_FOUND", "Week not found");
     }
 
+    await requirePermission(user.id, week.teamId, TEAM_PERMISSIONS.ACCESS_SCHEDULES);
+
     return { week };
   });
 
 export const getWeeksAction = createServerAction()
   .handler(async () => {
-    const { user } = await getSessionFromCookie();
-    if (!user) {
+    const session = await getSessionFromCookie();
+    if (!session) {
       throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+    }
+
+    if (!session.activeTeamId) {
+      throw new ZSAError("FORBIDDEN", "No active team selected");
     }
 
     const db = getDB();
 
-    // Get user's team memberships
-    const memberships = await db.query.teamMembershipTable.findMany({
-      where: and(
-        eq(teamMembershipTable.userId, user.id),
-        eq(teamMembershipTable.isActive, 1)
-      ),
-    });
+    // Verify user has access to this team
+    await requirePermission(session.user.id, session.activeTeamId, TEAM_PERMISSIONS.ACCESS_SCHEDULES);
 
-    const teamIds = memberships.map(m => m.teamId);
-
-    if (teamIds.length === 0) {
-      return { weeks: [] };
-    }
-
-    // Only return weeks from user's teams
+    // Only return weeks from active team
     const weeks = await db.query.weeksTable.findMany({
-      where: inArray(weeksTable.teamId, teamIds),
+      where: eq(weeksTable.teamId, session.activeTeamId),
       orderBy: (weeks, { desc }) => [desc(weeks.startDate)],
       with: {
         recipes: {
@@ -179,30 +174,23 @@ export const getWeeksAction = createServerAction()
 
 export const getCurrentAndUpcomingWeeksAction = createServerAction()
   .handler(async () => {
-    const { user } = await getSessionFromCookie();
-    if (!user) {
+    const session = await getSessionFromCookie();
+    if (!session) {
       throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+    }
+
+    if (!session.activeTeamId) {
+      throw new ZSAError("FORBIDDEN", "No active team selected");
     }
 
     const db = getDB();
 
-    // Get user's team memberships
-    const memberships = await db.query.teamMembershipTable.findMany({
-      where: and(
-        eq(teamMembershipTable.userId, user.id),
-        eq(teamMembershipTable.isActive, 1)
-      ),
-    });
-
-    const teamIds = memberships.map(m => m.teamId);
-
-    if (teamIds.length === 0) {
-      return { weeks: [] };
-    }
+    // Verify user has access to this team
+    await requirePermission(session.user.id, session.activeTeamId, TEAM_PERMISSIONS.ACCESS_SCHEDULES);
 
     const weeks = await db.query.weeksTable.findMany({
       where: (weeks, { or, eq, and: andFn }) => andFn(
-        inArray(weeks.teamId, teamIds),
+        eq(weeks.teamId, session.activeTeamId),
         or(
           eq(weeks.status, 'current'),
           eq(weeks.status, 'upcoming')
@@ -217,30 +205,23 @@ export const getCurrentAndUpcomingWeeksAction = createServerAction()
 export const getWeeksForRecipeAction = createServerAction()
   .input(z.object({ recipeId: z.string() }))
   .handler(async ({ input }) => {
-    const { user } = await getSessionFromCookie();
-    if (!user) {
+    const session = await getSessionFromCookie();
+    if (!session) {
       throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+    }
+
+    if (!session.activeTeamId) {
+      throw new ZSAError("FORBIDDEN", "No active team selected");
     }
 
     const db = getDB();
 
-    // Get user's team memberships
-    const memberships = await db.query.teamMembershipTable.findMany({
-      where: and(
-        eq(teamMembershipTable.userId, user.id),
-        eq(teamMembershipTable.isActive, 1)
-      ),
-    });
-
-    const teamIds = memberships.map(m => m.teamId);
-
-    if (teamIds.length === 0) {
-      return { weeks: [] };
-    }
+    // Verify user has access to this team
+    await requirePermission(session.user.id, session.activeTeamId, TEAM_PERMISSIONS.ACCESS_SCHEDULES);
 
     const weeks = await db.query.weeksTable.findMany({
       where: (weeks, { or, eq, and: andFn }) => andFn(
-        inArray(weeks.teamId, teamIds),
+        eq(weeks.teamId, session.activeTeamId),
         or(
           eq(weeks.status, 'current'),
           eq(weeks.status, 'upcoming')
@@ -273,6 +254,17 @@ export const addRecipeToWeekAction = createServerAction()
 
     const db = getDB();
 
+    // Get week to verify permission
+    const week = await db.query.weeksTable.findFirst({
+      where: eq(weeksTable.id, input.weekId),
+    });
+
+    if (!week) {
+      throw new ZSAError("NOT_FOUND", "Week not found");
+    }
+
+    await requirePermission(user.id, week.teamId, TEAM_PERMISSIONS.EDIT_SCHEDULES);
+
     // Check if recipe is already in week
     const existing = await db.query.weekRecipesTable.findFirst({
       where: and(
@@ -300,6 +292,31 @@ export const addRecipeToWeekAction = createServerAction()
       })
       .returning();
 
+    // Get recipe with ingredients
+    const recipe = await db.query.recipesTable.findFirst({
+      where: eq(recipesTable.id, input.recipeId),
+    });
+
+    // Add ingredients to grocery list if recipe has ingredients
+    if (recipe?.ingredients && Array.isArray(recipe.ingredients) && recipe.ingredients.length > 0) {
+      // Get current grocery items to calculate max order
+      const existingGroceryItems = await db.query.groceryItemsTable.findMany({
+        where: eq(groceryItemsTable.weekId, input.weekId),
+      });
+
+      const maxGroceryOrder = existingGroceryItems.reduce((max, item) => Math.max(max, item.order ?? 0), -1);
+
+      // Insert each ingredient as a grocery item
+      for (let i = 0; i < recipe.ingredients.length; i++) {
+        await db.insert(groceryItemsTable).values({
+          weekId: input.weekId,
+          name: recipe.ingredients[i],
+          checked: false,
+          order: maxGroceryOrder + i + 1,
+        });
+      }
+    }
+
     revalidatePath("/schedule");
     revalidatePath(`/schedule/${input.weekId}`);
 
@@ -315,6 +332,17 @@ export const removeRecipeFromWeekAction = createServerAction()
     }
 
     const db = getDB();
+
+    // Get week to verify permission
+    const week = await db.query.weeksTable.findFirst({
+      where: eq(weeksTable.id, input.weekId),
+    });
+
+    if (!week) {
+      throw new ZSAError("NOT_FOUND", "Week not found");
+    }
+
+    await requirePermission(user.id, week.teamId, TEAM_PERMISSIONS.EDIT_SCHEDULES);
 
     await db.delete(weekRecipesTable)
       .where(
@@ -339,6 +367,17 @@ export const reorderWeekRecipesAction = createServerAction()
     }
 
     const db = getDB();
+
+    // Get week to verify permission
+    const week = await db.query.weeksTable.findFirst({
+      where: eq(weeksTable.id, input.weekId),
+    });
+
+    if (!week) {
+      throw new ZSAError("NOT_FOUND", "Week not found");
+    }
+
+    await requirePermission(user.id, week.teamId, TEAM_PERMISSIONS.EDIT_SCHEDULES);
 
     // Update order for each recipe
     for (let i = 0; i < input.recipeIds.length; i++) {
