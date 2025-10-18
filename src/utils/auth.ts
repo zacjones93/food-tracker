@@ -91,13 +91,27 @@ export async function createSession({
     throw new Error("User not found");
   }
 
+  // Get user's first team as default activeTeamId
+  const db = getDB();
+  const { teamMembershipTable } = await import("@/db/schema");
+  const { and } = await import("drizzle-orm");
+
+  const firstMembership = await db.query.teamMembershipTable.findFirst({
+    where: and(
+      eq(teamMembershipTable.userId, userId),
+      eq(teamMembershipTable.isActive, 1)
+    ),
+    orderBy: (memberships, { asc }) => [asc(memberships.createdAt)],
+  });
+
   return createKVSession({
     sessionId,
     userId,
     expiresAt,
     user,
     authenticationType,
-    passkeyCredentialId
+    passkeyCredentialId,
+    activeTeamId: firstMembership?.teamId
   });
 }
 

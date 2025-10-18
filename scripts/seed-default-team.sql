@@ -1,16 +1,15 @@
 -- Seed Default Team, User, and Membership for Team Re-Integration
 
 -- Create default team
-INSERT INTO team (id, name, slug, description, createdAt, updatedAt, updateCounter)
-VALUES (
+INSERT OR IGNORE INTO team (id, name, slug, description, createdAt, updatedAt, updateCounter)
+SELECT
   'team_default',
   'Default Team',
   'default',
   'Default team for food tracking',
   strftime('%s', 'now'),
   strftime('%s', 'now'),
-  0
-);
+  0;
 
 -- Create default user (if not exists)
 -- Password: 'password123' (Argon2 hash - replace with proper hash in production)
@@ -37,8 +36,8 @@ VALUES (
   0
 );
 
--- Create team membership (owner role)
-INSERT INTO team_membership (
+-- Create team membership for default user (owner role)
+INSERT OR IGNORE INTO team_membership (
   id,
   teamId,
   userId,
@@ -50,7 +49,7 @@ INSERT INTO team_membership (
   updatedAt,
   updateCounter
 )
-VALUES (
+SELECT
   'tmem_default',
   'team_default',
   'usr_default',
@@ -60,8 +59,72 @@ VALUES (
   1,
   strftime('%s', 'now'),
   strftime('%s', 'now'),
+  0;
+
+-- Add primary user to default team (if exists)
+INSERT OR IGNORE INTO team_membership (
+  id,
+  teamId,
+  userId,
+  roleId,
+  isSystemRole,
+  joinedAt,
+  isActive,
+  createdAt,
+  updatedAt,
+  updateCounter
+)
+SELECT
+  'tmem_default_primary',
+  'team_default',
+  id,
+  'owner',
+  1,
+  strftime('%s', 'now'),
+  1,
+  strftime('%s', 'now'),
+  strftime('%s', 'now'),
   0
-);
+FROM user
+WHERE email = 'zacjones93@gmail.com';
+
+-- Create Personal Team for testing team switching
+INSERT OR IGNORE INTO team (id, name, slug, description, createdAt, updatedAt, updateCounter)
+SELECT
+  'team_personal',
+  'Personal Team',
+  'personal',
+  'Personal food tracking team',
+  strftime('%s', 'now'),
+  strftime('%s', 'now'),
+  0;
+
+-- Add primary user to Personal Team (if exists)
+INSERT OR IGNORE INTO team_membership (
+  id,
+  teamId,
+  userId,
+  roleId,
+  isSystemRole,
+  joinedAt,
+  isActive,
+  createdAt,
+  updatedAt,
+  updateCounter
+)
+SELECT
+  'tmem_personal_primary',
+  'team_personal',
+  id,
+  'owner',
+  1,
+  strftime('%s', 'now'),
+  1,
+  strftime('%s', 'now'),
+  strftime('%s', 'now'),
+  0
+FROM user
+WHERE email = 'zacjones93@gmail.com';
 
 -- Assign all existing weeks to default team
 UPDATE weeks

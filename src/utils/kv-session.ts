@@ -22,6 +22,7 @@ export interface KVSession {
   user: KVSessionUser & {
     initials?: string;
   };
+  activeTeamId?: string;
   country?: string;
   city?: string;
   continent?: string;
@@ -48,7 +49,7 @@ export interface KVSession {
  * IF YOU MAKE ANY CHANGES TO THE KVSESSION TYPE ABOVE, YOU NEED TO INCREMENT THIS VERSION.
  * THIS IS HOW WE TRACK WHEN WE NEED TO UPDATE THE SESSIONS IN THE KV STORE.
  */
-export const CURRENT_SESSION_VERSION = 4;
+export const CURRENT_SESSION_VERSION = 5;
 
 export async function getKV() {
   const { env } = getCloudflareContext();
@@ -58,6 +59,7 @@ export async function getKV() {
 export interface CreateKVSessionParams extends Omit<KVSession, "id" | "createdAt" | "expiresAt"> {
   sessionId: string;
   expiresAt: Date;
+  activeTeamId?: string;
 }
 
 export async function createKVSession({
@@ -66,7 +68,8 @@ export async function createKVSession({
   expiresAt,
   user,
   authenticationType,
-  passkeyCredentialId
+  passkeyCredentialId,
+  activeTeamId
 }: CreateKVSessionParams): Promise<KVSession> {
   const { cf } = getCloudflareContext();
   const headersList = await headers();
@@ -87,6 +90,7 @@ export async function createKVSession({
     ip: await getIP(),
     userAgent: headersList.get('user-agent'),
     user,
+    activeTeamId,
     authenticationType,
     passkeyCredentialId,
     version: CURRENT_SESSION_VERSION
@@ -174,6 +178,35 @@ export async function updateKVSession(sessionId: string, userId: string, expires
     JSON.stringify(updatedSession),
     {
       expirationTtl: Math.floor((expiresAt.getTime() - Date.now()) / 1000)
+    }
+  );
+
+  return updatedSession;
+}
+
+export async function updateKVSessionTeam(sessionId: string, userId: string, activeTeamId: string): Promise<KVSession | null> {
+  const session = await getKVSession(sessionId, userId);
+  if (!session) return null;
+
+  const updatedSession: KVSession = {
+    ...session,
+    activeTeamId,
+    version: CURRENT_SESSION_VERSION,
+  };
+
+  const kv = await getKV();
+
+  if (!kv) {
+    throw new Error("Can't connect to KV store");
+  }
+
+  const ttlInSeconds = Math.floor((session.expiresAt - Date.now()) / 1000);
+
+  await kv.put(
+    getSessionKey(userId, sessionId),
+    JSON.stringify(updatedSession),
+    {
+      expirationTtl: ttlInSeconds
     }
   );
 

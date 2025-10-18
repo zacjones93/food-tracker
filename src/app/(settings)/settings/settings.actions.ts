@@ -3,7 +3,7 @@
 import { createServerAction, ZSAError } from "zsa";
 import { getDB } from "@/db";
 import { userTable } from "@/db/schema";
-import { requireVerifiedEmail } from "@/utils/auth";
+import { getSessionFromCookie } from "@/utils/auth";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { userSettingsSchema } from "@/schemas/settings.schema";
@@ -15,7 +15,7 @@ export const updateUserProfileAction = createServerAction()
   .handler(async ({ input }) => {
     return withRateLimit(
       async () => {
-        const session = await requireVerifiedEmail();
+        const session = await getSessionFromCookie();
         const db = getDB();
 
         if (!session?.user?.id) {

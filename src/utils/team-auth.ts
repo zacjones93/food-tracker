@@ -43,6 +43,10 @@ export function getSystemRolePermissions(roleId: string): string[] {
       return Object.values(TEAM_PERMISSIONS);
     case SYSTEM_ROLES_ENUM.ADMIN:
       return [
+        TEAM_PERMISSIONS.ACCESS_RECIPES,
+        TEAM_PERMISSIONS.CREATE_RECIPES,
+        TEAM_PERMISSIONS.EDIT_RECIPES,
+        TEAM_PERMISSIONS.DELETE_RECIPES,
         TEAM_PERMISSIONS.ACCESS_SCHEDULES,
         TEAM_PERMISSIONS.CREATE_SCHEDULES,
         TEAM_PERMISSIONS.EDIT_SCHEDULES,
@@ -55,6 +59,9 @@ export function getSystemRolePermissions(roleId: string): string[] {
       ];
     case SYSTEM_ROLES_ENUM.MEMBER:
       return [
+        TEAM_PERMISSIONS.ACCESS_RECIPES,
+        TEAM_PERMISSIONS.CREATE_RECIPES,
+        TEAM_PERMISSIONS.EDIT_RECIPES,
         TEAM_PERMISSIONS.ACCESS_SCHEDULES,
         TEAM_PERMISSIONS.CREATE_SCHEDULES,
         TEAM_PERMISSIONS.EDIT_SCHEDULES,
@@ -64,6 +71,7 @@ export function getSystemRolePermissions(roleId: string): string[] {
       ];
     case SYSTEM_ROLES_ENUM.GUEST:
       return [
+        TEAM_PERMISSIONS.ACCESS_RECIPES,
         TEAM_PERMISSIONS.ACCESS_SCHEDULES,
         TEAM_PERMISSIONS.ACCESS_GROCERY_TEMPLATES,
       ];

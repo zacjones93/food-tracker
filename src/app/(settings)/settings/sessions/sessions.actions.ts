@@ -1,7 +1,7 @@
 "use server";
 
 import { createServerAction, ZSAError } from "zsa";
-import { getSessionFromCookie, requireVerifiedEmail } from "@/utils/auth";
+import { getSessionFromCookie } from "@/utils/auth";
 import { getAllSessionIdsOfUser, getKVSession, deleteKVSession } from "@/utils/kv-session";
 import { z } from "zod";
 import { withRateLimit, RATE_LIMITS } from "@/utils/with-rate-limit";
@@ -19,7 +19,7 @@ export const getSessionsAction = createServerAction()
   .handler(async () => {
     return withRateLimit(
       async () => {
-        const session = await requireVerifiedEmail();
+        const session = await getSessionFromCookie();
 
         if (!session?.user?.id) {
           throw new ZSAError("NOT_AUTHORIZED", "Unauthorized");

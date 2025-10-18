@@ -24,6 +24,14 @@ const cancelInviteSchema = z.object({
   inviteId: z.string(),
 });
 
+const declineInviteSchema = z.object({
+  inviteId: z.string(),
+});
+
+const acceptInviteByIdSchema = z.object({
+  inviteId: z.string(),
+});
+
 export const createTeamInviteAction = createServerAction()
   .input(createInviteSchema)
   .handler(async ({ input }) => {
@@ -62,8 +70,7 @@ export const createTeamInviteAction = createServerAction()
       })
       .returning();
 
-    // TODO: Send invitation email with token
-
+    // Invitation will appear on the invited user's Teams page
     return { invite };
   });
 
@@ -144,4 +151,87 @@ export const cancelTeamInviteAction = createServerAction()
       .where(eq(teamInvitationTable.id, input.inviteId));
 
     return { success: true };
+  });
+
+export const declineTeamInviteAction = createServerAction()
+  .input(declineInviteSchema)
+  .handler(async ({ input }) => {
+    const { user } = await getSessionFromCookie();
+    if (!user) throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+
+    const db = getDB();
+
+    const invite = await db.query.teamInvitationTable.findFirst({
+      where: eq(teamInvitationTable.id, input.inviteId),
+    });
+
+    if (!invite) throw new ZSAError("NOT_FOUND", "Invitation not found");
+
+    // Verify the invitation is for this user
+    if (invite.email !== user.email) {
+      throw new ZSAError("FORBIDDEN", "This invitation is not for you");
+    }
+
+    // Delete the invitation
+    await db.delete(teamInvitationTable)
+      .where(eq(teamInvitationTable.id, input.inviteId));
+
+    return { success: true };
+  });
+
+export const acceptTeamInviteByIdAction = createServerAction()
+  .input(acceptInviteByIdSchema)
+  .handler(async ({ input }) => {
+    const { user } = await getSessionFromCookie();
+    if (!user) throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+
+    const db = getDB();
+
+    const invite = await db.query.teamInvitationTable.findFirst({
+      where: eq(teamInvitationTable.id, input.inviteId),
+    });
+
+    if (!invite) throw new ZSAError("NOT_FOUND", "Invitation not found");
+    if (invite.acceptedAt) throw new ZSAError("CONFLICT", "Invitation already accepted");
+    if (new Date(invite.expiresAt) < new Date()) {
+      throw new ZSAError("FORBIDDEN", "Invitation expired");
+    }
+    if (invite.email !== user.email) {
+      throw new ZSAError("FORBIDDEN", "This invitation is not for you");
+    }
+
+    // Check if user is already a member
+    const existingMembership = await db.query.teamMembershipTable.findFirst({
+      where: and(
+        eq(teamMembershipTable.teamId, invite.teamId),
+        eq(teamMembershipTable.userId, user.id)
+      ),
+    });
+
+    if (existingMembership) {
+      throw new ZSAError("CONFLICT", "Already a member of this team");
+    }
+
+    // Create membership
+    const [membership] = await db.insert(teamMembershipTable)
+      .values({
+        teamId: invite.teamId,
+        userId: user.id,
+        roleId: invite.roleId,
+        isSystemRole: invite.isSystemRole,
+        invitedBy: invite.invitedBy,
+        joinedAt: new Date(),
+        isActive: 1,
+      })
+      .returning();
+
+    // Mark invitation as accepted
+    await db.update(teamInvitationTable)
+      .set({
+        acceptedAt: new Date(),
+        acceptedBy: user.id,
+      })
+      .where(eq(teamInvitationTable.id, invite.id));
+
+    return { membership };
   });
