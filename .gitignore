@@ -50,3 +50,11 @@ dist
 !.env*example
 *.log
 backups
+
+# Database exports and temp files
+local-data-export*.sql
+user-data.sql
+remaining-users.sql
+recipes-batch-*
+*.sql.bak*
+scripts/extract-book-updates.js
