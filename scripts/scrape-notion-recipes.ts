@@ -21,6 +21,9 @@ interface RecipeData {
   tags?: string[];
   mealType?: string;
   difficulty?: string;
+  recipeLink?: string;
+  recipeBook?: string;
+  page?: string;
   recipeBody?: string;
 }
 
@@ -89,15 +92,20 @@ async function mapNotionPageToRecipe(page: any): Promise<RecipeData | null> {
 
     const emoji = page.icon?.emoji || undefined;
 
-    const tagsProperty = Object.values(properties).find(
-      (prop: any) => prop.type === 'multi_select'
-    ) as any;
-    const tags = tagsProperty?.multi_select?.map((tag: any) => tag.name) || undefined;
+    // Tags (multi_select)
+    const tagsProperty = properties['Tags'] as any;
+    let tags = tagsProperty?.multi_select?.map((tag: any) => tag.name) || [];
 
-    const mealTypeProperty = properties['Meal Type'] || properties['Type'] ||
-      Object.values(properties).find(
-        (prop: any) => prop.type === 'select' && prop.name?.toLowerCase().includes('meal')
-      ) as any;
+    // Ensure seasonal tags are always included if they exist in Notion
+    // This allows filtering by season in the UI
+    const seasonalTags = ['Spring', 'Summer', 'Fall', 'Winter'];
+    const hasSeasonalTag = tags.some((tag: string) => seasonalTags.includes(tag));
+
+    // Convert to undefined if empty array, otherwise keep the tags
+    tags = tags.length > 0 ? tags : undefined;
+
+    // Meal type (select)
+    const mealTypeProperty = properties['Meal'] as any;
     const mealType = mealTypeProperty?.select?.name || undefined;
 
     const difficultyProperty = properties['Difficulty'] ||
@@ -105,6 +113,18 @@ async function mapNotionPageToRecipe(page: any): Promise<RecipeData | null> {
         (prop: any) => prop.type === 'select' && prop.name?.toLowerCase().includes('difficulty')
       ) as any;
     const difficulty = difficultyProperty?.select?.name || undefined;
+
+    // Recipe link (URL property)
+    const recipeLinkProperty = properties['Recipe link'] as any;
+    const recipeLink = recipeLinkProperty?.url || undefined;
+
+    // Recipe book (multi_select - take first value)
+    const recipeBookProperty = properties['Recipe Book'] as any;
+    const recipeBook = recipeBookProperty?.multi_select?.[0]?.name || undefined;
+
+    // Page # (number property)
+    const pageProperty = properties['Page #'] as any;
+    const pageNumber = pageProperty?.number?.toString() || undefined;
 
     const recipeBody = await fetchPageContent(page.id);
 
@@ -114,6 +134,9 @@ async function mapNotionPageToRecipe(page: any): Promise<RecipeData | null> {
       tags,
       mealType,
       difficulty,
+      recipeLink,
+      recipeBook,
+      page: pageNumber,
       recipeBody,
     };
   } catch (error) {
@@ -126,7 +149,7 @@ function escapeSQL(value: string): string {
   return value.replace(/'/g, "''");
 }
 
-function generateSQLInsertWithId(recipe: RecipeData, id: string): string {
+function generateSQLInsertWithId(recipe: RecipeData, id: string, recipeBookIdMap: Map<string, string>): string {
   const now = Date.now();
 
   const name = escapeSQL(recipe.name);
@@ -136,10 +159,15 @@ function generateSQLInsertWithId(recipe: RecipeData, id: string): string {
     : 'NULL';
   const mealType = recipe.mealType ? `'${escapeSQL(recipe.mealType)}'` : 'NULL';
   const difficulty = recipe.difficulty ? `'${escapeSQL(recipe.difficulty)}'` : 'NULL';
+  const recipeLink = recipe.recipeLink ? `'${escapeSQL(recipe.recipeLink)}'` : 'NULL';
+  const recipeBookId = recipe.recipeBook && recipeBookIdMap.has(recipe.recipeBook)
+    ? `'${recipeBookIdMap.get(recipe.recipeBook)}'`
+    : 'NULL';
+  const page = recipe.page ? `'${escapeSQL(recipe.page)}'` : 'NULL';
   const recipeBody = recipe.recipeBody ? `'${escapeSQL(recipe.recipeBody)}'` : 'NULL';
 
-  return `INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('${id}', '${name}', ${emoji}, ${tags}, ${mealType}, ${difficulty}, NULL, 0, ${recipeBody}, ${now}, ${now}, 0);`;
+  return `INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, recipeLink, recipeBookId, page, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('${id}', 'team_default', '${name}', ${emoji}, ${tags}, ${mealType}, ${difficulty}, ${recipeLink}, ${recipeBookId}, ${page}, NULL, 0, ${recipeBody}, ${now}, ${now}, 0);`;
 }
 
 async function main() {
@@ -174,17 +202,50 @@ async function main() {
 
   console.log(`\n\nMapped ${recipes.length} valid recipes`);
 
+  // Collect unique recipe books
+  const recipeBooks = new Set<string>();
+  for (const recipe of recipes) {
+    if (recipe.data.recipeBook) {
+      recipeBooks.add(recipe.data.recipeBook);
+    }
+  }
+
+  // Generate IDs for recipe books
+  const recipeBookIdMap = new Map<string, string>();
+  const recipeBookArray = Array.from(recipeBooks);
+  for (let i = 0; i < recipeBookArray.length; i++) {
+    const bookName = recipeBookArray[i];
+    // Use a simple numeric ID for recipe books: rb_1, rb_2, etc.
+    recipeBookIdMap.set(bookName, `rb_${i + 1}`);
+  }
+
+  console.log(`Found ${recipeBooks.size} unique recipe books`);
+
   // Generate SQL
   const sqlStatements = [
-    '-- Seed data for recipes table',
+    '-- Seed data for recipes and recipe books',
     '-- Generated from Notion (via Food Schedule relations)',
     `-- Date: ${new Date().toISOString()}`,
     '-- Note: Recipe IDs are Notion page IDs',
     '',
   ];
 
+  // Add recipe book inserts first
+  if (recipeBooks.size > 0) {
+    sqlStatements.push('-- Recipe books');
+    const now = Date.now();
+    for (const [bookName, bookId] of recipeBookIdMap.entries()) {
+      const escapedName = escapeSQL(bookName);
+      sqlStatements.push(
+        `INSERT INTO recipe_books (id, name, createdAt) VALUES ('${bookId}', '${escapedName}', ${now});`
+      );
+    }
+    sqlStatements.push('');
+    sqlStatements.push('-- Recipes');
+  }
+
   for (const recipe of recipes) {
-    sqlStatements.push(generateSQLInsertWithId(recipe.data, recipe.notionId));
+    sqlStatements.push(generateSQLInsertWithId(recipe.data, recipe.notionId, recipeBookIdMap));
   }
 
   const sql = sqlStatements.join('\n');
@@ -193,6 +254,7 @@ async function main() {
   fs.writeFileSync(outputPath, sql, 'utf-8');
 
   console.log(`\n✅ Successfully generated ${outputPath}`);
+  console.log(`   ${recipeBooks.size} recipe books inserted`);
   console.log(`   ${recipes.length} recipes inserted`);
   console.log(`   Using Notion page IDs as recipe IDs`);
 }
