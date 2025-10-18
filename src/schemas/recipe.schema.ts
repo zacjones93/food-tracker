@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { RECIPE_VISIBILITY } from "@/db/schema";
 
 export const createRecipeSchema = z.object({
   name: z.string().min(2).max(500),
@@ -6,8 +7,12 @@ export const createRecipeSchema = z.object({
   tags: z.array(z.string()).optional(),
   mealType: z.string().max(50).optional(), // Allow any meal type string
   difficulty: z.string().max(20).optional(), // Allow any difficulty string
+  visibility: z.enum([RECIPE_VISIBILITY.PUBLIC, RECIPE_VISIBILITY.PRIVATE, RECIPE_VISIBILITY.UNLISTED]).default(RECIPE_VISIBILITY.PUBLIC),
   ingredients: z.array(z.string()).optional(),
   recipeBody: z.string().optional(),
+  recipeLink: z.string().max(1000).optional(),
+  recipeBookId: z.string().optional(),
+  page: z.string().max(50).optional(),
 });
 
 export const updateRecipeSchema = createRecipeSchema.partial().extend({
@@ -32,9 +37,12 @@ export const getRecipesSchema = z.object({
   limit: z.coerce.number().min(1).max(100).optional().default(100),
   mealType: z.string().optional(), // Allow any meal type for filtering
   difficulty: z.string().optional(), // Allow any difficulty for filtering
+  visibility: z.enum([RECIPE_VISIBILITY.PUBLIC, RECIPE_VISIBILITY.PRIVATE, RECIPE_VISIBILITY.UNLISTED]).optional(),
   tags: z.array(z.string()).optional(),
+  seasons: z.array(z.string()).optional(), // Filter by seasonal tags
   minMealsEaten: z.coerce.number().min(0).optional(),
   maxMealsEaten: z.coerce.number().min(0).optional(),
+  recipeBookId: z.string().optional(), // Filter by recipe book
 });
 
 export type CreateRecipeSchema = z.infer<typeof createRecipeSchema>;

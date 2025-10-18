@@ -23,6 +23,12 @@ export const systemRoleTuple = Object.values(SYSTEM_ROLES_ENUM) as [string, ...s
 
 // Team permissions
 export const TEAM_PERMISSIONS = {
+  // Recipe permissions
+  ACCESS_RECIPES: 'access_recipes',
+  CREATE_RECIPES: 'create_recipes',
+  EDIT_RECIPES: 'edit_recipes',
+  DELETE_RECIPES: 'delete_recipes',
+
   // Food Schedule permissions
   ACCESS_SCHEDULES: 'access_schedules',
   CREATE_SCHEDULES: 'create_schedules',
@@ -47,6 +53,13 @@ export const TEAM_PERMISSIONS = {
   EDIT_ROLES: 'edit_roles',
   DELETE_ROLES: 'delete_roles',
   ASSIGN_ROLES: 'assign_roles',
+} as const;
+
+// Recipe visibility options
+export const RECIPE_VISIBILITY = {
+  PUBLIC: 'public',      // Everyone can see, shows in search
+  PRIVATE: 'private',    // Only owning team can see
+  UNLISTED: 'unlisted',  // Everyone can see, hidden from search
 } as const;
 
 const commonColumns = {
@@ -158,6 +171,8 @@ export const recipesTable = sqliteTable("recipes", {
   ...commonColumns,
   id: text().primaryKey().$defaultFn(() => `rcp_${createId()}`).notNull(),
 
+  teamId: text().notNull().references(() => teamTable.id, { onDelete: 'cascade' }),
+
   // Core fields
   name: text({ length: 500 }).notNull(),
   emoji: text({ length: 10 }),  // Recipe icon
@@ -166,6 +181,7 @@ export const recipesTable = sqliteTable("recipes", {
   tags: text({ mode: 'json' }).$type<string[]>(),  // JSON array of tags
   mealType: text({ length: 50 }),  // "Lunch", "Dinner", "Breakfast"
   difficulty: text({ length: 20 }),  // "Easy", "Medium", "Hard"
+  visibility: text({ length: 20 }).notNull().default('public'),  // "public", "private", "unlisted"
 
   // Source tracking
   recipeLink: text({ length: 1000 }),  // URL to original recipe
@@ -182,6 +198,8 @@ export const recipesTable = sqliteTable("recipes", {
 }, (table) => ([
   index("recipes_name_idx").on(table.name),
   index("recipes_book_idx").on(table.recipeBookId),
+  index("recipes_team_idx").on(table.teamId),
+  index("recipes_visibility_idx").on(table.visibility),
 ]));
 
 // Weeks table
@@ -287,6 +305,7 @@ export const teamRelations = relations(teamTable, ({ many }) => ({
   invitations: many(teamInvitationTable),
   roles: many(teamRoleTable),
   weeks: many(weeksTable),
+  recipes: many(recipesTable),
   groceryTemplates: many(groceryListTemplatesTable),
 }));
 
@@ -334,6 +353,10 @@ export const recipesRelations = relations(recipesTable, ({ many, one }) => ({
   recipeBook: one(recipeBooksTable, {
     fields: [recipesTable.recipeBookId],
     references: [recipeBooksTable.id],
+  }),
+  team: one(teamTable, {
+    fields: [recipesTable.teamId],
+    references: [teamTable.id],
   }),
 }));
 

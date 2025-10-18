@@ -11,12 +11,19 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { Recipe } from "@/db/schema";
-import { format } from "date-fns";
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ArrowRight } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useQueryState, parseAsInteger } from "nuqs";
+import Link from "next/link";
+import { AddToSchedule } from "./add-to-schedule";
+
+interface RecipeWithWeekInfo extends Recipe {
+  latestWeekId: string | null;
+  latestWeekName: string | null;
+}
 
 interface RecipesTableProps {
-  recipes: Recipe[];
+  recipes: RecipeWithWeekInfo[];
   pagination?: {
     page: number;
     limit: number;
@@ -27,13 +34,7 @@ interface RecipesTableProps {
 
 export function RecipesTable({ recipes, pagination }: RecipesTableProps) {
   const router = useRouter();
-  const searchParams = useSearchParams();
-
-  const handlePageChange = (newPage: number) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("page", newPage.toString());
-    router.push(`?${params.toString()}`);
-  };
+  const [, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
 
   if (recipes.length === 0) {
     return (
@@ -60,16 +61,16 @@ export function RecipesTable({ recipes, pagination }: RecipesTableProps) {
             <TableHead>Tags</TableHead>
             <TableHead>Meals Eaten</TableHead>
             <TableHead>Last Made</TableHead>
+            <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {recipes.map((recipe) => (
-            <TableRow
-              key={recipe.id}
-              className="cursor-pointer hover:bg-muted/50"
-              onClick={() => router.push(`/recipes/${recipe.id}`)}
-            >
-              <TableCell className="font-medium">
+            <TableRow key={recipe.id}>
+              <TableCell
+                className="font-medium cursor-pointer hover:bg-muted/50"
+                onClick={() => router.push(`/recipes/${recipe.id}`)}
+              >
                 <div className="flex items-center gap-2">
                   {recipe.emoji && (
                     <span className="text-xl">{recipe.emoji}</span>
@@ -77,12 +78,18 @@ export function RecipesTable({ recipes, pagination }: RecipesTableProps) {
                   <span>{recipe.name}</span>
                 </div>
               </TableCell>
-              <TableCell>
+              <TableCell
+                className="cursor-pointer hover:bg-muted/50"
+                onClick={() => router.push(`/recipes/${recipe.id}`)}
+              >
                 {recipe.mealType && (
                   <Badge variant="outline">{recipe.mealType}</Badge>
                 )}
               </TableCell>
-              <TableCell>
+              <TableCell
+                className="cursor-pointer hover:bg-muted/50"
+                onClick={() => router.push(`/recipes/${recipe.id}`)}
+              >
                 {recipe.difficulty && (
                   <Badge
                     variant={
@@ -97,7 +104,10 @@ export function RecipesTable({ recipes, pagination }: RecipesTableProps) {
                   </Badge>
                 )}
               </TableCell>
-              <TableCell>
+              <TableCell
+                className="cursor-pointer hover:bg-muted/50"
+                onClick={() => router.push(`/recipes/${recipe.id}`)}
+              >
                 {recipe.tags && recipe.tags.length > 0 && (
                   <div className="flex gap-1 flex-wrap">
                     {recipe.tags.map((tag, i) => (
@@ -108,11 +118,26 @@ export function RecipesTable({ recipes, pagination }: RecipesTableProps) {
                   </div>
                 )}
               </TableCell>
-              <TableCell>{recipe.mealsEatenCount}</TableCell>
+              <TableCell
+                className="cursor-pointer hover:bg-muted/50"
+                onClick={() => router.push(`/recipes/${recipe.id}`)}
+              >
+                {recipe.mealsEatenCount}
+              </TableCell>
               <TableCell className="text-muted-foreground">
-                {recipe.lastMadeDate
-                  ? format(new Date(recipe.lastMadeDate), "MMM d, yyyy")
-                  : "Never"}
+                {recipe.latestWeekId && recipe.latestWeekName ? (
+                  <Link href={`/schedule/${recipe.latestWeekId}`}>
+                    <Button variant="ghost" size="sm" className="h-8 gap-2">
+                      <span>{recipe.latestWeekName}</span>
+                      <ArrowRight className="h-3 w-3" />
+                    </Button>
+                  </Link>
+                ) : (
+                  "Never"
+                )}
+              </TableCell>
+              <TableCell className="text-right">
+                <AddToSchedule recipeId={recipe.id} showLabel={false} />
               </TableCell>
             </TableRow>
           ))}
@@ -131,7 +156,7 @@ export function RecipesTable({ recipes, pagination }: RecipesTableProps) {
             <Button
               variant="outline"
               size="icon"
-              onClick={() => handlePageChange(1)}
+              onClick={() => setPage(1).then(() => router.refresh())}
               disabled={pagination.page === 1}
             >
               <ChevronsLeft className="h-4 w-4" />
@@ -139,7 +164,7 @@ export function RecipesTable({ recipes, pagination }: RecipesTableProps) {
             <Button
               variant="outline"
               size="icon"
-              onClick={() => handlePageChange(pagination.page - 1)}
+              onClick={() => setPage(pagination.page - 1).then(() => router.refresh())}
               disabled={pagination.page === 1}
             >
               <ChevronLeft className="h-4 w-4" />
@@ -150,7 +175,7 @@ export function RecipesTable({ recipes, pagination }: RecipesTableProps) {
             <Button
               variant="outline"
               size="icon"
-              onClick={() => handlePageChange(pagination.page + 1)}
+              onClick={() => setPage(pagination.page + 1).then(() => router.refresh())}
               disabled={pagination.page === pagination.totalPages}
             >
               <ChevronRight className="h-4 w-4" />
@@ -158,7 +183,7 @@ export function RecipesTable({ recipes, pagination }: RecipesTableProps) {
             <Button
               variant="outline"
               size="icon"
-              onClick={() => handlePageChange(pagination.totalPages)}
+              onClick={() => setPage(pagination.totalPages).then(() => router.refresh())}
               disabled={pagination.page === pagination.totalPages}
             >
               <ChevronsRight className="h-4 w-4" />

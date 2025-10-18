@@ -1,6 +1,7 @@
 "use client";
 
-import { useQueryStates, parseAsString, parseAsInteger } from "nuqs";
+import { useQueryStates, parseAsString, parseAsInteger, parseAsArrayOf } from "nuqs";
+import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -11,24 +12,42 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Search, X } from "lucide-react";
+import { Search, X, Check, ChevronDown } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useState, useEffect, useCallback } from "react";
+import { getRecipeBooksAction } from "../../recipe-books/recipe-books.actions";
+import { useServerAction } from "zsa-react";
 
 export function RecipeFilters() {
+  const router = useRouter();
   const [filters, setFilters] = useQueryStates(
     {
       search: parseAsString,
       mealType: parseAsString,
       difficulty: parseAsString,
+      seasons: parseAsArrayOf(parseAsString),
       minMealsEaten: parseAsInteger,
       maxMealsEaten: parseAsInteger,
+      recipeBookId: parseAsString,
       page: parseAsInteger,
     },
     {
       history: "push",
     }
   );
+
+  const SEASONAL_TAGS = ['Spring', 'Summer', 'Fall', 'Winter'];
+
+  // Fetch recipe books for filter dropdown
+  const { execute: fetchRecipeBooks, data: recipeBooksData } = useServerAction(getRecipeBooksAction);
+
+  useEffect(() => {
+    fetchRecipeBooks({ page: 1, limit: 100 });
+  }, [fetchRecipeBooks]);
+
+  const recipeBooks = recipeBooksData?.[0]?.recipeBooks || [];
 
   // Local state for debounced search
   const [searchInput, setSearchInput] = useState(filters.search || "");
@@ -41,13 +60,17 @@ export function RecipeFilters() {
   // Debounced search update
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (searchInput !== filters.search) {
-        setFilters({ search: searchInput || null, page: 1 });
+      const trimmedSearch = searchInput.trim();
+      const currentSearch = filters.search || "";
+      if (trimmedSearch !== currentSearch) {
+        setFilters({ search: trimmedSearch || null, page: 1 }).then(() => {
+          router.refresh();
+        });
       }
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [searchInput, filters.search, setFilters]);
+  }, [searchInput, filters.search, setFilters, router]);
 
   const handleClearFilters = () => {
     setSearchInput("");
@@ -55,27 +78,46 @@ export function RecipeFilters() {
       search: null,
       mealType: null,
       difficulty: null,
+      seasons: null,
       minMealsEaten: null,
       maxMealsEaten: null,
+      recipeBookId: null,
       page: 1,
+    }).then(() => {
+      router.refresh();
     });
   };
 
   // Reset to page 1 when any filter changes (except search, which is handled above)
   const handleFilterChange = useCallback((updates: Record<string, string | number | null>) => {
-    setFilters({ ...updates, page: 1 });
-  }, [setFilters]);
+    setFilters({ ...updates, page: 1 }).then(() => {
+      router.refresh();
+    });
+  }, [setFilters, router]);
+
+  const handleSeasonToggle = (season: string) => {
+    const currentSeasons = filters.seasons || [];
+    const newSeasons = currentSeasons.includes(season)
+      ? currentSeasons.filter(s => s !== season)
+      : [...currentSeasons, season];
+
+    handleFilterChange({
+      seasons: newSeasons.length > 0 ? newSeasons : null,
+    });
+  };
 
   const hasActiveFilters =
     filters.search ||
     filters.mealType ||
     filters.difficulty ||
+    (filters.seasons && filters.seasons.length > 0) ||
     filters.minMealsEaten !== null ||
-    filters.maxMealsEaten !== null;
+    filters.maxMealsEaten !== null ||
+    filters.recipeBookId;
 
   return (
     <Card className="p-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-4">
         {/* Search */}
         <div className="space-y-2">
           <Label htmlFor="search">Search</Label>
@@ -89,6 +131,29 @@ export function RecipeFilters() {
               className="pl-9"
             />
           </div>
+        </div>
+
+        {/* Recipe Book */}
+        <div className="space-y-2">
+          <Label htmlFor="recipeBook">Recipe Book</Label>
+          <Select
+            value={filters.recipeBookId || "all"}
+            onValueChange={(value) =>
+              handleFilterChange({ recipeBookId: value === "all" ? null : value })
+            }
+          >
+            <SelectTrigger id="recipeBook">
+              <SelectValue placeholder="All" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All</SelectItem>
+              {recipeBooks.map((book) => (
+                <SelectItem key={book.id} value={book.id}>
+                  {book.name} ({book.recipeCount})
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Meal Type */}
@@ -132,6 +197,45 @@ export function RecipeFilters() {
               <SelectItem value="Hard">Hard</SelectItem>
             </SelectContent>
           </Select>
+        </div>
+
+        {/* Seasons (Multi-select) */}
+        <div className="space-y-2">
+          <Label htmlFor="seasons">Seasons</Label>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                id="seasons"
+                variant="outline"
+                role="combobox"
+                className="w-full justify-between font-normal"
+              >
+                {filters.seasons && filters.seasons.length > 0
+                  ? `${filters.seasons.length} selected`
+                  : "All seasons"}
+                <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[200px] p-0" align="start">
+              <div className="p-2 space-y-2">
+                {SEASONAL_TAGS.map((season) => (
+                  <div key={season} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`season-${season}`}
+                      checked={filters.seasons?.includes(season) || false}
+                      onCheckedChange={() => handleSeasonToggle(season)}
+                    />
+                    <label
+                      htmlFor={`season-${season}`}
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                    >
+                      {season}
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
 
         {/* Min Meals Eaten */}

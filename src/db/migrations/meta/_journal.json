@@ -64,6 +64,62 @@
       "when": 1747391678728,
       "tag": "0008_add_multi_tenancy",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1760726216000,
+      "tag": "0009_food-tracker-schema",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "6",
+      "when": 1760726232000,
+      "tag": "0010_add-recipe-body",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "6",
+      "when": 1760726247000,
+      "tag": "0011_add-recipe-ingredients",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "6",
+      "when": 1760726267000,
+      "tag": "0012_add-grocery-items",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "6",
+      "when": 1760726313000,
+      "tag": "0013_add-recipe-books-and-metadata",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "6",
+      "when": 1760728901000,
+      "tag": "0014_add-grocery-list-templates",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "6",
+      "when": 1760738271000,
+      "tag": "0015_add-team-tables",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "6",
+      "when": 1760806000000,
+      "tag": "0016_add-teamid-to-recipes",
+      "breakpoints": true
     }
   ]
 }
