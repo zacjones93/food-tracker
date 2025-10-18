@@ -82,19 +82,15 @@ CREATE INDEX `ti_team_idx` ON `team_invitation` (`teamId`);
 --> statement-breakpoint
 CREATE INDEX `ti_token_idx` ON `team_invitation` (`token`);
 
--- Create default team (needed for FK constraint)
---> statement-breakpoint
-INSERT INTO `team` (id, name, slug, description, createdAt, updatedAt, updateCounter)
-VALUES ('team_default', 'Default Team', 'default', 'Default team for food tracking', strftime('%s', 'now'), strftime('%s', 'now'), 0);
-
 -- Add teamId to weeks table (requires recreation in SQLite)
+-- teamId initially nullable - will be set by seed script
 --> statement-breakpoint
 CREATE TABLE `weeks_new` (
 	`createdAt` integer NOT NULL,
 	`updatedAt` integer NOT NULL,
 	`updateCounter` integer DEFAULT 0,
 	`id` text PRIMARY KEY NOT NULL,
-	`teamId` text NOT NULL,
+	`teamId` text,
 	`name` text(255) NOT NULL,
 	`emoji` text(10),
 	`status` text(50) DEFAULT 'upcoming' NOT NULL,
@@ -104,7 +100,7 @@ CREATE TABLE `weeks_new` (
 	FOREIGN KEY (`teamId`) REFERENCES `team`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
-INSERT INTO `weeks_new` SELECT createdAt, updatedAt, updateCounter, id, 'team_default' as teamId, name, emoji, status, startDate, endDate, weekNumber FROM `weeks`;
+INSERT INTO `weeks_new` SELECT createdAt, updatedAt, updateCounter, id, NULL as teamId, name, emoji, status, startDate, endDate, weekNumber FROM `weeks`;
 --> statement-breakpoint
 DROP TABLE `weeks`;
 --> statement-breakpoint
