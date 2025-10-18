@@ -36,6 +36,7 @@ export default defineConfig({
       },
     }
     : {
+      driver: 'better-sqlite3',
       dbCredentials: {
         url: getLocalD1DB(),
       },
