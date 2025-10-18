@@ -2,7 +2,7 @@
 
 import { createServerAction, ZSAError } from "zsa";
 import { getDB } from "@/db";
-import { groceryListTemplatesTable, groceryItemsTable, teamMembershipTable, TEAM_PERMISSIONS } from "@/db/schema";
+import { groceryListTemplatesTable, groceryItemsTable, TEAM_PERMISSIONS } from "@/db/schema";
 import {
   createGroceryListTemplateSchema,
   updateGroceryListTemplateSchema,
@@ -10,7 +10,7 @@ import {
   getGroceryListTemplateByIdSchema,
   applyTemplateToWeekSchema,
 } from "@/schemas/grocery-template.schema";
-import { eq, and, or, inArray } from "drizzle-orm";
+import { eq, or } from "drizzle-orm";
 import { getSessionFromCookie } from "@/utils/auth";
 import { requirePermission } from "@/utils/team-auth";
 import { revalidatePath } from "next/cache";
@@ -125,36 +125,36 @@ export const getGroceryListTemplateByIdAction = createServerAction()
       throw new ZSAError("NOT_FOUND", "Template not found");
     }
 
+    // Check permission if template has a team (not default)
+    if (template.teamId) {
+      await requirePermission(user.id, template.teamId, TEAM_PERMISSIONS.ACCESS_GROCERY_TEMPLATES);
+    }
+
     return { template };
   });
 
 export const getGroceryListTemplatesAction = createServerAction()
   .handler(async () => {
-    const { user } = await getSessionFromCookie();
-    if (!user) {
+    const session = await getSessionFromCookie();
+    if (!session) {
       throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+    }
+
+    if (!session.activeTeamId) {
+      throw new ZSAError("FORBIDDEN", "No active team selected");
     }
 
     const db = getDB();
 
-    // Get user's team memberships
-    const memberships = await db.query.teamMembershipTable.findMany({
-      where: and(
-        eq(teamMembershipTable.userId, user.id),
-        eq(teamMembershipTable.isActive, 1)
-      ),
-    });
+    // Verify user has access to this team
+    await requirePermission(session.user.id, session.activeTeamId, TEAM_PERMISSIONS.ACCESS_GROCERY_TEMPLATES);
 
-    const teamIds = memberships.map(m => m.teamId);
-
-    // Return templates from user's teams + default template
+    // Return templates from active team + default template
     const templates = await db.query.groceryListTemplatesTable.findMany({
-      where: teamIds.length > 0
-        ? or(
-            inArray(groceryListTemplatesTable.teamId, teamIds),
-            eq(groceryListTemplatesTable.isDefault, true)
-          )
-        : eq(groceryListTemplatesTable.isDefault, true),
+      where: or(
+        eq(groceryListTemplatesTable.teamId, session.activeTeamId),
+        eq(groceryListTemplatesTable.isDefault, true)
+      ),
       orderBy: (templates, { asc }) => [asc(templates.name)],
     });
 
@@ -170,6 +170,17 @@ export const applyTemplateToWeekAction = createServerAction()
     }
 
     const db = getDB();
+
+    // Get the week to verify permission
+    const week = await db.query.weeksTable.findFirst({
+      where: (weeks, { eq }) => eq(weeks.id, input.weekId),
+    });
+
+    if (!week) {
+      throw new ZSAError("NOT_FOUND", "Week not found");
+    }
+
+    await requirePermission(user.id, week.teamId, TEAM_PERMISSIONS.EDIT_SCHEDULES);
 
     // Get the template
     const template = await db.query.groceryListTemplatesTable.findFirst({
