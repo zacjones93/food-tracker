@@ -1,6 +1,6 @@
 import type { Route } from "next"
 
-export const SITE_NAME = "Food Tracker"
+export const SITE_NAME = "List To Ladle"
 export const SITE_DESCRIPTION = "Plan your weekly meals, organize recipes, and track what you love to cook. Simple meal planning made easy."
 export const SITE_URL = process.env.NODE_ENV === "development" ? "http://localhost:3000" : "http://localhost:3000"
 export const GITHUB_REPO_URL = ""

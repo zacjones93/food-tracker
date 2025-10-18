@@ -310,6 +310,36 @@ The database schema is in `src/db/schema.ts`.
 
 Never generate SQL migration files. Instead after making changes to `./src/db/schema.ts` you should run `pnpm db:generate [MIGRATION_NAME]` to generate the migrations.
 
+### Executing SQL Scripts and Commands
+
+**Execute SQL files:**
+```bash
+wrangler d1 execute $(node scripts/get-db-name.mjs) --local --file <path/to/file.sql>
+wrangler d1 execute $(node scripts/get-db-name.mjs) --remote --file <path/to/file.sql>
+```
+
+**Execute SQL commands directly:**
+```bash
+wrangler d1 execute $(node scripts/get-db-name.mjs) --local --command "SELECT * FROM user"
+wrangler d1 execute $(node scripts/get-db-name.mjs) --remote --command "SELECT * FROM user"
+```
+
+**Important SQL Syntax Notes:**
+
+1. **strftime with INSERT** - When using `strftime('%s', 'now')` in INSERT statements, use SELECT syntax to avoid column count errors:
+   ```sql
+   -- ❌ BAD: May cause "4 values for 3 columns" error
+   INSERT INTO table (col1, col2, col3) VALUES ('val1', 'val2', strftime('%s', 'now'))
+
+   -- ✅ GOOD: Use SELECT to ensure proper value handling
+   INSERT INTO table (col1, col2, col3)
+   SELECT 'val1', 'val2', strftime('%s', 'now')
+   ```
+
+2. **Batch Execution** - When executing SQL files with multiple statements, ensure each statement is properly terminated with semicolons.
+
+3. **Database Name Helper** - Always use `$(node scripts/get-db-name.mjs)` to get the correct database name from wrangler.jsonc.
+
 ## Cloudflare Stack
 
 You are also excellent at Cloudflare Workers and other tools like D1 serverless database and KV. You can suggest usage of new tools (changes in wrangler.jsonc file) to add more primitives like:
