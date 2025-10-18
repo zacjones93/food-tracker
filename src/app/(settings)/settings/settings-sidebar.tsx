@@ -8,7 +8,8 @@ import {
   User,
   Smartphone,
   Lock,
-  LogOut
+  LogOut,
+  Users
 } from "lucide-react";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import {
@@ -37,6 +38,11 @@ const sidebarNavItems: SidebarNavItem[] = [
     title: "Profile",
     href: "/settings",
     icon: User,
+  },
+  {
+    title: "Teams",
+    href: "/settings/teams",
+    icon: Users,
   },
   {
     title: "Sessions",
