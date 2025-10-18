@@ -30,6 +30,8 @@ import { ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import type { GroceryListTemplate } from "@/db/schema";
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import { Separator } from "@/components/ui/separator";
 
 // Get the next Sunday from today (or today if it's Sunday) in local timezone
 function getNextSunday(): Date {
@@ -165,22 +167,29 @@ export default function CreateWeekPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6 p-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Create Week</h1>
-          <p className="text-muted-foreground">Add a new week to your meal schedule</p>
+    <>
+      <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
+        <div className="flex items-center gap-2 px-4">
+          <SidebarTrigger className="-ml-1" />
+          <Separator orientation="vertical" className="mr-2 h-4" />
         </div>
-        <Button variant="outline" asChild>
-          <Link href="/schedule">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Schedule
-          </Link>
-        </Button>
-      </div>
+      </header>
+      <div className="flex flex-col gap-6 p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Create Week</h1>
+            <p className="text-muted-foreground">Add a new week to your meal schedule</p>
+          </div>
+          <Button variant="outline" asChild>
+            <Link href="/schedule">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Schedule
+            </Link>
+          </Button>
+        </div>
 
-      <div className="max-w-2xl">
-        <Form {...form}>
+        <div className="max-w-2xl">
+          <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
@@ -404,7 +413,8 @@ export default function CreateWeekPage() {
             </div>
           </form>
         </Form>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

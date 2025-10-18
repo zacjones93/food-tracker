@@ -44,6 +44,8 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import { Separator } from "@/components/ui/separator";
 
 export default function CreateRecipePage() {
   const router = useRouter();
@@ -186,22 +188,29 @@ export default function CreateRecipePage() {
   }
 
   return (
-    <div className="flex flex-col gap-6 p-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Create Recipe</h1>
-          <p className="text-muted-foreground">Add a new recipe to your collection</p>
+    <>
+      <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
+        <div className="flex items-center gap-2 px-4">
+          <SidebarTrigger className="-ml-1" />
+          <Separator orientation="vertical" className="mr-2 h-4" />
         </div>
-        <Button variant="outline" asChild>
-          <Link href="/recipes">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Recipes
-          </Link>
-        </Button>
-      </div>
+      </header>
+      <div className="flex flex-col gap-6 p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Create Recipe</h1>
+            <p className="text-muted-foreground">Add a new recipe to your collection</p>
+          </div>
+          <Button variant="outline" asChild>
+            <Link href="/recipes">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Recipes
+            </Link>
+          </Button>
+        </div>
 
-      <div className="max-w-2xl">
-        <Form {...form}>
+        <div className="max-w-2xl">
+          <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
               control={form.control}
@@ -666,7 +675,8 @@ export default function CreateRecipePage() {
             </div>
           </form>
         </Form>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
