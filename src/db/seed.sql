@@ -3,16 +3,55 @@
 -- Date: 2025-10-17T19:33:36.539Z
 -- Note: Recipe IDs are Notion page IDs
 
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8188-9682-edf0eaca16ea', 'Pizza', '🍕', NULL, NULL, NULL, NULL, 0, '- Sourdough Dough
+INSERT INTO recipe_books (id, name, createdAt) VALUES ('rb_1', 'team_default_seed', 'Half Baked Harvest - Super Simple', 1760731829780);
+INSERT INTO recipe_books (id, name, createdAt) VALUES ('rb_2', 'team_default_seed', 'Ready Or Not - Nom Nom Paleo', 1760731829780);
+INSERT INTO recipe_books (id, name, createdAt) VALUES ('rb_3', 'team_default_seed', 'Primal Cravings', 1760731829780);
+INSERT INTO recipe_books (id, name, createdAt) VALUES ('rb_4', 'team_default_seed', 'Asian Paleo', 1760731829780);
+INSERT INTO recipe_books (id, name, createdAt) VALUES ('rb_5', 'team_default_seed', 'Sourdough Every Day', 1760731829780);
+INSERT INTO recipe_books (id, name, createdAt) VALUES ('rb_6', 'team_default_seed', 'Nom Nom Paleo', 1760731829780);
+INSERT INTO recipe_books (id, name, createdAt) VALUES ('rb_7', 'team_default_seed', 'Let’s Go - Nom Nom', 1760731829780);
+INSERT INTO recipe_books (id, name, createdAt) VALUES ('rb_8', 'team_default_seed', 'The Homegrown Paleo', 1760731829780);
+INSERT INTO recipe_books (id, name, createdAt) VALUES ('rb_9', 'team_default_seed', 'Nutrient Dense Meal Prep', 1760731829780);
+INSERT INTO recipe_books (id, name, createdAt) VALUES ('rb_10', 'team_default_seed', 'Truly Crunchy Magazine - Winter', 1760731829780);
+INSERT INTO recipe_books (id, name, createdAt) VALUES ('rb_11', 'team_default_seed', 'Healthy in a hurry', 1760731829780);
+INSERT INTO recipe_books (id, name, createdAt) VALUES ('rb_12', 'team_default_seed', 'Simple Thai Food', 1760731829780);
+INSERT INTO recipe_books (id, name, createdAt) VALUES ('rb_13', 'team_default_seed', 'Salt Fat Acid Heat', 1760731829780);
+INSERT INTO recipe_books (id, name, createdAt) VALUES ('rb_14', 'team_default_seed', 'The First Forty Days', 1760731829780);
+INSERT INTO recipe_books (id, name, createdAt) VALUES ('rb_15', 'team_default_seed', 'Eat to Feed', 1760731829780);
+INSERT INTO recipe_books (id, name, createdAt) VALUES ('rb_16', 'team_default_seed', 'Magnolia table vol. 2', 1760731829780);
+INSERT INTO recipe_books (id, name, createdAt) VALUES ('rb_17', 'team_default_seed', 'Sous Vide Made Simple', 1760731829780);
+INSERT INTO recipe_books (id, name, createdAt) VALUES ('rb_18', 'team_default_seed', 'Restorative traditions', 1760731829780);
+INSERT INTO recipe_books (id, name, createdAt) VALUES ('rb_19', 'team_default_seed', 'How to grill', 1760731829780);
+INSERT INTO recipe_books (id, name, createdAt) VALUES ('rb_20', 'team_default_seed', 'Toddler to Table', 1760731829780);
+INSERT INTO recipe_books (id, name, createdAt) VALUES ('rb_21', 'team_default_seed', 'Milk to Meals', 1760731829780);
+INSERT INTO recipe_books (id, name, createdAt) VALUES ('rb_22', 'team_default_seed', 'Histamine Reset Plan', 1760731829780);
+INSERT INTO recipe_books (id, name, createdAt) VALUES ('rb_23', 'team_default_seed', 'A Healthier Home Cook', 1760731829780);
+INSERT INTO recipe_books (id, name, createdAt) VALUES ('rb_24', 'Fallon''s Dairy Free Meal Plan', 1760731829780);
+INSERT INTO recipe_books (id, name, createdAt) VALUES ('rb_25', 'team_default_seed', 'The Microbiome Cookbook', 1760731829780);
+INSERT INTO recipe_books (id, name, createdAt) VALUES ('rb_26', 'team_default_seed', 'Real Food for Fertility', 1760731829780);
+INSERT INTO recipe_books (id, name, createdAt) VALUES ('rb_27', 'team_default_seed', 'Chat GPT', 1760731829780);
+INSERT INTO recipe_books (id, name, createdAt) VALUES ('rb_28', 'team_default_seed', 'Nourashing Traditions', 1760731829780);
+INSERT INTO recipe_books (id, name, createdAt) VALUES ('rb_29', 'team_default_seed', 'Six Seasons - A New Way with Vegetables', 1760731829780);
+INSERT INTO recipe_books (id, name, createdAt) VALUES ('rb_30', 'team_default_seed', '101 Asian Dishes', 1760731829780);
+INSERT INTO recipe_books (id, name, createdAt) VALUES ('rb_31', 'team_default_seed', 'Simple Thai Cooking', 1760731829780);
+INSERT INTO recipe_books (id, name, createdAt) VALUES ('rb_32', 'team_default_seed', 'Franklin BBQ', 1760731829780);
+INSERT INTO recipe_books (id, name, createdAt) VALUES ('rb_33', 'team_default_seed', 'Shred Happens So Easy So Good', 1760731829780);
+INSERT INTO recipe_books (id, name, createdAt) VALUES ('rb_34', 'team_default_seed', 'Nine Golden Months', 1760731829780);
+INSERT INTO recipe_books (id, name, createdAt) VALUES ('rb_35', 'team_default_seed', 'REAL food for pregnancy', 1760731829780);
+INSERT INTO recipe_books (id, name, createdAt) VALUES ('rb_36', 'team_default_seed', 'Batch', 1760731829780);
+INSERT INTO recipe_books (id, name, createdAt) VALUES ('rb_37', 'team_default_seed', 'The Nourishing Asian Kitchen', 1760731829780);
+INSERT INTO recipe_books (id, name, createdAt) VALUES ('rb_38', 'team_default_seed', 'To Asia With Love', 1760731829780);
+
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8188-9682-edf0eaca16ea', 'team_default', 'Pizza', '🍕', NULL, NULL, NULL, NULL, 0, '- Sourdough Dough
 - Chicken Sausage
 - Red Bell Pepper
 - Onion
 - Red Sauce
 - Almond Mozz Cheese
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-811a-b1db-f8f581c945b3', 'NAM TOK THAI GRILLED BEEF WATERFALL SALAD', '🥗', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-811a-b1db-f8f581c945b3', 'team_default', 'NAM TOK THAI GRILLED BEEF WATERFALL SALAD', '🥗', NULL, NULL, NULL, NULL, 0, '
 **For the steak**
 
 - 1 lb top sirloin steak. Or any of your favorite grilling steaks.
@@ -37,8 +76,8 @@ VALUES ('28fde7a2-c4fc-811a-b1db-f8f581c945b3', 'NAM TOK THAI GRILLED BEEF WATER
 - ½ -2 teaspoons fresh or dry Thai chilis. Add more or less as desired.
 - 2 tablespoons toasted rice powder
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-819e-b7b2-e7f4b038d495', 'Thai Basil Beef w/ Peanut Salsa', '🍔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-819e-b7b2-e7f4b038d495', 'team_default', 'Thai Basil Beef w/ Peanut Salsa', '🍔', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - Rice
@@ -56,8 +95,8 @@ Ingredients:
 - 2 green onions
 - mint leaves
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-813f-b0e1-de0705243592', 'Tex-Mex Beef and Rice Casserole', '🌮', NULL, NULL, NULL, NULL, 0, '- 1lb ground beef
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-813f-b0e1-de0705243592', 'team_default', 'Tex-Mex Beef and Rice Casserole', '🌮', NULL, NULL, NULL, NULL, 0, '- 1lb ground beef
 - 4 eggs
 - 1 jalepeno
 - 6 cherry tomatoes
@@ -70,8 +109,8 @@ VALUES ('28fde7a2-c4fc-813f-b0e1-de0705243592', 'Tex-Mex Beef and Rice Casserole
 - 1 tsp oregano
 - 1 tbs chili powder
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-815d-a1ab-cf321dd1c002', 'Honey Mustard Blackened Chicken BLT', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-815d-a1ab-cf321dd1c002', 'team_default', 'Honey Mustard Blackened Chicken BLT', '🐔', NULL, NULL, NULL, NULL, 0, '
 # My blackened seasoning
 
 
@@ -114,8 +153,8 @@ Dijon Recipe:
 - 1 tablespoon dried oregano
 - S&P to taste
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-811f-b9cb-f3df429d427b', 'Crispy lemon pepper chicken sandwich', '🍗', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-811f-b9cb-f3df429d427b', 'team_default', 'Crispy lemon pepper chicken sandwich', '🍗', NULL, NULL, NULL, NULL, 0, '
 INGREDIENTS
 
 - Chicken thighs
@@ -137,8 +176,8 @@ INGREDIENTS
 - Extra virgin Olive oil
 - Ranch
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8132-8a97-e179f0b8fc4b', 'Lactation Cookies', '🍪', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8132-8a97-e179f0b8fc4b', 'team_default', 'Lactation Cookies', '🍪', NULL, NULL, NULL, NULL, 0, '
 ### Ingredients
 
 - ¼ cup flaxseed meal
@@ -156,8 +195,8 @@ VALUES ('28fde7a2-c4fc-8132-8a97-e179f0b8fc4b', 'Lactation Cookies', '🍪', NUL
 - 2/3 cup dark chocolate chips, dairy free if desired
 - Maldon sea salt, for sprinkling the tops of the cookies
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-811f-b2ed-c44f72202c69', 'Bacon Cheeseburger Bombs', '🍔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-811f-b2ed-c44f72202c69', 'team_default', 'Bacon Cheeseburger Bombs', '🍔', NULL, NULL, NULL, NULL, 0, '
 ## **Ingredients**
 
 - 1 lb ground beef
@@ -173,8 +212,8 @@ VALUES ('28fde7a2-c4fc-811f-b2ed-c44f72202c69', 'Bacon Cheeseburger Bombs', '�
 - 1 sheet puff pastry
 - 1 egg, beaten (for egg wash)
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81fe-834b-f7de70614a35', 'Pepper & Onion Sausage Bake', '🐖', '["Postpartum"]', NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81fe-834b-f7de70614a35', 'team_default', 'Pepper & Onion Sausage Bake', '🐖', '["Postpartum"]', NULL, NULL, NULL, 0, '
 Ingredients: 
 
 - Yellow Onion
@@ -187,8 +226,8 @@ Ingredients:
 Oven: 350 for 45 Minutes 
 
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-812b-8548-e3f0fbab4556', 'Apple Cider Donut Waffle Bites', '🧇', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-812b-8548-e3f0fbab4556', 'team_default', 'Apple Cider Donut Waffle Bites', '🧇', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - 2 cups all-purpose flour
@@ -247,8 +286,8 @@ Serve warm with maple syrup.
 Enjoy!
 
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81e0-ba6d-c2330949fdd5', 'Drunken Noodles (Pad Kee Mao)', '🍜', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81e0-ba6d-c2330949fdd5', 'team_default', 'Drunken Noodles (Pad Kee Mao)', '🍜', NULL, NULL, NULL, NULL, 0, '
 # Ingredients:
 
 
@@ -275,8 +314,8 @@ Sauce:
 - 12 oz (340 g) fresh thick rice noodles (or 7 oz (200 g) wide dried rice noodles)
 - 1/2 cup basil , packed
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-814f-96a4-fc7fc4a321fb', 'Italian Wedding Soup ', '🍲', '["Postpartum"]', NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-814f-96a4-fc7fc4a321fb', 'team_default', 'Italian Wedding Soup ', '🍲', '["Postpartum"]', NULL, NULL, NULL, 0, '
 Ingredients: 
 
 - 1 lb. ground beef
@@ -313,8 +352,8 @@ Ingredients:
 5. Pour in chicken broth and water and stir until combined. Add in meatballs and pasta. Bring to a boil. Once boiling, reduce heat to medium and let simmer for 15 minutes. After pasta is fully cooked and has been simmering, turn off heat and add in spinach. Stir it until until all wilted.
 
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81bd-a5e0-f5cc4f0f856c', 'Pumpkin Sourdough Scones', '🎃', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81bd-a5e0-f5cc4f0f856c', 'team_default', 'Pumpkin Sourdough Scones', '🎃', NULL, NULL, NULL, NULL, 0, '
 ### INGREDIENTS:
 
 - 2 1/3 cup all purpose flour
@@ -337,8 +376,8 @@ VALUES ('28fde7a2-c4fc-81bd-a5e0-f5cc4f0f856c', 'Pumpkin Sourdough Scones', '�
 - 3 tbsp milk
 - 1/2 tsp cinnamon
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-817b-844d-f222ff9b3c61', 'Date Bark ', '🍫', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-817b-844d-f222ff9b3c61', 'team_default', 'Date Bark ', '🍫', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - 20 pitted medjool dates
@@ -346,8 +385,8 @@ Ingredients:
 - creamy almond butter
 - 1.5 cups melted dark chocolate
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81b8-add5-fee08556bf9c', 'Persian Inspired Herb and Beef Stew with Rice', '🐮', '["Dinner"]', NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81b8-add5-fee08556bf9c', 'team_default', 'Persian Inspired Herb and Beef Stew with Rice', '🐮', '["Dinner"]', NULL, NULL, NULL, 0, '
 **Ingredients:** 
 
 - 3 pounds beef chuck, trimmed and cubed
@@ -366,8 +405,8 @@ VALUES ('28fde7a2-c4fc-81b8-add5-fee08556bf9c', 'Persian Inspired Herb and Beef 
 - 1 tablespoon chopped chives
 - 2 cups cooked basmati rice
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8180-8fb9-da2089f733ef', 'Indonesian Fried Rice (Nasi Goreng)', '🍛', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8180-8fb9-da2089f733ef', 'team_default', 'Indonesian Fried Rice (Nasi Goreng)', '🍛', NULL, NULL, NULL, NULL, 0, '
 ### INGREDIENTS
 
 - _1 1/2 cups brown rice_
@@ -391,8 +430,8 @@ VALUES ('28fde7a2-c4fc-8180-8fb9-da2089f733ef', 'Indonesian Fried Rice (Nasi Gor
 7. Add the remaining oil to a large frying pan and heat until hot, then fry the remaining four eggs until the white is crisp at the edges, but the yolk is still runny (You can baste the egg in the hot oil to make it cook quicker).
 8. Divide the rice between four bowls and top each with a fried egg, and serve.
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81cb-a863-fd2f70e82904', 'Brat skewers', '🌭', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81cb-a863-fd2f70e82904', 'team_default', 'Brat skewers', '🌭', NULL, NULL, NULL, NULL, 0, '
 Recipe
 • Slice 1 onion and 1 green bell pepper and cook
 them up in a hot skillet.
@@ -408,11 +447,11 @@ Insta:
 burnt_pellet_bbq
 
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8149-8539-ce52fd17667f', 'Cracklin Chicken', '🐔', NULL, NULL, NULL, NULL, 0, '- 4 chicken thighs
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8149-8539-ce52fd17667f', 'team_default', 'Cracklin Chicken', '🐔', NULL, NULL, NULL, NULL, 0, '- 4 chicken thighs
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81fb-9862-fd15cba6abb3', 'Sourdough Pastry Dough ', '🥐', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81fb-9862-fd15cba6abb3', 'team_default', 'Sourdough Pastry Dough ', '🥐', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 
@@ -423,8 +462,8 @@ Ingredients:
 - [ ] 1 cup sourdough starter discard, chilled
 - [ ] 1 to 2 tablespoons water, as needed
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8183-afea-c5f17363bb55', 'Thai Basil Fried Rice ', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8183-afea-c5f17363bb55', 'team_default', 'Thai Basil Fried Rice ', '🐔', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 - [ ] 0.5 oz. garlic, _peeled_
@@ -442,8 +481,8 @@ Ingredients:
 - [ ] 2 tbsp [homemade vegetarian oyster sauce](https://iheartumami.com/vegetarian-oyster-sauce/)
 - [ ] 2 tbsp [apple juice](https://amzn.to/2DMdyfE), _Whole30 or ½ tsp Monk fruit brown sugar (Keto)_
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-811b-8ae5-c0cecea58397', 'Quick', '🍜', NULL, NULL, NULL, NULL, 0, '- 2 lbs. Chicken
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-811b-8ae5-c0cecea58397', 'team_default', 'Quick', '🍜', NULL, NULL, NULL, NULL, 0, '- 2 lbs. Chicken
 - Sourdough Ramen Noodles
 - All-Purpose Stir Fry Sauce (chicken marinade - see below)
 
@@ -496,8 +535,8 @@ VALUES ('28fde7a2-c4fc-811b-8ae5-c0cecea58397', 'Quick', '🍜', NULL, NULL, NUL
 - Cook the sourdough noodles in the boiling water for 90 seconds or until soft and chewy (this could take a little longer).
 - Drain the noodles and then add the sauce into the noodles. Serve with the chicken. You can also add in cucumber, green onion, fried egg, and/or cilantro.
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8100-9c29-cddc12be6036', 'Taco salad', '🌮', NULL, NULL, NULL, NULL, 0, '- 1lb ground beef (90% lean)
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8100-9c29-cddc12be6036', 'team_default', 'Taco salad', '🌮', NULL, NULL, NULL, NULL, 0, '- 1lb ground beef (90% lean)
 - red bell pepper
 - 1 small onion
 - 1 can fire-roasted green chili peppers
@@ -505,10 +544,10 @@ VALUES ('28fde7a2-c4fc-8100-9c29-cddc12be6036', 'Taco salad', '🌮', NULL, NULL
 - Rice
 - mixed greens
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8135-85bb-e50bbc2b4918', 'Sandwiches', '🥪', NULL, NULL, NULL, NULL, 0, NULL, 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-816d-9266-e7c200b09316', 'Crying Tiger w/ Thai Dipping Sauce', '🐅', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8135-85bb-e50bbc2b4918', 'team_default', 'Sandwiches', '🥪', NULL, NULL, NULL, NULL, 0, NULL, 1760729616541, 1760729616541, 0);
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-816d-9266-e7c200b09316', 'team_default', 'Crying Tiger w/ Thai Dipping Sauce', '🐅', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 
@@ -518,8 +557,8 @@ Ingredients:
 • Thai Dipping Sauce 
 
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81c4-aee7-f7a1c280d8d5', 'Thai Chili Dipping Sauce ', '🌶️', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81c4-aee7-f7a1c280d8d5', 'team_default', 'Thai Chili Dipping Sauce ', '🌶️', NULL, NULL, NULL, NULL, 0, '
 **Jaew Sauce (Thai chili dipping sauce)**
 
 
@@ -550,8 +589,8 @@ VALUES ('28fde7a2-c4fc-81c4-aee7-f7a1c280d8d5', 'Thai Chili Dipping Sauce ', '�
 • ¼ cup hemp seed hearts
 
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-816a-9626-daa0e197c01c', 'Chicken Enchilada Empanadas', '🥟', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-816a-9626-daa0e197c01c', 'team_default', 'Chicken Enchilada Empanadas', '🥟', NULL, NULL, NULL, NULL, 0, '
 15-ounce can tomato sauce
 
 
@@ -626,8 +665,8 @@ empanadas with egg wash.
 minutes.
 
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81da-a5b8-caf4aea27590', 'Healthy Hot & Sour Soup', '🍲', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81da-a5b8-caf4aea27590', 'team_default', 'Healthy Hot & Sour Soup', '🍲', NULL, NULL, NULL, NULL, 0, '
 Pork:
 
 
@@ -701,8 +740,8 @@ texture will break down.) Garnish with the green scallion
 parts and a pinch of white pepper, if desired. Serve hot and
 immediatelv.
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81fd-b1b8-db6eb81f426c', 'Empanada Crust', '🥐', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81fd-b1b8-db6eb81f426c', 'team_default', 'Empanada Crust', '🥐', NULL, NULL, NULL, NULL, 0, '
 240 g (2 cups) all-purpose flour
 4 g (½ tsp) salt
 56 g (4 tbsp) lard
@@ -713,8 +752,8 @@ VALUES ('28fde7a2-c4fc-81fd-b1b8-db6eb81f426c', 'Empanada Crust', '🥐', NULL, 
 42 g (3 tbsp) ice water
 
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81b0-9316-da04105cb373', 'Fiona’s Green Chicken', NULL, NULL, NULL, NULL, NULL, 0, '- 1 medium sweet onion, coarsely chopped (about 1 cup)
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81b0-9316-da04105cb373', 'team_default', 'Fiona’s Green Chicken', NULL, NULL, NULL, NULL, NULL, 0, '- 1 medium sweet onion, coarsely chopped (about 1 cup)
 - 1¼ cups packed fresh basil
 - 1 cup packed fresh cilantro (leaves and stems)
 - ¼ cup packed fresh mint
@@ -727,8 +766,8 @@ VALUES ('28fde7a2-c4fc-81b0-9316-da04105cb373', 'Fiona’s Green Chicken', NULL,
 - 3 pounds skin-on chicken drumsticks or thighs
 - 2 limes, cut into wedges
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81af-8ac5-cc94b14db047', 'Pan-Fried Scallion and Toasted Sesame Buns', '😋', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81af-8ac5-cc94b14db047', 'team_default', 'Pan-Fried Scallion and Toasted Sesame Buns', '😋', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - Neutral Oil for cooking
@@ -758,8 +797,8 @@ Scallion & Sesame Filling:
 - 2 tsp toasted sesame seeds** see notes
 - 1/3 cup neutral oil sizzling hot
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8133-a6ed-e41f5caa5e71', 'Slow-poached Tuna steaks', NULL, NULL, NULL, NULL, NULL, 0, '- 2lb Albacore fillet
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8133-a6ed-e41f5caa5e71', 'team_default', 'Slow-poached Tuna steaks', NULL, NULL, NULL, NULL, NULL, 0, '- 2lb Albacore fillet
 - 2 tsp magic mushroom powder
 - 4 garlic cloves
 - 2/3 cup extra-virgin olive oil
@@ -767,13 +806,13 @@ VALUES ('28fde7a2-c4fc-8133-a6ed-e41f5caa5e71', 'Slow-poached Tuna steaks', NULL
 2. Arrange the tuna steaks in a single layer in a deep-sided oven-safe dish, and evenly distribute the garlic on top of the fish. Pour olive oil into the bottom of the dish, stopping only when it reaches halfway up the tuna steaks. Cover the dish, and poach in the oven for 10 minutes, or until the steaks are cooked halfway through.
 3. Gently flip over each tuna steak so that the uncooked sides are now in the olive oil. Cover the dish and continue poaching in the oven for another 10 minutes or until just barely cooked through. Serve with a drizzle of the Magic Mushroom Powder-infused olive oil from the baking dish.
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81fa-bd40-ce833a17667f', 'Ramen Eggs', '🥚', NULL, NULL, NULL, NULL, 0, '- 6 large eggs
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81fa-bd40-ce833a17667f', 'team_default', 'Ramen Eggs', '🥚', NULL, NULL, NULL, NULL, 0, '- 6 large eggs
 - 1 cup water
 - ½ cup All-Purpose Stir-Fry Sauce (page 29)
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8188-b2ba-e20567908112', 'Chili Stuffed Baked Potatoes – Whole30', '🥔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8188-b2ba-e20567908112', 'team_default', 'Chili Stuffed Baked Potatoes – Whole30', '🥔', NULL, NULL, NULL, NULL, 0, '
 ### **For the Chili:**
 
 - 1 tablespoon avocado oil
@@ -808,8 +847,8 @@ VALUES ('28fde7a2-c4fc-8188-b2ba-e20567908112', 'Chili Stuffed Baked Potatoes �
 - 2 tablespoons roughly chopped fresh cilantro leaves
 - 4 tablespoons Cashew Queso store-bought or homemade
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8145-82bd-e67594fcbf39', 'Chicken Tikka Masala', '🐔', '["Postpartum"]', NULL, NULL, NULL, 0, '- 2 pounds boneless, skinless chicken thighs or breasts, cut into 1-inch cubes
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8145-82bd-e67594fcbf39', 'team_default', 'Chicken Tikka Masala', '🐔', '["Postpartum"]', NULL, NULL, NULL, 0, '- 2 pounds boneless, skinless chicken thighs or breasts, cut into 1-inch cubes
 - 1½ teaspoons Diamond Crystal kosher salt
 - 2 tablespoons ghee
 - 1 large onion, peeled and finely minced
@@ -823,8 +862,8 @@ VALUES ('28fde7a2-c4fc-8145-82bd-e67594fcbf39', 'Chicken Tikka Masala', '🐔', 
 - ½ cup coconut cream
 - ¼ cup minced fresh cilantro
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81b9-bb2f-cc802c7a3a4a', 'Bison Bacon Burger', '🦬', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81b9-bb2f-cc802c7a3a4a', 'team_default', 'Bison Bacon Burger', '🦬', NULL, NULL, NULL, NULL, 0, '
 **BURGER INGREDIENTS:**
 
 - 1 box of [Force of Nature Bison Bacon Burger patties](https://forceofnature.com/collections/all/products/bison-bacon-burger-patties)
@@ -863,8 +902,8 @@ VALUES ('28fde7a2-c4fc-81b9-bb2f-cc802c7a3a4a', 'Bison Bacon Burger', '🦬', NU
 - Layer the second bison bacon burger patty, and top with 1 tsp of homemade guacamole.
 - Enjoy!
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8199-a3fe-ea1cf4f6b227', 'Garlic Parm chicken tender sandwich', '🥪', NULL, NULL, NULL, NULL, 0, '- Baguette
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8199-a3fe-ea1cf4f6b227', 'team_default', 'Garlic Parm chicken tender sandwich', '🥪', NULL, NULL, NULL, NULL, 0, '- Baguette
 - Chicken breast
 - Buttermilk
 - Flour + panko
@@ -883,8 +922,8 @@ Slaw
 - Garlic powder
 - Onion powder
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8113-b144-d16e3f38a3c8', 'Chicken Karaage (Japanese Fried Chicken)', '🐔', NULL, NULL, NULL, NULL, 0, '- ½ cup All-Purpose Stir-Fry Sauce (page 29)
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8113-b144-d16e3f38a3c8', 'team_default', 'Chicken Karaage (Japanese Fried Chicken)', '🐔', NULL, NULL, NULL, NULL, 0, '- ½ cup All-Purpose Stir-Fry Sauce (page 29)
 - 2 pounds boneless, skinless chicken thighs
 - 6 cups avocado oil for frying (fill 2” of pot)
 - 2 cups potato starch, divided
@@ -894,8 +933,8 @@ VALUES ('28fde7a2-c4fc-8113-b144-d16e3f38a3c8', 'Chicken Karaage (Japanese Fried
 - Flake sea salt (optional)
 - lemons, cut into wedges (optional)
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81df-b751-f1677bf0dd17', 'Lemongrass pork chops', '🐖', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81df-b751-f1677bf0dd17', 'team_default', 'Lemongrass pork chops', '🐖', NULL, NULL, NULL, NULL, 0, '
 Pork chops
 
 - 2 large lemongrass stalks
@@ -945,8 +984,8 @@ Macros:
 • Fiber: 1g
 
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-811e-ac18-ecf5d6e5f514', 'Paper-wrapped Chicken', '🐔', NULL, NULL, NULL, NULL, 0, '- ½ cup [All-Purpose Stir-Fry Sauce](https://nomnompaleo.com/purpose-stir-fry-sauce)
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-811e-ac18-ecf5d6e5f514', 'team_default', 'Paper-wrapped Chicken', '🐔', NULL, NULL, NULL, NULL, 0, '- ½ cup [All-Purpose Stir-Fry Sauce](https://nomnompaleo.com/purpose-stir-fry-sauce)
 - 4 cups sliced bok choy
 - Diamond Crystal brand kosher salt
 - Freshly ground black pepper
@@ -972,8 +1011,8 @@ Macros:
 • Fiber: 2g
 
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8192-9bc6-cb65d2657bbc', 'Butternut Stew with Pork and Spinach', '🐷', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8192-9bc6-cb65d2657bbc', 'team_default', 'Butternut Stew with Pork and Spinach', '🐷', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - I pound ground pork
@@ -999,8 +1038,8 @@ leaves)
 - 3 tablespoons minced fresh cilantro leaves, for garnish
 - 3 tablespoons minced fresh basil leaves, for garnish
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81c3-ab8b-c4a6a5aecc16', 'Blueberry Breakfast (Hazel)', '🥞', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81c3-ab8b-c4a6a5aecc16', 'team_default', 'Blueberry Breakfast (Hazel)', '🥞', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 - 1 oz oats
@@ -1022,8 +1061,8 @@ Directions:
 bake at 350 for 40 minutes 
 
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-813c-802c-d147e427ee0a', 'Big Bad Rooster Soup ', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-813c-802c-d147e427ee0a', 'team_default', 'Big Bad Rooster Soup ', '🐔', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - 1 tablespoon ghee (page 347)
@@ -1045,8 +1084,8 @@ Notes)
 - 1 tablespoon minced fresh basil leaves, for garnish
 - Sriracha (all-natural), for garnish
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-816b-adb0-f1cd814fc7ba', 'Baked Potato Soup', '🍲', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-816b-adb0-f1cd814fc7ba', 'team_default', 'Baked Potato Soup', '🍲', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 - 1/4 cup butter
@@ -1064,8 +1103,8 @@ Ingredients:
 topping: finely diced chives, a dollop of greek yogurt, grated raw cheddar cheese, crumbled cooked bacon
 
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81b3-9452-dadb52139fa9', 'Moroccan grilled chicken (camping)', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81b3-9452-dadb52139fa9', 'team_default', 'Moroccan grilled chicken (camping)', '🐔', NULL, NULL, NULL, NULL, 0, '
 # Ingredients
 
 - [ ] 2 pound [boneless skinless chicken breasts, cut into bite size chunks](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fmoroccan-grilled-chicken%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Fboneless-38-skinless-chicken-breasts-value-pack-3-75-7-675-lbs-price-per-lb-good-38-gather-8482%2F-%2FA-54197515&u=https%3A%2F%2Fwww.target.com%2Fp%2Fboneless-38-skinless-chicken-breasts-value-pack-3-75-7-675-lbs-price-per-lb-good-38-gather-8482%2F-%2FA-54197515#donotlink)
@@ -1088,8 +1127,8 @@ VALUES ('28fde7a2-c4fc-81b3-9452-dadb52139fa9', 'Moroccan grilled chicken (campi
 - [ ] [kosher salt](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fmoroccan-grilled-chicken%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Fmorton-coarse-kosher-salt-16oz%2F-%2FA-13170448&u=https%3A%2F%2Fwww.target.com%2Fp%2Fmorton-coarse-kosher-salt-16oz%2F-%2FA-13170448#donotlink)
 - [ ] 1/3 cup crumbled goat cheese or feta cheese
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81e4-9bf8-ce578c91523e', 'Lactation Pumpkin Chocolate Chip Muffins ', '🎃', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81e4-9bf8-ce578c91523e', 'team_default', 'Lactation Pumpkin Chocolate Chip Muffins ', '🎃', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 - 3/4 cup gluten free baking flour
@@ -1106,8 +1145,8 @@ Ingredients:
 - 2 Tbsp Brewer’s Yeast
 - cinnamon
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81e6-802d-ccb134a2eae6', 'Roasted Cauliflower with Apples, Bacon, and Balsamic Vinegar', '🥦', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81e6-802d-ccb134a2eae6', 'team_default', 'Roasted Cauliflower with Apples, Bacon, and Balsamic Vinegar', '🥦', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 - 1 head cauliflower
@@ -1116,8 +1155,8 @@ Ingredients:
 - 4 strips bacon
 - sea salt + black pepper
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8162-b5b5-dd668ffcb6a4', 'Lemon Ginger Meatballs ', '🐮', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8162-b5b5-dd668ffcb6a4', 'team_default', 'Lemon Ginger Meatballs ', '🐮', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 - 1 pound ground pork or ground turkey
@@ -1131,8 +1170,8 @@ Ingredients:
 - ¼ teaspoon sea salt
 - ¼ teaspoon ground black pepper
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-815a-9614-d8540f871785', 'Meat Stock', '🍲', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-815a-9614-d8540f871785', 'team_default', 'Meat Stock', '🍲', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - 1 whole chicken - including feet + neck
@@ -1163,8 +1202,8 @@ It is good in the freezer for up to 1 year and the fridge for about one
 week.*I leave the breasts out of the stock, and save them for frying at a later time.
 
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81e6-b50e-f7ef4a84c692', 'Single Serving Frittata - breakfast prep', '🥚', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81e6-b50e-f7ef4a84c692', 'team_default', 'Single Serving Frittata - breakfast prep', '🥚', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - 1 tbsp (14 g) beef tallow or ghee, plus more for muffin tin
@@ -1177,10 +1216,10 @@ Ingredients:
 - ½ tsp sea salt
 - 2 tsp (4 g) freshly ground black pepper (optional)
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-816e-8b17-d070cc3f8f9b', 'Steak', '🥩', NULL, NULL, NULL, NULL, 0, NULL, 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81dc-92a7-f0239a43bda6', 'Cheesy One Pot Beef and Potatoes', '🐮', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-816e-8b17-d070cc3f8f9b', 'team_default', 'Steak', '🥩', NULL, NULL, NULL, NULL, 0, NULL, 1760729616541, 1760729616541, 0);
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81dc-92a7-f0239a43bda6', 'team_default', 'Cheesy One Pot Beef and Potatoes', '🐮', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - [ ] 1 tbsp olive oil
@@ -1200,8 +1239,8 @@ Ingredients:
 - [ ] 2 cups chicken broth
 - [ ] 1 ½ cups grated cheddar
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81b4-8009-d6b33709f384', 'GREEK LEMON CHICKEN SOUP', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81b4-8009-d6b33709f384', 'team_default', 'GREEK LEMON CHICKEN SOUP', '🐔', NULL, NULL, NULL, NULL, 0, '
 2 tablespoons butter
 1 tablespoon extra virgin olive oil
 ½ medium yellow onion, diced small
@@ -1219,8 +1258,8 @@ Kosher or sea salt to taste
 
 
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8168-99fe-c2d2eddb03cd', 'Greek Sheet Pan Chicken Dinner + Lemon Herby Vinaigrette ', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8168-99fe-c2d2eddb03cd', 'team_default', 'Greek Sheet Pan Chicken Dinner + Lemon Herby Vinaigrette ', '🐔', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - [ ] ½ cup [**olive oil**](https://amzn.to/3BDOnXU)
@@ -1248,8 +1287,8 @@ Ingredients:
 - [ ] [kosher salt](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fmoroccan-grilled-chicken%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Fmorton-coarse-kosher-salt-16oz%2F-%2FA-13170448&u=https%3A%2F%2Fwww.target.com%2Fp%2Fmorton-coarse-kosher-salt-16oz%2F-%2FA-13170448#donotlink)
 - [ ] 1/3 cup crumbled goat cheese or feta cheese
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81e5-bcc9-fe3fcf23f2dd', 'Sticky green onion stir-fried beef', '🐮', NULL, NULL, NULL, NULL, 0, '- 2 pounds flank or sirloin steak
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81e5-bcc9-fe3fcf23f2dd', 'team_default', 'Sticky green onion stir-fried beef', '🐮', NULL, NULL, NULL, NULL, 0, '- 2 pounds flank or sirloin steak
 - ⅓ cup arrowroot powder, plus more if needed
 - 1⅓ cup avocado oil
 - 1-inch piece fresh ginger, peeled and minced
@@ -1263,15 +1302,15 @@ VALUES ('28fde7a2-c4fc-81e5-bcc9-fe3fcf23f2dd', 'Sticky green onion stir-fried b
  
 
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8167-bf62-e100ec208991', 'Salsa chicken', '🐔', NULL, NULL, NULL, NULL, 0, '- 1 tsp chili powder
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8167-bf62-e100ec208991', 'team_default', 'Salsa chicken', '🐔', NULL, NULL, NULL, NULL, 0, '- 1 tsp chili powder
 - 1/2 salt
 - 2 lb chicken
 - 1 cup salsa
 - Homemade guac
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81d3-b9c0-cce5cc992d65', 'Fluffy Sourdough Biscuits', '🍞', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81d3-b9c0-cce5cc992d65', 'team_default', 'Fluffy Sourdough Biscuits', '🍞', NULL, NULL, NULL, NULL, 0, '
 ### **Ingredients**
 
 - 8 Tbsp cold butter, cut into chunks (113 grams)
@@ -1283,8 +1322,8 @@ VALUES ('28fde7a2-c4fc-81d3-b9c0-cce5cc992d65', 'Fluffy Sourdough Biscuits', '�
 - 1 teaspoon baking soda
 - 1/2 cup milk or buttermilk (122 grams)
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-814a-b5cc-c3269159a7f7', 'Slow Cooker Taco Spice Chili', '🌶️', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-814a-b5cc-c3269159a7f7', 'team_default', 'Slow Cooker Taco Spice Chili', '🌶️', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - 1 Tablespoon **extra virgin olive oil**
@@ -1302,8 +1341,8 @@ Ingredients:
 - 1/2 teaspoon **salt**
 - Rice
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8176-8b5f-e74f19bc3c6b', 'Ground beef uglies', '🐮', NULL, NULL, NULL, NULL, 0, '- **1 pound** [**Ground Beef**](https://www.bigoven.com/article/details/ground-beef)**, Venison, Elk**
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8176-8b5f-e74f19bc3c6b', 'team_default', 'Ground beef uglies', '🐮', NULL, NULL, NULL, NULL, 0, '- **1 pound** [**Ground Beef**](https://www.bigoven.com/article/details/ground-beef)**, Venison, Elk**
 - **1/2 Cup yelllow** [**onion**](https://www.bigoven.com/article/details/onion)**s**
 - **Finely diced 1/2 Cup Green /** [**Red pepper**](https://www.bigoven.com/article/details/red-pepper)**s**
 - **Finely chopped 1/2 Cup Favorite** [**BBQ**](https://www.bigoven.com/article/details/bbq) **sauce**
@@ -1335,8 +1374,8 @@ VALUES ('28fde7a2-c4fc-8176-8b5f-e74f19bc3c6b', 'Ground beef uglies', '🐮', NU
 7. Bake for 12-15 minutes, or until golden brown.
 8. Serve hot and enjoy!
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8163-976d-d92fb91a5c36', 'Sausage and Sauerkraut Skillet Recipe with Potatoes', '🐷', '["Want to try"]', NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8163-976d-d92fb91a5c36', 'team_default', 'Sausage and Sauerkraut Skillet Recipe with Potatoes', '🐷', '["Want to try"]', NULL, NULL, NULL, 0, '
 ### **Ingredients**
 
 - 1 pound bratwurst or smoked sausage, cooked and cut into 1/4-inch pieces
@@ -1349,8 +1388,8 @@ VALUES ('28fde7a2-c4fc-8163-976d-d92fb91a5c36', 'Sausage and Sauerkraut Skillet 
 - 1/2 teaspoon black pepper
 - 1/4 teaspoon crushed red pepper flakes, optional
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81b8-b0df-c8a7aa9977f5', 'Firecracker Chicken Thighs (DRUMS)', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81b8-b0df-c8a7aa9977f5', 'team_default', 'Firecracker Chicken Thighs (DRUMS)', '🐔', NULL, NULL, NULL, NULL, 0, '
 ### **Ingredients**
 
 - 2.5 lbs Chicken thighs
@@ -1371,8 +1410,8 @@ VALUES ('28fde7a2-c4fc-81b8-b0df-c8a7aa9977f5', 'Firecracker Chicken Thighs (DRU
 - Pull them off once they reach an internal temperature of 175. Garnish with parsley or green onion.
 - Let cool for 3 min before serving.
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-818e-ad62-cb72b677203d', 'Asparagus beef', '🐮', NULL, NULL, NULL, NULL, 0, '- 1.5 lbs flank steak thinly sliced
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-818e-ad62-cb72b677203d', 'team_default', 'Asparagus beef', '🐮', NULL, NULL, NULL, NULL, 0, '- 1.5 lbs flank steak thinly sliced
 - 1 pound asparagus
 - 1 large carrot
 - 2 scallions
@@ -1387,10 +1426,10 @@ VALUES ('28fde7a2-c4fc-818e-ad62-cb72b677203d', 'Asparagus beef', '🐮', NULL, 
 - 1/2 tsp kosher salt
 - 1 tbs ghee
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81e8-b4bd-c5bc3158af19', 'Shishito Peppers', '🌶️', NULL, NULL, NULL, NULL, 0, NULL, 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8173-9e25-f47bc72c479e', 'Chicken Curry in a hurry', '🥘', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81e8-b4bd-c5bc3158af19', 'team_default', 'Shishito Peppers', '🌶️', NULL, NULL, NULL, NULL, 0, NULL, 1760729616541, 1760729616541, 0);
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8173-9e25-f47bc72c479e', 'team_default', 'Chicken Curry in a hurry', '🥘', NULL, NULL, NULL, NULL, 0, '
 ## Meat
 
 
@@ -1445,8 +1484,8 @@ VALUES ('28fde7a2-c4fc-8173-9e25-f47bc72c479e', 'Chicken Curry in a hurry', '�
 1/2 teaspoon kosher salt
 
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8186-bdc4-faf7fba29077', 'Wonton Soup (15 Minutes)', '🍲', NULL, NULL, NULL, NULL, 0, '- 1 leek, white parts, thinly sliced ( or sub 1 shallot or ½ cup onion)
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8186-bdc4-faf7fba29077', 'team_default', 'Wonton Soup (15 Minutes)', '🍲', NULL, NULL, NULL, NULL, 0, '- 1 leek, white parts, thinly sliced ( or sub 1 shallot or ½ cup onion)
 - 4 slices ginger (the size of a quarter, leave peels on- or 1 tablespoon [_ginger paste_](https://amzn.to/2QYbR4b))
 - 1 tablespoon [_olive oil_](https://bowlandpitcher.com/collections/spices-and-condiments/products/extra-virgin-olive-oil)
 - 4 cups chicken broth ( or [_veggie broth_](https://amzn.to/36Q7lwf))
@@ -1455,10 +1494,10 @@ VALUES ('28fde7a2-c4fc-8186-bdc4-faf7fba29077', 'Wonton Soup (15 Minutes)', '�
 - a couple handful of chopped greens- baby spinach, arugula, bok choy, chopped kale
 - garnish options: scallions, cilantro, [_sesame seeds_](https://amzn.to/2FaPosB), chili flakes or [_sriracha_](https://amzn.to/344cKvm)
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81c2-ae3e-d4299edc145e', 'Stir Fry Veggies - TJ''s Mushroom Asparagus Pack ', '🥦', NULL, NULL, NULL, NULL, 0, NULL, 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8143-8cb5-f62cd9b93216', 'Zac''s Veggie Bake', '🥔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81c2-ae3e-d4299edc145e', 'team_default', 'Stir Fry Veggies - TJ''s Mushroom Asparagus Pack ', '🥦', NULL, NULL, NULL, NULL, 0, NULL, 1760729616541, 1760729616541, 0);
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8143-8cb5-f62cd9b93216', 'team_default', 'Zac''s Veggie Bake', '🥔', NULL, NULL, NULL, NULL, 0, '
 Potato
 
 
@@ -1468,8 +1507,8 @@ Poblano
 Broccoli
 
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81c8-8dc0-fe8896ce503f', 'Smoked Burger', '🍔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81c8-8dc0-fe8896ce503f', 'team_default', 'Smoked Burger', '🍔', NULL, NULL, NULL, NULL, 0, '
 Marinate
 
 - Yellow mustard
@@ -1477,8 +1516,8 @@ Marinate
 - Garlic powder
 - Salt and pepper
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81cd-86b9-f374ea66528b', 'Greek Meatballs with Tzatziki Sauce ', '🐮', '["Camping"]', NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81cd-86b9-f374ea66528b', 'team_default', 'Greek Meatballs with Tzatziki Sauce ', '🐮', '["Camping"]', NULL, NULL, NULL, 0, '
 Ingredients: 
 
 
@@ -1513,8 +1552,8 @@ After all of the meatballs have been rolled and placed on the sheet pan, bake th
 While the meatballs are cooking, make the tzatziki sauce. Add the cucumber, garlic, and dill to a food processor and pulse until finely chopped. Add the cucumber mixture to the Greek yogurt and still until well combined. Stir in the lemon juice and salt and store in the fridge until ready to serve.
 
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81a5-8122-f86a28e78faf', 'Crockpot Basil Butter Chicken', '🐔', NULL, NULL, NULL, NULL, 0, '- [ ] 2 pounds [boneless chicken breasts or thighs, cubed ](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fbasil-butter-chicken%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Fsmart-chicken-organic-boneless-38-skinless-thin-sliced-chicken-breast-0-75-1-5lbs-price-per-lb%2F-%2FA-54115567%3Faflt%3Dplt%257Clm%23lnk%3Dsametab&u=https%3A%2F%2Fwww.target.com%2Fp%2Fsmart-chicken-organic-boneless-38-skinless-thin-sliced-chicken-breast-0-75-1-5lbs-price-per-lb%2F-%2FA-54115567%3Faflt%3Dplt%257Clm%23lnk%3Dsametab#lnk=sametab)_cubed_
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81a5-8122-f86a28e78faf', 'team_default', 'Crockpot Basil Butter Chicken', '🐔', NULL, NULL, NULL, NULL, 0, '- [ ] 2 pounds [boneless chicken breasts or thighs, cubed ](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fbasil-butter-chicken%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Fsmart-chicken-organic-boneless-38-skinless-thin-sliced-chicken-breast-0-75-1-5lbs-price-per-lb%2F-%2FA-54115567%3Faflt%3Dplt%257Clm%23lnk%3Dsametab&u=https%3A%2F%2Fwww.target.com%2Fp%2Fsmart-chicken-organic-boneless-38-skinless-thin-sliced-chicken-breast-0-75-1-5lbs-price-per-lb%2F-%2FA-54115567%3Faflt%3Dplt%257Clm%23lnk%3Dsametab#lnk=sametab)_cubed_
 - [ ] 1/3 cup [plain Greek yogurt](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fbasil-butter-chicken%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Ffage-total-2-milkfat-plain-greek-yogurt-32oz%2F-%2FA-14931777%3Faflt%3Dplt%257Clm%23lnk%3Dsametab&u=https%3A%2F%2Fwww.target.com%2Fp%2Ffage-total-2-milkfat-plain-greek-yogurt-32oz%2F-%2FA-14931777%3Faflt%3Dplt%257Clm%23lnk%3Dsametab#lnk=sametab)
 - [ ] 2 tablespoons [red curry paste](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fbasil-butter-chicken%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Fthai-kitchen-premium-authentic-red-curry-paste-4oz%2F-%2FA-13349158%3Faflt%3Dplt%257Clm%23lnk%3Dsametab&u=https%3A%2F%2Fwww.target.com%2Fp%2Fthai-kitchen-premium-authentic-red-curry-paste-4oz%2F-%2FA-13349158%3Faflt%3Dplt%257Clm%23lnk%3Dsametab#lnk=sametab)
 - [ ] 4 cloves [garlic, chopped](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fbasil-butter-chicken%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Fspice-world-fresh-whole-garlic-3ct-bag%2F-%2FA-14917318%3Faflt%3Dplt%257Clm%23lnk%3Dsametab&u=https%3A%2F%2Fwww.target.com%2Fp%2Fspice-world-fresh-whole-garlic-3ct-bag%2F-%2FA-14917318%3Faflt%3Dplt%257Clm%23lnk%3Dsametab#lnk=sametab)
@@ -1531,8 +1570,8 @@ VALUES ('28fde7a2-c4fc-81a5-8122-f86a28e78faf', 'Crockpot Basil Butter Chicken',
 - [ ] 1/2 cup [chopped fresh basil](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fbasil-butter-chicken%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Forganic-basil-0-5oz-good-38-gather-8482%2F-%2FA-79495109%3Faflt%3Dplt%257Clm%23lnk%3Dsametab&u=https%3A%2F%2Fwww.target.com%2Fp%2Forganic-basil-0-5oz-good-38-gather-8482%2F-%2FA-79495109%3Faflt%3Dplt%257Clm%23lnk%3Dsametab#lnk=sametab)
 - [ ] 1/4 cup [chopped fresh cilantro](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fbasil-butter-chicken%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Fcilantro-bunch-each%2F-%2FA-15006468%3Faflt%3Dplt%257Clm%23lnk%3Dsametab&u=https%3A%2F%2Fwww.target.com%2Fp%2Fcilantro-bunch-each%2F-%2FA-15006468%3Faflt%3Dplt%257Clm%23lnk%3Dsametab#lnk=sametab)
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81d3-90c9-f6016c7c8920', 'Pot Roast Gyros', '🐮', NULL, NULL, NULL, NULL, 0, '- [ ] 1 [yellow onion, sliced](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fpot-roast-gyros%2F%23wprm-recipe-container-162936&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Fyellow-onion-each%2F-%2FA-13474244%3Faflt%3Dplt%257Clm%23lnk%3Dsametab&u=https%3A%2F%2Fwww.target.com%2Fp%2Fyellow-onion-each%2F-%2FA-13474244%3Faflt%3Dplt%257Clm%23lnk%3Dsametab#lnk=sametab)
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81d3-90c9-f6016c7c8920', 'team_default', 'Pot Roast Gyros', '🐮', NULL, NULL, NULL, NULL, 0, '- [ ] 1 [yellow onion, sliced](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fpot-roast-gyros%2F%23wprm-recipe-container-162936&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Fyellow-onion-each%2F-%2FA-13474244%3Faflt%3Dplt%257Clm%23lnk%3Dsametab&u=https%3A%2F%2Fwww.target.com%2Fp%2Fyellow-onion-each%2F-%2FA-13474244%3Faflt%3Dplt%257Clm%23lnk%3Dsametab#lnk=sametab)
 - [ ] 2 [shallots, sliced](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fpot-roast-gyros%2F%23wprm-recipe-container-162936&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Fshallots-price-per-lb%2F-%2FA-14993271%3Faflt%3Dplt%257Clm%23lnk%3Dsametab&u=https%3A%2F%2Fwww.target.com%2Fp%2Fshallots-price-per-lb%2F-%2FA-14993271%3Faflt%3Dplt%257Clm%23lnk%3Dsametab#lnk=sametab)
 - [ ] 8 cloves [garlic, chopped](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fpot-roast-gyros%2F%23wprm-recipe-container-162936&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Fspice-world-fresh-whole-garlic-3ct-bag%2F-%2FA-14917318%3Faflt%3Dplt%257Clm%23lnk%3Dsametab&u=https%3A%2F%2Fwww.target.com%2Fp%2Fspice-world-fresh-whole-garlic-3ct-bag%2F-%2FA-14917318%3Faflt%3Dplt%257Clm%23lnk%3Dsametab#lnk=sametab)
 - [ ] 1 tablespoon [sweet/smoked paprika](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fpot-roast-gyros%2F%23wprm-recipe-container-162936&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Fsmoked-paprika-2-12oz-good-38-gather-8482%2F-%2FA-84669679%3Faflt%3Dplt%257Clm%23lnk%3Dsametab&u=https%3A%2F%2Fwww.target.com%2Fp%2Fsmoked-paprika-2-12oz-good-38-gather-8482%2F-%2FA-84669679%3Faflt%3Dplt%257Clm%23lnk%3Dsametab#lnk=sametab)
@@ -1549,8 +1588,8 @@ VALUES ('28fde7a2-c4fc-81d3-90c9-f6016c7c8920', 'Pot Roast Gyros', '🐮', NULL,
 - [ ] pickled red onion, lettuce, and herbs for serving
 - [ ] [Tzatziki, for serving](https://www.halfbakedharvest.com/easy-tzatziki/)
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-810e-97bc-d860b7041c41', 'No Lá Lôt Meatballs', '🍔', NULL, NULL, NULL, NULL, 0, '- [ ] 1 pound ground beef
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-810e-97bc-d860b7041c41', 'team_default', 'No Lá Lôt Meatballs', '🍔', NULL, NULL, NULL, NULL, 0, '- [ ] 1 pound ground beef
 - [ ] 3 slices bacon, finely chopped
 - [ ] 2 teaspoons minced garlic 
 - [ ] 1 tablespoon minced shallots 
@@ -1561,8 +1600,8 @@ VALUES ('28fde7a2-c4fc-810e-97bc-d860b7041c41', 'No Lá Lôt Meatballs', '🍔',
 - [ ] ½ teaspoon kosher salt 
 - [ ] ½ teaspoon arrowroot powder
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8136-9425-ea6772c218bd', 'Crockpot Herb Butter Chicken and Wild Rice', '🐔', '["Postpartum","Dinner"]', NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8136-9425-ea6772c218bd', 'team_default', 'Crockpot Herb Butter Chicken and Wild Rice', '🐔', '["Postpartum","Dinner"]', NULL, NULL, NULL, 0, '
 Ingredients:
 
 
@@ -1620,8 +1659,8 @@ Ingredients:
 1 parmesan rind (optional)
 
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81c2-a5c8-eafa9f6e33b7', 'Hobo stew', '🍔', NULL, NULL, NULL, NULL, 0, '- [ ] 2 pounds ground beef
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81c2-a5c8-eafa9f6e33b7', 'team_default', 'Hobo stew', '🍔', NULL, NULL, NULL, NULL, 0, '- [ ] 2 pounds ground beef
 - [ ] ½ teaspoon kosher salt, plus extra to taste 
 - [ ] 1 small yellow onion, diced 
 - [ ] 3 garlic cloves, minced
@@ -1635,8 +1674,8 @@ VALUES ('28fde7a2-c4fc-81c2-a5c8-eafa9f6e33b7', 'Hobo stew', '🍔', NULL, NULL,
 - [ ] 1 ¼ tablespoon sherry vinegar 
 - [ ] cup minced fresh Italian parsley
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81fc-9688-f72e72d63694', 'Chiang Mai Noodles (THAI CHICKEN KHAO SOI)', '🍜', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81fc-9688-f72e72d63694', 'team_default', 'Chiang Mai Noodles (THAI CHICKEN KHAO SOI)', '🍜', NULL, NULL, NULL, NULL, 0, '
 ## Ingredients: 
 
 - 3-4 tbsp [Thai Kitchen red curry paste](http://amzn.to/2IJVS2T)
@@ -1667,8 +1706,8 @@ VALUES ('28fde7a2-c4fc-81fc-9688-f72e72d63694', 'Chiang Mai Noodles (THAI CHICKE
 - Use store bought fried shallots to replace fried egg noodle topping.
 - The same dish also works for beef or pork
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8119-8204-ce17f45eaaff', 'Garlic and mushroom chicken thighs', '🐔', NULL, NULL, NULL, NULL, 0, '- 2 packages Pasturebird
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8119-8204-ce17f45eaaff', 'team_default', 'Garlic and mushroom chicken thighs', '🐔', NULL, NULL, NULL, NULL, 0, '- 2 packages Pasturebird
 chicken thighs
 - 2 Tbsp avocado oil
 - 1 Tbsp butter or ghee
@@ -1682,8 +1721,8 @@ or coconut milk (full fat)
 - Sea salt
 - Black pepper
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-815a-a00c-fabf86960bae', 'Sloppy Joes ', '🍔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-815a-a00c-fabf86960bae', 'team_default', 'Sloppy Joes ', '🍔', NULL, NULL, NULL, NULL, 0, '
 Easy recipe
 • Season up 2 lbs of burger with your favors beef rub and
 then form 2-3 large burgers
@@ -1701,16 +1740,16 @@ tbsp Worcestershire, 2 tbsp mustard and 1 cup of beef broth.
 the next day!
 
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8100-8b40-d55bca5e786e', 'Crispy Smashed potatoes', '🥔', NULL, NULL, NULL, NULL, 0, '- [ ] 1 1/2 pounds baby Yukon gold potatoes 
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8100-8b40-d55bca5e786e', 'team_default', 'Crispy Smashed potatoes', '🥔', NULL, NULL, NULL, NULL, 0, '- [ ] 1 1/2 pounds baby Yukon gold potatoes 
 - [ ] 1/4 cup melted butter or ghee
 - [ ] 2 tablespoons extra virgin olive oil or avocado oil
 - [ ] kosher salt to taste
 - [ ] black pepper to taste
 - [ ] 2 tablespoons Italian parsley finely chopped, for garnish
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8182-b809-e1ba140d5056', 'Paxton PP Meal Ground Beef', '🐄', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8182-b809-e1ba140d5056', 'team_default', 'Paxton PP Meal Ground Beef', '🐄', NULL, NULL, NULL, NULL, 0, '
 Paxton Postpartum Meal
 
 - 1 onion, chopped
@@ -1743,8 +1782,8 @@ Once boiling lower to a simmer and cook covered for 15 minutes or until all liqu
 Add chopped cilantro
 
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-818d-9eff-dcccd369272e', 'Garlicky Green Beans', '🥬', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-818d-9eff-dcccd369272e', 'team_default', 'Garlicky Green Beans', '🥬', NULL, NULL, NULL, NULL, 0, '
 Simple Seasons April 2025 Catalog
 
 
@@ -1762,8 +1801,8 @@ Ingredients:
 **Place a wide skillet with a lid on the stove. Put the green beans in the pan and sprinkle with salt and pepper. Dot the butter over top and pour in the water. Add the lid and turn to medium low heat. Let the green beans steam until just tender, about 8 minutes. Remove the lid and let the water evaporate and the green beans brown just a bit in the butter giving a stir every so often. Taste for seasoning and serve warm!**
 
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-817c-ba34-d0219e07178c', 'Warm Potato Salad', '🥔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-817c-ba34-d0219e07178c', 'team_default', 'Warm Potato Salad', '🥔', NULL, NULL, NULL, NULL, 0, '
 Simple Seasons April 2025 Catalog
 
 
@@ -1800,8 +1839,8 @@ While they are cooling, mix the dressing ingredients in a large bowl and whisk y
 Add the potatoes to the bowl and gently toss to coat. This is excellent at room temperature as well as warm, so it’s ok if you make it a bit ahead of time ;) Enjoy!
 
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-819f-a227-fa9558cd513a', 'REFRIGERATOR DILL PICKLES', '🥒', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-819f-a227-fa9558cd513a', 'team_default', 'REFRIGERATOR DILL PICKLES', '🥒', NULL, NULL, NULL, NULL, 0, '
 Spring 2025 Truly Crunchy Magazine 
 
 
@@ -1844,8 +1883,8 @@ Spring 2025 Truly Crunchy Magazine
 2. Stuff the cucumbers into two clean 1-quart jars. Add the coriander seeds, garlic cloves, mustard seeds, red pepper flakes, dill sprigs, and chilled brine into jars, dividing evenly. If necessary, add a bit of cold water to the jars until the brine covers the cucumbers. Cover and refrigerate for about 24 hours, then serve. The pickles will keep in the refrigerator for up to one month.
 
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8176-b00c-f2379d1977d1', 'Shredded Chicken Tacos with Creamy Chimichurri Sauce', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8176-b00c-f2379d1977d1', 'team_default', 'Shredded Chicken Tacos with Creamy Chimichurri Sauce', '🐔', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 
@@ -1879,8 +1918,8 @@ Ingredients:
 - [ ] 1/2 medium **Avocado** sliced or diced
 - [ ] 1/3 cup crumbled **Feta Cheese**
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81cc-87bb-d830a1a8a141', 'Lemon Garlic Chicken Thighs', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81cc-87bb-d830a1a8a141', 'team_default', 'Lemon Garlic Chicken Thighs', '🐔', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - ½ cup [chicken stock](https://goto.target.com/c/2773249/81938/2092?subid1=52e41fac28963d1e058a110e&subid2=https%3A%2F%2Fdamndelicious.net%2F2019%2F05%2F24%2Flemon-garlic-chicken-thighs%2F&sharedid=Damn%20Delicious&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Fpacific-foods-gluten-free-organic-unsalted-chicken-stock-32oz%2F-%2FA-52101439%3Faflt%3Dcse&u=https%3A%2F%2Fwww.target.com%2Fp%2Fpacific-foods-gluten-free-organic-unsalted-chicken-stock-32oz%2F-%2FA-52101439%3Faflt%3Dcse#donotlink)
@@ -1895,8 +1934,8 @@ Ingredients:
 - 2 pounds boneless, skinless chicken thighs
 - 1 ½ tablespoons oil
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-815d-bbe3-faf2db31484e', 'Beef & Cabbage Stir-Fry with Garlic, Ginger, and Fermented Tamari', '🐄', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-815d-bbe3-faf2db31484e', 'team_default', 'Beef & Cabbage Stir-Fry with Garlic, Ginger, and Fermented Tamari', '🐄', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 •	1/2 lb grass-fed ground beef or thinly sliced steak
 •	1/2 head green or napa cabbage, thinly sliced
@@ -1919,8 +1958,8 @@ Instructions:
 6.	Serve: Garnish with scallions or sesame seeds. Serve alone or with a side of wild rice or cauliflower rice.
 
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81c3-b7b0-cf1693d834b7', 'Shred Juicy Chicken', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81c3-b7b0-cf1693d834b7', 'team_default', 'Shred Juicy Chicken', '🐔', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - [ ] bone in chicken thighs 
@@ -1979,8 +2018,8 @@ Sauce
 7.Plate up your chicken, and serve however way you wish. It goes amazing with regular rice, quinoa, or if you’re lowcarb/keto my high protein kaizen rice along with a simple cucumber salad and lots of sauce.
 
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8193-b958-ce8a0a835794', 'Crockpot White Chicken Chili Burrito Bowls', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8193-b958-ce8a0a835794', 'team_default', 'Crockpot White Chicken Chili Burrito Bowls', '🐔', NULL, NULL, NULL, NULL, 0, '
 **Ingredients**
 
 - [ ] 1 1/2 pounds [boneless, skinless chicken breasts or thighs](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fwhite-chicken-chili-burrito-bowls%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Fboneless-38-skinless-chicken-breast-tenderloins-frozen-40oz-good-38-gather-8482%2F-%2FA-14715976&u=https%3A%2F%2Fwww.target.com%2Fp%2Fboneless-38-skinless-chicken-breast-tenderloins-frozen-40oz-good-38-gather-8482%2F-%2FA-14715976#donotlink)
@@ -2001,8 +2040,8 @@ VALUES ('28fde7a2-c4fc-8193-b958-ce8a0a835794', 'Crockpot White Chicken Chili Bu
 - [ ] [lime zest and juice](http://l.thrv.me/hbh-limesqz)
 - [ ] [tortilla chips, for serving](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fwhite-chicken-chili-burrito-bowls%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Forganic-yellow-corn-tortilla-chips-12oz-good-gather-8482%2F-%2FA-54550866&u=https%3A%2F%2Fwww.target.com%2Fp%2Forganic-yellow-corn-tortilla-chips-12oz-good-gather-8482%2F-%2FA-54550866#donotlink)
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8171-9c2d-f55e201a1a14', 'Dutch Oven Pot Roast', '🐮', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8171-9c2d-f55e201a1a14', 'team_default', 'Dutch Oven Pot Roast', '🐮', NULL, NULL, NULL, NULL, 0, '
 **Ingredients:** 
 
 - ⅓ cup [**all-purpose flour**](https://goto.target.com/c/2773249/81938/2092?subid1=5f08534f14feb519834c4bff&subid2=https%3A%2F%2Fwww.theseasonedmom.com%2Fdutch-oven-pot-roast%2F&sharedid=The%20Seasoned%20Mom&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Fking-arthur-flour-unbleached-all-purpose-flour-5lbs%2F-%2FA-14777928&u=https%3A%2F%2Fwww.target.com%2Fp%2Fking-arthur-flour-unbleached-all-purpose-flour-5lbs%2F-%2FA-14777928#donotlink)
@@ -2021,8 +2060,8 @@ VALUES ('28fde7a2-c4fc-8171-9c2d-f55e201a1a14', 'Dutch Oven Pot Roast', '🐮', 
 - 2 [**bay leaves**](https://amzn.to/3uQjwUF)
 - 3 medium Russet potatoes, peeled and cut into eighths
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81f4-88f1-c9771e121e45', 'Korean Ground Beef & Rice Bowls', '🐄', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81f4-88f1-c9771e121e45', 'team_default', 'Korean Ground Beef & Rice Bowls', '🐄', NULL, NULL, NULL, NULL, 0, '
 ### **Ingredients**
 
 - 1 pound lean ground beef 90% lean
@@ -2042,8 +2081,8 @@ w/ Asparagus beef + mushrooms pack
 cabbage 
 
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-818b-a42b-ef555ac7cb7f', 'Roasted Chicken with Garlic & Herbs', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-818b-a42b-ef555ac7cb7f', 'team_default', 'Roasted Chicken with Garlic & Herbs', '🐔', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 - 1 whole young chicken _about 3 ½ pounds_
@@ -2055,8 +2094,8 @@ Ingredients:
 - ½ onion
 - Lemon slices _for serving_
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8163-b500-cf15b21b6002', 'Stir-Fried Beef with Banana Peppers', '🐮', NULL, NULL, NULL, NULL, 0, '- 12oz Rib-eye/ Chuck Steak
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8163-b500-cf15b21b6002', 'team_default', 'Stir-Fried Beef with Banana Peppers', '🐮', NULL, NULL, NULL, NULL, 0, '- 12oz Rib-eye/ Chuck Steak
 - 8oz Banana Peppers
 - 2 Fresh green Thai long chilis
 - 2 tbsp. oil
@@ -2066,8 +2105,8 @@ VALUES ('28fde7a2-c4fc-8163-b500-cf15b21b6002', 'Stir-Fried Beef with Banana Pep
 - 1 tbsp. fish sauce
 - 1 tsp. granulated sugar
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81e0-81d0-de97cfa578dc', 'one pan chicken', '🐔', NULL, NULL, NULL, NULL, 0, '- 1 large lemon
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81e0-81d0-de97cfa578dc', 'team_default', 'one pan chicken', '🐔', NULL, NULL, NULL, NULL, 0, '- 1 large lemon
 - 2 tbsp tomato paste
 - 2 tbsp olive oil
 - a couple generous pinches salt
@@ -2132,8 +2171,8 @@ VALUES ('28fde7a2-c4fc-81e0-81d0-de97cfa578dc', 'one pan chicken', '🐔', NULL,
 ENJOY!
 
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-811a-b6e5-c3234a8d52fe', 'Salt & Vinegar Potatoes', '🥔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-811a-b6e5-c3234a8d52fe', 'team_default', 'Salt & Vinegar Potatoes', '🥔', NULL, NULL, NULL, NULL, 0, '
 Ingredients to Soak: 
 
 
@@ -2179,10 +2218,10 @@ Red Curry Paste
 Lemon Juice 
 
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81f9-865e-e5d9d6c8bbe8', 'Caesar Salad ', '🥗', NULL, NULL, NULL, NULL, 0, NULL, 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8186-97cb-fbc716362439', 'Buffalo Ranch Pretzel Chicken Caesar Salad', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81f9-865e-e5d9d6c8bbe8', 'team_default', 'Caesar Salad ', '🥗', NULL, NULL, NULL, NULL, 0, NULL, 1760729616541, 1760729616541, 0);
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8186-97cb-fbc716362439', 'team_default', 'Buffalo Ranch Pretzel Chicken Caesar Salad', '🐔', NULL, NULL, NULL, NULL, 0, '
 ### Ingredients
 
 - [ ] 1 egg, beaten
@@ -2202,8 +2241,8 @@ VALUES ('28fde7a2-c4fc-8186-97cb-fbc716362439', 'Buffalo Ranch Pretzel Chicken C
 - [ ] 1-2 [avocados, diced](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fbuffalo-chicken-caesar-salad%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Forganic-hass-avocados-4ct-24oz-bag-good-38-gather-8482%2F-%2FA-82024886%23lnk%3Dsametab&u=https%3A%2F%2Fwww.target.com%2Fp%2Forganic-hass-avocados-4ct-24oz-bag-good-38-gather-8482%2F-%2FA-82024886%23lnk%3Dsametab)
 - [ ] 4 slices cooked thick cut bacon, crumbled 
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81df-abc6-e7e834b8a4cb', 'KOREAN ANCESTRAL BISON & RICE BOWL', '🦬', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81df-abc6-e7e834b8a4cb', 'team_default', 'KOREAN ANCESTRAL BISON & RICE BOWL', '🦬', NULL, NULL, NULL, NULL, 0, '
 INGREDIENTS:
 
 - 1 pound Force of Nature Ancestral Ground Beef or Bison
@@ -2218,10 +2257,10 @@ INGREDIENTS:
 - 2 sliced green onions
 - sesame seeds for garnish
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8178-8298-cb1e4f210bd5', 'Brussels & Po-tates', '🥦', NULL, NULL, NULL, NULL, 0, NULL, 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81dd-ab1c-d8ed0fabba52', 'Beef & Broccoli Stir-Fry (Miguels)', '🐮', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8178-8298-cb1e4f210bd5', 'team_default', 'Brussels & Po-tates', '🥦', NULL, NULL, NULL, NULL, 0, NULL, 1760729616541, 1760729616541, 0);
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81dd-ab1c-d8ed0fabba52', 'team_default', 'Beef & Broccoli Stir-Fry (Miguels)', '🐮', NULL, NULL, NULL, NULL, 0, '
 # **INGREDIENTS:**
 
 - 1.5 lbs sirloin steak, sliced into strips
@@ -2240,8 +2279,8 @@ VALUES ('28fde7a2-c4fc-81dd-ab1c-d8ed0fabba52', 'Beef & Broccoli Stir-Fry (Migue
 - 1/4 tsp black pepper
 - 2 tbsp sesame oil
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8113-8d4b-ccbb6ebca83f', 'Southern Style Dirty Rice', '🐮', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8113-8d4b-ccbb6ebca83f', 'team_default', 'Southern Style Dirty Rice', '🐮', NULL, NULL, NULL, NULL, 0, '
 ### **Ingredients**
 
 - 1 lb ground beef
@@ -2263,8 +2302,8 @@ VALUES ('28fde7a2-c4fc-8113-8d4b-ccbb6ebca83f', 'Southern Style Dirty Rice', '�
 - ½ teaspoon [ground black pepper](https://amzn.to/3WyOpfr)
 - ¼ teaspoon cayenne pepper
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81ee-b018-f0f530784f0f', 'Damn Fine Chicken w/ Broccoli', '🐔', NULL, NULL, NULL, NULL, 0, '- 2 large shallots, minced**
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81ee-b018-f0f530784f0f', 'team_default', 'Damn Fine Chicken w/ Broccoli', '🐔', NULL, NULL, NULL, NULL, 0, '- 2 large shallots, minced**
 - 3 Calçot onions or scallions, thinly sliced**
 - 3 tablespoons sherry vinegar (or balsamic vinegar)
 - 3 tablespoons extra virgin olive oil, avocado oil, melted ghee, coconut oil, etc.
@@ -2274,8 +2313,8 @@ VALUES ('28fde7a2-c4fc-81ee-b018-f0f530784f0f', 'Damn Fine Chicken w/ Broccoli',
 - Freshly ground pepper
 - 10 drumsticks or 8 chicken thighs
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8139-a096-f95bb25cbe14', 'GOCHUJANG SAUCE', NULL, '["sauce"]', NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8139-a096-f95bb25cbe14', 'team_default', 'GOCHUJANG SAUCE', NULL, '["sauce"]', NULL, NULL, NULL, 0, '
 ## Ingredients
 
 - Medjool dates, pitted
@@ -2285,8 +2324,8 @@ VALUES ('28fde7a2-c4fc-8139-a096-f95bb25cbe14', 'GOCHUJANG SAUCE', NULL, '["sauc
 - Onion and garlic powder
 - Tomato paste
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81b5-82b3-f3b7df32db5d', 'Kimchi Fried Rice', NULL, NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81b5-82b3-f3b7df32db5d', 'team_default', 'Kimchi Fried Rice', NULL, NULL, NULL, NULL, NULL, 0, '
 ## Ingredients 
 
 
@@ -2311,8 +2350,8 @@ Coarse salt to taste
 1 tbsp water
 
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81b6-ab7d-ddf5c46971e2', 'All purpose stir fry sauce', '🥢', NULL, NULL, NULL, NULL, 0, '- 1 cup [coconut aminos](http://amzn.to/2C1paHi)
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81b6-ab7d-ddf5c46971e2', 'team_default', 'All purpose stir fry sauce', '🥢', NULL, NULL, NULL, NULL, 0, '- 1 cup [coconut aminos](http://amzn.to/2C1paHi)
 - ½ cup fresh orange juice
 - ¼ cup [Red Boat fish sauce](http://amzn.to/2DGYGLo)
 - 2 tablespoons [rice vinegar](http://amzn.to/2zo7a6N)
@@ -2320,22 +2359,22 @@ VALUES ('28fde7a2-c4fc-81b6-ab7d-ddf5c46971e2', 'All purpose stir fry sauce', '�
 - 2 teaspoons [ginger powder](http://amzn.to/2DIO3HW)
 - 1 teaspoon [sesame oil](http://amzn.to/2Bu7B1k) (optional)
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81f8-86da-cb2d755a6b67', 'Brussel Sprout Chips', '🌳', NULL, NULL, NULL, NULL, 0, '- 2 cups Brussels sprout leaves (outer leaves from 2 pounds of sprouts)
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81f8-86da-cb2d755a6b67', 'team_default', 'Brussel Sprout Chips', '🌳', NULL, NULL, NULL, NULL, 0, '- 2 cups Brussels sprout leaves (outer leaves from 2 pounds of sprouts)
 - 2 tablespoons melted ghee or avocado oil
 - Kosher salt to taste
 - Lemon zest (optional)
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8198-9756-eb078300e4a8', 'Ground Beef + Carne Sauce + Stir Fry Veggies', '🐮', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8198-9756-eb078300e4a8', 'team_default', 'Ground Beef + Carne Sauce + Stir Fry Veggies', '🐮', NULL, NULL, NULL, NULL, 0, '
 Onion 
 
 
 Bell Pepper
 
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81b8-b342-e7e47bc2e93a', 'FoN Bison Chili', '🦬', NULL, NULL, NULL, NULL, 0, '- 1 package of Force of Nature Beef or Bison Ancestral Blend
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81b8-b342-e7e47bc2e93a', 'team_default', 'FoN Bison Chili', '🦬', NULL, NULL, NULL, NULL, 0, '- 1 package of Force of Nature Beef or Bison Ancestral Blend
 - 1 onion - chopped
 - olive oil
 - 2 cloves garlic, finely chopped
@@ -2346,8 +2385,8 @@ VALUES ('28fde7a2-c4fc-81b8-b342-e7e47bc2e93a', 'FoN Bison Chili', '🦬', NULL,
 - 1 can of kidney beans (15oz) - drained and rinsed
 - 1 can of diced tomatoes (15oz)
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8189-8ed3-e279427407cb', 'Oven Roasted Peruvian Chicken', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8189-8ed3-e279427407cb', 'team_default', 'Oven Roasted Peruvian Chicken', '🐔', NULL, NULL, NULL, NULL, 0, '
 ### **Chicken**
 
 - 3 to 4 pound whole chicken
@@ -2375,8 +2414,8 @@ VALUES ('28fde7a2-c4fc-8189-8ed3-e279427407cb', 'Oven Roasted Peruvian Chicken',
 - 1/2 cup mayonnaise
 - 1/8 teaspoon salt
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8115-96c7-c62491d2be80', 'Chicken Bone Broth', '🍲', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8115-96c7-c62491d2be80', 'team_default', 'Chicken Bone Broth', '🍲', NULL, NULL, NULL, NULL, 0, '
 INGREDIENTS
 
 - 1 leftover rotisserie chicken (bones, some meat and connective tissue)
@@ -2404,8 +2443,8 @@ I am absolutely in love with my Instant Pot. Here is how to make bone broth in y
 4. Once the cooking is complete, press "Cancel" and then use the natural pressure release - you can also use the quick release method - either works.
 5. Strain the broth and pour it into jars. Store in the fridge.
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81cc-8444-fd97436c5621', 'Bone Broth Chicken Noodle Soup', '🍲', '["Postpartum"]', NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81cc-8444-fd97436c5621', 'team_default', 'Bone Broth Chicken Noodle Soup', '🍲', '["Postpartum"]', NULL, NULL, NULL, 0, '
 Ingredients
 • 2 tbsp. extra virgin olive oil
 • 5 green onions, thinly sliced
@@ -2430,8 +2469,8 @@ Directions:
 • Lastly stir in the parsley and taste for seasoning. Ladle into shallow bowls and serve.
 
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81e4-b350-c7ece9362032', 'Dill pickle chicken', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81e4-b350-c7ece9362032', 'team_default', 'Dill pickle chicken', '🐔', NULL, NULL, NULL, NULL, 0, '
 ### **For the Dill Pickle Mayo**
 
 - 1 cup Whole30 compliant mayo
@@ -2450,8 +2489,8 @@ VALUES ('28fde7a2-c4fc-81e4-b350-c7ece9362032', 'Dill pickle chicken', '🐔', N
 - 1 teaspoon baking soda
 - 1/4 tsp freshly-cracked black pepper
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8137-ac68-e9949688f7f8', 'Sourdough Christmas Star', '⭐', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8137-ac68-e9949688f7f8', 'team_default', 'Sourdough Christmas Star', '⭐', NULL, NULL, NULL, NULL, 0, '
 Cinnamon dough:
 
 
@@ -2500,16 +2539,16 @@ Filling:
 - cut into 16 sections as seen in video. Twist away from one another to form the star limbs.
 - beat an egg and brush on top. Sprinkle with coarse sugar.
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-815a-a6b6-e2569b70347d', 'Prosciutto-Wrapped Chicken with Asparagus', '🐔', NULL, NULL, NULL, NULL, 0, '- 4 medium-sized chicken breasts
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-815a-a6b6-e2569b70347d', 'team_default', 'Prosciutto-Wrapped Chicken with Asparagus', '🐔', NULL, NULL, NULL, NULL, 0, '- 4 medium-sized chicken breasts
 - 16 asparagus spears stems removed
 - 1.5 teaspoons Italian seasoning
 - 8 slices of prosciutto
 - ¼ cup arrowroot starch
 - 2.5 tablespoons extra-virgin olive oil
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8198-b232-e7d1913a8b95', 'Chicken Shawarma', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8198-b232-e7d1913a8b95', 'team_default', 'Chicken Shawarma', '🐔', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - 2.5lbs Chicken Thighs
@@ -2569,8 +2608,8 @@ Ingredients:
 7.Serve it up however way you want - as is, on top of a salad, on a power bowl, whatever! This stays well in the fridge in an airtight lid for 4-5 days.
 
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8150-862a-c5027a05d16c', 'Grilled Chicken Thighs with Chimichurri', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8150-862a-c5027a05d16c', 'team_default', 'Grilled Chicken Thighs with Chimichurri', '🐔', NULL, NULL, NULL, NULL, 0, '
 I**ngredientsr c**
 
 - [ ] 1/2 cup fresh cilantro fresh
@@ -2586,8 +2625,8 @@ I**ngredientsr c**
 - [ ] fresh ground pepper
 - [ ] 2 lbs boneless skinless chicken thighs*
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81b5-a3e0-fe0bafcbc584', 'Spicy Garlic Asparagus', '🧄', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81b5-a3e0-fe0bafcbc584', 'team_default', 'Spicy Garlic Asparagus', '🧄', NULL, NULL, NULL, NULL, 0, '
 • 1 bunch, asparagus
 • 2 tbsp olive oil (or cooking oil of choice)
 • 1 clove garlic minced
@@ -2599,15 +2638,15 @@ VALUES ('28fde7a2-c4fc-81b5-a3e0-fe0bafcbc584', 'Spicy Garlic Asparagus', '🧄'
 • 1/2 of 1 lemon (just the juice)
 
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-813f-a222-e6de2d190148', 'Roast Salmon with Whole-Grain-Mustard', '🐠', NULL, NULL, NULL, NULL, 0, '- 1/4 cup whole-grain mustard
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-813f-a222-e6de2d190148', 'team_default', 'Roast Salmon with Whole-Grain-Mustard', '🐠', NULL, NULL, NULL, NULL, 0, '- 1/4 cup whole-grain mustard
 - 1 tablespoon extra-virgin olive oil
 - 1 1/2 tablespoons minced chives
 - Four 8-ounce skin-on wild salmon fillets
 - Salt and freshly ground pepper
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8138-b69e-ec13321d3e40', 'Berry Fruit Salad', '🍓', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8138-b69e-ec13321d3e40', 'team_default', 'Berry Fruit Salad', '🍓', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 
@@ -2629,8 +2668,8 @@ Ingredients:
 - 1/4 cup fresh lime juice
 - 1/4 cup chopped fresh mint
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-816d-b088-da4e4b9f721f', 'Chili Crisp Chicken & Mango Cucumber Rice Bowl', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-816d-b088-da4e4b9f721f', 'team_default', 'Chili Crisp Chicken & Mango Cucumber Rice Bowl', '🐔', NULL, NULL, NULL, NULL, 0, '
 # Mango Salad
 
 - [ ] 1 mango, diced
@@ -2657,8 +2696,8 @@ VALUES ('28fde7a2-c4fc-816d-b088-da4e4b9f721f', 'Chili Crisp Chicken & Mango Cuc
 - [ ] [chili flakes](http://l.thrv.me/HBH3466-mother-in-laws-gochugaru-chili-p)
 - [ ] 3-4 cups [cooked rice](http://thrv.me/ssiC4N)
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8116-886a-f266228d449d', 'Buffalo Chicken Sliders', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8116-886a-f266228d449d', 'team_default', 'Buffalo Chicken Sliders', '🐔', NULL, NULL, NULL, NULL, 0, '
 Ingredients 
 1 pack Hawaiian rolls
 2 cups shredded chicken
@@ -2671,8 +2710,8 @@ Ingredients
 6 slices of mozzarella cheese
 
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81d5-a2a8-e0e05ea138b8', 'Hearty Sausage Stew', '🐷', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81d5-a2a8-e0e05ea138b8', 'team_default', 'Hearty Sausage Stew', '🐷', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - ¼ cup cooking oil (lard preferably)
@@ -2690,8 +2729,8 @@ Ingredients:
 - 3 large handfuls of swiss chard or 1 bunch of spinach, roughly chopped
 - Freshly ground black pepper
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81de-a889-e0e6cee0de43', 'BBQ Ribs', '🐮', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81de-a889-e0e6cee0de43', 'team_default', 'BBQ Ribs', '🐮', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - 1 rack of baby back ribs
@@ -2739,8 +2778,8 @@ Directions:
 11. Take it out, let it sit and cool down for a few minutes an enjoy!
 
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81a2-a58e-fea0822eb2cc', 'Sourdough Chocolate Chip Cookies with Pumpkin & Pecans', '🍪', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81a2-a58e-fea0822eb2cc', 'team_default', 'Sourdough Chocolate Chip Cookies with Pumpkin & Pecans', '🍪', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - 340 g all-purpose flour
@@ -2757,8 +2796,8 @@ Ingredients:
 - 1 cup dark chocolate, chopped
 - 3/4 cup pecans chopped
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8125-8b9e-ca1dfacdcb0e', 'Slow Cooker Beef Ramen Noodles', '🍜', NULL, NULL, NULL, NULL, 0, '- 1 pound ground beef I recommend sirloin (93/7)
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8125-8b9e-ca1dfacdcb0e', 'team_default', 'Slow Cooker Beef Ramen Noodles', '🍜', NULL, NULL, NULL, NULL, 0, '- 1 pound ground beef I recommend sirloin (93/7)
 - 1 cup matchstick carrots
 - 1 medium red bell pepper sliced
 - 2-3 large scallions roughly chopped
@@ -2770,8 +2809,8 @@ VALUES ('28fde7a2-c4fc-8125-8b9e-ca1dfacdcb0e', 'Slow Cooker Beef Ramen Noodles'
 - sesame seeds optional
 - scallions optional
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8150-8da3-ce8350d5ca59', 'Apple Cinnamon Overnight Oats', '🍎', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8150-8da3-ce8350d5ca59', 'team_default', 'Apple Cinnamon Overnight Oats', '🍎', NULL, NULL, NULL, NULL, 0, '
 ### Ingredients- 
 
 
@@ -2794,8 +2833,8 @@ For the apple compote:
 - 1 tablespoon water
 - 1 teaspoon corn starch
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81ba-ab98-c5384efc279b', 'Instant Pot Beef Rice Pilaf ', '🐄', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81ba-ab98-c5384efc279b', 'team_default', 'Instant Pot Beef Rice Pilaf ', '🐄', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 - 1 1/2 lb [**beef, chuck, cubed to 1 inches, fat trimmed**](https://bchrbox.co/LetTheBakingBegin)
@@ -2818,8 +2857,8 @@ Instant Pot Plov Seasoning Ingredients:
 - 1 head **garlic, cut in half horizontally**
 - 1/4 cup **chopped parsley**
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81a0-8384-fa24c2816359', 'Protein Waffles', '🧇', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81a0-8384-fa24c2816359', 'team_default', 'Protein Waffles', '🧇', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 - 1 cup organic rolled oats
@@ -2843,8 +2882,8 @@ Variation:
 
 - You can also make these into pancakes. Prepare the batter as directed and cook according to the directions for the buckwheat pancakes (pg 32).
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8128-a799-ec9436d9301e', 'Homemade Ritz Crackers', '🍘', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8128-a799-ec9436d9301e', 'team_default', 'Homemade Ritz Crackers', '🍘', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 - 2 cups APF
@@ -2856,8 +2895,8 @@ Ingredients:
 - 1/3 cup water
 - 1 egg - beaten with water for egg wash
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8134-ba44-fa871a39c2f2', 'Lemony Arugula Salad with Crispy Shallot', '🥗', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8134-ba44-fa871a39c2f2', 'team_default', 'Lemony Arugula Salad with Crispy Shallot', '🥗', NULL, NULL, NULL, NULL, 0, '
 **Ingredients**
 
 
@@ -2902,8 +2941,8 @@ Macros:
 • **Fat:** 22.8 g
 
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8168-a4ce-ebc4a144d169', 'Garlic Steak Bites and Potatoes', '🥩', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8168-a4ce-ebc4a144d169', 'team_default', 'Garlic Steak Bites and Potatoes', '🥩', NULL, NULL, NULL, NULL, 0, '
 ### **Ingredients**
 
 - 2 8oz ribeyes cubed (Flat Iron Steaks)
@@ -2923,8 +2962,8 @@ VALUES ('28fde7a2-c4fc-8168-a4ce-ebc4a144d169', 'Garlic Steak Bites and Potatoes
 - Once the garlic is fragrant, add the herb seasoning.
 - Once all is incorporated, add the steak bites and potatoes to the skillet. Combine until everything is coated nicely. Remove from heat, let cool for 5 min before serving.
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8189-880a-fd9f1af7b0ae', 'Honey Cinnamon Almond Butter Energy Bites', '🍢', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8189-880a-fd9f1af7b0ae', 'team_default', 'Honey Cinnamon Almond Butter Energy Bites', '🍢', NULL, NULL, NULL, NULL, 0, '
 # Ingredients
 
 - 1/2 cup natural, creamy drippy almond butter
@@ -2937,8 +2976,8 @@ VALUES ('28fde7a2-c4fc-8189-880a-fd9f1af7b0ae', 'Honey Cinnamon Almond Butter En
 - 2 tablespoons chocolate chips, dairy free if desired
 - Maldon sea salt, for sprinkling
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81c3-94b2-daad9c9f63b2', 'Cilantro Lime Butterflied Chicken Drumsticks', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81c3-94b2-daad9c9f63b2', 'team_default', 'Cilantro Lime Butterflied Chicken Drumsticks', '🐔', NULL, NULL, NULL, NULL, 0, '
 ### **Marinade**
 
 - 1 bunch of cilantro
@@ -2956,8 +2995,8 @@ VALUES ('28fde7a2-c4fc-81c3-94b2-daad9c9f63b2', 'Cilantro Lime Butterflied Chick
 - Cook the chicken about 3 minutes per side until you get a nice char. They will look a bit funny with no marinade. Once they are nicely charred and not burnt, baste with that marinade on one side. Then, flip them after 3 min and baste the other side.
 - Remove the chicken once it reaches an internal temperature of 175 degrees. Let cool for 3 min before serving.
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8184-a9ce-fbedcc81166e', 'Citrus-Dill Garlic Chicken with Grilled Summer Veggies', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8184-a9ce-fbedcc81166e', 'team_default', 'Citrus-Dill Garlic Chicken with Grilled Summer Veggies', '🐔', NULL, NULL, NULL, NULL, 0, '
 **Ingredients**
 
 
@@ -3036,22 +3075,22 @@ While the chicken cooks, place veggies on the grill (you can use a grill basket 
 Plate the grilled chicken with the veggies. Garnish with extra fresh dill, lemon zest, or a squeeze of lemon juice if desired.
 
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8161-bc17-eaa9881d5cd9', 'Buffalo Chicken Tacos ', '🐔', NULL, NULL, NULL, NULL, 0, NULL, 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-811c-84bc-f11236dbe6ea', 'Sausage Grill Platter', '🌭', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8161-bc17-eaa9881d5cd9', 'team_default', 'Buffalo Chicken Tacos ', '🐔', NULL, NULL, NULL, NULL, 0, NULL, 1760729616541, 1760729616541, 0);
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-811c-84bc-f11236dbe6ea', 'team_default', 'Sausage Grill Platter', '🌭', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 - 
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81df-a17c-d1bf7676b070', 'Chicken pickle marinade + brussels ', '🐔', NULL, NULL, NULL, NULL, 0, '- Grillos pickle juice
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81df-a17c-d1bf7676b070', 'team_default', 'Chicken pickle marinade + brussels ', '🐔', NULL, NULL, NULL, NULL, 0, '- Grillos pickle juice
 - Hot sauce
 - Ranch seasoning
 - 
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8109-a3e3-d5f4314d1c89', 'Red Curry Basil Garlic Noodles', '🍜', NULL, NULL, NULL, NULL, 0, '- [ ] 1/2 cup [sesame or peanut oil](http://l.thrv.me/HBH3562-napa-valley-naturals-organic-toa)
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8109-a3e3-d5f4314d1c89', 'team_default', 'Red Curry Basil Garlic Noodles', '🍜', NULL, NULL, NULL, NULL, 0, '- [ ] 1/2 cup [sesame or peanut oil](http://l.thrv.me/HBH3562-napa-valley-naturals-organic-toa)
 - [ ] 1/3 cup [green onions, sliced](https://www.target.com/p/organic-green-onion-bunch-4-5oz/-/A-16250486#lnk=sametab)
 - [ ] 1-3 tablespoons [Thai red curry paste](http://thrv.me/WQkVzj)
 - [ ] 3-4 cloves [garlic, grated](https://www.target.com/p/frozen-crushed-garlic-cubes-2-8oz-good-38-gather-8482/-/A-78470748#lnk=sametab)
@@ -3062,8 +3101,8 @@ VALUES ('28fde7a2-c4fc-8109-a3e3-d5f4314d1c89', 'Red Curry Basil Garlic Noodles'
 - [ ] 4 squares [brown rice ramen noodles, or 6 ounces rice noodles](http://l.thrv.me/HBH3121-lotus-foods-organic-millet-brown)
 - [ ] 1/3 cup [tamari or soy sauce](http://l.thrv.me/HBH793-san-j-international-tamari-gluten)
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8152-ae89-f112cabfbc6a', 'Baked Honey Mustard Salmon', '🐠', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8152-ae89-f112cabfbc6a', 'team_default', 'Baked Honey Mustard Salmon', '🐠', NULL, NULL, NULL, NULL, 0, '
 ### **Ingredients**
 
 - [ ] 1 pound salmon fillet skin-on
@@ -3094,8 +3133,8 @@ Protein: 23g
 Fat: 11g
 
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8164-b841-ff3baf3ca58d', 'Crispy Sesame Garlic Chili Oil Noodles', '🍜', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8164-b841-ff3baf3ca58d', 'team_default', 'Crispy Sesame Garlic Chili Oil Noodles', '🍜', NULL, NULL, NULL, NULL, 0, '
 ### Ingredients
 
 - 3/4 cup [sesame or peanut oil](http://l.thrv.me/HBH3562-napa-valley-naturals-organic-toa)
@@ -3115,8 +3154,8 @@ VALUES ('28fde7a2-c4fc-8164-b841-ff3baf3ca58d', 'Crispy Sesame Garlic Chili Oil 
 - 1/4 cup chopped fresh Thai or regular basil
 - 1/4 cup chopped fresh green onions
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81d4-9113-deff05a055a4', 'Cilantro Lime Chicken Thighs', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81d4-9113-deff05a055a4', 'team_default', 'Cilantro Lime Chicken Thighs', '🐔', NULL, NULL, NULL, NULL, 0, '
 # Ingredients
 
 - 2 pounds boneless, skinless chicken thighs
@@ -3145,8 +3184,8 @@ Macros:
 • Fat: 37.6g 
 
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8112-b9ed-e86236a9b7bb', 'Sheet Pan Sausage Supper', '🌭', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8112-b9ed-e86236a9b7bb', 'team_default', 'Sheet Pan Sausage Supper', '🌭', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 - 1/4 cup avocado oil
@@ -3159,8 +3198,8 @@ Ingredients:
 - 2 tbsp balsamic vinegar
 - 2 tbsp chopped parsley
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8181-b4f6-dd747fb1d0cb', 'Moroccan Breakfast Skillet', '🍖', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8181-b4f6-dd747fb1d0cb', 'team_default', 'Moroccan Breakfast Skillet', '🍖', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - 2 cups Swiss chard, or more to taste
@@ -3173,8 +3212,8 @@ Ingredients:
 - ½ teaspoon ground cinnamon
 - 1 teaspoon apple cider vinegar
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81e4-a23c-e9dbfb30f516', 'Chicken tortilla soup', '🍲', NULL, NULL, NULL, NULL, 0, '- 2 pounds boneless, skinless chicken thighs
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81e4-a23c-e9dbfb30f516', 'team_default', 'Chicken tortilla soup', '🍲', NULL, NULL, NULL, NULL, 0, '- 2 pounds boneless, skinless chicken thighs
 - 2 cups peeled and cubed butternut squash (fresh or frozen)
 - 2 cups peeled and cubed sweet potatoes (fresh or frozen)
 - 1(10-ounce) bag mirepoix base (fresh or frozen) - celery, onion, carrots
@@ -3187,8 +3226,8 @@ VALUES ('28fde7a2-c4fc-81e4-a23c-e9dbfb30f516', 'Chicken tortilla soup', '🍲',
 - 2 teaspoons freshly squeezed lime juice
 - Lime wedges, cilantro leaves, avocado slices, Dairy-Free Sour Cream (page 36), and/or plantain chips, for serving
 ', 1760729616541, 1760729616541, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8193-b527-dfc02ce5e70e', 'Sausages + Veggies (Camping) ', '🌭', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8193-b527-dfc02ce5e70e', 'team_default', 'Sausages + Veggies (Camping) ', '🌭', NULL, NULL, NULL, NULL, 0, '
 Sausages 
 
 
@@ -3198,8 +3237,8 @@ Red Onion
 Peppers 
 
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-819f-b72f-cd02820cc217', 'Hunan Beef Stir Fry', '🐂', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-819f-b72f-cd02820cc217', 'team_default', 'Hunan Beef Stir Fry', '🐂', NULL, NULL, NULL, NULL, 0, '
 # Hunan beef stir fry
 
 - 1 lb skirt steak, , sirloin flap, or sirloin, thin sliced against the grain
@@ -3224,10 +3263,10 @@ VALUES ('28fde7a2-c4fc-819f-b72f-cd02820cc217', 'Hunan Beef Stir Fry', '🐂', N
 - 1/2 tbsp [coconut aminos](https://amzn.to/2PGwfYv)
 - 1 tbsp beef or chicken stock
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81a9-9e13-cdb0afc40868', 'Left overs ', '🤷🏼‍♀️', NULL, NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81b7-83dc-fd5ca7685676', 'Sandwiches (camping)', '🥪', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81a9-9e13-cdb0afc40868', 'team_default', 'Left overs ', '🤷🏼‍♀️', NULL, NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81b7-83dc-fd5ca7685676', 'team_default', 'Sandwiches (camping)', '🥪', NULL, NULL, NULL, NULL, 0, '
 Bread 
 
 
@@ -3246,8 +3285,8 @@ Mayo
 Mustard 
 
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8155-9691-f083752f3d1a', 'Loaded Ground Beef and Potatoes Skillet', '🍔', NULL, NULL, NULL, NULL, 0, '- 2 lb Ground Beef, 96/4
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8155-9691-f083752f3d1a', 'team_default', 'Loaded Ground Beef and Potatoes Skillet', '🍔', NULL, NULL, NULL, NULL, 0, '- 2 lb Ground Beef, 96/4
 - 20 (500g) Red and Gold Mini Potatoes, thinly sliced
 - 4 slices Center Cut Bacon, cut into thin strips
 - 1/4 C (60mL) Worcestershire Sauce
@@ -3259,8 +3298,8 @@ VALUES ('28fde7a2-c4fc-8155-9691-f083752f3d1a', 'Loaded Ground Beef and Potatoes
 - 1 tsp Kosher Salt
 - 1 tsp Black Pepper
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8164-ab03-cc4e6efc58be', 'Greek Chicken Skewers with Feta Fries', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8164-ab03-cc4e6efc58be', 'team_default', 'Greek Chicken Skewers with Feta Fries', '🐔', NULL, NULL, NULL, NULL, 0, '
 ### **SKEWERS**
 
 - [ ] 1/4 cup [extra virgin olive oil](https://affiliate-api.raptive.com/v1/get/link?keyword=extra%20virgin%20olive%20oil&site_id=58c18d1bf051050f829e3c0b&site_name=Half%20Baked%20Harvest&subid1=58c18d1bf051050f829e3c0b&trackid=qa5tcE_PeXvQDiH8NTUw-~plt%7Clm&aflt=plt%7Cdyn&referral_url=https%3A%2F%2Fwww.halfbakedharvest.com%2Fchicken-tzatziki-skewers%2F&sharedid=ingredient-split-test#lnk=sametab)
@@ -3288,8 +3327,8 @@ VALUES ('28fde7a2-c4fc-8164-ab03-cc4e6efc58be', 'Greek Chicken Skewers with Feta
 - [ ] 2 tablespoons [toasted sesame seeds](https://affiliate-api.raptive.com/v1/get/link?keyword=toasted%20sesame%20seeds&site_id=58c18d1bf051050f829e3c0b&site_name=Half%20Baked%20Harvest&subid1=58c18d1bf051050f829e3c0b&trackid=dC1mWNk1T8OlWSr1op1f-~plt%7Clm&aflt=plt%7Cdyn&referral_url=https%3A%2F%2Fwww.halfbakedharvest.com%2Fchicken-tzatziki-skewers%2F&sharedid=ingredient-split-test#lnk=sametab)
 - [ ] 1/2 cup [crumbled feta cheese](https://affiliate-api.raptive.com/v1/get/link?keyword=crumbled%20feta%20cheese&site_id=58c18d1bf051050f829e3c0b&site_name=Half%20Baked%20Harvest&subid1=58c18d1bf051050f829e3c0b&trackid=wj47KF41qCUJEKezuiPeB~plt%7Clm&aflt=plt%7Cdyn&referral_url=https%3A%2F%2Fwww.halfbakedharvest.com%2Fchicken-tzatziki-skewers%2F&sharedid=ingredient-split-test#lnk=sametab)
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-817e-bcb3-cca20262e7c7', 'Salt and Pepper Fried Pork Chop', '🐷', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-817e-bcb3-cca20262e7c7', 'team_default', 'Salt and Pepper Fried Pork Chop', '🐷', NULL, NULL, NULL, NULL, 0, '
 INGREDIENTS:
 
 - [ ]  8 thin-cut, boneless pork chops (about 1½ pounds)
@@ -3301,8 +3340,8 @@ INGREDIENTS:
 - [ ] 3 garlic cloves thinly sliced
 - [ ] 4 hot peppers, thinly sliced crosswise
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81a4-87c8-d5d4028e6694', 'Sheet Pan Crispy Jalapeño Chicken Tacos', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81a4-87c8-d5d4028e6694', 'team_default', 'Sheet Pan Crispy Jalapeño Chicken Tacos', '🐔', NULL, NULL, NULL, NULL, 0, '
 # Ingredients
 
 - [ ] 2 pounds [skinless chicken, breast or thighs](https://affiliate-api.raptive.com/v1/get/link?keyword=skinless%20chicken%2C%20breast%20or%20thighs&site_id=58c18d1bf051050f829e3c0b&site_name=Half%20Baked%20Harvest&subid1=58c18d1bf051050f829e3c0b&trackid=5OP--Mic4P-IQTtCw5b2f~plt%7Clm&aflt=plt%7Cdyn&referral_url=https%3A%2F%2Fwww.halfbakedharvest.com%2Fjalapeno-chicken-tacos%2F&sharedid=ingredient-split-test#lnk=sametab)
@@ -3327,8 +3366,8 @@ VALUES ('28fde7a2-c4fc-81a4-87c8-d5d4028e6694', 'Sheet Pan Crispy Jalapeño Chic
 - [ ] 1 tablespoon [tamari/soy sauce](https://affiliate-api.raptive.com/v1/get/link?keyword=tamari%2Fsoy%20sauce&site_id=58c18d1bf051050f829e3c0b&site_name=Half%20Baked%20Harvest&subid1=58c18d1bf051050f829e3c0b&trackid=VJ_3oYSZwQihQ3lB4d0sI~plt%7Clm&aflt=plt%7Cdyn&referral_url=https%3A%2F%2Fwww.halfbakedharvest.com%2Fjalapeno-chicken-tacos%2F&sharedid=ingredient-split-test#lnk=sametab)
 - [ ] 2 tablespoons [toasted sesame seed](https://affiliate-api.raptive.com/v1/get/link?keyword=toasted%20sesame%20seeds&site_id=58c18d1bf051050f829e3c0b&site_name=Half%20Baked%20Harvest&subid1=58c18d1bf051050f829e3c0b&trackid=hUVp1vp-g-IFR_Up9TG4x~plt%7Clm&aflt=plt%7Cdyn&referral_url=https%3A%2F%2Fwww.halfbakedharvest.com%2Fjalapeno-chicken-tacos%2F&sharedid=ingredient-split-test#lnk=sametab)
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8142-b085-c560f6f902f7', 'Chopped Cheese Sliders', '🍔', NULL, NULL, NULL, NULL, 0, '- Get your griddle hot and put down 1lb of ground beef and 1 diced onion
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8142-b085-c560f6f902f7', 'team_default', 'Chopped Cheese Sliders', '🍔', NULL, NULL, NULL, NULL, 0, '- Get your griddle hot and put down 1lb of ground beef and 1 diced onion
 - Flip beef once a nice crust has formed then chop it up and season it with Back Porch Burger
 - Mix onions and beef, then top with mozzarella and American cheese
 - Toast buns then assemble
@@ -3346,8 +3385,8 @@ Burger Blend Seasoning:
 - Paprika
 - Dill
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8167-a324-cdacdebff474', 'Creamy Loaded Potato Soup', '🍲', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8167-a324-cdacdebff474', 'team_default', 'Creamy Loaded Potato Soup', '🍲', NULL, NULL, NULL, NULL, 0, '
 ### **Ingredients**
 
 - [ ] Chicken - 
@@ -3362,8 +3401,8 @@ VALUES ('28fde7a2-c4fc-8167-a324-cdacdebff474', 'Creamy Loaded Potato Soup', '�
 - [ ] 1 1/4 cups [full fat canned coconut milk](https://www.amazon.com/gp/product/B001HTJ2BQ/ref=as_li_tl?ie=UTF8&camp=1789&creative=9325&creativeASIN=B001HTJ2BQ&linkCode=as2&tag=themovmen07-20&linkId=9ea71b53f4da3ad9d71dfb5ba4f14528)
 - [ ] 1/3 cup green onions thinly chopped, split in two
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8122-bc28-feeebb0bf516', 'Spicy Sriracha Green Beans', '🌶️', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8122-bc28-feeebb0bf516', 'team_default', 'Spicy Sriracha Green Beans', '🌶️', NULL, NULL, NULL, NULL, 0, '
 ### **INGREDIENTS**
 
 - 1 pound green beans, washed + trimmed
@@ -3374,8 +3413,8 @@ VALUES ('28fde7a2-c4fc-8122-bc28-feeebb0bf516', 'Spicy Sriracha Green Beans', '�
 - 1 tsp minced garlic
 - 1-2 tsp [**toasted sesame seeds**](https://amzn.to/2CF107E) (optional)
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-819f-94b0-ea6c5cecfd93', 'Spicy Basil Chicken & Fried Eggs on Rice', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-819f-94b0-ea6c5cecfd93', 'team_default', 'Spicy Basil Chicken & Fried Eggs on Rice', '🐔', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 
@@ -3419,8 +3458,8 @@ Chile fish sauce (page 193; optional), for
 serving
 
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-812f-929c-f4c77a5cfa99', 'The Big Salad', '🥗', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-812f-929c-f4c77a5cfa99', 'team_default', 'The Big Salad', '🥗', NULL, NULL, NULL, NULL, 0, '
 ### INGREDIENTS
 
 
@@ -3446,8 +3485,8 @@ VALUES ('28fde7a2-c4fc-812f-929c-f4c77a5cfa99', 'The Big Salad', '🥗', NULL, N
 - 1-2 teaspoons toasted sesame oil, to taste (optional)
 - 1 teaspoon freshly grated ginger (optional)
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8123-ab78-e9cd8e52c7c2', 'Amazing Bottom Round Roast', '🐮', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8123-ab78-e9cd8e52c7c2', 'team_default', 'Amazing Bottom Round Roast', '🐮', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - 3-4 pounds bottom round roast - or outside round, rump roast, eye of round
@@ -3459,8 +3498,8 @@ Ingredients:
 - 1 teaspoon [black pepper](https://amzn.to/2Gf62K5)
 - 2 tablespoons olive oil
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81e0-a267-f4d33985062f', 'Hasselback potatoes', '🥔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81e0-a267-f4d33985062f', 'team_default', 'Hasselback potatoes', '🥔', NULL, NULL, NULL, NULL, 0, '
 ## ingredients
 
 - medium Yukon Gold potatoes
@@ -3486,8 +3525,8 @@ VALUES ('28fde7a2-c4fc-81e0-a267-f4d33985062f', 'Hasselback potatoes', '🥔', N
 Makes 4 to 6 servings
 
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81e5-a1de-f446bbbe8279', 'Dry Rubbed Baked Chicken Wings', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81e5-a1de-f446bbbe8279', 'team_default', 'Dry Rubbed Baked Chicken Wings', '🐔', NULL, NULL, NULL, NULL, 0, '
 ### **Ingredients**
 
 - 3 pounds chicken wings separated into drumettes and paddles, if desired
@@ -3507,10 +3546,10 @@ VALUES ('28fde7a2-c4fc-81e5-a1de-f446bbbe8279', 'Dry Rubbed Baked Chicken Wings'
 - ½ tsp. cumin
 - ½ tsp. coriander
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81be-afce-d9f1a86f8e5e', 'Smash Burgers', '🍔', NULL, NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81d9-a380-c0d9caf3df65', 'Brick paninis', '🥪', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81be-afce-d9f1a86f8e5e', 'team_default', 'Smash Burgers', '🍔', NULL, NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81d9-a380-c0d9caf3df65', 'team_default', 'Brick paninis', '🥪', NULL, NULL, NULL, NULL, 0, '
 ## ingredients 
 
 - 1large garlic clove, halved
@@ -3545,8 +3584,8 @@ Makes 4 sandwiches
 TIP: If using a panini press, cook each sandwich until melted and toasty according to the manufacturer''s instructions.
 
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81fd-b55d-c5ca34be9f5a', 'Herb and Garlic Bottom Roast Recipe w/ Carrots & Potatoes ', '🐮', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81fd-b55d-c5ca34be9f5a', 'team_default', 'Herb and Garlic Bottom Roast Recipe w/ Carrots & Potatoes ', '🐮', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - 1 four pound beef bottom round roast
@@ -3560,10 +3599,10 @@ Carrots
 Potatoes 
 
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8182-a67e-c23ee1ca39be', 'Broccoli', '🥦', NULL, NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81bc-b700-ff5aefa3a59b', 'Sous Vide - Korean BBQ Pork Loin', '🐖', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8182-a67e-c23ee1ca39be', 'team_default', 'Broccoli', '🥦', NULL, NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81bc-b700-ff5aefa3a59b', 'team_default', 'Sous Vide - Korean BBQ Pork Loin', '🐖', NULL, NULL, NULL, NULL, 0, '
 ## Ingredients: 
 
 
@@ -3601,8 +3640,8 @@ VALUES ('28fde7a2-c4fc-81bc-b700-ff5aefa3a59b', 'Sous Vide - Korean BBQ Pork Loi
 - 2 tbsp Sesame oil, toasted
 - 1 tbsp Sesame oil
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-816b-8ef9-ccf5aabc491a', 'Lemon Pepper Chicken Wings', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-816b-8ef9-ccf5aabc491a', 'team_default', 'Lemon Pepper Chicken Wings', '🐔', NULL, NULL, NULL, NULL, 0, '
 Rub
 
 - 2 tsp kosher salt
@@ -3621,8 +3660,8 @@ Sauce
 - 1 tsp lemon zest
 - 1 head of roasted garlic
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-814f-8101-dff40296f5a5', 'Vegan Pecan Pie Cookies', '🍪', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-814f-8101-dff40296f5a5', 'team_default', 'Vegan Pecan Pie Cookies', '🍪', NULL, NULL, NULL, NULL, 0, '
 **Pecan Pie Filling:**
 
 - 1 Tablespoon water
@@ -3645,8 +3684,8 @@ VALUES ('28fde7a2-c4fc-814f-8101-dff40296f5a5', 'Vegan Pecan Pie Cookies', '🍪
 - ½ teaspoon baking powder
 - ¼ teaspoon salt
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81c1-93e2-caaf4e3a19e8', 'Roasted Herb Butter Chicken w/ Rice', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81c1-93e2-caaf4e3a19e8', 'team_default', 'Roasted Herb Butter Chicken w/ Rice', '🐔', NULL, NULL, NULL, NULL, 0, '
 ### Ingredients
 
 - 2 tablespoons [extra virgin olive oil](https://www.californiaoliveranch.com/products/hbh-2pk)
@@ -3665,8 +3704,8 @@ VALUES ('28fde7a2-c4fc-81c1-93e2-caaf4e3a19e8', 'Roasted Herb Butter Chicken w/ 
 - 1 head [garlic](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fherb-butter-chicken-and-orzo%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Fspice-world-fresh-whole-garlic-3ct-bag%2F-%2FA-14917318&u=https%3A%2F%2Fwww.target.com%2Fp%2Fspice-world-fresh-whole-garlic-3ct-bag%2F-%2FA-14917318#donotlink)
 - Rice
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8192-9980-eabfc8f78387', 'Crockpot beef chili', '🍔', NULL, NULL, NULL, NULL, 0, '- 1 tablespoon [olive oil](http://l.thrv.me/HBH951-bragg-organic-extra-virgin-olive-)
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8192-9980-eabfc8f78387', 'team_default', 'Crockpot beef chili', '🍔', NULL, NULL, NULL, NULL, 0, '- 1 tablespoon [olive oil](http://l.thrv.me/HBH951-bragg-organic-extra-virgin-olive-)
 - 2 small onions, chopped
 - 4 cloves garlic, minced or grated
 - 2 pounds lean ground beef
@@ -3684,8 +3723,8 @@ VALUES ('28fde7a2-c4fc-8192-9980-eabfc8f78387', 'Crockpot beef chili', '🍔', N
 - 1 leaf [bay](http://thrv.me/HBHbayleaves)
 - cheddar cheese, avocado, green onions and cilantro, for servi
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8121-ae88-d6401649407b', 'Spatchcock Chicken Recipe', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8121-ae88-d6401649407b', 'team_default', 'Spatchcock Chicken Recipe', '🐔', NULL, NULL, NULL, NULL, 0, '
 ### **INGREDIENTS**
 
 - 3 – 4-lb. whole chicken
@@ -3713,8 +3752,8 @@ VALUES ('28fde7a2-c4fc-8121-ae88-d6401649407b', 'Spatchcock Chicken Recipe', '�
 - 1/2 teaspoon paprika
 - 1 teaspoon brown sugar
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8111-a673-fc02223064b2', 'THAI BEEF SALAD (NAM TOK)', '🐮', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8111-a673-fc02223064b2', 'team_default', 'THAI BEEF SALAD (NAM TOK)', '🐮', NULL, NULL, NULL, NULL, 0, '
 ### **Thai beef salad marinade:**
 
 - 1.5 lbs hanger, flap, skirt, sirloin, or flank steak
@@ -3736,8 +3775,8 @@ VALUES ('28fde7a2-c4fc-8111-a673-fc02223064b2', 'THAI BEEF SALAD (NAM TOK)', '�
 - ¼ cup mint leaves, chopped
 - 2.5 oz. mixed baby greens, baby romain, arugula…etc.
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-810f-84bf-f33477747523', 'Brown Butter Apple Blondies with Cinnamon Maple Glaze', '🧁', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-810f-84bf-f33477747523', 'team_default', 'Brown Butter Apple Blondies with Cinnamon Maple Glaze', '🧁', NULL, NULL, NULL, NULL, 0, '
 ### **CINNAMON MAPLE BUTTER GLAZE**
 
 - 3 tablespoons [salted butter](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fbrown-butter-apple-blondies%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Fland-o-lakes-salted-butter-1lb%2F-%2FA-13227061&u=https%3A%2F%2Fwww.target.com%2Fp%2Fland-o-lakes-salted-butter-1lb%2F-%2FA-13227061#donotlink)
@@ -3760,8 +3799,8 @@ VALUES ('28fde7a2-c4fc-810f-84bf-f33477747523', 'Brown Butter Apple Blondies wit
 - 1/2 teaspoon [kosher salt](http://l.thrv.me/hbh-natnectr-medksalt)
 - 2 Honeycrisp apples, peeled (if desired), and chopped _(about 2 cups chopped apples)_
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81ce-8f6b-e41e17902da6', 'Chicken Tinga', '🍅', NULL, NULL, NULL, NULL, 0, '- 3lb chicken
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81ce-8f6b-e41e17902da6', 'team_default', 'Chicken Tinga', '🍅', NULL, NULL, NULL, NULL, 0, '- 3lb chicken
 - Black pepper
 - Salt
 - 2 tbs ghee
@@ -3775,8 +3814,8 @@ VALUES ('28fde7a2-c4fc-81ce-8f6b-e41e17902da6', 'Chicken Tinga', '🍅', NULL, N
 - 2 tbs apple cider vinegar
 - 2 cups bone broth
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81d3-b12c-c41c0941a7a1', 'Braised beef tacos', '🌮', NULL, NULL, NULL, NULL, 0, '- 3 1/2 pounds beef chuck, cut into 3-4 pieces
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81d3-b12c-c41c0941a7a1', 'team_default', 'Braised beef tacos', '🌮', NULL, NULL, NULL, NULL, 0, '- 3 1/2 pounds beef chuck, cut into 3-4 pieces
 - [avocado oil, for cooking](http://l.thrv.me/HBH1928-primal-kitchen-avocado-oil)
 - [kosher salt and black pepper](http://l.thrv.me/hbh-natnectr-medksalt)
 - 1 can [chipotle peppers in adobo](https://shopstyle.it/l/bqQL8)
@@ -3799,8 +3838,8 @@ VALUES ('28fde7a2-c4fc-81d3-b12c-c41c0941a7a1', 'Braised beef tacos', '🌮', NU
 - 2 cups shredded mozzarella or Monterey Jack cheese
 - avocado cream, for serving
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81b7-ab30-cf9aa607882f', 'Thai basil pancake', '🥞', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81b7-ab30-cf9aa607882f', 'team_default', 'Thai basil pancake', '🥞', NULL, NULL, NULL, NULL, 0, '
 Ingredients 
 
 - 240 g all-purpose plain flour
@@ -3818,8 +3857,8 @@ Ingredients
 - ½ teaspoon salt
 - ¼ cup oil
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8108-abb3-dcc39bc7727e', 'Weeknight Sticky Ginger Sesame Chicken Meatballs', '🐮', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8108-abb3-dcc39bc7727e', 'team_default', 'Weeknight Sticky Ginger Sesame Chicken Meatballs', '🐮', NULL, NULL, NULL, NULL, 0, '
 Ingredients
 
 - [ ] 1 pound [ground turkey or chicken](https://goto.walmart.com/c/2773249/565706/9383?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fweeknight-sticky-ginger-sesame-chicken-meatballs%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.walmart.com%2Fip%2FJENNIE-O-Ground-Turkey-Breast-99-Lean-1-Fat-Fresh-Meat-All-Natural-16-oz-Plastic-Tray%2F156783992%3Ffrom%3D%252Fsearch%26aflt%3Dplt%257Clm&u=https%3A%2F%2Fwww.walmart.com%2Fip%2FJENNIE-O-Ground-Turkey-Breast-99-Lean-1-Fat-Fresh-Meat-All-Natural-16-oz-Plastic-Tray%2F156783992%3Ffrom%3D%252Fsearch%26aflt%3Dplt%257Clm)
@@ -3837,8 +3876,8 @@ Ingredients
 - [ ] 1 teaspoon [crushed red pepper flakes, using more or less to taste](http://l.thrv.me/HBH5796-thrive-market-organic-crushed-re)
 - [ ] steamed rice, sesame seeds, and pomegranate arils, for serving
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-813d-836b-df73ab18b884', 'GRILLED STEAK KABOBS', '🐄', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-813d-836b-df73ab18b884', 'team_default', 'GRILLED STEAK KABOBS', '🐄', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 - [ ] 2 pounds sirloin steak, cut into 1 1/4 inch pieces
@@ -3848,8 +3887,8 @@ Ingredients:
 - [ ] olive oil
 - [ ] salt & pepper
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8112-886d-f6699974f0f3', 'Thai basil beef wrap', '🌯', NULL, NULL, NULL, NULL, 0, '- [ ] 1 1/2 pounds [ground beef](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fbeef-rolls%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Fall-natural-85-15-ground-beef-2lbs-good-38-gather-8482%2F-%2FA-13287609&u=https%3A%2F%2Fwww.target.com%2Fp%2Fall-natural-85-15-ground-beef-2lbs-good-38-gather-8482%2F-%2FA-13287609#donotlink) _(or chicken or pork)_
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8112-886d-f6699974f0f3', 'team_default', 'Thai basil beef wrap', '🌯', NULL, NULL, NULL, NULL, 0, '- [ ] 1 1/2 pounds [ground beef](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fbeef-rolls%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Fall-natural-85-15-ground-beef-2lbs-good-38-gather-8482%2F-%2FA-13287609&u=https%3A%2F%2Fwww.target.com%2Fp%2Fall-natural-85-15-ground-beef-2lbs-good-38-gather-8482%2F-%2FA-13287609#donotlink) _(or chicken or pork)_
 - [ ] [black pepper](http://l.thrv.me/HBH4994-simply-organic-ground-black-pepp)
 - [ ] 4 cloves [garlic, chopped](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fbeef-rolls%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Fspice-world-fresh-whole-garlic-3ct-bag%2F-%2FA-14917318&u=https%3A%2F%2Fwww.target.com%2Fp%2Fspice-world-fresh-whole-garlic-3ct-bag%2F-%2FA-14917318#donotlink)
 - [ ] 1 tablespoon [fresh grated ginger](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fbeef-rolls%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Ffrozen-crushed-ginger-cubes-2-5oz-good-38-gather-8482%2F-%2FA-78470749&u=https%3A%2F%2Fwww.target.com%2Fp%2Ffrozen-crushed-ginger-cubes-2-5oz-good-38-gather-8482%2F-%2FA-78470749#donotlink) _( or 1/4 cup candied ginger)_
@@ -3865,28 +3904,28 @@ VALUES ('28fde7a2-c4fc-8112-886d-f6699974f0f3', 'Thai basil beef wrap', '🌯', 
 - [ ] [chili paste, for serving](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fbeef-rolls%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Fthai-kitchen-premium-authentic-red-curry-paste-4oz%2F-%2FA-13349158&u=https%3A%2F%2Fwww.target.com%2Fp%2Fthai-kitchen-premium-authentic-red-curry-paste-4oz%2F-%2FA-13349158#donotlink)
 - [ ] [toasted sesame oil, for serving](http://l.thrv.me/HBH3562-napa-valley-naturals-organic-toa)
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-817b-a291-fdc160792885', 'Sausage Links', '🐷', NULL, NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81c0-863f-e6d9510b20ff', 'Rotisserie Chicken', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-817b-a291-fdc160792885', 'team_default', 'Sausage Links', '🐷', NULL, NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81c0-863f-e6d9510b20ff', 'team_default', 'Rotisserie Chicken', '🐔', NULL, NULL, NULL, NULL, 0, '
 Salad 
 
 
 Rice 
 
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-816a-97aa-d1a94effa49e', 'Sourdough Tortilla', '🌮', NULL, NULL, NULL, NULL, 0, '- 180g all-purpose flour
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-816a-97aa-d1a94effa49e', 'team_default', 'Sourdough Tortilla', '🌮', NULL, NULL, NULL, NULL, 0, '- 180g all-purpose flour
 - 3g salt
 - 7g baking powder
 - 20g lard or oil
 - 113g sourdough discard
 - 56g hot water
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81a3-9084-c64cac5f01eb', 'Sandwich', '🥪', NULL, NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8131-a66f-fd81ab7eee48', 'Rosemary Olive Oil Sourdough Crackers', '🍘', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81a3-9084-c64cac5f01eb', 'team_default', 'Sandwich', '🥪', NULL, NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8131-a66f-fd81ab7eee48', 'team_default', 'Rosemary Olive Oil Sourdough Crackers', '🍘', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 
@@ -3911,20 +3950,20 @@ Ingredients:
 flaked sea salt, such as Maldon, for sprinkling
 
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-812e-924e-d999c97f17d2', 'Burnt Ends', '🥓', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-812e-924e-d999c97f17d2', 'team_default', 'Burnt Ends', '🥓', NULL, NULL, NULL, NULL, 0, '
 Shishitos 
 
 
 Rice
 
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8191-bcd2-d387ad9572a6', 'Dirty Rice with Ground Beef', '🐮', NULL, NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81ee-afae-d99fcd454a53', 'Spicy Parmesan-Garlic Chicken Skewers', '🐓', NULL, NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81f5-8e4c-fccef600c3af', '20 Minute Stir Fried Honey Ginger Sesame Noodles', '🍜', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8191-bcd2-d387ad9572a6', 'team_default', 'Dirty Rice with Ground Beef', '🐮', NULL, NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81ee-afae-d99fcd454a53', 'team_default', 'Spicy Parmesan-Garlic Chicken Skewers', '🐓', NULL, NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81f5-8e4c-fccef600c3af', 'team_default', '20 Minute Stir Fried Honey Ginger Sesame Noodles', '🍜', NULL, NULL, NULL, NULL, 0, '
 ### Ingredients
 
 - 1/2 cup [raw cashews](http://l.thrv.me/HBH5903-thrive-market-organic-raw-cashew)
@@ -3943,8 +3982,8 @@ VALUES ('28fde7a2-c4fc-81f5-8e4c-fccef600c3af', '20 Minute Stir Fried Honey Ging
 - 2 tablespoons [raw sesame seeds](http://thrv.me/A3E3SC)
 - 2 green onions, chopped
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-818c-9deb-ddad950c8308', 'Shoyu Ramen', '🍜', NULL, NULL, NULL, NULL, 0, '- ½ pound Char Siu (page 290), sliced
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-818c-9deb-ddad950c8308', 'team_default', 'Shoyu Ramen', '🍜', NULL, NULL, NULL, NULL, 0, '- ½ pound Char Siu (page 290), sliced
 - 4 Holy Shiitake Mushrooms (page
 72), thinly sliced
 - 2 Ramen Eggs (page 88), cut in half
@@ -3955,8 +3994,8 @@ broth or chicken broth
 - 2 scallions, thinly sliced
 - Diamond Crystal kosher salt
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81f8-935f-c562206e61e9', 'Char Siu (Chinese BBQ Pork)', '🥩', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81f8-935f-c562206e61e9', 'team_default', 'Char Siu (Chinese BBQ Pork)', '🥩', NULL, NULL, NULL, NULL, 0, '
 Ingredients 
 
 - ½ cup plum, peach, or apricot jam, sweetened only with fruit juice
@@ -3971,20 +4010,20 @@ Ingredients
 - 2 teaspoons Diamond Crystal kosher salt
 - 2 scallions, thinly sliced (optional)
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81ad-9691-c1373ebaa926', 'Holy Shiitake Mushroom', '🍄', '["Nom Nom"]', NULL, NULL, NULL, 0, '- 3 cups (3.5 ounces) dried shiitake mushrooms
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81ad-9691-c1373ebaa926', 'team_default', 'Holy Shiitake Mushroom', '🍄', '["Nom Nom"]', NULL, NULL, NULL, 0, '- 3 cups (3.5 ounces) dried shiitake mushrooms
 - 4 cups water
 - ½ cup All-Purpose Stir-Fry Sauce (page 29)
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8149-85da-fda25d536fb8', 'Seared Scallops with Chili Crisp', '🐠', NULL, NULL, NULL, NULL, 0, '- ¼ cup Nom Nom Chili Crisp (page 38)
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8149-85da-fda25d536fb8', 'team_default', 'Seared Scallops with Chili Crisp', '🐠', NULL, NULL, NULL, NULL, 0, '- ¼ cup Nom Nom Chili Crisp (page 38)
 - 1 ½ pounds dry-packed sea scallops (10 count per pound)
 - ½ teaspoon Diamond Crystal kosher
 - salt
 - 3 tablespoons avocado oil or ghee
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8105-abbe-d7fff291598e', 'Insta pot chuck roast ', '🐮', NULL, NULL, NULL, NULL, 0, '- [ ] 3 lb chuck roast {or: rump, round, brisket}
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8105-abbe-d7fff291598e', 'team_default', 'Insta pot chuck roast ', '🐮', NULL, NULL, NULL, NULL, 0, '- [ ] 3 lb chuck roast {or: rump, round, brisket}
 - [ ] 3 cups beef stock
 - [ ] 1 lb baby potatoes {whole}
 - [ ] 4 cups carrots {peeled and cut into very large pieces}
@@ -4002,8 +4041,8 @@ VALUES ('28fde7a2-c4fc-8105-abbe-d7fff291598e', 'Insta pot chuck roast ', '🐮'
 - [ ] 3 tbsp [cornstarch](https://www.amazon.com/gp/product/B00MFC5P4M?ie=UTF8&tag=thisb02-20&camp=1789&linkCode=xm2&creativeASIN=B00MFC5P4M) {or arrowroot powder}
 - [ ] 1/4 cup broth {taken from the Instant Pot after the meat has cooked}
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81e8-8baf-deb399269e2d', 'Berry Bars ', '🫐', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81e8-8baf-deb399269e2d', 'team_default', 'Berry Bars ', '🫐', NULL, NULL, NULL, NULL, 0, '
 ### _For the crust and topping:_
 
 - 1 1/2 cups (150 grams) rolled oats (make sure to use certified gluten-free oats for a gluten-free version)
@@ -4021,10 +4060,10 @@ VALUES ('28fde7a2-c4fc-81e8-8baf-deb399269e2d', 'Berry Bars ', '🫐', NULL, NUL
 - 1/2 teaspoon vanilla extract
 - pinch of salt
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8173-a2a3-c7dd8a01c2a7', 'Taco Smash Burgers ', '🌮', NULL, NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8198-99dd-e3e83b589dfc', 'Cheese Stuffed Potato Balls ', '🥔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8173-a2a3-c7dd8a01c2a7', 'team_default', 'Taco Smash Burgers ', '🌮', NULL, NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8198-99dd-e3e83b589dfc', 'team_default', 'Cheese Stuffed Potato Balls ', '🥔', NULL, NULL, NULL, NULL, 0, '
 2 Russet Potatoes 
 
 
@@ -4037,8 +4076,8 @@ Mozz Cheese
 Panko 
 
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8114-b1d2-ecb774f197cd', 'Sous vide chicken breast + asparagus ', '🍗', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8114-b1d2-ecb774f197cd', 'team_default', 'Sous vide chicken breast + asparagus ', '🍗', NULL, NULL, NULL, NULL, 0, '
 SLAW
 
 - ¼ cup mayonnaise, homemade
@@ -4060,8 +4099,8 @@ other mustard
 - 8 large biscuits, homemade (page 175) or store-bought,
 split into halves
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8196-8221-e08bbb00d0aa', 'Slow Cooker Pulled Beef, Onions, & Gravy', '🐮', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8196-8221-e08bbb00d0aa', 'team_default', 'Slow Cooker Pulled Beef, Onions, & Gravy', '🐮', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - Beef Brisket
@@ -4074,8 +4113,8 @@ Ingredients:
 - 400 ml
 - 1 tsp. corn starch
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8190-9da1-d114e8c2cdce', 'Instant Pot Chicken And Rice Soup', '🍲', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8190-9da1-d114e8c2cdce', 'team_default', 'Instant Pot Chicken And Rice Soup', '🍲', NULL, NULL, NULL, NULL, 0, '
 ### **Ingredients**
 
 - [ ] 2 tablespoons avocado oil or ghee
@@ -4097,8 +4136,8 @@ VALUES ('28fde7a2-c4fc-8190-9da1-d114e8c2cdce', 'Instant Pot Chicken And Rice So
 - [ ] salt to taste
 - [ ] black pepper to taste
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8146-bb6c-e0102a45d56d', 'Bone Broth Tonic', '🍜', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8146-bb6c-e0102a45d56d', 'team_default', 'Bone Broth Tonic', '🍜', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - 10 oz. [**chicken bone broth** ](https://minimalistbaker.com/how-to-make-bone-broth/)(or sub high quality store-bought — organic pasture-raised when possible)
@@ -4110,8 +4149,8 @@ Ingredients:
 - 1 clove garlic, peeled and minced or pressed
 - Squeeze of lemon juice (_**optional**_)
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81bc-bd29-ccdc13b50232', 'Lebanese Chicken with Charred Lemon Cauliflower.', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81bc-bd29-ccdc13b50232', 'team_default', 'Lebanese Chicken with Charred Lemon Cauliflower.', '🐔', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 
@@ -4131,8 +4170,8 @@ Chicken:
 - [ ] 1 cup [plain Greek yogurt](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Flebanese-chicken%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Ffage-total-2-milkfat-plain-greek-yogurt-32oz%2F-%2FA-14931777&u=https%3A%2F%2Fwww.target.com%2Fp%2Ffage-total-2-milkfat-plain-greek-yogurt-32oz%2F-%2FA-14931777#donotlink)
 - [ ] 1-2 cloves [garlic, grated](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Flebanese-chicken%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Ffrozen-crushed-garlic-cubes-2-8oz-good-38-gather-8482%2F-%2FA-78470748&u=https%3A%2F%2Fwww.target.com%2Fp%2Ffrozen-crushed-garlic-cubes-2-8oz-good-38-gather-8482%2F-%2FA-78470748#donotlink)
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-810e-b709-fc368c7347d2', 'Garlic Butter Steak Bites with Parmesan Cream Sauce', '🐮', NULL, NULL, NULL, NULL, 0, '- 2 lbs steak filet, ribeye, sirloin, etc
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-810e-b709-fc368c7347d2', 'team_default', 'Garlic Butter Steak Bites with Parmesan Cream Sauce', '🐮', NULL, NULL, NULL, NULL, 0, '- 2 lbs steak filet, ribeye, sirloin, etc
 - 4-5 tablespoons avocado oil this has a higher smoke point than olive oil
 
 ### **Parmesan Cream Sauce**
@@ -4178,8 +4217,8 @@ VALUES ('28fde7a2-c4fc-810e-b709-fc368c7347d2', 'Garlic Butter Steak Bites with 
 - Meanwhile, drain water from potatoes and add in the melted butter, cream and mash until no longer chunky. Add in the cheese, seasonings and mix until smooth.
 - Into the sauce, add in red pepper flakes and scallions then the parmesan cheese. Whisk until the sauce thickens and taste and adjust salt and pepper as needed. Serve by plating the steak over the potatoes and spooning over the parmesan cream sauce.
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81a0-922a-f5474cfb89d5', 'Sheet Pan Pork Chop Supper', '🐷', NULL, NULL, NULL, NULL, 0, '- [ ] 5 tablespoons extra virgin olive oil or avocado oil, divided 
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81a0-922a-f5474cfb89d5', 'team_default', 'Sheet Pan Pork Chop Supper', '🐷', NULL, NULL, NULL, NULL, 0, '- [ ] 5 tablespoons extra virgin olive oil or avocado oil, divided 
 - [ ] Juice of 1 lemon
 - [ ] 2 tablespoons chopped fresh sage
 - [ ] 4 garlic cloves, minced
@@ -4194,8 +4233,8 @@ through the poles
 - [ ] Freshly ground black pepper
 - [ ] Aged balsamic vinegar
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8194-b588-e4977cbea5cf', 'Thai Peanut Chicken Ramen', '🍲', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8194-b588-e4977cbea5cf', 'team_default', 'Thai Peanut Chicken Ramen', '🍲', NULL, NULL, NULL, NULL, 0, '
 ### Ingredients
 
 - 4 cups [low sodium chicken broth](http://l.thrv.me/HBH4263-pacific-foods-organic-low-sodium)
@@ -4216,8 +4255,8 @@ VALUES ('28fde7a2-c4fc-8194-b588-e4977cbea5cf', 'Thai Peanut Chicken Ramen', '�
 - 1/3 cup fresh basil or cilantro, roughly chopped, plus more for serving
 - chopped peanuts and toasted sesame oil, for serving
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81af-b854-cf9c531a00ce', 'Chicken kofta (but with beef)', '🍔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81af-b854-cf9c531a00ce', 'team_default', 'Chicken kofta (but with beef)', '🍔', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 
@@ -4278,8 +4317,8 @@ Sliced Veggies (for serving):
 5️⃣ Serve chicken kofta with lemon dill rice, tzatziki, and sliced veggies and enjoy!
 
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-817a-a3b5-f7f179b9c6c0', 'Basil & Beef + Broccoli Strips Congee', '🐮', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-817a-a3b5-f7f179b9c6c0', 'team_default', 'Basil & Beef + Broccoli Strips Congee', '🐮', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - White Rice Congee (see recipe)
@@ -4295,8 +4334,8 @@ Ingredients:
 - Squeeze of fresh lime juice
 - Head of broccoli
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81aa-86ff-c8422117469b', 'French silk pie', '🥧', NULL, NULL, NULL, NULL, 0, '- 1 classic pie crust (pg 402)
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81aa-86ff-c8422117469b', 'team_default', 'French silk pie', '🥧', NULL, NULL, NULL, NULL, 0, '- 1 classic pie crust (pg 402)
 - 2½ teaspoons gelatin
 - ¼ cup cold, filtered water
 - ⅕ cup boiling filtered water
@@ -4307,8 +4346,8 @@ VALUES ('28fde7a2-c4fc-81aa-86ff-c8422117469b', 'French silk pie', '🥧', NULL,
 - ¼ teaspoon salt
 - Whipped cream (pg 407)
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81f6-a6e1-dbbaef4a9665', 'Braised Pork with Sauerkraut and Apples', '🐖', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81f6-a6e1-dbbaef4a9665', 'team_default', 'Braised Pork with Sauerkraut and Apples', '🐖', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 - 3-4 lb pork loin or shoulder, bone-in
@@ -4330,8 +4369,8 @@ Instructions:
 8 Serve: Enjoy over mashed potatoes!
 
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8135-9a9c-e69c891ad56a', 'Almond Butter Dates Wrapped in Bacon', '🥜', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8135-9a9c-e69c891ad56a', 'team_default', 'Almond Butter Dates Wrapped in Bacon', '🥜', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - almond butter
@@ -4345,8 +4384,8 @@ instructions:
 - wrap in bacon
 - bake until bacon is cooked - 425 for 15ish minutes
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-810a-b3ae-ccce15a656cf', 'Pie crust', '🥧', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-810a-b3ae-ccce15a656cf', 'team_default', 'Pie crust', '🥧', NULL, NULL, NULL, NULL, 0, '
 ## Ingredients
 
 - 1 cup cassava flour
@@ -4364,8 +4403,8 @@ Place it on a flat, floured surface or a piece of parchment paper. Dust the doug
 Make it Ahead: If you are not using the dough right away, it can be wrapped in plastic wrap and stored in the refrigerator for a few days.
 
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8193-8694-c18a8025d558', 'Jerk chicken wings and burnt broccoli', '🐔', NULL, NULL, NULL, NULL, 0, '- 3 heads broccoli, cut into small florets (about 8 cups)
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8193-8694-c18a8025d558', 'team_default', 'Jerk chicken wings and burnt broccoli', '🐔', NULL, NULL, NULL, NULL, 0, '- 3 heads broccoli, cut into small florets (about 8 cups)
 - 2 tablespoons avocado oil
 - ¾ teaspoon freshly squeezed Lemon juice
 - 2½ teaspoons Burnt Broccoli Seasoning (page 31)
@@ -4397,8 +4436,8 @@ Caribbean Seasoning
 - 1/2 ground ginger
 - 1/2 cayenne pepper
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8183-8828-deca6ea1f2b8', 'Middle Eastern Chicken & Rice Bowl', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8183-8828-deca6ea1f2b8', 'team_default', 'Middle Eastern Chicken & Rice Bowl', '🐔', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 - 2 lbs. chicken thighs
@@ -4453,16 +4492,16 @@ Ingredients:
 6.When rice is cooked, add a serving to the bowl, some chicken, then pile it high with the salad, some sliced Persian cucumbers, fresh herbs, and drizzle it up with the white sauce.
 
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81c9-aaa8-cfff99476361', 'Basic Shredded Chicken', '🐔', NULL, NULL, NULL, NULL, 0, '- 2 to 3 pounds boneless skinless chicken breasts
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81c9-aaa8-cfff99476361', 'team_default', 'Basic Shredded Chicken', '🐔', NULL, NULL, NULL, NULL, 0, '- 2 to 3 pounds boneless skinless chicken breasts
 - 1 cup chicken stock (or water)
 - 1 teaspoon [kosher salt](http://amzn.to/2yzvdQZ)
 - 1/2 teaspoon freshly-cracked [black pepper](http://amzn.to/2wMc2Go)
 - 1/2 teaspoon [garlic powder](http://amzn.to/2fpPlAn)
 - 1/2 teaspoon [smoked paprika](http://amzn.to/2xyuyB5)
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81b3-8de5-ff48607ef3b7', 'Asian Pork Tenderloin with Ginger Glaze', '🐷', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81b3-8de5-ff48607ef3b7', 'team_default', 'Asian Pork Tenderloin with Ginger Glaze', '🐷', NULL, NULL, NULL, NULL, 0, '
 ### **For the rub:**
 
 - [ ] 1 tablespoon brown sugar
@@ -4486,8 +4525,8 @@ VALUES ('28fde7a2-c4fc-81b3-8de5-ff48607ef3b7', 'Asian Pork Tenderloin with Ging
 - [ ] fresh cilantro, _to garnish_
 - [ ] lime wedges, _to garnish_
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81f8-9347-d5701774dcd1', 'Pot Roast Gyros', '🐮', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81f8-9347-d5701774dcd1', 'team_default', 'Pot Roast Gyros', '🐮', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 - [ ] 1 [yellow onion, sliced](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fpot-roast-gyros%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Fyellow-onion-each%2F-%2FA-13474244%3Faflt%3Dplt%257Clm%23lnk%3Dsametab&u=https%3A%2F%2Fwww.target.com%2Fp%2Fyellow-onion-each%2F-%2FA-13474244%3Faflt%3Dplt%257Clm%23lnk%3Dsametab#lnk=sametab)
@@ -4506,8 +4545,8 @@ Ingredients:
 - [ ] pickled red onion, lettuce, and herbs for serving
 - [ ] [Tzatziki, for serving](https://www.halfbakedharvest.com/easy-tzatziki/)
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81e6-9ad0-dd7db52dcf3e', 'Garlic Chili Noodles - iheartumami', '🍜', NULL, NULL, NULL, NULL, 0, '- [ ] 8 oz rice noodles
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81e6-9ad0-dd7db52dcf3e', 'team_default', 'Garlic Chili Noodles - iheartumami', '🍜', NULL, NULL, NULL, NULL, 0, '- [ ] 8 oz rice noodles
 - [ ] 2 tbsp butter, unsalted
 - [ ] 0.8 oz garlic, finely minced, about 5 cloves
 - [ ] Pinch coarse sea salt
@@ -4518,8 +4557,8 @@ VALUES ('28fde7a2-c4fc-81e6-9ad0-dd7db52dcf3e', 'Garlic Chili Noodles - iheartum
 - [ ] Sprinkle toasted white sesame seeds
 - [ ] Small handful Cilantro, finely chopped, optional
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8100-af2f-cd8b7c35a517', 'Beef & Broccoli', '🐮', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8100-af2f-cd8b7c35a517', 'team_default', 'Beef & Broccoli', '🐮', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 
@@ -4552,8 +4591,8 @@ florets
 Chopped green scallion for garnish
 
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8130-978e-e83995cb8d37', 'Bacon Cheesburger Casserole ', '🐮', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8130-978e-e83995cb8d37', 'team_default', 'Bacon Cheesburger Casserole ', '🐮', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 - 1¼ cups Cashew Cheese Sauce (page 34)
@@ -4565,12 +4604,12 @@ Ingredients:
 - 1 medium cauliflower head, riced (or 16 ounces fresh or frozen riced cauliflower) (page 107)
 - 6 slices bacon (about 6 ounces) cut crosswise into ¼-inch pieces
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81e9-8d13-f05ea660c27e', 'North Carolina pulled pork', '🐷', NULL, NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-815e-96ea-d9eee8371a65', 'Smoked Chicken', '🐔', NULL, NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8104-a42b-f750ffc7d55a', 'Smoked and shredded beef tacos', '🐮', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81e9-8d13-f05ea660c27e', 'team_default', 'North Carolina pulled pork', '🐷', NULL, NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-815e-96ea-d9eee8371a65', 'team_default', 'Smoked Chicken', '🐔', NULL, NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8104-a42b-f750ffc7d55a', 'team_default', 'Smoked and shredded beef tacos', '🐮', NULL, NULL, NULL, NULL, 0, '
 ### **Ingredients**
 
 - 2 tbsp paprika
@@ -4583,8 +4622,8 @@ VALUES ('28fde7a2-c4fc-8104-a42b-f750ffc7d55a', 'Smoked and shredded beef tacos'
 - ½ cup beef broth
 - 2 tbsp olive oil
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81aa-a3b5-c53a393b4a29', 'Vietnamese meatball', '🍔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81aa-a3b5-c53a393b4a29', 'team_default', 'Vietnamese meatball', '🍔', NULL, NULL, NULL, NULL, 0, '
 FOR THE MEATBALLS
 
 - 2 large eggs
@@ -4609,8 +4648,8 @@ FOR THE SAUCE
 - ¼ cup lime juice, from 2 to 3 limes
 - ¼ cup sugar
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8185-985e-f9e782da73a7', 'Greek meatballs', '🐮', NULL, NULL, NULL, NULL, 0, '- 1 pound ground pork, alternative options: ground lamb or beef
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8185-985e-f9e782da73a7', 'team_default', 'Greek meatballs', '🐮', NULL, NULL, NULL, NULL, 0, '- 1 pound ground pork, alternative options: ground lamb or beef
 - ½ cup breadcrumbs
 - 1 large egg
 - ¼ cup finely chopped fresh parsley
@@ -4621,8 +4660,8 @@ VALUES ('28fde7a2-c4fc-8185-985e-f9e782da73a7', 'Greek meatballs', '🐮', NULL,
 - Salt and pepper to taste
 - Olive oil, for frying or brushing
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8195-abf2-e5b310c1c89b', 'Roasted Carrots - BLW', '🥕', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8195-abf2-e5b310c1c89b', 'team_default', 'Roasted Carrots - BLW', '🥕', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 
@@ -4635,16 +4674,16 @@ Sea saltFreshly ground pepper Optional herbs:
 1/2 teaspoon fresh thyme leaves, chopped 1/8 teaspoon oregano
 
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8182-a9c0-e96b86c7bfad', 'Rosemary Roasted Sweet Potato Fries - BLW', '🥔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8182-a9c0-e96b86c7bfad', 'team_default', 'Rosemary Roasted Sweet Potato Fries - BLW', '🥔', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - 2 Medium or Large Sweet Potatoes Sea salt (for seasoning)
 - Rosemary (for seasoning)
 - Ghee, coconut oil, or tallow (melted) or olive oil
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81db-80d0-f018f52b6fa4', 'Greek Chicken Skewers', '🐓', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81db-80d0-f018f52b6fa4', 'team_default', 'Greek Chicken Skewers', '🐓', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - 2-3 lbs Chicken Breast or Thigh, your choice
@@ -4669,8 +4708,8 @@ Ingredients:
 - 1 Large Bell Pepper You choice of color
 - 1 Zucchini
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8177-b6db-d78d2362976c', 'Grilled chili lime honey chicken', '🐓', NULL, NULL, NULL, NULL, 0, '- 1 pound boneless skinless chicken breasts, cut into bite size chunks
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8177-b6db-d78d2362976c', 'team_default', 'Grilled chili lime honey chicken', '🐓', NULL, NULL, NULL, NULL, 0, '- 1 pound boneless skinless chicken breasts, cut into bite size chunks
 - 2 tablespoons extra virgin olive oil
 - 1/4 cup fresh lime juice
 - 2 cloves garlic, minced or grated
@@ -4689,8 +4728,8 @@ AVOCADO SALSA
 - juice from 1 lime
 - 1/4 cup fresh cilantro and or basil, chopped
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8191-98bb-ccb2191147e7', 'Honey Balsamic Brussel Sprouts', '🥦', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8191-98bb-ccb2191147e7', 'team_default', 'Honey Balsamic Brussel Sprouts', '🥦', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - [ ] 2 1/2 lb. Brussels sprouts
@@ -4704,8 +4743,8 @@ Ingredients:
 - [ ] 3 Tbsp. butter, unsalted
 - [ ] garnish: green onions and lemon zest
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8128-84f0-f15e6731a210', 'Immunity Chicken Noodle Soup', '🍲', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8128-84f0-f15e6731a210', 'team_default', 'Immunity Chicken Noodle Soup', '🍲', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - 2 tablespoons butter
@@ -4724,8 +4763,8 @@ Ingredients:
 - 1 package of jovial egg noodles or stellini (or whatever pasta you like!)
 - juice of 1 lemon
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8129-99a9-feea7b2f4713', 'Yogurt & Raspberry Muffins (Hazel)', '🥞', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8129-99a9-feea7b2f4713', 'team_default', 'Yogurt & Raspberry Muffins (Hazel)', '🥞', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 - 2 free-range eggs
@@ -4739,8 +4778,8 @@ Ingredients:
 - 1 ¾ cups spelt flour
 - 1 cup raspberries (you can use frozen but do not defrost)
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8138-b5b7-ff7aa3306f6b', 'Broccoli Bites (Hazel)', '🥦', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8138-b5b7-ff7aa3306f6b', 'team_default', 'Broccoli Bites (Hazel)', '🥦', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - 2-3 Russet Potatoes
@@ -4749,8 +4788,8 @@ Ingredients:
 - 1/4 cup parm cheese
 - olive oil, to brush
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8196-84b8-edaf5384344d', 'Barley Ground Beef Stew', '🐮', NULL, NULL, NULL, NULL, 0, '- 1 pound lean ground beef
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8196-84b8-edaf5384344d', 'team_default', 'Barley Ground Beef Stew', '🐮', NULL, NULL, NULL, NULL, 0, '- 1 pound lean ground beef
 - 2 tablespoons olive oil
 - 1 large onion, finely chopped
 - 2 medium carrots, peeled and cubed
@@ -4768,8 +4807,8 @@ VALUES ('28fde7a2-c4fc-8196-84b8-edaf5384344d', 'Barley Ground Beef Stew', '🐮
 - 1 cup pearl barley, rinsed well
 - 1/4 cup fresh parsley, chopped
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81e9-a4b0-c9a72027cc2e', 'Apple Curry Pork Cakes with Brussel Sprouts', '🐖', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81e9-a4b0-c9a72027cc2e', 'team_default', 'Apple Curry Pork Cakes with Brussel Sprouts', '🐖', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - 4 cups Apple Cider and Cinnamon Pulled Pork (page
@@ -4784,8 +4823,8 @@ Ingredients:
 - Pinch of ground cinnamon
 - 1 tablespoon coconut oil/evoo , plus more as needed
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-817f-b9f3-e449db5fa078', 'Sesame Beef & Cabbage Stir Fry ', '🐄', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-817f-b9f3-e449db5fa078', 'team_default', 'Sesame Beef & Cabbage Stir Fry ', '🐄', NULL, NULL, NULL, NULL, 0, '
 ### **STIR-FRY INGREDIENTS:**
 
 - 1 batch Sesame Ginger Sauce _(see below)_
@@ -4811,10 +4850,10 @@ VALUES ('28fde7a2-c4fc-817f-b9f3-e449db5fa078', 'Sesame Beef & Cabbage Stir Fry 
 - 1 teaspoon ground ginger
 - 1/2 teaspoon toasted sesame oil
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8160-8538-f0147672eff1', 'Roasted Broccoli w/ Vegan Parm', '🥦', NULL, NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8174-90cf-cd3902a49b10', 'Air Fryer Brussel Sprouts', '🥦', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8160-8538-f0147672eff1', 'team_default', 'Roasted Broccoli w/ Vegan Parm', '🥦', NULL, NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8174-90cf-cd3902a49b10', 'team_default', 'Air Fryer Brussel Sprouts', '🥦', NULL, NULL, NULL, NULL, 0, '
 **FOR THE BRUSSELS SPROUTS:**
 
 - 1 pound Brussels sprouts
@@ -4827,8 +4866,8 @@ VALUES ('28fde7a2-c4fc-8174-90cf-cd3902a49b10', 'Air Fryer Brussel Sprouts', '�
 
 - 1 tablespoon balsamic glaze or reduced balsamic vinegar
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8144-8513-f9c8a2e6e49c', 'Grilled Kofta Kebabs', '🐮', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8144-8513-f9c8a2e6e49c', 'team_default', 'Grilled Kofta Kebabs', '🐮', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - 1 lb ground beef (80–85% lean works well)
@@ -4864,8 +4903,8 @@ Ingredients:
     - Great with cucumber yogurt sauce (tzatziki), grilled veggies, or wrapped in lettuce or gluten-free flatbread.
     - A side of lemony cucumber salad or grilled zucchini is perfect!
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8128-8098-f0c0db24d7d3', 'Apple, Pecan and Chicken Arugula Salad', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8128-8098-f0c0db24d7d3', 'team_default', 'Apple, Pecan and Chicken Arugula Salad', '🐔', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - 4 Cups arugula
@@ -4890,8 +4929,8 @@ Maple Mustard Vinaigrette:
 - pinch of salt
 - cracked pepper
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81e9-883d-d732b013b2ec', 'Beef & Cabbage Hash ', '🐄', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81e9-883d-d732b013b2ec', 'team_default', 'Beef & Cabbage Hash ', '🐄', NULL, NULL, NULL, NULL, 0, '
 Taken from Histamine Reset Plan (pg 133) + Twist from ChatGPT
 
 
@@ -4922,8 +4961,8 @@ Taken from Histamine Reset Plan (pg 133) + Twist from ChatGPT
 - Use cold-pressed flaxseed oil drizzled at the end for a nutty finish.
 - Serve with a side of mashed Japanese sweet potato or roasted carrots for natural sweetness.
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8139-b31a-f70eef48199b', 'Garlic, Honey, and Mustard-Marinated Chicken', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8139-b31a-f70eef48199b', 'team_default', 'Garlic, Honey, and Mustard-Marinated Chicken', '🐔', NULL, NULL, NULL, NULL, 0, '
 ### **Ingredients**
 
 - 5 boneless, skinless chicken breasts
@@ -4935,8 +4974,8 @@ VALUES ('28fde7a2-c4fc-8139-b31a-f70eef48199b', 'Garlic, Honey, and Mustard-Mari
 - 1 teaspoon salt
 - 2 teaspoons ground pepper
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81c0-9081-c0dc297a26dd', 'Quinoa Tabouli - Healthier Home Cook (Camping)', '🌾', '["Camping"]', NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81c0-9081-c0dc297a26dd', 'team_default', 'Quinoa Tabouli - Healthier Home Cook (Camping)', '🌾', '["Camping"]', NULL, NULL, NULL, 0, '
 Ingredients: 
 2 cups (360 g) sprouted quinoa
 1¾ cups (296 ml) water
@@ -4974,10 +5013,10 @@ this the night before and refrigerate.]
 ingredients. Add the cooled quinoa, and
 mix to combine.
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-819e-a7ba-e43e5d675fad', 'Polish Sausages + Roasted Veggies (Camping)', '🌭', '["Camping"]', NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8104-884c-c35a1bd6486b', 'Maple Breakfast Patties', '🐮', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-819e-a7ba-e43e5d675fad', 'team_default', 'Polish Sausages + Roasted Veggies (Camping)', '🌭', '["Camping"]', NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8104-884c-c35a1bd6486b', 'team_default', 'Maple Breakfast Patties', '🐮', NULL, NULL, NULL, NULL, 0, '
 **Ingredients**
 
 - 1 lb ground beef
@@ -4987,8 +5026,8 @@ VALUES ('28fde7a2-c4fc-8104-884c-c35a1bd6486b', 'Maple Breakfast Patties', '🐮
 - 1/2 tsp onion powder
 - 1/4 tsp turmeric
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-811b-baed-c7d9f05d9942', 'Cinnamon Banana Oat Bread', '🧁', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-811b-baed-c7d9f05d9942', 'team_default', 'Cinnamon Banana Oat Bread', '🧁', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 - 6 Ripe Bananas
@@ -5004,8 +5043,8 @@ Ingredients:
 - 1/2 tsp Salt
 - 3/4 c Shredded Coconut or Chocolate Chips
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-818d-b09d-fdc559a254b1', 'Roasted Asparagus + Pecan Salad', '🥗', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-818d-b09d-fdc559a254b1', 'team_default', 'Roasted Asparagus + Pecan Salad', '🥗', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 - Marinated Chicken (lemon garlic)
@@ -5026,8 +5065,8 @@ Ingredients:
     - ⅔ cup (83 g) coarsely chopped pecans, divided
     - Feta or goat cheese for sprinkling on top
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81ab-afb9-d56141133e43', 'Za''atar Chicken Drumsticks with Cucumber Herb Slaw', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81ab-afb9-d56141133e43', 'team_default', 'Za''atar Chicken Drumsticks with Cucumber Herb Slaw', '🐔', NULL, NULL, NULL, NULL, 0, '
 **Ingredients**
 
 
@@ -5121,21 +5160,21 @@ _Prepare the Cucumber Herb Slaw:_ While the chicken roasts, place the julienned
 _Assemble the Dish:_ Serve the crispy za''atar chicken drumsticks hot with a generous side of cucumber herb slaw. Drizzle extra olive oil over the slaw or add a squeeze of fresh lemon if desired.
 
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-814b-9450-e2ca28f2c2df', 'Dad''s Filets', '🐮', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-814b-9450-e2ca28f2c2df', 'team_default', 'Dad''s Filets', '🐮', NULL, NULL, NULL, NULL, 0, '
 Asparagus 
 
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81ff-89ca-d3cd61179d05', 'Bison steak', '🦬', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81ff-89ca-d3cd61179d05', 'team_default', 'Bison steak', '🦬', NULL, NULL, NULL, NULL, 0, '
 Brussels 
 
 
 Salad tings 
 
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8157-9f14-ccc931b3529d', 'BBQ Chicken Tenders + Ranch ', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8157-9f14-ccc931b3529d', 'team_default', 'BBQ Chicken Tenders + Ranch ', '🐔', NULL, NULL, NULL, NULL, 0, '
 Roasted Carrots + Beets 
 
 
@@ -5148,8 +5187,8 @@ Recipe
 • dip in the homemade ranch and enjoy!
 
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8184-a4e1-d6f9f17a0db6', 'Soft Sourdough Potato Buns', '🍞', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8184-a4e1-d6f9f17a0db6', 'team_default', 'Soft Sourdough Potato Buns', '🍞', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 
@@ -5175,8 +5214,8 @@ Ingredients:
 - 1 egg
 - 1 tablespoon whole milk
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-819a-8591-e9b25ce68056', 'Pineapple Beef Skewers with Mint-Lime Glaze ', '🐄', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-819a-8591-e9b25ce68056', 'team_default', 'Pineapple Beef Skewers with Mint-Lime Glaze ', '🐄', NULL, NULL, NULL, NULL, 0, '
 CHAT GPT
 
 
@@ -5247,8 +5286,8 @@ Preheat grill to medium-high. Grill skewers for 10–12 minutes, turning every f
 Serve warm, garnished with extra mint or lime wedges. Pairs well with grilled greens, cauliflower rice, or fermented slaw for a gut-supportive meal.
 
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81ff-b6e8-ff900816b6c5', 'Hangry Soup (Changed) ', '🍲', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81ff-b6e8-ff900816b6c5', 'team_default', 'Hangry Soup (Changed) ', '🍲', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 - 6 cups bone broth
@@ -5267,8 +5306,8 @@ Ingredients:
 - sherry vinegar
 - shredded chicken from meat stock
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81dd-a6e1-c81045f15db6', 'Cilantro Lime Rice', '🍚', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81dd-a6e1-c81045f15db6', 'team_default', 'Cilantro Lime Rice', '🍚', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - 1 cup long-grain jasmine rice, rinsed well and drained
@@ -5282,8 +5321,8 @@ Ingredients:
 - ½ cup finely chopped fresh cilantro
 - Pinch [**red pepper flakes**](https://www.amazon.com/Simply-Organic-Certified-1-59-Ounce-Container/dp/B000WS3AJ8?linkCode=ll1&tag=loveandlemobl-at-rc-ingli-20&linkId=751b741364b2538b2cfda7cc5fbbd3b3&language=en_US&ref_=as_li_ss_tl), or ¼ diced jalapeño, optional
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-810f-bb95-ce9f1cdb6f1e', 'Chimichurri Beef Pasta', '🐮', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-810f-bb95-ce9f1cdb6f1e', 'team_default', 'Chimichurri Beef Pasta', '🐮', NULL, NULL, NULL, NULL, 0, '
 Ingredients for the Chimichurri:
 2 very generous handfuls of arugula
 2 generous handfuls of fresh flat-leaf parsley
@@ -5312,8 +5351,8 @@ Sea salt and black pepper, to taste
 ⅛ teaspoon ground mustard
 
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81f1-ab72-e3e5b4631326', 'Burrito Bowl', '🐮', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81f1-ab72-e3e5b4631326', 'team_default', 'Burrito Bowl', '🐮', NULL, NULL, NULL, NULL, 0, '
 Taco Meat 
 
 
@@ -5332,8 +5371,8 @@ Lime
 Grilled onions + peppers 
 
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81a0-b50c-e4bb32b1d99e', 'Beef Keema', '🍔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81a0-b50c-e4bb32b1d99e', 'team_default', 'Beef Keema', '🍔', NULL, NULL, NULL, NULL, 0, '
 ### **Curry**
 
 - 3 tbsp[ ](https://www.teaforturmeric.com/recommends/avocado-oil/)**oil**
@@ -5390,8 +5429,8 @@ If you use a [**food processor**](https://www.amazon.com/gp/product/B00LBZOYAK/r
 Cook time varies depending on how thawed the peas are. If you forgot to thaw as I often do, cook for about 7 minutes. You want them to maintain shape and not entirely shrivel up, but also break easily when pressed between your fingers.
 
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8163-9756-e7bafd13dc3b', 'One pot beef stew with chilis and carrots', '🍲', NULL, NULL, NULL, NULL, 0, '- 1 tablespoon (15 ml) olive oil, if searing meat
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8163-9756-e7bafd13dc3b', 'team_default', 'One pot beef stew with chilis and carrots', '🍲', NULL, NULL, NULL, NULL, 0, '- 1 tablespoon (15 ml) olive oil, if searing meat
 - 3 pounds (1.4 kg) beef stew meat, like chuck
 - 1 cup (59 ml) water
 - 2 jars (18 ounces, or 510 g) diced tomatoes
@@ -5410,8 +5449,8 @@ VALUES ('28fde7a2-c4fc-8163-9756-e7bafd13dc3b', 'One pot beef stew with chilis a
 - 1 tablespoon (15 ml) tapioca flour
 - 5-10 carrots (depending on size and preference), sliced on the bias, about ½-inch (1.3-cm) thick
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-815b-adab-fcb3da1a2aa0', 'Mississippi Pot Roast ', '🐮', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-815b-adab-fcb3da1a2aa0', 'team_default', 'Mississippi Pot Roast ', '🐮', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 1 tablespoon (15 ml) extra-virgin olive oil
 1 (4-6 pound [2.3-2.7 kgl) pasture-raised chuck roast
@@ -5426,8 +5465,8 @@ For Serving:
 Mashed potatoes, baked potato, cauliflower rice, rice, mashed cauliflower, or mashed sweet Potatoes
 
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-816b-911c-f13a78f45615', 'Albóndigas Soup', '🐮', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-816b-911c-f13a78f45615', 'team_default', 'Albóndigas Soup', '🐮', NULL, NULL, NULL, NULL, 0, '
 Ingredients for the Meatballs:
 1 pound (454 g) pasture-raised ground beef or meat of choice
 1 large egs
@@ -5471,8 +5510,8 @@ Sliced avocado
 Sliced jalapeño
 
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-811e-8239-c765e2e35067', 'California Burritos', '🌯', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-811e-8239-c765e2e35067', 'team_default', 'California Burritos', '🌯', NULL, NULL, NULL, NULL, 0, '
 ### **Ingredients**
 
 - 2 lbs flap meat or skirt steak
@@ -5488,8 +5527,8 @@ VALUES ('28fde7a2-c4fc-811e-8239-c765e2e35067', 'California Burritos', '🌯', N
 - Juice of 1 lime
 - Salt and pepper to taste
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-813b-8847-df9653132e28', 'Salsa Verde Chicken and Rice Tortilla Soup', '🐔', '["Dinner"]', NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-813b-8847-df9653132e28', 'team_default', 'Salsa Verde Chicken and Rice Tortilla Soup', '🐔', '["Dinner"]', NULL, NULL, NULL, 0, '
 ### Ingredients
 
 - [ ] 2 tablespoons [extra virgin olive oil](https://www.californiaoliveranch.com/products/hbh-2pk)
@@ -5509,8 +5548,8 @@ VALUES ('28fde7a2-c4fc-813b-8847-df9653132e28', 'Salsa Verde Chicken and Rice To
 - [ ] tortilla chips, for serving
 - [ ] yogurt, avocado, cheese, and green onions, for serving
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8123-b022-f79906aa295e', 'Crispy Chilli Beef', '🐮', '["Dinner"]', NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8123-b022-f79906aa295e', 'team_default', 'Crispy Chilli Beef', '🐮', '["Dinner"]', NULL, NULL, NULL, 0, '
 Ingredients: 
 
 - [ ] 360 g ¾ lb thin cut sirloin steaks - (approx 3 thin steaks) cut into thin strips (*Note1: It''s easier to cut the steak into thin strips if you place it in the freezer for 30 minutes to firm up a little.)
@@ -5531,8 +5570,8 @@ Ingredients:
 - [ ] 2 tbsp tomato ketchup
 - [ ] 2 tbsp [sweet chilli sauce](https://www.kitchensanctuary.com/sweet-chilli-sauce-recipe/) - I use Thai-style
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8111-8372-c4e17505b992', 'Cilantro Lime Noodles w/ Chicken', '🍜', '["Dinner"]', NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8111-8372-c4e17505b992', 'team_default', 'Cilantro Lime Noodles w/ Chicken', '🍜', '["Dinner"]', NULL, NULL, NULL, 0, '
 Ingredients: 
 
 
@@ -5552,8 +5591,8 @@ Ingredients:
 - 1 tbsp dark soy sauce
 - 2 tbsp lime juice juice from 1 lime
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81d1-b00e-e6ccf47b0f20', 'SWEET SPICY GOCHUJANG CHICKEN', NULL, NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81d1-b00e-e6ccf47b0f20', 'team_default', 'SWEET SPICY GOCHUJANG CHICKEN', NULL, NULL, NULL, NULL, NULL, 0, '
 **INGREDIENTS:**
 
 - 6 chicken thighs diced (skinless boneless)
@@ -5580,8 +5619,8 @@ VALUES ('28fde7a2-c4fc-81d1-b00e-e6ccf47b0f20', 'SWEET SPICY GOCHUJANG CHICKEN',
 - 1 tsp sesame seeds
 - 1 stalk green onion sliced
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81e1-81af-df77d5a46a00', 'INSTA POT BEEF STEW', '🐮', '["Postpartum"]', NULL, NULL, NULL, 0, '- 2 to 2 1/2 lbs stew beef or beef chuck roast, _Cut into 1 1/2 inch pieces._
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81e1-81af-df77d5a46a00', 'team_default', 'INSTA POT BEEF STEW', '🐮', '["Postpartum"]', NULL, NULL, NULL, 0, '- 2 to 2 1/2 lbs stew beef or beef chuck roast, _Cut into 1 1/2 inch pieces._
 - 3 tbsp olive oil, _Can use another cooking fat of choice._
 - 2 tbsp garlic, _minced_
 - 1 large white or yellow onion, _diced_
@@ -5598,8 +5637,8 @@ VALUES ('28fde7a2-c4fc-81e1-81af-df77d5a46a00', 'INSTA POT BEEF STEW', '🐮', '
 - 1 tsp dried oregano
 - fresh herbs to garnish when serving
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81f7-b363-d3eb6f2383d1', 'Sourdough Butter Crackers', '🍘', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81f7-b363-d3eb6f2383d1', 'team_default', 'Sourdough Butter Crackers', '🍘', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - ¾ cup (200 g) [sourdough starter discard](https://littlespoonfarm.com/sourdough-starter-recipe/) (stirred down)
@@ -5607,8 +5646,8 @@ Ingredients:
 - 8 tablespoons (113 g) [butter](https://littlespoonfarm.com/homemade-butter-and-cultured-butter-recipe/) (melted)
 - 1 teaspoon (5 g) sea salt
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-811a-8edf-ce47677b9a73', 'Lactation Granola Bars', '🌾', '["Postpartum"]', NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-811a-8edf-ce47677b9a73', 'team_default', 'Lactation Granola Bars', '🌾', '["Postpartum"]', NULL, NULL, NULL, 0, '
 Ingredients:
 
 - 2 cups organic old-fashioned rolled oats
@@ -5637,8 +5676,8 @@ Instructions:
 - Bake for 25-30 minutes at 300°, or until the edges are golden brown.
 - Remove from the oven and allow to cool for 1 hour before removing from the pan to cut. Cut into twelve bars and store in an airtight container for up to 2 weeks.
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8199-a534-e3c1bea3e295', 'Dutch Oven BBQ Brisket', '🐮', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8199-a534-e3c1bea3e295', 'team_default', 'Dutch Oven BBQ Brisket', '🐮', NULL, NULL, NULL, NULL, 0, '
 ### **Ingredients**
 
 - 2 tablespoons [BBQ seasoning](https://wendypolisi.com/bbq-seasoning/)
@@ -5654,8 +5693,8 @@ VALUES ('28fde7a2-c4fc-8199-a534-e3c1bea3e295', 'Dutch Oven BBQ Brisket', '🐮'
 - 1 tablespoon soy sauce
 - 1 tablespoon cornstarch optional
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8159-ab3f-c8b11facb206', 'Ground Beef and Broccoli', '🐮', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8159-ab3f-c8b11facb206', 'team_default', 'Ground Beef and Broccoli', '🐮', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 - 1 Tablespoon peanut oil, can sub vegetable or olive
@@ -5676,10 +5715,10 @@ Sauce:
 - 1/2 teaspoon ground ginger
 - 1 teaspoon toasted sesame oil
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-814d-a6ca-d86bf37968f1', 'Eating Out ', '🥡', NULL, NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8188-a8da-f8a00f88562b', 'Greek Chicken Bowls with Creamy Tahini Feta Sauce ', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-814d-a6ca-d86bf37968f1', 'team_default', 'Eating Out ', '🥡', NULL, NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8188-a8da-f8a00f88562b', 'team_default', 'Greek Chicken Bowls with Creamy Tahini Feta Sauce ', '🐔', NULL, NULL, NULL, NULL, 0, '
 # Ingredients
 
 - [ ] 3 tablespoons [extra virgin olive oil](https://goto.walmart.com/c/2773249/565706/9383?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fchicken-bowls-with-feta-sauce%2F%23wprm-recipe-container-159522&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.walmart.com%2Fip%2FPompeian-Organic-Robust-Extra-Virgin-Olive-Oil-16-fl-oz%2F13281639%3FadsRedirect%3Dtrue%26aflt%3Dplt%257Clm&u=https%3A%2F%2Fwww.walmart.com%2Fip%2FPompeian-Organic-Robust-Extra-Virgin-Olive-Oil-16-fl-oz%2F13281639%3FadsRedirect%3Dtrue%26aflt%3Dplt%257Clm)
@@ -5704,8 +5743,8 @@ VALUES ('28fde7a2-c4fc-8188-a8da-f8a00f88562b', 'Greek Chicken Bowls with Creamy
 - [ ] 2 tablespoons [lemon juice](https://goto.walmart.com/c/2773249/565706/9383?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fchicken-bowls-with-feta-sauce%2F%23wprm-recipe-container-159522&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.walmart.com%2Fip%2FReaLemon-100-Lemon-Juice-15-fl-oz-bottle%2F10294761%3Faflt%3Dplt%257Clm&u=https%3A%2F%2Fwww.walmart.com%2Fip%2FReaLemon-100-Lemon-Juice-15-fl-oz-bottle%2F10294761%3Faflt%3Dplt%257Clm)
 - [ ] 1 teaspoon [honey](https://goto.walmart.com/c/2773249/565706/9383?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fchicken-bowls-with-feta-sauce%2F%23wprm-recipe-container-159522&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.walmart.com%2Fip%2FNature-Nate-s-Organic-Honey-100-Pure-Raw-and-Unfiltered-Honey-16-fl-oz-Gluten-Free-Honey%2F934675372%3Faflt%3Dplt%257Clm&u=https%3A%2F%2Fwww.walmart.com%2Fip%2FNature-Nate-s-Organic-Honey-100-Pure-Raw-and-Unfiltered-Honey-16-fl-oz-Gluten-Free-Honey%2F934675372%3Faflt%3Dplt%257Clm)
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81ad-96b7-fd240f2841e0', 'Honey lime chili chicken bowls', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81ad-96b7-fd240f2841e0', 'team_default', 'Honey lime chili chicken bowls', '🐔', NULL, NULL, NULL, NULL, 0, '
 # Ingredients
 
 - [ ] 1 1/2 pounds [boneless chicken breasts or thighs](https://goto.walmart.com/c/2773249/565706/9383?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fhoney-lime-chili-chicken-bowls%2F%23wprm-recipe-container-164381&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.walmart.com%2Fip%2FPerdue-No-Antibiotics-Ever-Fresh-Boneless-Skinless-Chicken-Breast-1-6-2-4-lb-Tray%2F145843573%3Faflt%3Dplt%257Clm&u=https%3A%2F%2Fwww.walmart.com%2Fip%2FPerdue-No-Antibiotics-Ever-Fresh-Boneless-Skinless-Chicken-Breast-1-6-2-4-lb-Tray%2F145843573%3Faflt%3Dplt%257Clm)
@@ -5730,8 +5769,8 @@ VALUES ('28fde7a2-c4fc-81ad-96b7-fd240f2841e0', 'Honey lime chili chicken bowls'
 - [ ] 1/4 cup [lime juice](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fhoney-lime-chili-chicken-bowls%2F%23wprm-recipe-container-164381&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Frealime-100-lime-juice-15-fl-oz-bottle%2F-%2FA-14751840%3Faflt%3Dplt%257Clm%23lnk%3Dsametab&u=https%3A%2F%2Fwww.target.com%2Fp%2Frealime-100-lime-juice-15-fl-oz-bottle%2F-%2FA-14751840%3Faflt%3Dplt%257Clm%23lnk%3Dsametab#lnk=sametab)
 - [ ] [flaky salt](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fhoney-lime-chili-chicken-bowls%2F%23wprm-recipe-container-164381&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Fmccormick-sea-salt-grinder-2-12oz%2F-%2FA-13479022%3Faflt%3Dplt%257Clm%23lnk%3Dsametab&u=https%3A%2F%2Fwww.target.com%2Fp%2Fmccormick-sea-salt-grinder-2-12oz%2F-%2FA-13479022%3Faflt%3Dplt%257Clm%23lnk%3Dsametab#lnk=sametab)
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8130-8a72-caeaf6480cc4', 'Pickled Red Onion ', '🧅', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8130-8a72-caeaf6480cc4', 'team_default', 'Pickled Red Onion ', '🧅', NULL, NULL, NULL, NULL, 0, '
 • 1/2 Red Onion
 
 
@@ -5747,8 +5786,8 @@ VALUES ('28fde7a2-c4fc-8130-8a72-caeaf6480cc4', 'Pickled Red Onion ', '🧅', NU
 • 1 tsp. Sugar 
 
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8122-908b-d2c98c562e6c', 'Pickled Peperoncini', '🌶️', NULL, NULL, NULL, NULL, 0, '- [ ] pepperoncini peppers to fill a quart sized jar
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8122-908b-d2c98c562e6c', 'team_default', 'Pickled Peperoncini', '🌶️', NULL, NULL, NULL, NULL, 0, '- [ ] pepperoncini peppers to fill a quart sized jar
 - [ ] 1/4 tsp [**coriander seeds**](https://mountainroseherbs.com/coriander-seed)
 - [ ] 1/4 tsp [**peppercorns**](https://amzn.to/3tucaGI)
 - [ ] 1 clove garlic
@@ -5758,8 +5797,8 @@ VALUES ('28fde7a2-c4fc-8122-908b-d2c98c562e6c', 'Pickled Peperoncini', '🌶️'
 - [ ] 2 tsp [**sugar or honey**](https://amzn.to/3xYChUO)
 - [ ] 1 Tbsp [**kosher, pickling, or sea salt**](https://amzn.to/3OIQYac)
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-813e-bf6f-fdac82020dd8', 'Sweet Waffles', '🍳', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-813e-bf6f-fdac82020dd8', 'team_default', 'Sweet Waffles', '🍳', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 - 1/4 c Oil
@@ -5771,8 +5810,8 @@ Ingredients:
 - 1 TBSP Baking Powder
 - 1/2 c Rolled Oats
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8177-be54-e40d501e50ce', 'Fresh Quinoa Salad', '🥗', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8177-be54-e40d501e50ce', 'team_default', 'Fresh Quinoa Salad', '🥗', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 - 1 c Uncooked Quinoa
@@ -5789,8 +5828,8 @@ Ingredients:
 - 1/2 Lemon
 - 3/4 tsp Salt
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8162-9d32-d9c9a7b6d8e3', 'Sweet Potato Sausage Hash', '🍳', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8162-9d32-d9c9a7b6d8e3', 'team_default', 'Sweet Potato Sausage Hash', '🍳', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 - 1 lb ground pork breakfast sausage
@@ -5803,8 +5842,8 @@ Ingredients:
 - ½ teaspoon smoked paprika
 - 3 green onions, thinly sliced (for garnish)
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81e9-8e30-ddd60cb3cd14', 'Instant Pot Golden Chicken & Root Stew', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81e9-8e30-ddd60cb3cd14', 'team_default', 'Instant Pot Golden Chicken & Root Stew', '🐔', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 - 1.5–2 lbs pasture-raised chicken thighs or drumsticks, bone-in skin-on (or boneless if you prefer)
@@ -5855,10 +5894,10 @@ Ingredients:
 - Store leftovers in glass containers and reheat gently (avoid long refrigeration if histamine-sensitive — freeze if needed).
 - For added gut support, stir in 1 tbsp collagen or gelatin powder before serving.
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81b9-b4c1-c2cebbcf45ef', 'Watermelon, Mint & Feta Salad ', '🍉', NULL, NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8181-818f-db0dd897473a', 'Chicken Caesar Salad Pizza', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81b9-b4c1-c2cebbcf45ef', 'team_default', 'Watermelon, Mint & Feta Salad ', '🍉', NULL, NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8181-818f-db0dd897473a', 'team_default', 'Chicken Caesar Salad Pizza', '🐔', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 - Chicken thighs
@@ -5910,8 +5949,8 @@ Avocado Oil Spray. Add your pizza “dough” and make a very thin layer of crus
 ENJOY!!
 
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8134-9d3d-e5de15f5e785', 'Butternut Squash Bake (ChatGPT)', '🥒', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8134-9d3d-e5de15f5e785', 'team_default', 'Butternut Squash Bake (ChatGPT)', '🥒', NULL, NULL, NULL, NULL, 0, '
 Butternut Squash Bake with Sage and Caramelized Onions
 
 
@@ -5970,8 +6009,8 @@ Tips
     •    Can be made ahead! Assemble fully, refrigerate, and reheat at 350°F for 15–20 minutes before serving.
 
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8168-b021-e7c2c5eae750', 'Nordic meatball soup', '🍔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8168-b021-e7c2c5eae750', 'team_default', 'Nordic meatball soup', '🍔', NULL, NULL, NULL, NULL, 0, '
 For the Meatballs:
 470 g ground pork OR Veal
 650 g ground beef
@@ -6026,8 +6065,8 @@ Method
 1. Add all the meatball ingredients together into a bowl and mush together until all the ingredients are combined. Roll into smaller than golf ball sized meatballs and place onto a large plate.
 2. In a large pot fry the vegetables in the butter on a medium heat for 20 minutes. Add the flour and stir so it coats everything. Slowly pour in both the stocks to create the sauce. Stir so there are no lumps. Add the rest of the soup ingredients except the pasta, double and sour cream. Bubble away for 20 minutes.
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81eb-8bc5-cd953fe763aa', 'Crockpot Chipotle Queso Chicken Chili', '🥘', NULL, NULL, NULL, NULL, 0, '- 1 yellow onion, chopped
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81eb-8bc5-cd953fe763aa', 'team_default', 'Crockpot Chipotle Queso Chicken Chili', '🥘', NULL, NULL, NULL, NULL, 0, '- 1 yellow onion, chopped
 - 2 pounds boneless skinless chicken breasts or thighs
 - 1 tablespoon chili powder
 - 1 tablespoon smoked paprika
@@ -6047,8 +6086,8 @@ VALUES ('28fde7a2-c4fc-81eb-8bc5-cd953fe763aa', 'Crockpot Chipotle Queso Chicken
 - 1/4 cup chopped green onion
 - avocado, and Greek yogurt, for serving
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-813d-bb0a-e29d29e25655', 'Braised Beef Short Rib in Red Wine Sauce', '🐮', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-813d-bb0a-e29d29e25655', 'team_default', 'Braised Beef Short Rib in Red Wine Sauce', '🐮', NULL, NULL, NULL, NULL, 0, '
 5 - 6 beef short ribs , 300-400g/10-14oz each (Note 1)
 
 
@@ -6085,8 +6124,8 @@ VALUES ('28fde7a2-c4fc-813d-bb0a-e29d29e25655', 'Braised Beef Short Rib in Red W
 2 bay leaves
 
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8141-aa35-ee0b865428b0', 'Garlic Rosemary Cast Iron Steaks ', '🥩', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8141-aa35-ee0b865428b0', 'team_default', 'Garlic Rosemary Cast Iron Steaks ', '🥩', NULL, NULL, NULL, NULL, 0, '
 • NY Strip Steaks 
 
 
@@ -6096,10 +6135,10 @@ VALUES ('28fde7a2-c4fc-8141-aa35-ee0b865428b0', 'Garlic Rosemary Cast Iron Steak
 • Rosemary 
 
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8181-8891-dc6a2d5efcab', 'Sourdough cinnamon rolls', NULL, NULL, NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8122-8f0e-efef0f9db71c', 'Lemon Brownies', '🍋', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8181-8891-dc6a2d5efcab', 'team_default', 'Sourdough cinnamon rolls', NULL, NULL, NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8122-8f0e-efef0f9db71c', 'team_default', 'Lemon Brownies', '🍋', NULL, NULL, NULL, NULL, 0, '
 INGREDIENTS
 
 
@@ -6151,10 +6190,10 @@ DIRECTIONS
 5. Once the brownies have cooled, pour the icing sugar over the top. Enjoy immediately, or let it sit for 30-60 min to soak up some of the icing for a softer consistency!
 
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-813b-bef8-cd7a53f21d7e', 'Fries', '🍟', NULL, NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-816f-b0f4-d73dea9e1821', 'Mini Meat Muffins - Breakfast prep', '🐮', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-813b-bef8-cd7a53f21d7e', 'team_default', 'Fries', '🍟', NULL, NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-816f-b0f4-d73dea9e1821', 'team_default', 'Mini Meat Muffins - Breakfast prep', '🐮', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 - 1½ tsp (21 g) ghee or beef tallow
@@ -6167,8 +6206,8 @@ Ingredients:
 - 2 tsp (12 g) sea salt
 - ½ cup (60 g) Cheddar cheese (optional)
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-810b-9b40-fb6d76c72618', 'Gigi''s Blue Ribbon Chili', '🐮', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-810b-9b40-fb6d76c72618', 'team_default', 'Gigi''s Blue Ribbon Chili', '🐮', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - 1 tablespoon (15 ml) extra-virgin olive oil, plus more if needed
@@ -6186,8 +6225,8 @@ Ingredients:
 - ⅛ teaspoon crushed red pepper
 - ¼ teaspoon ground mustard
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81d2-b790-e906b1e08015', 'Ground beef kabobs', '🐮', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81d2-b790-e906b1e08015', 'team_default', 'Ground beef kabobs', '🐮', NULL, NULL, NULL, NULL, 0, '
 ### **INGREDIENTS**
 
 - 1 lb ground beef
@@ -6205,8 +6244,8 @@ VALUES ('28fde7a2-c4fc-81d2-b790-e906b1e08015', 'Ground beef kabobs', '🐮', NU
 - ½ cup breadcrumbs
 - Olive oil for brushing
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81bb-bb9a-ce68d5ccf22a', 'Crispy Feta with Lemon Pepper Chicken and Rice', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81bb-bb9a-ce68d5ccf22a', 'team_default', 'Crispy Feta with Lemon Pepper Chicken and Rice', '🐔', NULL, NULL, NULL, NULL, 0, '
 ingredients:
 
 - [ ] 1 pound [boneless skinless chicken tenders](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fcrispy-feta-with-lemon-pepper-chicken%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Ffoster-farms-boneless-38-skinless-chicken-breast-tenders-16oz%2F-%2FA-53451109%3Faflt%3Dplt%257Clm%23lnk%3Dsametab&u=https%3A%2F%2Fwww.target.com%2Fp%2Ffoster-farms-boneless-38-skinless-chicken-breast-tenders-16oz%2F-%2FA-53451109%3Faflt%3Dplt%257Clm%23lnk%3Dsametab#lnk=sametab)
@@ -6232,8 +6271,8 @@ ingredients:
 - [ ] 1 tablespoon [champagne vinegar](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fcrispy-feta-with-lemon-pepper-chicken%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Fnapa-valley-naturals-oak-aged-champagne-reserve-vinegar-case-of-12-12-7-oz%2F-%2FA-90209885%3Faflt%3Dplt%257Clm%23lnk%3Dsametab&u=https%3A%2F%2Fwww.target.com%2Fp%2Fnapa-valley-naturals-oak-aged-champagne-reserve-vinegar-case-of-12-12-7-oz%2F-%2FA-90209885%3Faflt%3Dplt%257Clm%23lnk%3Dsametab#lnk=sametab)
 - [ ] 2 teaspoons [honey](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fcrispy-feta-with-lemon-pepper-chicken%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Forganic-raw-unfiltered-pure-honey-12oz-good-38-gather-8482%2F-%2FA-54436263%3Faflt%3Dplt%257Clm%23lnk%3Dsametab&u=https%3A%2F%2Fwww.target.com%2Fp%2Forganic-raw-unfiltered-pure-honey-12oz-good-38-gather-8482%2F-%2FA-54436263%3Faflt%3Dplt%257Clm%23lnk%3Dsametab#lnk=sametab)
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81b3-b79d-ec6f14a3f3d4', 'Twice Baked Crispy Cheesy Taco Rice Casserole', '🐮', NULL, NULL, NULL, NULL, 0, '- 1 pound ground beef, chicken, or turkey
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81b3-b79d-ec6f14a3f3d4', 'team_default', 'Twice Baked Crispy Cheesy Taco Rice Casserole', '🐮', NULL, NULL, NULL, NULL, 0, '- 1 pound ground beef, chicken, or turkey
 - 1 yellow onion, chopped
 - 2 tablespoons taco seasoning (see notes for homemade)
 - 8 hard shell tacos (see notes for homemade)
@@ -6244,10 +6283,10 @@ VALUES ('28fde7a2-c4fc-81b3-b79d-ec6f14a3f3d4', 'Twice Baked Crispy Cheesy Taco 
 - 1/3 cup salsa verde
 - 1/2 cup fresh chopped cilantro/green onions
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81ce-a122-d827dd8a94c0', 'Marinated Chicken', '🐔', NULL, NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8151-bae7-f6633f0864a3', 'Baked pork tenderloin', '🐖', NULL, NULL, NULL, NULL, 0, '- 2 tbsp extra virgin olive oil
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81ce-a122-d827dd8a94c0', 'team_default', 'Marinated Chicken', '🐔', NULL, NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8151-bae7-f6633f0864a3', 'team_default', 'Baked pork tenderloin', '🐖', NULL, NULL, NULL, NULL, 0, '- 2 tbsp extra virgin olive oil
 - 1 tbsp celtic sea salt and fresh cracked pepper
 - 2 lb pork tenderloin, optional: pre-marinate pork before cooking
 - 4 tbsp butter, sliced into 4-6 pats
@@ -6259,16 +6298,16 @@ VALUES ('28fde7a2-c4fc-8151-bae7-f6633f0864a3', 'Baked pork tenderloin', '🐖',
 - ½ tsp dried sage*
 - OR 2 tbsp Italian Herb Seasoning Blend
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8166-ac68-e733110a3a05', 'Sourdough bagels', '🥯', '["Breakfast"]', NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8167-88d6-ee3217ec912f', 'Smoked tri tip', '🐮', NULL, NULL, NULL, NULL, 0, '- [ ] 1 2-3 pound tri tip roast _fat cap and silverskin removed (may be done already by your butcher)_
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8166-ac68-e733110a3a05', 'team_default', 'Sourdough bagels', '🥯', '["Breakfast"]', NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8167-88d6-ee3217ec912f', 'team_default', 'Smoked tri tip', '🐮', NULL, NULL, NULL, NULL, 0, '- [ ] 1 2-3 pound tri tip roast _fat cap and silverskin removed (may be done already by your butcher)_
 - [ ] 2 Tablespoons [Beef Seasoning](https://heygrillhey.com/store/products/hey-grill-hey-beef-rub/) _or equal parts salt, pepper, and garlic powder_
 - [ ] 3 Tablespoons salted butter
 - [ ] 1 sprig rosemary
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-813e-ba71-ed10bd2066a0', 'Sourdough Garlic Naan', '🫓', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-813e-ba71-ed10bd2066a0', 'team_default', 'Sourdough Garlic Naan', '🫓', NULL, NULL, NULL, NULL, 0, '
 ### **Ingredients**
 
 - ½ cup sourdough starter discard
@@ -6280,8 +6319,8 @@ VALUES ('28fde7a2-c4fc-813e-ba71-ed10bd2066a0', 'Sourdough Garlic Naan', '🫓',
 - 1 tablespoon melted butter
 - 1 tablespoon minced garlic
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-816e-a449-ff1a0926af54', 'SOUR WATERMELON GUMMIES', '🍉', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-816e-a449-ff1a0926af54', 'team_default', 'SOUR WATERMELON GUMMIES', '🍉', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - 3 cups cubed watermelon
@@ -6294,8 +6333,8 @@ Optional:
 
 - Granulated Sugar (to roll in)
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81ab-98de-ed24fed36a6a', 'Protein Peanut Butter Balls', '🥜', '["Snack"]', NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81ab-98de-ed24fed36a6a', 'team_default', 'Protein Peanut Butter Balls', '🥜', '["Snack"]', NULL, NULL, NULL, 0, '
 Ingredients: (Base)
 
 - 1 1/4 cups [rolled oats](https://www.amazon.com/gp/product/B002T1IDYI/ref=as_li_qf_sp_asin_il_tl?ie=UTF8&tag=thbimaswo02-20&camp=1789&creative=9325&linkCode=as2&creativeASIN=B002T1IDYI&linkId=54096937ba937cc47704c65b8c947e7f)
@@ -6311,8 +6350,8 @@ Additional Ingredients:
 - Walnuts
 - Flaxseeds
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8173-a5fe-fb59f8f4d254', 'Lemongrass Chicken Thighs', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8173-a5fe-fb59f8f4d254', 'team_default', 'Lemongrass Chicken Thighs', '🐔', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 - **3 lbs** boneless, skinless, chicken thighs
@@ -6343,8 +6382,8 @@ Scallion Oil
 - **1 tbsp** fish sauce
 - **2 tbsp** oil
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81d5-9e5c-fcb6b81089a3', 'Korean Beef and Avocado Rice Rolls', '🐮', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81d5-9e5c-fcb6b81089a3', 'team_default', 'Korean Beef and Avocado Rice Rolls', '🐮', NULL, NULL, NULL, NULL, 0, '
 # Ingredients
 
 - 1 1/2 pounds [ground beef ](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fbeef-and-avocado-rice-rolls%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Fall-natural-85-15-ground-beef-2lbs-good-38-gather-8482%2F-%2FA-13287609&u=https%3A%2F%2Fwww.target.com%2Fp%2Fall-natural-85-15-ground-beef-2lbs-good-38-gather-8482%2F-%2FA-13287609#donotlink)_(or chicken or pork)_
@@ -6370,8 +6409,8 @@ VALUES ('28fde7a2-c4fc-81d5-9e5c-fcb6b81089a3', 'Korean Beef and Avocado Rice Ro
 - 1-2 tablespoons [sriracha](http://l.thrv.me/HBH4209-organicville-sky-valley-sriracha)
 - 2 teaspoons [tamari or soy sauce](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fbeef-and-avocado-rice-rolls%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Fsan-j-organic-tamari-wheat-free-soy-sauce-10-oz%2F-%2FA-13097075&u=https%3A%2F%2Fwww.target.com%2Fp%2Fsan-j-organic-tamari-wheat-free-soy-sauce-10-oz%2F-%2FA-13097075#donotlink)
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81d9-a170-c7f9865005e7', 'Savory Sweet Meatballs', '🐮', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81d9-a170-c7f9865005e7', 'team_default', 'Savory Sweet Meatballs', '🐮', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 
@@ -6432,8 +6471,8 @@ thicken a bit more as it cools.
 3.Pour over meatballs and enjoy
 
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-817f-b036-e5eb5abb3948', 'Pull Apart Buffalo Chicken Sandwich', '🥪', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-817f-b036-e5eb5abb3948', 'team_default', 'Pull Apart Buffalo Chicken Sandwich', '🥪', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 
@@ -6463,8 +6502,8 @@ the top of the rolls. Cover the rolls and bake 10 minutes.
 Remove the foil and bake another 10 minutes, until the
 cheese has melted. Serve immediately.
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-818d-862d-e69d7ac98436', 'THAI BASIL BEEF (PAD GRA PROW, PAD KRAPOW)', '🐮', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-818d-862d-e69d7ac98436', 'team_default', 'THAI BASIL BEEF (PAD GRA PROW, PAD KRAPOW)', '🐮', NULL, NULL, NULL, NULL, 0, '
 ### **SAUCE**
 
 - 2 tablespoons [reduced sodium soy sauce](https://www.amazon.com/gp/product/B000NYFBCA/ref=as_li_tl?ie=UTF8&tag=carlscravi0a-20&camp=1789&creative=9325&linkCode=as2&creativeASIN=B000NYFBCA&linkId=d414ecd160470f99c77fa9104b49b9b8)
@@ -6487,8 +6526,8 @@ VALUES ('28fde7a2-c4fc-818d-862d-e69d7ac98436', 'THAI BASIL BEEF (PAD GRA PROW, 
 - 1 small bell pepper, sliced
 - 1 cup Thai basil leaves, picked off the stem (may sub regular basil)
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81f7-832b-faf87ba5efd0', 'Crockpot Spicy Chicken Tortilla Soup', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81f7-832b-faf87ba5efd0', 'team_default', 'Crockpot Spicy Chicken Tortilla Soup', '🐔', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - 1 [yellow onion, diced](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fcrockpot-spicy-chicken-tortilla-soup%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Forganic-yellow-onions-2lb%2F-%2FA-85811155&u=https%3A%2F%2Fwww.target.com%2Fp%2Forganic-yellow-onions-2lb%2F-%2FA-85811155#donotlink)
@@ -6506,8 +6545,8 @@ Ingredients:
 - [tortilla chips, for serving](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fcrockpot-spicy-chicken-tortilla-soup%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Forganic-yellow-corn-tortilla-chips-12oz-good-gather-8482%2F-%2FA-54550866&u=https%3A%2F%2Fwww.target.com%2Fp%2Forganic-yellow-corn-tortilla-chips-12oz-good-gather-8482%2F-%2FA-54550866#donotlink)
 - yogurt, shredded cheddar, avocado, mango salsa, and green onion, for serving
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-814f-9c81-c6377b671f2d', 'Crockpot Crispy Buffalo Chicken Tacos with Jalapeño Ranch', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-814f-9c81-c6377b671f2d', 'team_default', 'Crockpot Crispy Buffalo Chicken Tacos with Jalapeño Ranch', '🐔', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - 2 lbs. chicken
@@ -6534,8 +6573,8 @@ Ingredients:
 - 1 teaspoon [kosher salt](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fbuffalo-chicken-tacos%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Fmorton-coarse-kosher-salt-16oz%2F-%2FA-13170448&u=https%3A%2F%2Fwww.target.com%2Fp%2Fmorton-coarse-kosher-salt-16oz%2F-%2FA-13170448#donotlink)
 - 2 tablespoons [chopped fresh chives](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fbuffalo-chicken-tacos%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Forganic-chives-0-5oz-good-38-gather-8482%2F-%2FA-79495118&u=https%3A%2F%2Fwww.target.com%2Fp%2Forganic-chives-0-5oz-good-38-gather-8482%2F-%2FA-79495118#donotlink)
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8103-8f7d-f033e648a7cb', 'Banana Bread (GF)', '🍞', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8103-8f7d-f033e648a7cb', 'team_default', 'Banana Bread (GF)', '🍞', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - [ ] 3 medium very over-ripe bananas (brown is good!)
@@ -6550,8 +6589,8 @@ Ingredients:
 - [ ] ½ tsp fine sea salt
 - [ ] ½ cup chocolate chips, plus more for topping
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8107-b35e-fd8bd11ddb43', 'Avocado bacon chicken salad with jalapeño honey mustard', '🐔', NULL, NULL, NULL, NULL, 0, '- 2 tablespoons extra virgin olive oil
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8107-b35e-fd8bd11ddb43', 'team_default', 'Avocado bacon chicken salad with jalapeño honey mustard', '🐔', NULL, NULL, NULL, NULL, 0, '- 2 tablespoons extra virgin olive oil
 - 1 pound boneless skinless chicken breasts or thighs, cubed
 - 2 teaspoons chipotle chili powder
 - 2 teaspoons smoked paprika
@@ -6576,8 +6615,8 @@ JALAPEÑO HONEY MUSTARD
 - 2 tablespoons apple cider vinegar
 - 1/2 cup pickled jalapeños, use to your taste
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-816d-87a8-e8f29b57341b', 'Baked Honey Balsamic Chicken with Charred Lemon Feta', '🐔', NULL, NULL, NULL, NULL, 0, '- 1/3 cup balsamic vinegar
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-816d-87a8-e8f29b57341b', 'team_default', 'Baked Honey Balsamic Chicken with Charred Lemon Feta', '🐔', NULL, NULL, NULL, NULL, 0, '- 1/3 cup balsamic vinegar
 - 3-4 tablespoons honey.
 - 2 teaspoons worcestershire
 - 2 shallots, chopped
@@ -6594,8 +6633,8 @@ VALUES ('28fde7a2-c4fc-816d-87a8-e8f29b57341b', 'Baked Honey Balsamic Chicken wi
 - 2 tablespoons toasted nuts/seeds
 - 1/2 cup chopped mixed herbs, l use dill and cilantro
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8135-93fa-e9b2be244b46', ' Maple Banana Bread with Cinnamon Spice Butter', '🍞', '["Snack"]', NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8135-93fa-e9b2be244b46', 'team_default', ' Maple Banana Bread with Cinnamon Spice Butter', '🍞', '["Snack"]', NULL, NULL, NULL, 0, '
 ### Ingredients
 
 - [ ] 4 [medium overly ripe bananas mashed (about 1 1/4 cup mashed)](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fmaple-banana-bread%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Forganic-bananas-2lb%2F-%2FA-85759852&u=https%3A%2F%2Fwww.target.com%2Fp%2Forganic-bananas-2lb%2F-%2FA-85759852#donotlink)
@@ -6621,8 +6660,8 @@ VALUES ('28fde7a2-c4fc-8135-93fa-e9b2be244b46', ' Maple Banana Bread with Cinnam
 - [ ] 1/8 teaspoon [ground cloves](http://l.thrv.me/HBH5852-thrive-market-organic-ground-clo)
 - [ ] [sea salt](http://thrv.me/ELyKq1)
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-812b-be37-c9b3ad1356d7', 'Spicy Buffalo White Chicken Chili', '🐔', '["Dinner"]', NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-812b-be37-c9b3ad1356d7', 'team_default', 'Spicy Buffalo White Chicken Chili', '🐔', '["Dinner"]', NULL, NULL, NULL, 0, '
 **Ingredients**
 
 - [ ] 2 tablespoons [extra virgin olive oil](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fbuffalo-white-chicken-chili%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Forganic-extra-virgin-olive-oil-16-9-fl-oz-good-38-gather-8482%2F-%2FA-82102661&u=https%3A%2F%2Fwww.target.com%2Fp%2Forganic-extra-virgin-olive-oil-16-9-fl-oz-good-38-gather-8482%2F-%2FA-82102661#donotlink)
@@ -6644,8 +6683,8 @@ VALUES ('28fde7a2-c4fc-812b-be37-c9b3ad1356d7', 'Spicy Buffalo White Chicken Chi
 - [ ] 1/2 cup [fresh cilantro, chopped](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fbuffalo-white-chicken-chili%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Fcilantro-bunch-each%2F-%2FA-15006468&u=https%3A%2F%2Fwww.target.com%2Fp%2Fcilantro-bunch-each%2F-%2FA-15006468#donotlink)
 - [ ] avocado, cheddar cheese, and Greek yogurt, for serving
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8138-b265-c537e347af0d', 'Firecracker Meatballs and Green Beans', '🐮', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8138-b265-c537e347af0d', 'team_default', 'Firecracker Meatballs and Green Beans', '🐮', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 - [ ] 1/4 cup panko breadcrumbs gluten-free if needed (we used Aleia''s)
@@ -6662,8 +6701,8 @@ Ingredients:
 fire cracker sauce - find different recipe 
 
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-811d-9bd3-c84f9678776b', 'Marinated beef kebobs', '🐮', NULL, NULL, NULL, NULL, 0, '- [ ] 1.5 lb strip loin, top sirloin, or NY strip
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-811d-9bd3-c84f9678776b', 'team_default', 'Marinated beef kebobs', '🐮', NULL, NULL, NULL, NULL, 0, '- [ ] 1.5 lb strip loin, top sirloin, or NY strip
 - [ ] 1.5 tsp [baking soda](https://amzn.to/2Kk9DFT)
 - [ ] Toasted white sesame seeds, sprinkle, optional
 
@@ -6684,8 +6723,8 @@ VALUES ('28fde7a2-c4fc-811d-9bd3-c84f9678776b', 'Marinated beef kebobs', '🐮',
 - [ ] 9 oz. red onion, about 1 medium size
 - [ ] 2 whole bell peppers, red and orange colors
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8199-a3cd-e87e96941010', 'Pot Roast with Chilis', '🐮', '["Weston A. Price"]', NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8199-a3cd-e87e96941010', 'team_default', 'Pot Roast with Chilis', '🐮', '["Weston A. Price"]', NULL, NULL, NULL, 0, '
 3 pounds rump roast, chuck roast or other cut suitable for pot roast
 1-2 cups red wine
 
@@ -6722,8 +6761,8 @@ several sprigs fresh thyme, tied together
 sea salt and pepper
 
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8121-af79-d9f0f365cd00', 'Roasted Lemon Parmesan Broccoli with Garlicky Tahini', '🥦', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8121-af79-d9f0f365cd00', 'team_default', 'Roasted Lemon Parmesan Broccoli with Garlicky Tahini', '🥦', NULL, NULL, NULL, NULL, 0, '
 # Ingredients
 
 - [ ] 3 heads [broccoli, halved if super large](https://www.target.com/p/broccoli-crown-each/-/A-86943961#lnk=sametab)
@@ -6757,8 +6796,8 @@ VALUES ('28fde7a2-c4fc-8121-af79-d9f0f365cd00', 'Roasted Lemon Parmesan Broccoli
 - 4. To make the dressing. Combine all ingredients in a blender and blend until smooth. Add 1/4 to 1/2 cup water to thin the dressing. Taste and adjust the salt.
 - 5. Plate the broccoli and serve topped with the garlicky tahini and pomegranate arils.
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8132-ace8-c82462aab865', 'Crockpot Brisket (or roast) Tacos', '🐮', '["Weston A. Price"]', NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8132-ace8-c82462aab865', 'team_default', 'Crockpot Brisket (or roast) Tacos', '🐮', '["Weston A. Price"]', NULL, NULL, NULL, 0, '
 ### **INGREDIENTS**
 
 - 3-5 pounds grass fed beef brisket (plan on ½ lb. per person before cooked)
@@ -6784,8 +6823,8 @@ VALUES ('28fde7a2-c4fc-8132-ace8-c82462aab865', 'Crockpot Brisket (or roast) Tac
 7. Serve in corn or flour tortillas or in cabbage wraps. Napa cabbage works the best. Serve with taco fixins’ such as sour cream, salsa, cilantro, guacamole and shredded raw cheddar. Beans and winter squash soup also make a great addition to this dish.
 8. Enjoy!
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81db-8e30-f7bf20795d72', 'Ground Pork or Beef Stir Fry Recipe with Cabbage and Bok Choy', '🍔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81db-8e30-f7bf20795d72', 'team_default', 'Ground Pork or Beef Stir Fry Recipe with Cabbage and Bok Choy', '🍔', NULL, NULL, NULL, NULL, 0, '
 ## INGREDIENTS
 
 - [ ] 9 oz (Taiwanese) cabbage or Green or Savoy, slice to 2-3 inch sections
@@ -6805,8 +6844,8 @@ Sauce:
 - [ ] 1 tbsp Chinese cooking wine, optional, or gluten-free mirin
 - [ ] 2 tsp brown sugar, optional
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8148-b340-d53cad2b42b8', 'Chicken Soup', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8148-b340-d53cad2b42b8', 'team_default', 'Chicken Soup', '🐔', NULL, NULL, NULL, NULL, 0, '
 ### **SOUP:**
 
 - [ ] 1 tbsp olive oil
@@ -6823,8 +6862,8 @@ VALUES ('28fde7a2-c4fc-8148-b340-d53cad2b42b8', 'Chicken Soup', '🐔', NULL, NU
 - [ ] 1 bay leaf _, optional_
 - [ ] Finely chopped parsley _, for garnish (optional)_
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-814a-9fdc-feafc44f8e52', 'Roasted Cabbage with walnuts, parmigiano, and Saba', '🥬', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-814a-9fdc-feafc44f8e52', 'team_default', 'Roasted Cabbage with walnuts, parmigiano, and Saba', '🥬', NULL, NULL, NULL, NULL, 0, '
 1 head savoy cabbage, quartered and cored
 
 
@@ -6855,8 +6894,8 @@ Extra-virgin olive oil
 Juice of 1 lemon
 
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8133-afa2-ef5130be6017', 'Chipotle Beef Short Ribs', '🐄', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8133-afa2-ef5130be6017', 'team_default', 'Chipotle Beef Short Ribs', '🐄', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 
@@ -6883,8 +6922,8 @@ BBQ Sauce:
 - 1 teaspoon chipotle chile powder
 - ½ teaspoon smoked sea salt
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81db-b83c-e6dd4d529d4d', 'Ranch Steak & Roasted Carrots', '🥩', NULL, NULL, NULL, NULL, 0, '- 2 ea ButcherBox Ranch Steaks
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81db-b83c-e6dd4d529d4d', 'team_default', 'Ranch Steak & Roasted Carrots', '🥩', NULL, NULL, NULL, NULL, 0, '- 2 ea ButcherBox Ranch Steaks
 - 4 Tbsp raw honey
 - 0.5 Tbsp coarse sea salt
 - 0.5 tsp freshly ground black pepper
@@ -6901,8 +6940,8 @@ VALUES ('28fde7a2-c4fc-81db-b83c-e6dd4d529d4d', 'Ranch Steak & Roasted Carrots',
 - 1 tsp kosher salt
 - 0.5 tsp freshly ground black pepper
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81a7-976d-de25a3b3484c', 'Chipotle Lime Chicken Sandwiches ', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81a7-976d-de25a3b3484c', 'team_default', 'Chipotle Lime Chicken Sandwiches ', '🐔', NULL, NULL, NULL, NULL, 0, '
 • Chicken Thighs 
 
 
@@ -6936,8 +6975,8 @@ Sauce:
 • Honey 
 
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-816e-b204-c21b261a2d9f', 'Pull Apart Buffalo Chicken Dip Sliders ', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-816e-b204-c21b261a2d9f', 'team_default', 'Pull Apart Buffalo Chicken Dip Sliders ', '🐔', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - 1 cup cooked shredded chicken
@@ -6970,8 +7009,8 @@ Ingredients:
 Remove the foil and bake another 10 minutes, until the cheese
 
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81c6-a069-de873e0ae70c', 'No Bake Cookie Dough Bites', '🍪', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81c6-a069-de873e0ae70c', 'team_default', 'No Bake Cookie Dough Bites', '🍪', NULL, NULL, NULL, NULL, 0, '
 <u>Ingredients</u>
 
 - 1/2 cup almond butter (I used Trader Joe''s mixed nut butter - so good!)
@@ -6990,8 +7029,8 @@ VALUES ('28fde7a2-c4fc-81c6-a069-de873e0ae70c', 'No Bake Cookie Dough Bites', '�
 5. Place the cookie dough balls on a plate and freeze for 10 minutes. Then move into the fridge and store there for a quick grab-and-go to satisfy that sweet tooth.
 6. Enjoy!
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81d4-9764-ed04eaaceb09', 'Szechuan Beef', '🐄', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81d4-9764-ed04eaaceb09', 'team_default', 'Szechuan Beef', '🐄', NULL, NULL, NULL, NULL, 0, '
 Szechuan Sauce: 
 
 - 3 tbsp oyster sauce
@@ -7012,8 +7051,8 @@ Szechuan Beef:
 - 3 celery ribs
 - 2 scallions
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81c5-98ba-c34e15a0931e', 'GF/DF Pumpkin Pie', '🥧', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81c5-98ba-c34e15a0931e', 'team_default', 'GF/DF Pumpkin Pie', '🥧', NULL, NULL, NULL, NULL, 0, '
 ### **Filling**
 
 - [ ] 3 [large eggs](https://amzn.to/4g1qOtY)
@@ -7025,8 +7064,8 @@ VALUES ('28fde7a2-c4fc-81c5-98ba-c34e15a0931e', 'GF/DF Pumpkin Pie', '🥧', NUL
 - [ ] 1 teaspoon [ground cinnamon](http://amzn.to/2hzE41D)
 - [ ] 1 ½ teaspoons [pumpkin pie spice](https://joyfoodsunshine.com/pumpkin-pie-spice-recipe/)
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8178-9c6f-caaef657b8d9', 'Brussels Sprouts with pickled carrots, walnuts, cilantro, and citrus vinaigrette', '🥬', NULL, NULL, NULL, NULL, 0, '- Extra-virgin olive oil
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8178-9c6f-caaef657b8d9', 'team_default', 'Brussels Sprouts with pickled carrots, walnuts, cilantro, and citrus vinaigrette', '🥬', NULL, NULL, NULL, NULL, 0, '- Extra-virgin olive oil
 - 1 garlic clove, smashed and peeled
 - ¾ pound Brussels sprouts, trimmed and halved lengthwise
 - Kosher salt and freshly cracked black pepper
@@ -7047,8 +7086,8 @@ Citrus Vinaigrette
 - Salt and pepper
 - 3/4 cup evoo
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81fc-84d0-e71bb5f5f6a7', 'Pickled carrots', '🥕', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81fc-84d0-e71bb5f5f6a7', 'team_default', 'Pickled carrots', '🥕', NULL, NULL, NULL, NULL, 0, '
 Brine
 
 - 1/2 cup rice vinegar
@@ -7064,8 +7103,8 @@ Brine
 All seasonings Rinsed
 
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8105-ac43-ebb14d1c444e', 'Turkey noodle/rice soup', '🦃', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8105-ac43-ebb14d1c444e', 'team_default', 'Turkey noodle/rice soup', '🦃', NULL, NULL, NULL, NULL, 0, '
 Ingredients
 
 - 3 tablespoons unsalted butter (or olive oil to keep this dairy free)
@@ -7083,14 +7122,14 @@ Ingredients
 - 3 cups cooked turkey meat cut into bite sized pieces (510 grams)
 - 1 cup frozen corn (135 grams)
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8143-870a-f0bdac658db3', 'Sheet Pan Lemon Balsamic Chicken and Potatoes', '🐔', NULL, NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81d9-bcab-f8a2724d0a1a', 'JALAPENO CHICKEN WITH BELL PEPPERS', '🐔', NULL, NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81eb-b30b-c34e57d52088', 'Chinese sauteed green beans with ground beef', '🐔', NULL, NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8150-8c28-e19448153b82', 'apple cider pulled pork bowls with mashed sweet potatoes & maple veggies', '🐖', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8143-870a-f0bdac658db3', 'team_default', 'Sheet Pan Lemon Balsamic Chicken and Potatoes', '🐔', NULL, NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81d9-bcab-f8a2724d0a1a', 'team_default', 'JALAPENO CHICKEN WITH BELL PEPPERS', '🐔', NULL, NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81eb-b30b-c34e57d52088', 'team_default', 'Chinese sauteed green beans with ground beef', '🐔', NULL, NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8150-8c28-e19448153b82', 'team_default', 'apple cider pulled pork bowls with mashed sweet potatoes & maple veggies', '🐖', NULL, NULL, NULL, NULL, 0, '
 For the pork:
 
 
@@ -7190,8 +7229,8 @@ FOR THE VEGGIES:
 3 tbsp maple syrup
 
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8103-a277-eeb0051ec675', 'Indian-Spiced Shepherd’s pie', '🥧', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8103-a277-eeb0051ec675', 'team_default', 'Indian-Spiced Shepherd’s pie', '🥧', NULL, NULL, NULL, NULL, 0, '
 SWEET POTATO MASH
 
 - 2 pounds sweet potatoes, peeled and cut into 1-inch cubes
@@ -7216,8 +7255,8 @@ FILLING
 - 2 tablespoons lemon juice
 - ¼ cup minced fresh cilantro
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-814e-88fd-ddf68fb2bf9d', 'Sheet Pan “Peanut” sauce chicken and broccolini', '🐔', NULL, NULL, NULL, NULL, 0, '- 1½ pounds boneless, skinless chicken breasts or thighs, cut into ½-inch strips
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-814e-88fd-ddf68fb2bf9d', 'team_default', 'Sheet Pan “Peanut” sauce chicken and broccolini', '🐔', NULL, NULL, NULL, NULL, 0, '- 1½ pounds boneless, skinless chicken breasts or thighs, cut into ½-inch strips
 - 1 pound broccolini, ends trimmed
 - ¼ cup Sunbutter Hoisin Sauce (page 32)
 - ¼ cup sunflower seed butter
@@ -7234,8 +7273,8 @@ VALUES ('28fde7a2-c4fc-814e-88fd-ddf68fb2bf9d', 'Sheet Pan “Peanut” sauce ch
 - 2 scallions, thinly sliced
 - 1 tablespoon toasted black sesame seeds
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8187-8543-d87d766e71c8', 'Firecracker ground beef ', '🐮', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8187-8543-d87d766e71c8', 'team_default', 'Firecracker ground beef ', '🐮', NULL, NULL, NULL, NULL, 0, '
 ### **Ingredients**
 
 - 1/2 Tablespoon Olive Oil or Chili Oil
@@ -7249,8 +7288,8 @@ VALUES ('28fde7a2-c4fc-8187-8543-d87d766e71c8', 'Firecracker ground beef ', '�
 - 1/2 teaspoon Black Pepper
 - 1/2 teaspoon Red Pepper Flakes
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8104-8215-f1ed8fc479f6', 'Beef larb', '🍔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8104-8215-f1ed8fc479f6', 'team_default', 'Beef larb', '🍔', NULL, NULL, NULL, NULL, 0, '
 ### **Thai toasted rice powder:**
 
 - [ ] 0.5 cup [Thai glutinous white rice](https://amzn.to/3J3bfUw), sticky rice, raw and uncooked
@@ -7278,8 +7317,8 @@ VALUES ('28fde7a2-c4fc-8104-8215-f1ed8fc479f6', 'Beef larb', '🍔', NULL, NULL,
 - [ ] [Sticky rice](https://iheartumami.com/microwave-sticky-rice/), cooked
 - [ ] Baby greens of choice, optional
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8165-b520-d9584ad3eb1f', 'Sourdough Bagels', '🥯', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8165-b520-d9584ad3eb1f', 'team_default', 'Sourdough Bagels', '🥯', NULL, NULL, NULL, NULL, 0, '
 ### **Ingredients**
 
 - ½ cup sourdough starter, bubbly and active (113 grams)
@@ -7294,8 +7333,8 @@ VALUES ('28fde7a2-c4fc-8165-b520-d9584ad3eb1f', 'Sourdough Bagels', '🥯', NULL
 - 1 tablespoon baking soda
 - 1 tablespoon brown sugar
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-814c-b808-f2c6be01a391', 'One Pot Taco Soup', '🍲', NULL, NULL, NULL, NULL, 0, '- 1 lb thawed ground beef
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-814c-b808-f2c6be01a391', 'team_default', 'One Pot Taco Soup', '🍲', NULL, NULL, NULL, NULL, 0, '- 1 lb thawed ground beef
 - 1 quart chicken stock
 - Handful garlic cloves
 - 28 oz diced tomatoes
@@ -7333,8 +7372,8 @@ Set stove on low heat, cover, and let simmer until ready to serve. I like find t
 Top with cilantro, lime, hot sauce, sour cream, cheese, chips, olives, etc:)
 
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8111-98c0-d1fd24a742bf', 'Slow Cooker Saucy Thai Butternut Squash Curry with Noodles', '🍛', NULL, NULL, NULL, NULL, 0, '- [ ] 1/3 cup [Thai Red curry paste](https://shopstyle.it/l/bKbWL)
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8111-98c0-d1fd24a742bf', 'team_default', 'Slow Cooker Saucy Thai Butternut Squash Curry with Noodles', '🍛', NULL, NULL, NULL, NULL, 0, '- [ ] 1/3 cup [Thai Red curry paste](https://shopstyle.it/l/bKbWL)
 - [ ] 2 cans (14 ounce) [coconut milk](http://l.thrv.me/HBH5625-thrive-market-coconut-milk-regul)
 - [ ] 1-2 cups chicken broth
 - [ ] 1 tablespoon [fish sauce](http://l.thrv.me/HBH4628-red-boat-fish-sauce-fish-sauce)
@@ -7347,8 +7386,8 @@ VALUES ('28fde7a2-c4fc-8111-98c0-d1fd24a742bf', 'Slow Cooker Saucy Thai Butternu
 - [ ] 1 pound wide egg noodles, such as tagliatelle
 - [ ] 1/4 cup fresh cilantro, or basil, roughly chopped
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8199-abf9-d8858e4800af', 'Chili Oil Wings', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8199-abf9-d8858e4800af', 'team_default', 'Chili Oil Wings', '🐔', NULL, NULL, NULL, NULL, 0, '
 Wing recipe
 • Separate drums and flats
 • Add 2lbs of wings to a bowl and season with SPG and 2
@@ -7367,14 +7406,14 @@ Chili oil recipe
 • Mix and store in a mason jar once cooled
 
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81dd-a2f1-cd06ccd5e504', 'Lemon Garlic Chicken', NULL, NULL, NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8151-844f-cb536a68b481', 'black bean salsa', NULL, NULL, NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81a0-a254-e9715c47ddb4', 'Garlic & Chive Butter Brussels', '🥦', NULL, NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81d5-ab6c-c7316c446844', 'Crispy Potato and Egg Bake', '🥚', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81dd-a2f1-cd06ccd5e504', 'team_default', 'Lemon Garlic Chicken', NULL, NULL, NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8151-844f-cb536a68b481', 'team_default', 'black bean salsa', NULL, NULL, NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81a0-a254-e9715c47ddb4', 'team_default', 'Garlic & Chive Butter Brussels', '🥦', NULL, NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81d5-ab6c-c7316c446844', 'team_default', 'Crispy Potato and Egg Bake', '🥚', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - 2 tablespoons (28 g) salted butter
@@ -7387,10 +7426,10 @@ Ingredients:
 - ½ cup (115 g) chopped fresh or frozen spinach
 - 1¼ cups (104 g) shredded cheese of choice, divided
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-814a-9997-cb189f407e33', 'Chicken Sausage + Sauerkraut', '🌭', NULL, NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81df-8857-c5b090348b67', 'Bacon Wrapped Meatloaf with Crispy Smashed Potatoes and Grilled Artichoke', '🐮', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-814a-9997-cb189f407e33', 'team_default', 'Chicken Sausage + Sauerkraut', '🌭', NULL, NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81df-8857-c5b090348b67', 'team_default', 'Bacon Wrapped Meatloaf with Crispy Smashed Potatoes and Grilled Artichoke', '🐮', NULL, NULL, NULL, NULL, 0, '
 Ingredients for the Meatloaf:
 
 - 2 large eggs
@@ -7438,8 +7477,8 @@ Garlic Lemon Aioli Ingredients:
 - ¼ teaspoon garlic pepper
 - 2 cloves garlic, pressed
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8117-bd1c-d1db8cbe815b', 'ONE PAN ROAST with chipotle lime sauce', '🐮', NULL, NULL, NULL, NULL, 0, '- each side with 1/2 tbsp smoked paprika & 1/2tbsp Thyme
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8117-bd1c-d1db8cbe815b', 'team_default', 'ONE PAN ROAST with chipotle lime sauce', '🐮', NULL, NULL, NULL, NULL, 0, '- each side with 1/2 tbsp smoked paprika & 1/2tbsp Thyme
 - 12oz beef broth
 - 6-8 cloves garlic
 - 3 bay leaves
@@ -7494,8 +7533,8 @@ Sauce
 8.Devour as is with the sauce, some avocado, fresh cilantro, or whatever toppings you want. Store for upto 5 days in the fridge.
 
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81a4-802e-e613290f22b1', 'Herb & Garlic Mashed Potatoes', '🥔', NULL, NULL, NULL, NULL, 0, '- 1 head garlic, small
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81a4-802e-e613290f22b1', 'team_default', 'Herb & Garlic Mashed Potatoes', '🥔', NULL, NULL, NULL, NULL, 0, '- 1 head garlic, small
 - 6 potatoes, medium
 - salt to taste
 - 50ml/1/4 cup whole milk, hot
@@ -7509,8 +7548,8 @@ VALUES ('28fde7a2-c4fc-81a4-802e-e613290f22b1', 'Herb & Garlic Mashed Potatoes',
 - Boil the peeled and quartered potatoes in salted water until very tender. While the potatoes are cooking, squeeze the garlic cloves out of their peels, they should pop out easily and mash them with a fork in a small bowl. Set aside.
 - Drain the potatoes and steam dry them to get rid of the excess of water. Return them to the pot and add hot milk, start mashing with a potato masher until mostly smooth, then add butter and keep mashing. Start by stirring in ½ of the mashed roasted garlic, slowly increase the garlic quantity according to taste, then mash until smooth and most lumps are broken, season with salt to taste. Add the fresh herbs and fold in with a spatula. Serve piping hot with a bit more butter if desired.
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81a0-8084-ff5b60a9b40e', 'Tom Yum', '🍲', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81a0-8084-ff5b60a9b40e', 'team_default', 'Tom Yum', '🍲', NULL, NULL, NULL, NULL, 0, '
 4 cups water 
 
 
@@ -7549,10 +7588,10 @@ VALUES ('28fde7a2-c4fc-81a0-8084-ff5b60a9b40e', 'Tom Yum', '🍲', NULL, NULL, N
 3. Crush the fresh chilies and cut in half. Reserve separately.
 4. When the water has boiled, add the reserved lemon grass/ galangal/lime leaves. Boil for 1 minute. Add fish sauce, sugar and chili paste. Boil for another 2 minutes. Add mushrooms and boil for 2 minutes. Add shrimps and lime juice (3 tbsp/ 45 mL plus the other 2 tbsp/25 mL if you haven''t used the lime leaves) and lower heat to medium-high. Cook for 2 minutes, just until the shrimps have turned white and springy. Transfer to a soup tureen, decorate with fresh coriander leaves and serve immediately.
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-815e-9aa8-ea2f74c64e4b', 'Mongolian Beef', '🐄', NULL, NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-818b-9770-f8754ad2df8c', 'Easy Vanilla Bean Christmas Lights Cookies', '🍪', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-815e-9aa8-ea2f74c64e4b', 'team_default', 'Mongolian Beef', '🐄', NULL, NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-818b-9770-f8754ad2df8c', 'team_default', 'Easy Vanilla Bean Christmas Lights Cookies', '🍪', NULL, NULL, NULL, NULL, 0, '
 ### Ingredients
 
 - [ ] 1 1/2 sticks (12 tablespoons) [salted butter, at room temperature](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fchristmas-lights-cookies%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Fland-o-lakes-salted-butter-1lb%2F-%2FA-13227061&u=https%3A%2F%2Fwww.target.com%2Fp%2Fland-o-lakes-salted-butter-1lb%2F-%2FA-13227061#donotlink)
@@ -7572,8 +7611,8 @@ VALUES ('28fde7a2-c4fc-818b-9770-f8754ad2df8c', 'Easy Vanilla Bean Christmas Lig
 - [ ] 1/2 cup [chocolate chips, melted](http://thrv.me/HBHchocolatechips)
 - [ ] mini holiday M&M’s and vanilla sugar for decorating
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8146-a4e8-dbcdfc21ea12', 'Ground Beef Hot Honey Bowl ', '🐄', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8146-a4e8-dbcdfc21ea12', 'team_default', 'Ground Beef Hot Honey Bowl ', '🐄', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 - 2 lbs ground beef
@@ -7588,12 +7627,12 @@ Ingredients:
 - 1/4 tsp cinnamon
 - Salt and pepper to taste
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8139-89dd-ec20e68138d5', 'Ceasar Salad ', NULL, NULL, NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8154-81da-c21793304f87', 'Spare Ribs', '🐖', NULL, NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8116-ab83-e17c23b124d5', 'Chicken Ceasar Salad', '🐔', NULL, NULL, NULL, NULL, 0, '- 1 cup yogurt
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8139-89dd-ec20e68138d5', 'team_default', 'Ceasar Salad ', NULL, NULL, NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8154-81da-c21793304f87', 'team_default', 'Spare Ribs', '🐖', NULL, NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8116-ab83-e17c23b124d5', 'team_default', 'Chicken Ceasar Salad', '🐔', NULL, NULL, NULL, NULL, 0, '- 1 cup yogurt
 - ¼ cup extra-virgin olive oil
 - 2 tablespoons fresh lemon juice
 - 2 teaspoons Dijon mustard
@@ -7603,8 +7642,8 @@ VALUES ('28fde7a2-c4fc-8116-ab83-e17c23b124d5', 'Chicken Ceasar Salad', '🐔', 
 - Freshly ground black pepper
 - ½ cup freshly grated Parmesan cheese
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-811c-a578-f3dcde232558', ' Protein Quinoa Breakfast Porridge', '🥣', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-811c-a578-f3dcde232558', 'team_default', ' Protein Quinoa Breakfast Porridge', '🥣', NULL, NULL, NULL, NULL, 0, '
 ### **FOR THE QUINOA PORRIDGE:**
 
 - [ ] 1 cup uncooked quinoa, _tri color or white quinoa, rinsed and drained_
@@ -7623,8 +7662,8 @@ VALUES ('28fde7a2-c4fc-811c-a578-f3dcde232558', ' Protein Quinoa Breakfast Porri
 - [ ] 8-10 leaves fresh mint, _optional_
 - [ ] maple syrup to finish it off, _optional_
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81a8-899a-effe10742e1f', 'Iron-Rich Liver Pate -BLW', '🐂', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81a8-899a-effe10742e1f', 'team_default', 'Iron-Rich Liver Pate -BLW', '🐂', NULL, NULL, NULL, NULL, 0, '
 **Ingredients:**
 
 - 1/2 lb beef or chicken liver
@@ -7639,8 +7678,8 @@ VALUES ('28fde7a2-c4fc-81a8-899a-effe10742e1f', 'Iron-Rich Liver Pate -BLW', '�
 3. Add the liver and remaining ingredients to a food processor or blender and blend until well mixed.
 4. Serve warm, or refrigerate to serve cold. You can serve straight on a spoon, mixed with other foods, or use as a dip!
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8186-9b56-eaae20a0f398', 'Satay Chicken with Cucumber Mint Pickle', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8186-9b56-eaae20a0f398', 'team_default', 'Satay Chicken with Cucumber Mint Pickle', '🐔', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 
@@ -7674,8 +7713,8 @@ Cucumber Mint Pickle:
 - 2 cucumbers Lebanese, diced
 - 1 tbsp mint, finely choped
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8193-8866-c2c8725a972c', 'Bruschetta chicken sandwich', '🥪', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8193-8866-c2c8725a972c', 'team_default', 'Bruschetta chicken sandwich', '🥪', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - Chicken Breast
@@ -7704,8 +7743,8 @@ from half of a lemon
 vinaigrette
 
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8155-a509-d671551e5613', 'Ground Beef Vegetable Soup', '🐮', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8155-a509-d671551e5613', 'team_default', 'Ground Beef Vegetable Soup', '🐮', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - 2 tablespoons avocado oil (or lard, tallow, ghee)
@@ -7723,8 +7762,8 @@ Ingredients:
 - 2 tablespoons lemon juice approximately ¼ of medium lemon
 - salt and pepper, to taste as needed
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-813d-8a62-ff6a47facdaf', 'Bone Broth Smothered Chicken', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-813d-8a62-ff6a47facdaf', 'team_default', 'Bone Broth Smothered Chicken', '🐔', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 
@@ -7769,8 +7808,8 @@ and gravy has thickened.
 Serve over rice.
 
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8183-8c44-d9b72ce5658e', 'Crockpot Roast Easy ', '🐮', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8183-8c44-d9b72ce5658e', 'team_default', 'Crockpot Roast Easy ', '🐮', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 
@@ -7791,8 +7830,8 @@ Add carrots, onion and garlic then pour In bone broth.
 Place lid on crockpot and cook on high for 6-8 hours. If the roast Is not tender and falling apart, let cook for a bit longer. Add to mashed potatoes and enjoy!!
 
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8133-8dcb-d7c36cf8040f', 'Sheet pan chicken fajitas', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8133-8dcb-d7c36cf8040f', 'team_default', 'Sheet pan chicken fajitas', '🐔', NULL, NULL, NULL, NULL, 0, '
 INGREDIENTS:
 
 - red bell pepper, sliced
@@ -7815,8 +7854,8 @@ Steps:
 - mix everything together
 - convection bake @ 425F for 20-25 minutes or until everything is cooked
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-814d-8bf7-f732d7c005c1', 'One Pot White Chicken Chili Mac and Cheese', '🍲', NULL, NULL, NULL, NULL, 0, '- [ ] 2 tablespoons [salted butter or olive oil](https://www.target.com/p/danish-creamery-european-salted-butter-8oz/-/A-88566391#lnk=sametab)
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-814d-8bf7-f732d7c005c1', 'team_default', 'One Pot White Chicken Chili Mac and Cheese', '🍲', NULL, NULL, NULL, NULL, 0, '- [ ] 2 tablespoons [salted butter or olive oil](https://www.target.com/p/danish-creamery-european-salted-butter-8oz/-/A-88566391#lnk=sametab)
 - [ ] 1 [yellow onion, chopped](https://www.target.com/p/yellow-onions-3lb-bag-good-38-gather-8482/-/A-77788700#lnk=sametab)
 - [ ] 1 pound [boneless skinless chicken breasts or thighs](https://www.target.com/p/boneless-38-skinless-chicken-breasts-1-65-3-975-lbs-price-per-lb-good-38-gather-8482/-/A-54197514#lnk=sametab)
 - [ ] 4 cloves [garlic, chopped](https://www.target.com/p/spice-world-fresh-whole-garlic-3ct-bag/-/A-14917318#lnk=sametab)
@@ -7834,8 +7873,8 @@ VALUES ('28fde7a2-c4fc-814d-8bf7-f732d7c005c1', 'One Pot White Chicken Chili Mac
 - [ ] 2 cups [shredded melty cheese](https://www.target.com/p/tillamook-farmstyle-mexican-4-cheese-shredded-cheese-8oz/-/A-52252119#lnk=sametab) _(colby, cheddar, pepper jack)_
 - [ ] [green onions and cilantro, for serving](https://www.target.com/p/cilantro-bunch-each/-/A-15006468#lnk=sametab)
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81bb-9909-d2cfdc827d39', 'Cajun Fries ', '🍟', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81bb-9909-d2cfdc827d39', 'team_default', 'Cajun Fries ', '🍟', NULL, NULL, NULL, NULL, 0, '
 ### Ingredients:
 
 
@@ -7887,8 +7926,8 @@ Flaky sea salt
 1 tablespoon dried thyme
 
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-814c-929d-f5adb7bbf531', 'Fire Cider Salad', '🥗', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-814c-929d-f5adb7bbf531', 'team_default', 'Fire Cider Salad', '🥗', NULL, NULL, NULL, NULL, 0, '
 Here''s the recipe. Be sure to save for future use (it''s SO GOOD.)
 
 
@@ -7904,8 +7943,8 @@ Salt and pepper to taste
 Place all ingredient in jar, seal, and shake until emulsified
 
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8112-b7c4-c0ccf21e41d2', 'One Dish Lemony Chicken Bake', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8112-b7c4-c0ccf21e41d2', 'team_default', 'One Dish Lemony Chicken Bake', '🐔', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - 2 pounds bone-in, skin-on chicken thighs
@@ -7921,8 +7960,8 @@ Ingredients:
 - 2 tablespoons finely chopped fresh parsley, for garnish
 - 4 lemon wedges, for garnish
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8166-8b44-fe93fffde5fb', 'One skillet Greek lemon chicken and rice', '🐔', NULL, NULL, NULL, NULL, 0, '- [ ] 2 tablespoons [extra virgin olive oil](https://www.target.com/p/organic-extra-virgin-olive-oil-16-9-fl-oz-good-38-gather-8482/-/A-82102661#lnk=sametab)
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8166-8b44-fe93fffde5fb', 'team_default', 'One skillet Greek lemon chicken and rice', '🐔', NULL, NULL, NULL, NULL, 0, '- [ ] 2 tablespoons [extra virgin olive oil](https://www.target.com/p/organic-extra-virgin-olive-oil-16-9-fl-oz-good-38-gather-8482/-/A-82102661#lnk=sametab)
 - [ ] 1 pound [boneless chicken breasts or thighs](https://www.target.com/p/boneless-38-skinless-chicken-breasts-1-65-3-975-lbs-price-per-lb-good-38-gather-8482/-/A-54197514#lnk=sametab)
 - [ ] 2 teaspoons [dried oregano](https://www.target.com/p/organic-oregano-0-8oz-good-38-gather-8482/-/A-77616564#lnk=sametab)
 - [ ] 1 teaspoon [paprika](https://www.target.com/p/ground-paprika-2-12oz-good-38-gather-8482/-/A-77587875#lnk=sametab)
@@ -7942,8 +7981,8 @@ VALUES ('28fde7a2-c4fc-8166-8b44-fe93fffde5fb', 'One skillet Greek lemon chicken
 - [ ] 1/2 cup [fresh basil leaves](https://www.target.com/p/organic-basil-0-5oz-good-38-gather-8482/-/A-79495109#lnk=sametab)
 - [ ] 2 tablespoons [lemon juice](https://www.target.com/p/realemon-100-lemon-juice-15-fl-oz-bottle/-/A-14751839#lnk=sametab)
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81c5-bb9e-e9268f51b503', 'Buttery Rosemary Sea Salt Sourdough Crackers', '🍘', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81c5-bb9e-e9268f51b503', 'team_default', 'Buttery Rosemary Sea Salt Sourdough Crackers', '🍘', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - 200 grams sourdough starter, stirred down
@@ -7954,8 +7993,8 @@ Ingredients:
 - Olive oil, for brushing
 - Flake salt
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-819f-86ff-fbf0f1899d78', 'Crispy Smashed Brussels Sprouts', '🥦', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-819f-86ff-fbf0f1899d78', 'team_default', 'Crispy Smashed Brussels Sprouts', '🥦', NULL, NULL, NULL, NULL, 0, '
 **Ingredients**
 
 - 3-4 cups brussels sprouts*see notes
@@ -7963,8 +8002,8 @@ VALUES ('28fde7a2-c4fc-819f-86ff-fbf0f1899d78', 'Crispy Smashed Brussels Sprouts
 - 1 tsp garlic powder
 - salt & pepper to taste
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81bd-934d-c124274c99f9', 'Homemade Berry Nutri Grain Bars', '🍓', '["Postpartum","Snack"]', NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81bd-934d-c124274c99f9', 'team_default', 'Homemade Berry Nutri Grain Bars', '🍓', '["Postpartum","Snack"]', NULL, NULL, NULL, 0, '
 Ingredients:
 
 - 1 cup [Bob''s Red Mill Whole Wheat Flour](https://www.amazon.com/Bobs-Red-Mill-Organic-Pastry/dp/B000YFD2CE/ref=sr_1_2_a_it?ie=UTF8&qid=1502077317&sr=8-2&keywords=bobs%20whole%20wheat%20flour)
@@ -7979,8 +8018,8 @@ Ingredients:
 - 1 cup jam, homemade or store-bought
 - buttermilk, for brushing
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8140-8f86-e707bc0f2214', 'One Pot Buffalo Chicken "Helper"', '🐔', '["Want to try"]', NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8140-8f86-e707bc0f2214', 'team_default', 'One Pot Buffalo Chicken "Helper"', '🐔', '["Want to try"]', NULL, NULL, NULL, 0, '
 # Ingredients
 
 - [ ] 2 tablespoons [extra virgin olive oil](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fbuffalo-chicken-helper%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Forganic-extra-virgin-olive-oil-16-9-fl-oz-good-38-gather-8482%2F-%2FA-82102661&u=https%3A%2F%2Fwww.target.com%2Fp%2Forganic-extra-virgin-olive-oil-16-9-fl-oz-good-38-gather-8482%2F-%2FA-82102661#donotlink)
@@ -8001,8 +8040,8 @@ VALUES ('28fde7a2-c4fc-8140-8f86-e707bc0f2214', 'One Pot Buffalo Chicken "Helper
 - [ ] 6 tablespoons [salted butter](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fbuffalo-chicken-helper%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Forganic-salted-butter-1lb-good-gather-8482%2F-%2FA-54575962&u=https%3A%2F%2Fwww.target.com%2Fp%2Forganic-salted-butter-1lb-good-gather-8482%2F-%2FA-54575962#donotlink)
 - [ ] [green onion and cilantro, for serving](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fbuffalo-chicken-helper%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Fcilantro-bunch-each%2F-%2FA-15006468&u=https%3A%2F%2Fwww.target.com%2Fp%2Fcilantro-bunch-each%2F-%2FA-15006468#donotlink)
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8192-8b33-ff860738116e', 'Chili Crisp Chicken and Noodles in Ginger Soy Broth', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8192-8b33-ff860738116e', 'team_default', 'Chili Crisp Chicken and Noodles in Ginger Soy Broth', '🐔', NULL, NULL, NULL, NULL, 0, '
 # Ingredients
 
 
@@ -8029,8 +8068,8 @@ VALUES ('28fde7a2-c4fc-8192-8b33-ff860738116e', 'Chili Crisp Chicken and Noodles
 - 3-4 cloves [garlic, chopped](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fchili-crisp-chicken-ramen%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Fspice-world-fresh-whole-garlic-3ct-bag%2F-%2FA-14917318&u=https%3A%2F%2Fwww.target.com%2Fp%2Fspice-world-fresh-whole-garlic-3ct-bag%2F-%2FA-14917318#donotlink)
 - [chili flakes](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fchili-crisp-chicken-ramen%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Forganic-red-pepper-1-3oz-good-38-gather-8482%2F-%2FA-77616541&u=https%3A%2F%2Fwww.target.com%2Fp%2Forganic-red-pepper-1-3oz-good-38-gather-8482%2F-%2FA-77616541#donotlink)
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81d8-9929-ff1767c96cf5', 'Hot Turkey BLT', '🥪', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81d8-9929-ff1767c96cf5', 'team_default', 'Hot Turkey BLT', '🥪', NULL, NULL, NULL, NULL, 0, '
 Sourdough 
 
 
@@ -8049,8 +8088,8 @@ Turkey
 Cheese 
 
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-816c-9dd8-cbc380272bea', 'Lamb Koftas', '🐑', NULL, NULL, NULL, NULL, 0, '- ½ pound ground lamb
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-816c-9dd8-cbc380272bea', 'team_default', 'Lamb Koftas', '🐑', NULL, NULL, NULL, NULL, 0, '- ½ pound ground lamb
 - ½ pound 80/20 ground best
 - Salt and freshly ground black pepper
 - 1 to 1½ tablespoons sumac, plus extra for garnish
@@ -8069,8 +8108,8 @@ FOR THE CUCUMBER DILL YOGURT SAUCE
 - 2 Persian or mini cucumbers, shredded
 - Salt and freshly ground black pepper
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81f6-b5db-e19a41fbf38d', 'Persian Kabob Koobideh', '🍔', NULL, NULL, NULL, NULL, 0, '- 2 medium yellow onions
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81f6-b5db-e19a41fbf38d', 'team_default', 'Persian Kabob Koobideh', '🍔', NULL, NULL, NULL, NULL, 0, '- 2 medium yellow onions
 - 2 pounds 80/20 ground beef
 - 1 teaspoon ground turmeric
 - 1 teaspoon garlic powder
@@ -8095,8 +8134,8 @@ OPTIONAL GARNISHES
 - 1 to 2 tablespoons sumac
 - Fresh herbs such as lemon basil, mint, tarragon, or flat-leaf parsley
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8175-8ea1-fc57057b4bef', 'Korean beef bowl', '🐄', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8175-8ea1-fc57057b4bef', 'team_default', 'Korean beef bowl', '🐄', NULL, NULL, NULL, NULL, 0, '
 FOR THE MARINADE
 
 - ¼ cup soy sauce
@@ -8121,8 +8160,8 @@ FOR THE SEASONED RICE
 - 3 red radishes, thinly sliced
 - I teaspoon toasted sesame seeds, for garnish
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-813a-b03d-ce2afb3893c2', 'Berry Fruit Salad with Honey Lime Dressing', '🍓', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-813a-b03d-ce2afb3893c2', 'team_default', 'Berry Fruit Salad with Honey Lime Dressing', '🍓', NULL, NULL, NULL, NULL, 0, '
 ## **INGREDIENTS FOR THE FRUIT SALAD**
 
 - 1 pint strawberries, hulled and quartered
@@ -8136,8 +8175,8 @@ VALUES ('28fde7a2-c4fc-813a-b03d-ce2afb3893c2', 'Berry Fruit Salad with Honey Li
 - 1/4 cup fresh lime juice
 - 1/4 cup chopped fresh mint
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81cb-a304-de43ccbfece6', 'Mexican inspired Chuck Roast ', '🐮', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81cb-a304-de43ccbfece6', 'team_default', 'Mexican inspired Chuck Roast ', '🐮', NULL, NULL, NULL, NULL, 0, '
  
 
 - chuck roast
@@ -8160,8 +8199,8 @@ VALUES ('28fde7a2-c4fc-81cb-a304-de43ccbfece6', 'Mexican inspired Chuck Roast ',
 Shred again when you remove from the oven. gotta try making this
 7. 7. Devour as is with the sauce, some avocado, fresh cilantro, or whatever toppings you want. I served these inside lowcarb tortillas with mashed guac, fresh chopped cilantro, cheese, and topped with hot sauce.
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8150-84de-c9fa1a66bc6d', 'Savory Zucchini Dill Fritters ', '🥒', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8150-84de-c9fa1a66bc6d', 'team_default', 'Savory Zucchini Dill Fritters ', '🥒', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 - 2 cups grated zucchini
@@ -8174,8 +8213,8 @@ Ingredients:
 - 2 eggs, whisked
 - 3 tbsp. avocado oil
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8165-8d99-fa9ecade171e', 'Wild Blueberry Nut Butter Smoothie', '🫐', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8165-8d99-fa9ecade171e', 'team_default', 'Wild Blueberry Nut Butter Smoothie', '🫐', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 - 1 cup milk
@@ -8193,15 +8232,15 @@ Optional:
 - collagen powder
 - extra splash of milk
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8155-ac1c-cecefe0ed8e6', 'Grilled Lemon Pepper Salmon', '🐠', NULL, NULL, NULL, NULL, 0, '- 2 3-4OZ Filets
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8155-ac1c-cecefe0ed8e6', 'team_default', 'Grilled Lemon Pepper Salmon', '🐠', NULL, NULL, NULL, NULL, 0, '- 2 3-4OZ Filets
 - Juice of HALF a lemon
 - 3/4 tsp CRUSHED lemon pepper
 - SPRINKLE of sea salt
 - DRIZZLE of olive oil
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-810e-aaab-f3bab7816b74', 'Lemon Roasted Broccoli', '🥦', NULL, NULL, NULL, NULL, 0, '- 1 lb of fresh brocolli
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-810e-aaab-f3bab7816b74', 'team_default', 'Lemon Roasted Broccoli', '🥦', NULL, NULL, NULL, NULL, 0, '- 1 lb of fresh brocolli
 - 1 tsp salt
 - 1 lemon JUICED’
 - 1-3 large cloves of garlic MINCED
@@ -8209,16 +8248,16 @@ VALUES ('28fde7a2-c4fc-810e-aaab-f3bab7816b74', 'Lemon Roasted Broccoli', '🥦'
 - 2 tbs of olive oil
 - That’s it
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-819b-8c02-e236c06ed984', 'Tart Cherry Gummies', '🍒', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-819b-8c02-e236c06ed984', 'team_default', 'Tart Cherry Gummies', '🍒', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 - 1 1/2 cups organic tart cherry juice
 - 4 tbsp gelatin
 - 1 tbsp honey
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8196-a88e-eb59f5ee6c59', 'Pot sticker stir fry', NULL, NULL, NULL, NULL, NULL, 0, '- [ ] 1 tablespoon ghee
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8196-a88e-eb59f5ee6c59', 'team_default', 'Pot sticker stir fry', NULL, NULL, NULL, NULL, NULL, 0, '- [ ] 1 tablespoon ghee
 - [ ] 2 medium carrots, peeled and finely diced 
 - [ ] 2 shallots, minced
 - [ ] ¼ pound shiitake mushrooms, stemmed and thinly sliced
@@ -8233,8 +8272,8 @@ VALUES ('28fde7a2-c4fc-8196-a88e-eb59f5ee6c59', 'Pot sticker stir fry', NULL, NU
 - [ ] 2 Teaspoons toasted sesame oil
 - [ ] 3 scallions, thinly sliced
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8137-8bbe-d8032e0611be', 'Frank''s Hickory Smoked Brisket', '🐄', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8137-8bbe-d8032e0611be', 'team_default', 'Frank''s Hickory Smoked Brisket', '🐄', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 - 10 lb brisket
@@ -8254,8 +8293,8 @@ Spiced Dry Rub:
 - 1 tbsp mustard powder
 - 1 tbsp ginger powder
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-815e-bff4-def3b5805cd5', 'Banana Oatmeal Bars', '🍞', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-815e-bff4-def3b5805cd5', 'team_default', 'Banana Oatmeal Bars', '🍞', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 
@@ -8298,8 +8337,8 @@ fully set.
 Allow bars to cool completely before slicing.
 
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81ec-a602-d569973f1999', 'Fermented Radishes', '🍒', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81ec-a602-d569973f1999', 'team_default', 'Fermented Radishes', '🍒', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 - 1 tsp mineral salt
@@ -8314,8 +8353,8 @@ Ingredients:
 Large glass canning jar with lid; filtered water, bunch radishes (give them a rinse and a light smash to open them up) 1 Tsp. Mineral salt, handful dill, 2 cloves garlic minced, (optional) red pepper, chopped, 1 tsp red peppercorns, 1 tsp maple syrup. 2tsps lemon juice. Add all to glass jar. Pack tight. Submerge radishes under the water. Lid on. Shake well. Leave out for three to seven days, to your liking. Refrigerate after and enjoy. 💗
 
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-811a-bb8d-ed772680342e', 'Chili Lime Cucumber Salad', '🥒', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-811a-bb8d-ed772680342e', 'team_default', 'Chili Lime Cucumber Salad', '🥒', NULL, NULL, NULL, NULL, 0, '
 1.Start by cutting 4–5 Persian cucumbers (or 3 Japanese cucumbers) into half moons, coins, or sticks. Whatever shape you like, just don’t make them too thick -you want them to soak up all the flavor.
 
 
@@ -8337,8 +8376,8 @@ VALUES ('28fde7a2-c4fc-811a-bb8d-ed772680342e', 'Chili Lime Cucumber Salad', '�
 7.Finish with more feta and finely chopped cilantro on top. Again, this would be great with a protein of your choice, or even as is.
 
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8117-ac7c-e23a40e2d951', 'Ground Beef Breakfast Hash', '🐄', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8117-ac7c-e23a40e2d951', 'team_default', 'Ground Beef Breakfast Hash', '🐄', NULL, NULL, NULL, NULL, 0, '
 **Servings**: 4
 
 
@@ -8400,8 +8439,8 @@ VALUES ('28fde7a2-c4fc-8117-ac7c-e23a40e2d951', 'Ground Beef Breakfast Hash', '�
     Top with chopped parsley or green onions. Serve hot!
 
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8138-bf14-eb5dbf8f0306', 'Red Curry Basil Garlic Oil Noodles', '🍜', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8138-bf14-eb5dbf8f0306', 'team_default', 'Red Curry Basil Garlic Oil Noodles', '🍜', NULL, NULL, NULL, NULL, 0, '
 **Ingredients:**
 
 - 1/2 cup [sesame or peanut oil](http://l.thrv.me/HBH3562-napa-valley-naturals-organic-toa)
@@ -8430,8 +8469,8 @@ VALUES ('28fde7a2-c4fc-8138-bf14-eb5dbf8f0306', 'Red Curry Basil Garlic Oil Nood
 4. Serve the noodles with additional green onions.
 
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81a4-9512-ce647c882829', 'The Best Herby Potato Salad', '🥔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81a4-9512-ce647c882829', 'team_default', 'The Best Herby Potato Salad', '🥔', NULL, NULL, NULL, NULL, 0, '
 **Ingredients:**
 
 - 2 pounds mixed baby new potatoes, and or fingerling potatoes
@@ -8447,8 +8486,8 @@ VALUES ('28fde7a2-c4fc-81a4-9512-ce647c882829', 'The Best Herby Potato Salad', '
 - 1 pinch crushed red pepper flakes
 - juice of 1 lemon
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8192-a955-cf0d2e95db92', 'Sweet Potato Breakfast Sausage Hash (ChatGPT)', '🐖', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8192-a955-cf0d2e95db92', 'team_default', 'Sweet Potato Breakfast Sausage Hash (ChatGPT)', '🐖', NULL, NULL, NULL, NULL, 0, '
 ### 🍳 Sweet Potato & Breakfast Sausage Hash
 
 
@@ -8481,8 +8520,8 @@ Instructions:
 4. Season + combine: Sprinkle in paprika, thyme/rosemary, salt, and pepper. Return sausage to the skillet, mixing everything together. Cook another 3–5 minutes until flavors meld.
 5. Finish + serve: Taste and adjust seasoning. Garnish with parsley or green onion. Optionally, top each portion with a fried or poached egg.
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-816a-ad23-f946961842a6', 'Fall Apple Slaw', '🍎', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-816a-ad23-f946961842a6', 'team_default', 'Fall Apple Slaw', '🍎', NULL, NULL, NULL, NULL, 0, '
 **Fall Apple Slaw (Gluten-Free)**
 
 
@@ -8531,8 +8570,8 @@ You can serve immediately for a crisp texture or let it sit 30 minutes–1 hour 
 - Sprinkle in dried cranberries or pomegranate arils (if tolerated).
 - Garnish with a drizzle of maple syrup just before serving.
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81b6-ad97-d233f231d92a', 'Cheesy BLTT', '🥪', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81b6-ad97-d233f231d92a', 'team_default', 'Cheesy BLTT', '🥪', NULL, NULL, NULL, NULL, 0, '
 Bread 
 
 
@@ -8551,8 +8590,8 @@ Turkey
 Cheese 
 
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8126-b0ee-e3c9f72dd0c5', 'Buffalo Chicken Quesadillas', '🐔', NULL, NULL, NULL, NULL, 0, '- Tortillas
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8126-b0ee-e3c9f72dd0c5', 'team_default', 'Buffalo Chicken Quesadillas', '🐔', NULL, NULL, NULL, NULL, 0, '- Tortillas
 - Shredded Chicken
 - Garlic
 - Onion
@@ -8561,8 +8600,8 @@ VALUES ('28fde7a2-c4fc-8126-b0ee-e3c9f72dd0c5', 'Buffalo Chicken Quesadillas', '
 - Cheese
 - Green Onions
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8139-84fd-cd7ffd54845f', 'Chicken Curry', '🍲', NULL, NULL, NULL, NULL, 0, '- 1 medium onion, diced
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8139-84fd-cd7ffd54845f', 'team_default', 'Chicken Curry', '🍲', NULL, NULL, NULL, NULL, 0, '- 1 medium onion, diced
 - 1 cup green beans, trimmed & cut into 2 inch pieces
 - 1 green bell pepper, thinly sliced
 - 1 red bell pepper, thinly sliced
@@ -8581,8 +8620,8 @@ VALUES ('28fde7a2-c4fc-8139-84fd-cd7ffd54845f', 'Chicken Curry', '🍲', NULL, N
 - dash of soy sauce (or to taste)
 - chili flakes or fresh chili slices
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8191-ada4-e135d9d3de3f', 'beef and rice casserole ', '🍔', '["Dinner"]', NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8191-ada4-e135d9d3de3f', 'team_default', 'beef and rice casserole ', '🍔', '["Dinner"]', NULL, NULL, NULL, 0, '
 ## INGREDIENTS
 
 - [ ] 1 large white onion
@@ -8614,10 +8653,10 @@ Pairs well with:
 a serving of fruit on the side (fresh, simmered, slewed - however rou like!)
 
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8120-a8a5-d0ba1096133d', 'quick ', '🍔', NULL, NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8159-b789-e1719ebb8e19', 'Chipotle Black Bean, Sweet Potato and Quinoa Chili', '🍔', NULL, NULL, NULL, NULL, 0, '- 1 tablespoon olive oil
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8120-a8a5-d0ba1096133d', 'team_default', 'quick ', '🍔', NULL, NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8159-b789-e1719ebb8e19', 'team_default', 'Chipotle Black Bean, Sweet Potato and Quinoa Chili', '🍔', NULL, NULL, NULL, NULL, 0, '- 1 tablespoon olive oil
 - 1 medium yellow onion, diced
 - 2 medium carrots, diced
 - 3 cloves garlic, minced
@@ -8642,8 +8681,8 @@ VALUES ('28fde7a2-c4fc-8159-b789-e1719ebb8e19', 'Chipotle Black Bean, Sweet Pota
     - Sliced ripe avocado
     - Shredded cheddar
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-816a-912f-eb5afc6bf3bb', 'Black Pepper Chicken', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-816a-912f-eb5afc6bf3bb', 'team_default', 'Black Pepper Chicken', '🐔', NULL, NULL, NULL, NULL, 0, '
 ### **Marinade**
 
 - 1 tablespoon [**light soy sauce**](https://omnivorescookbook.com/pantry/light-soy-sauce) (or soy sauce)
@@ -8669,8 +8708,8 @@ VALUES ('28fde7a2-c4fc-816a-912f-eb5afc6bf3bb', 'Black Pepper Chicken', '🐔', 
 - 1/2 white onion , chopped
 - 2 bell peppers , chopped (I used mixed colors)
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-811d-85e6-ed6f5f5d4bba', 'Postpartum Stewed Fruit', '🍎', '["Postpartum","Snack"]', NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-811d-85e6-ed6f5f5d4bba', 'team_default', 'Postpartum Stewed Fruit', '🍎', '["Postpartum","Snack"]', NULL, NULL, NULL, 0, '
 **Postpartum Stewed Fruit**
 
 
@@ -8693,8 +8732,8 @@ water
 - Cover and cook over medium heat, stirring occasionally, until the apples and pears start to get really mushy.
 - Enjoy the aromas....Serve and eat warm.
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8136-8778-f6e975d60be9', 'French Onion Beef Sliders', '🐮', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8136-8778-f6e975d60be9', 'team_default', 'French Onion Beef Sliders', '🐮', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - 8 tablespoons (1 stick) butter, divided
@@ -8710,8 +8749,8 @@ Ingredients:
 - 1 teaspoon onion powder
 - 1 teaspoon garlic powder
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8121-bda0-f99f76ed8794', 'Spicy Peanut Butter Bacon Sliders', '🐮', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8121-bda0-f99f76ed8794', 'team_default', 'Spicy Peanut Butter Bacon Sliders', '🐮', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 - **2** pounds ground beef
@@ -8727,8 +8766,8 @@ Ingredients:
 - **2**cups crispy French fries
 - **1**whole purple onion, sliced
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-813a-88ea-dc07eab321c8', 'Sourdough Hamburger Buns', '🍞', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-813a-88ea-dc07eab321c8', 'team_default', 'Sourdough Hamburger Buns', '🍞', NULL, NULL, NULL, NULL, 0, '
 DOUGH INGREDIENTS
 
 - ¼ cup (50 g) [active sourdough starter](https://littlespoonfarm.com/sourdough-starter-recipe/)
@@ -8743,8 +8782,8 @@ EGG WASH
 - 1 tablespoon water
 - sesame seeds (optional topping)
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-813a-93f3-c67b356107fc', 'Decadent Beef Shank Osso Buco', '🐮', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-813a-93f3-c67b356107fc', 'team_default', 'Decadent Beef Shank Osso Buco', '🐮', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 - 3 beef shanks
@@ -8764,8 +8803,8 @@ Ingredients:
 - 2 tbsp salt, divided
 - freshly ground black pepper
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8149-9bd5-ea686979b89d', 'Fire Cider ', '🍹', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8149-9bd5-ea686979b89d', 'team_default', 'Fire Cider ', '🍹', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - 25 grams turmeric root
@@ -8779,8 +8818,8 @@ Ingredients:
 - 5 grams sea salt
 - **raw** vinegar
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8114-9579-da621c4a579d', 'SHREDDED BEEF TACOS', '🐮', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8114-9579-da621c4a579d', 'team_default', 'SHREDDED BEEF TACOS', '🐮', NULL, NULL, NULL, NULL, 0, '
 ### **BEEF AND TORTILLAS**
 
 - 3-4 lb. boneless beef chuck roast trimmed of excess fat, cut into 7-8 pieces
@@ -8827,8 +8866,8 @@ VALUES ('28fde7a2-c4fc-8114-9579-da621c4a579d', 'SHREDDED BEEF TACOS', '🐮', N
 - [Corn Salsa](https://carlsbadcravings.com/corn-salsa/)
 - [Avocado Corn Salsa](https://carlsbadcravings.com/fresh-corn-avocado-salsa/)
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81fa-8ceb-e49d1875f018', 'Curried Chicken & Tomato Kebobs With Red Onion & Yogurt', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81fa-8ceb-e49d1875f018', 'team_default', 'Curried Chicken & Tomato Kebobs With Red Onion & Yogurt', '🐔', NULL, NULL, NULL, NULL, 0, '
 **Ingredients**
 
 
@@ -8877,8 +8916,8 @@ Juice from ½ lime
 Water (as needed for consistency)
 
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81d3-b6b3-cf288ead8cf6', 'Scallion Chicken', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81d3-b6b3-cf288ead8cf6', 'team_default', 'Scallion Chicken', '🐔', NULL, NULL, NULL, NULL, 0, '
 ### FOR THE SCALLION GINGER SAUCE (MAKES 1 CUP):
 
 - [ ] 6 bulb scallion diced, a little over 2 cups diced scallion
@@ -8896,8 +8935,8 @@ VALUES ('28fde7a2-c4fc-81d3-b6b3-cf288ead8cf6', 'Scallion Chicken', '🐔', NULL
 - [ ] Sprinkle Ground black pepper
 - [ ] Sprinkle Garlic powder
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8117-b5b3-ddfbf40c42be', 'Pulled Pork ', '🐖', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8117-b5b3-ddfbf40c42be', 'team_default', 'Pulled Pork ', '🐖', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 - 1 tbsp evoo
@@ -8916,8 +8955,8 @@ Herb Crust
 - 1/2 tsp nutmeg
 - 1/2 tsp cinnamon
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81ac-9cd4-e0624da786c2', 'Overnight Soaked Pancakes (Hazel) ', '🥞', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81ac-9cd4-e0624da786c2', 'team_default', 'Overnight Soaked Pancakes (Hazel) ', '🥞', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - 2 Cups Rolled Oats
@@ -8937,8 +8976,8 @@ next morning
 - splash of milk
 - 2 tsp ghee
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-819d-a588-e5fbe47bf21d', 'Yogurt Flatbread', '🍞', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-819d-a588-e5fbe47bf21d', 'team_default', 'Yogurt Flatbread', '🍞', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 - 400g flour
@@ -8947,8 +8986,8 @@ Ingredients:
 - pinch of sea salt
 - 1 tsp garlic powder
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8195-bdfe-f41801ab363a', 'Chimichurri Wings ', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8195-bdfe-f41801ab363a', 'team_default', 'Chimichurri Wings ', '🐔', NULL, NULL, NULL, NULL, 0, '
 Recipe
 • Season wings with salt, pepper, garlic and add in 1
 tbsp of corn starch to help crisp up the skin.
@@ -8962,8 +9001,8 @@ of mins until they hit an internal temp of 190F
 • Toss the wings in the chimichurri and enjoy!
 
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8167-875a-d8fa49782cd2', 'Crispy Air Fried Brussels w/ a Lemon Maple Glaze', '🥦', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8167-875a-d8fa49782cd2', 'team_default', 'Crispy Air Fried Brussels w/ a Lemon Maple Glaze', '🥦', NULL, NULL, NULL, NULL, 0, '
 ## Ingredients: 
 
 - 1.5 lb. Brussels Sprouts
@@ -8977,8 +9016,8 @@ VALUES ('28fde7a2-c4fc-8167-875a-d8fa49782cd2', 'Crispy Air Fried Brussels w/ a 
 - 1.5 tbsp [keto maple syrup](https://amzn.to/3oIbz06), or regular maple syrup
 - 2 tbsp lemon juice, about half of one whole lemon
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8194-a60d-e6101d9eaa33', 'Chicken Pot Pie', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8194-a60d-e6101d9eaa33', 'team_default', 'Chicken Pot Pie', '🐔', NULL, NULL, NULL, NULL, 0, '
 Ingredients for the Crust:
 
 - 1 cup (100 g) blanched almond flour
@@ -9070,8 +9109,8 @@ some ghee, butter, or avocado oil to grease the
 pan before laying one piece of the dough in
 the bottom.
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8104-897d-f44434095474', 'Cheesy Scalloped Potatoes ', '🥔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8104-897d-f44434095474', 'team_default', 'Cheesy Scalloped Potatoes ', '🥔', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - 4 medium sized Yukon potatoes
@@ -9084,10 +9123,10 @@ Ingredients:
 - 1 1/2 cup heavy cream
 - Pinch nutmeg, for serving
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-816e-bdcc-f01814394ae4', 'Christmas Pork Chops', '🐖', NULL, NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8145-99cc-c07583e8c86e', 'Make and Freeze Kebabs', '🐮', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-816e-bdcc-f01814394ae4', 'team_default', 'Christmas Pork Chops', '🐖', NULL, NULL, NULL, NULL, 0, NULL, 1760729616542, 1760729616542, 0);
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8145-99cc-c07583e8c86e', 'team_default', 'Make and Freeze Kebabs', '🐮', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 
@@ -9115,8 +9154,8 @@ Spicy Cilantro Sauce:
 - 1/2 avocado
 - 1 tsp salt
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81b1-ac26-e7c6808e6735', 'Apple Cider and Cinnamon Pulled Pork', '🐖', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81b1-ac26-e7c6808e6735', 'team_default', 'Apple Cider and Cinnamon Pulled Pork', '🐖', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - 3 tablespoons sea salt
@@ -9129,8 +9168,8 @@ Ingredients:
 - 2 medium apples, any variety, peeled and cut into large
 pieces
 ', 1760729616542, 1760729616542, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8126-92b4-d4f52addb717', 'Spicy Short Rib Peanut Ramen', '🐮', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8126-92b4-d4f52addb717', 'team_default', 'Spicy Short Rib Peanut Ramen', '🐮', NULL, NULL, NULL, NULL, 0, '
 ### Ingredients
 
 - [ ] 3-5 pounds beef short ribs, bone-in or out, fat trimmed
@@ -9149,13 +9188,13 @@ VALUES ('28fde7a2-c4fc-8126-92b4-d4f52addb717', 'Spicy Short Rib Peanut Ramen', 
 - [ ] kimichi, cilantro, and green onion, for serving
 - [ ] chili oil, nori sheets, and sesame seeds, for serving
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81e9-9f54-cb6470078857', 'Drummies', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81e9-9f54-cb6470078857', 'team_default', 'Drummies', '🐔', NULL, NULL, NULL, NULL, 0, '
 [https://www.pinterest.com/pin/668432769707469386/](https://www.pinterest.com/pin/668432769707469386/) - flip them chicken meatz 
 
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81e1-9681-db14fc8bd2ec', 'Fermented Sourdough Maple Pecan Granola', '🌾', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81e1-9681-db14fc8bd2ec', 'team_default', 'Fermented Sourdough Maple Pecan Granola', '🌾', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 - 1/4 cup pumpkin seeds
@@ -9173,8 +9212,8 @@ Ingredients:
 - 1 teaspoon salt
 - organic cane sugar
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-814c-ba01-ebdb8cb103b1', 'Calabrian Chili Roasted Red Pepper Pizza', '🍕', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-814c-ba01-ebdb8cb103b1', 'team_default', 'Calabrian Chili Roasted Red Pepper Pizza', '🍕', NULL, NULL, NULL, NULL, 0, '
 **Ingredients**
 
 - [ ] 1/3- 1/2 pound [ball of pizza dough](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Froasted-red-pepper-pizza%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Fpillsbury-classic-pizza-crust-13-8oz%2F-%2FA-13016486&u=https%3A%2F%2Fwww.target.com%2Fp%2Fpillsbury-classic-pizza-crust-13-8oz%2F-%2FA-13016486#donotlink)
@@ -9188,8 +9227,8 @@ VALUES ('28fde7a2-c4fc-814c-ba01-ebdb8cb103b1', 'Calabrian Chili Roasted Red Pep
 - [ ] 1 teaspoon [dried oregano](http://l.thrv.me/HBH5004-simply-organic-oregano-leaf-cut-)
 - [ ] [honey, for serving](http://l.thrv.me/HBH5858-thrive-market-organic-honey-bear)
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81f7-a75e-c32429c693d9', 'Carne Guisada (Braised Beef)', '🐮', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81f7-a75e-c32429c693d9', 'team_default', 'Carne Guisada (Braised Beef)', '🐮', NULL, NULL, NULL, NULL, 0, '
 ### Ingredients
 
 - 1 tablespoon oil (or lard or bacon grease)
@@ -9205,8 +9244,8 @@ VALUES ('28fde7a2-c4fc-81f7-a75e-c32429c693d9', 'Carne Guisada (Braised Beef)', 
 - 1/2 teaspoon oregano
 - salt to taste
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8129-a760-e380cf6bdafd', 'Meat Deluxe Sandwich ', '🥪', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8129-a760-e380cf6bdafd', 'team_default', 'Meat Deluxe Sandwich ', '🥪', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - Lettuce
@@ -9224,8 +9263,8 @@ Ingredients:
 - Cheese
 - Tomatoes
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81ad-9d31-d8b72f5076ab', 'Nutella Rolls ', '🧁', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81ad-9d31-d8b72f5076ab', 'team_default', 'Nutella Rolls ', '🧁', NULL, NULL, NULL, NULL, 0, '
 dough:
 
 
@@ -9292,10 +9331,10 @@ For Nutella:
 - spread hazelnuts on pan and roast at 350 for 10 mins. Rub in paper towel to remove skins. Blend in food processor with oil until it makes a butter consistency.
 - add remaining ingredients except cream. Continue blending and add cream slowly an as needed. I like our spread nuttier so I didn''t blend until smooth but you can stop at whatever consistency you prefer!
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8116-a1b8-cd53d5d665c4', 'Grilled chicken thighs', '🐔', NULL, NULL, NULL, NULL, 0, NULL, 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81ac-a113-de017f61652e', 'spinach garlic meatballs stuffed with mozzarella', '🍔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8116-a1b8-cd53d5d665c4', 'team_default', 'Grilled chicken thighs', '🐔', NULL, NULL, NULL, NULL, 0, NULL, 1760729616543, 1760729616543, 0);
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81ac-a113-de017f61652e', 'team_default', 'spinach garlic meatballs stuffed with mozzarella', '🍔', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - **Ground Beef**: 2 lbs
@@ -9308,8 +9347,8 @@ Ingredients:
 - **Parmesan Cheese**: 1/2 cup, grated
 - **Salt and Pepper**: To taste
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8154-8489-c86cb80fa959', 'Lahmacun beef wrap (flatbread / pizza)', '🍔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8154-8489-c86cb80fa959', 'team_default', 'Lahmacun beef wrap (flatbread / pizza)', '🍔', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - 1 lb ground lamb/beef
@@ -9344,12 +9383,12 @@ Rest of the details are in comments.
 Sourdough Pizza Dough 
 
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-810f-ba77-fd87061c1585', 'Chicken skewers', '🐔', NULL, NULL, NULL, NULL, 0, '- Pick a marinade
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-810f-ba77-fd87061c1585', 'team_default', 'Chicken skewers', '🐔', NULL, NULL, NULL, NULL, 0, '- Pick a marinade
 - Pick some other veggies
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81e9-bc3e-ebe49bc21fca', 'Fajitas', '🥩', NULL, NULL, NULL, NULL, 0, '- 1 pound of boneless short ribs
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81e9-bc3e-ebe49bc21fca', 'team_default', 'Fajitas', '🥩', NULL, NULL, NULL, NULL, 0, '- 1 pound of boneless short ribs
 - 1 teaspoons of cumin
 - 1 teaspoons of garlic powder
 - 1 teaspoons of oregano
@@ -9368,8 +9407,8 @@ VALUES ('28fde7a2-c4fc-81e9-bc3e-ebe49bc21fca', 'Fajitas', '🥩', NULL, NULL, N
 - Sour cream or yogurt (to serve)
 - Corn tortillas, to serve
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81db-b0d2-c286ec7fdabe', 'Lemon Balsamic Salmon', '🐠', NULL, NULL, NULL, NULL, 0, '- [ ] 2 oz boneless salmon fillets, About 5 /fillet
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81db-b0d2-c286ec7fdabe', 'team_default', 'Lemon Balsamic Salmon', '🐠', NULL, NULL, NULL, NULL, 0, '- [ ] 2 oz boneless salmon fillets, About 5 /fillet
 - [ ] 1 large zucchini, or 2 smaller ones
 - [ ] 1 large loose carrot, or 2 smaller ones
 - [ ] 1 small head broccoli, break into smaller pieces
@@ -9384,10 +9423,10 @@ VALUES ('28fde7a2-c4fc-81db-b0d2-c286ec7fdabe', 'Lemon Balsamic Salmon', '🐠',
 - [ ] 2 tsp finely grated lemon zest
 - [ ] Salt and freshly ground pepper
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8146-bbe1-eda3f61f35f6', 'Bang bang salmon ', '🐠', NULL, NULL, NULL, NULL, 0, NULL, 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8143-8545-fe9d42e20c5b', 'STEAK AND EGGS SANDWICH ON GARLIC BREAD', '🐮', NULL, NULL, NULL, NULL, 0, '- 1 1 lb ribeye steak
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8146-bbe1-eda3f61f35f6', 'team_default', 'Bang bang salmon ', '🐠', NULL, NULL, NULL, NULL, 0, NULL, 1760729616543, 1760729616543, 0);
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8143-8545-fe9d42e20c5b', 'team_default', 'STEAK AND EGGS SANDWICH ON GARLIC BREAD', '🐮', NULL, NULL, NULL, NULL, 0, '- 1 1 lb ribeye steak
 - 4 oz unsalted butter
 - 1 tbsp chopped parsley
 - 1 tsp chili flakes
@@ -9399,8 +9438,8 @@ VALUES ('28fde7a2-c4fc-8143-8545-fe9d42e20c5b', 'STEAK AND EGGS SANDWICH ON GARL
 - 1 tbsp mayo
 - 4 slices sourdough bread
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8179-b11a-e4dbf608141c', 'Chicken Tacos w/ Homemade Salsa', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8179-b11a-e4dbf608141c', 'team_default', 'Chicken Tacos w/ Homemade Salsa', '🐔', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 
@@ -9432,8 +9471,8 @@ rest for ~10 min
 4. Chop up your chicken, and build your tacos.
 5. ENJOY! th
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81ad-9966-c3949b06a8a9', 'Pickled Strawberries On Sourdough', '🍓', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81ad-9966-c3949b06a8a9', 'team_default', 'Pickled Strawberries On Sourdough', '🍓', NULL, NULL, NULL, NULL, 0, '
 **For the Pickled Strawberries:**
 
 - 1 1/2 cups halved **strawberries** (enough to fill a jar)
@@ -9451,8 +9490,8 @@ VALUES ('28fde7a2-c4fc-81ad-9966-c3949b06a8a9', 'Pickled Strawberries On Sourdou
 - a **honey drizzle**
 - pinch of **salt**
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-815a-a319-fb3d6b5c257c', 'Lemon Lime Strawberry Mint Popsicles', '🍓', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-815a-a319-fb3d6b5c257c', 'team_default', 'Lemon Lime Strawberry Mint Popsicles', '🍓', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 
@@ -9474,8 +9513,8 @@ Cold Water
 Maple Syrup to taste 
 
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-812a-9882-f2d24438ff52', 'Beef Vindaloo', '🐮', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-812a-9882-f2d24438ff52', 'team_default', 'Beef Vindaloo', '🐮', NULL, NULL, NULL, NULL, 0, '
 ### **For the Beef**
 
 
@@ -9502,8 +9541,8 @@ VALUES ('28fde7a2-c4fc-812a-9882-f2d24438ff52', 'Beef Vindaloo', '🐮', NULL, N
 - ¼ cup apple cider vinegar
 - 1 cup low-sodium beef stock
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-817f-9088-e8ea087c2e6f', 'Korean BBQ Tacos', '🌮', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-817f-9088-e8ea087c2e6f', 'team_default', 'Korean BBQ Tacos', '🌮', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 
@@ -9532,8 +9571,8 @@ Ingredients:
 - 1 Tbsp cornstarch (potato starch)
 - 2 Tbsp water
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81c5-bad8-ef2b4cf44cfc', 'Fried Rice ', '🍚', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81c5-bad8-ef2b4cf44cfc', 'team_default', 'Fried Rice ', '🍚', NULL, NULL, NULL, NULL, 0, '
 Whatever is on hand
 
 
@@ -9548,10 +9587,10 @@ Example:
 - Onion
 - Garlic
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8196-b892-d38f480a7d4e', 'Chicken and Veggies (Zac only)', '🐔', NULL, NULL, NULL, NULL, 0, NULL, 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8149-ac93-c0020e4c7122', 'Chopped Italian Sliders', '🥪', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8196-b892-d38f480a7d4e', 'team_default', 'Chicken and Veggies (Zac only)', '🐔', NULL, NULL, NULL, NULL, 0, NULL, 1760729616543, 1760729616543, 0);
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8149-ac93-c0020e4c7122', 'team_default', 'Chopped Italian Sliders', '🥪', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 
@@ -9591,16 +9630,16 @@ butter and rolls with ranch or Italian seasoning
 ![Screen_Shot_2023-09-30_at_2.23.48_PM.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/513de7a2-c4fc-81d9-bf2e-00039bdbbad7/1f0f6329-bb9d-4704-a734-7eec0ca63cdb/Screen_Shot_2023-09-30_at_2.23.48_PM.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=ASIAZI2LB466U2FAJU65%2F20251017%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20251017T193300Z&X-Amz-Expires=3600&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEAMaCXVzLXdlc3QtMiJHMEUCIQC%2BTgrH1zV1RpAxR95d9ey4Op%2BgDejMmtLG%2F5GP5rutGwIgALCRA%2F%2BmFfR%2Btnj5XzWRu4LW%2BN6uF8Jv7ma8Mwo7cWwqiAQIq%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FARAAGgw2Mzc0MjMxODM4MDUiDM%2FF2QV9iOXWT9cG2CrcA74G5Wyif1rV9rmZekzC6vjFewKp%2BFQ3RBiTEo%2B%2Fcvk0k5Fl2KZnLrWZdPQZE7nOOHkkwT%2B95tK7QlfgpOykjN35XMWNzoJO1dkT3QSY5S6GMrySWBBF7Z4VdWjbLTszIqmERYlWzlTVJou1FQ%2F5nFJc6FsUiiUXi%2FHxA8M0Ndf0lNMsbGpcew00QPQM5yiA5XcgM3HPX9OPSQRMFRYDPkm%2FXTaBfRR7iHvCco6LckkKwXOSJk5ooW0BjwQFSkllTR9AxjDR0f%2Fk%2Be%2B89g93U%2FWBydspNZs9f4C74eaAGxiwNUrNU3HAJaoXlLpTtu5EqFmloqHSPYld%2Ftys5wC%2FE1j6M7k%2FVT36XC%2BdO8PDRsrpYNlbNdK3ewTarnn2eVXTCnUlA0JDEMaNlMQ%2FActHI351pwb1J8Hfhpx98ImeR3QkGHTd8SrHvkw6w%2BThbP5UXo8UdkBiPBsaPzqGxzoMj9uIzhc5Am3%2FqmjlZJJ2S2QGZuKJSyCjylzgXl3AlM9snHY9qBkR9HQMfUS%2F2hFEN5GFfZusN7a363P6dNsPVYHXq2Q93ABiaoh0s7M%2FQEPkobL53BjzO36MGDLC7BDlwZOOJYx8iZECzOjaoCH52eNwWgSYIxcY84pRGRWWMOeTyscGOqUB9KD5d7hSGeGYAaAj0igO3eNYJ5qjkxMJjtaPAjW5hAZPs3hB5qIltzYHWU8a%2BP6eqNbfAN8AE1oX526GGiX1l6O36U7kN2rdzUyDebKA%2B8JqTbtztYkZFXKUUr8iD7ZZEEdk5ItDcqpILVK9HiMNNn5%2Fnyw3wQjFsIeo168HxbybBx8xXJcTqIJBLEXArnzOBUXPPCz6rgMPpDWS7OL%2Fuvczv0IT&X-Amz-Signature=bc8c8274fb9054e2e888c83b7a196ee159322fdc8af54d257a425d7e6679fa8c&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject)
 
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8194-afe4-e49a69d98f3d', 'submarine dressing', '👗', NULL, NULL, NULL, NULL, 0, '- 3/4 cup olive oil
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8194-afe4-e49a69d98f3d', 'team_default', 'submarine dressing', '👗', NULL, NULL, NULL, NULL, 0, '- 3/4 cup olive oil
 - 1/4 cup red wine vinegar
 - 1 tsp. dried basil
 - 1 tsp. dried oregano
 - 1/4 tsp. salt
 - 1/4 tsp. pepper
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8109-bcf1-f2677aec256e', 'Chopped Buffalo Chicken Skewer Salad', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8109-bcf1-f2677aec256e', 'team_default', 'Chopped Buffalo Chicken Skewer Salad', '🐔', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - 2/3 cup [buffalo sauce](http://l.thrv.me/HBH5227-the-new-primal-noble-made-medium) _(or use hot sauce)_
@@ -9627,8 +9666,8 @@ Dressing:
 - 1 teaspoon [garlic powder](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fbuffalo-chicken-skewer-salad%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Forganic-ground-garlic-powder-2-1oz-good-38-gather-8482%2F-%2FA-77616561&u=https%3A%2F%2Fwww.target.com%2Fp%2Forganic-ground-garlic-powder-2-1oz-good-38-gather-8482%2F-%2FA-77616561#donotlink)
 - [kosher salt and black pepper](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fbuffalo-chicken-skewer-salad%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Fmorton-coarse-kosher-salt-16oz%2F-%2FA-13170448&u=https%3A%2F%2Fwww.target.com%2Fp%2Fmorton-coarse-kosher-salt-16oz%2F-%2FA-13170448#donotlink)
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8158-8840-dab65ded58fb', 'Apple and Carrot Muffins', '🍎', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8158-8840-dab65ded58fb', 'team_default', 'Apple and Carrot Muffins', '🍎', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 - 3 large pasture-raised eggs
@@ -9643,8 +9682,8 @@ Ingredients:
 - 1 cup (120 g) peeled shredded apple
 - ½ cup (25 g) shredded carrots
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8189-9a04-fb014a87d722', 'Asparagus & Red Potato Frittata', '🍳', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8189-9a04-fb014a87d722', 'team_default', 'Asparagus & Red Potato Frittata', '🍳', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 - 2 tbsp (30 ml) extra-virgin olive oil
@@ -9656,8 +9695,8 @@ Ingredients:
 - ¼ cup (10 g) coarsely chopped basil
 - 2 tbsp (4 g) coarsely chopped chives
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8198-acd2-c71ccdc2defb', 'Honey-Garlic Chicken', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8198-acd2-c71ccdc2defb', 'team_default', 'Honey-Garlic Chicken', '🐔', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 
@@ -9676,8 +9715,8 @@ CHICKEN
 - 4 cloves garlic, minced
 - Coarsely chopped fresh parsley (optional)
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8153-8809-e8210b19dcc8', 'Crispy Carrots & Garlic ', '🥕', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8153-8809-e8210b19dcc8', 'team_default', 'Crispy Carrots & Garlic ', '🥕', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 - 4 Large Carrots - peeled and lengthwise into ribbons
@@ -9685,10 +9724,10 @@ Ingredients:
 - 4 cloves garlic , minced
 - 1/4 tsp sea salt
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8161-b144-f544f588abeb', 'Pork-Ginger Gyoza ', '🐖', NULL, NULL, NULL, NULL, 0, NULL, 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8150-b954-c9b4cc6118d5', 'Moroccan chicken', '🐔', NULL, NULL, NULL, NULL, 0, '- 2 lbs boneless chicken thighs
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8161-b144-f544f588abeb', 'team_default', 'Pork-Ginger Gyoza ', '🐖', NULL, NULL, NULL, NULL, 0, NULL, 1760729616543, 1760729616543, 0);
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8150-b954-c9b4cc6118d5', 'team_default', 'Moroccan chicken', '🐔', NULL, NULL, NULL, NULL, 0, '- 2 lbs boneless chicken thighs
 - ½ lb (1½ cups) red bell peppers, seeded and cut into large slices
 - 3 oz. (½ cup) shallots, peeled and halved
 - 1 tbsp paprika powder
@@ -9712,8 +9751,8 @@ VALUES ('28fde7a2-c4fc-8150-b954-c9b4cc6118d5', 'Moroccan chicken', '🐔', NULL
 
 - salt
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-818d-bb5c-fcac5821ab0b', 'Tzaziki Sauce', '🍶', NULL, NULL, NULL, NULL, 0, '- ¼ cup Mayo*
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-818d-bb5c-fcac5821ab0b', 'team_default', 'Tzaziki Sauce', '🍶', NULL, NULL, NULL, NULL, 0, '- ¼ cup Mayo*
 - [ ] 1 Tablespoon Milk
 - [ ] ¼ cup English Cucumbers - small diced
 - [ ] 1 Tablespoon Lemon Juice
@@ -9723,8 +9762,8 @@ VALUES ('28fde7a2-c4fc-818d-bb5c-fcac5821ab0b', 'Tzaziki Sauce', '🍶', NULL, N
 - [ ] ⅛ teaspoon Black Pepper
 - [ ] Salt to Taste*
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-813d-84db-e468626bf8dc', 'Instant Chicken Gumbo', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-813d-84db-e468626bf8dc', 'team_default', 'Instant Chicken Gumbo', '🐔', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - ¾ cup  oil
@@ -9747,8 +9786,8 @@ Ingredients:
 - 3 cups cooked rice, for serving
 - Fresh parsley, for serving
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-815d-b6e3-e8486f27ffb6', 'Instant Pot Pipian Pork', '🐖', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-815d-b6e3-e8486f27ffb6', 'team_default', 'Instant Pot Pipian Pork', '🐖', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 - 2 Cups Pipian Verde Sauce
@@ -9771,8 +9810,8 @@ Pipian Verde Sauce:
 - 1 tbsp salt
 - 2 tbsp oil
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81ab-a185-fbfbb5c63c73', 'Cast-Iron Dutch Baby Pancake with Warm Berry Compote', '🍳', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81ab-a185-fbfbb5c63c73', 'team_default', 'Cast-Iron Dutch Baby Pancake with Warm Berry Compote', '🍳', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - 5 tablespoons (69 g) salted butter
@@ -9789,8 +9828,8 @@ Berry Compote
 - Zest and juice of 1 small lemon
 - Pinch of sea salt
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81fa-b507-c7618689bd28', 'Grilled Chicken with Pepperocini Garlic Butter', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81fa-b507-c7618689bd28', 'team_default', 'Grilled Chicken with Pepperocini Garlic Butter', '🐔', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 
@@ -9824,8 +9863,8 @@ Ingredients:
 - [ ] **Hummus**
 - [ ] **Pita Bread**
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-816d-8e21-ec1cb5057b13', 'Macedonian Kebapi', '🍔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-816d-8e21-ec1cb5057b13', 'team_default', 'Macedonian Kebapi', '🍔', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 
@@ -9857,8 +9896,8 @@ Ingredients:
 - Juice of one lemon
 - salt (to taste)
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81fa-9a41-ead53deb2114', 'Roasted Jalapeno Sauerkraut with Dill and Garlic', '🥬', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81fa-9a41-ead53deb2114', 'team_default', 'Roasted Jalapeno Sauerkraut with Dill and Garlic', '🥬', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - 500 grams cabbage
@@ -9868,8 +9907,8 @@ Ingredients:
 - 50 grams garlic
 - 2 sprigs fresh dill
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81b1-a85d-fc3a3ac7ed52', 'Short Rib Sandwich', '🐮', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81b1-a85d-fc3a3ac7ed52', 'team_default', 'Short Rib Sandwich', '🐮', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - 2.5 Lbs short rib
@@ -9917,8 +9956,8 @@ Dipping Sauce:
 
 - Immersion blend the remaining liquids and onions in the Dutch oven.
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-811f-a095-d21b08fbbc68', 'Nutter Butter Cookies', '🥜', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-811f-a095-d21b08fbbc68', 'team_default', 'Nutter Butter Cookies', '🥜', NULL, NULL, NULL, NULL, 0, '
 Peanut Butter Cookies:
 
 - 1/2 cup [**creamy peanut butter**](https://amzn.to/40IYLZj)(ingredients should be peanuts and salt!)
@@ -9930,8 +9969,8 @@ Peanut Butter Cookies:
 - 1/4 cup [**peanut butter**](https://amzn.to/40IYLZj)
 - 1 tbsp honey or maple syrup
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-817d-b5eb-daa7b453a9f0', 'Sourdough Buns', '🍞', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-817d-b5eb-daa7b453a9f0', 'team_default', 'Sourdough Buns', '🍞', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - 1/2 cup sourdough starter, active and bubbly (113g)
@@ -9960,10 +9999,10 @@ Instructions
 8. Sprinkle with sesame seeds. (optional)
 9. Bake the buns for 25-30 minutes at 350 degrees. You want them to be golden on top.
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8175-9505-dbe437a2d48a', 'Balsamic Steak Tips with Herbed Potatoes & Asparagus', NULL, NULL, NULL, NULL, NULL, 0, NULL, 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81b1-8a6d-c87732a02828', 'Chicken Kebabs with Herbed Yogurt and Yogurt Naan', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8175-9505-dbe437a2d48a', 'team_default', 'Balsamic Steak Tips with Herbed Potatoes & Asparagus', NULL, NULL, NULL, NULL, NULL, 0, NULL, 1760729616543, 1760729616543, 0);
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81b1-8a6d-c87732a02828', 'team_default', 'Chicken Kebabs with Herbed Yogurt and Yogurt Naan', '🐔', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 
@@ -10002,8 +10041,8 @@ Instructions:
 **In a large bowl mix the flour, salt, and baking powder with a fork. Add the honey and greek yogurt and mix, mix, mix! Use your hand to knead the dough in the bowl until there is no flour left in the bottom. If it won’t come together, you can add a splash of water to help it form a ball. Cover it with a towel and let it rest for about 15 minutes while you heat up a large skillet over medium heat. You can use a stainless steel skillet, but I prefer to use my cast iron skillet or griddle. Cut the dough into 10 roughly equal pieces and roll them into balls. Use a rolling pin to roll them out as thinly as you can manage, about 1/4 inch thickness. It maybe helpful to put the dough between two pieces of parchment paper if you find it’s sticking. When you have a few rolled out, start cooking so you can alternate rolling and cooking at the same time. Just plop the flatbread onto the pan and let it cook for about 2 minutes on the first side, flip it and cook for another minute or two. Place it on a plate and cover it with a towel to keep warm. Repeat until they are all cooked and enjoy! We love ours with a bit of butter spread on and a sprinkle of salt.**
 
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8179-bb91-e07eec7bfbe6', 'Muesli Slice', '🍞', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8179-bb91-e07eec7bfbe6', 'team_default', 'Muesli Slice', '🍞', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 - 1 Cup Rolled Oats
@@ -10016,8 +10055,8 @@ Ingredients:
 - 1/4 cup tahini or nut butter
 - 60g melted chocolate
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-817d-95c1-ef2357f9f5ff', 'Beef Brisket - Oven 6 hrs ', '🐮', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-817d-95c1-ef2357f9f5ff', 'team_default', 'Beef Brisket - Oven 6 hrs ', '🐮', NULL, NULL, NULL, NULL, 0, '
 INGREDIENTS
 Drizzle of olive oil or ghee, to fry
 1.3-1.5 kg beef brisket
@@ -10037,10 +10076,10 @@ I use a mix of garlic powder, onion powder, cinnamon,
 sumac and smoked paprika.
 
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8117-a36e-d70313147b45', 'Sweet Potato Mash', '🍠', NULL, NULL, NULL, NULL, 0, NULL, 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81c7-aa91-db55ec14cf45', 'Mexican Mince ', '🐮', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8117-a36e-d70313147b45', 'team_default', 'Sweet Potato Mash', '🍠', NULL, NULL, NULL, NULL, 0, NULL, 1760729616543, 1760729616543, 0);
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81c7-aa91-db55ec14cf45', 'team_default', 'Mexican Mince ', '🐮', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 1 tablespoon ghee
 1 brown onion, diced
@@ -10060,8 +10099,8 @@ Ingredients:
 1 cup (250 ml) Bone Broth (page 304)
 
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8128-8acd-e8e8c46fde13', 'Good Gut Guacamole', '🥑', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8128-8acd-e8e8c46fde13', 'team_default', 'Good Gut Guacamole', '🥑', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 - 2 Ripe Avocados
@@ -10074,8 +10113,8 @@ Ingredients:
 - 2 tbsp yogurt
 - 1-2 tsp sauerkraut brine
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8127-81c1-d16991cad12d', 'One Skillet Lemon Butter Dijon Chicken and Orzo with Feta Sauce', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8127-81c1-d16991cad12d', 'team_default', 'One Skillet Lemon Butter Dijon Chicken and Orzo with Feta Sauce', '🐔', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - [ ] 3 tablespoons [extra virgin olive oil](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Flemon-butter-dijon-chicken-and-orzo%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Forganic-extra-virgin-olive-oil-16-9-fl-oz-good-38-gather-8482%2F-%2FA-82102661&u=https%3A%2F%2Fwww.target.com%2Fp%2Forganic-extra-virgin-olive-oil-16-9-fl-oz-good-38-gather-8482%2F-%2FA-82102661#donotlink)
@@ -10102,8 +10141,8 @@ Ingredients:
 - [ ] 1/4 teaspoon [smoked paprika](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Flemon-butter-dijon-chicken-and-orzo%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Fsmoked-spanish-paprika-2-12oz-good-38-gather-8482%2F-%2FA-84669679&u=https%3A%2F%2Fwww.target.com%2Fp%2Fsmoked-spanish-paprika-2-12oz-good-38-gather-8482%2F-%2FA-84669679#donotlink)
 - [ ] [crushed red pepper flakes](http://l.thrv.me/HBH4991-simply-organic-crushed-red-peppe)
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81b6-8cd3-fe6a5d53e801', 'Morning Crispy Smashed Egg Quiche', '🍳', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81b6-8cd3-fe6a5d53e801', 'team_default', 'Morning Crispy Smashed Egg Quiche', '🍳', NULL, NULL, NULL, NULL, 0, '
 INGREDIENTS
 
 - 5 potatoes
@@ -10128,8 +10167,8 @@ Mix the eggs with the milk and pour the mixture over the
 vegetables.
 - Top with cheese and bake for 25-30 minutes
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-815b-aeed-dcb8e6acdbe6', 'Quinoa Tabouli', '🌾', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-815b-aeed-dcb8e6acdbe6', 'team_default', 'Quinoa Tabouli', '🌾', NULL, NULL, NULL, NULL, 0, '
 ### **Ingredients**
 
 - [ ] 1 cup quinoa, rinsed well 
@@ -10144,8 +10183,8 @@ VALUES ('28fde7a2-c4fc-815b-aeed-dcb8e6acdbe6', 'Quinoa Tabouli', '🌾', NULL, 
 - [ ] sea salt and freshly ground black pepper, to taste
 - [ ] cucumber
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8196-ae0e-faee6fd3580d', 'Chicken Tortellini Soup', '🍲', '["Postpartum","Want to try","Dinner"]', NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8196-ae0e-faee6fd3580d', 'team_default', 'Chicken Tortellini Soup', '🍲', '["Postpartum","Want to try","Dinner"]', NULL, NULL, NULL, 0, '
 Ingredients:
 
 - 1 onion diced
@@ -10168,8 +10207,8 @@ Instructions:
 3. Add the tortellini to the slow cooker and cook for 10-15 minutes more or until they are puffy and heated through.
 4. Serve, garnished with parsley if desired.
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-815b-96b5-c34767b0f796', 'Garlic Parmsan Chicken Tenders w/ Roasted Broccoli', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-815b-96b5-c34767b0f796', 'team_default', 'Garlic Parmsan Chicken Tenders w/ Roasted Broccoli', '🐔', NULL, NULL, NULL, NULL, 0, '
 ### **Ingredients**
 
 - 2 lbs chicken tenders, thighs or breast
@@ -10193,8 +10232,8 @@ VALUES ('28fde7a2-c4fc-815b-96b5-c34767b0f796', 'Garlic Parmsan Chicken Tenders 
 - 1/2 teaspoon salt
 - 1/2 teaspoon pepper
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8193-b5e3-f9b731badf27', 'Mediterranean Ground Beef Stir Fry', '🍔', NULL, NULL, NULL, NULL, 0, '- [ ] 1 tablespoon olive oil
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8193-b5e3-f9b731badf27', 'team_default', 'Mediterranean Ground Beef Stir Fry', '🍔', NULL, NULL, NULL, NULL, 0, '- [ ] 1 tablespoon olive oil
 - [ ] 1 red bell pepper, deseeded and diced
 - [ ] 1 pint cherry tomatoes, sliced in half
 - [ ] 8 ounces baby spinach (small tub)
@@ -10205,8 +10244,8 @@ VALUES ('28fde7a2-c4fc-8193-b5e3-f9b731badf27', 'Mediterranean Ground Beef Stir 
 - [ ] kosher salt and freshly ground black pepper, to taste
 - [ ] 2 tablespoons crumbled feta
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81de-818d-c5f0178d58e2', 'Sheet Pan Hot Honey Mustard Chicken and Crispy Brussels Sprouts', '🍯', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81de-818d-c5f0178d58e2', 'team_default', 'Sheet Pan Hot Honey Mustard Chicken and Crispy Brussels Sprouts', '🍯', NULL, NULL, NULL, NULL, 0, '
 ### **Ingredients**
 
 - 2 pounds boneless chicken breasts or thighs
@@ -10235,8 +10274,8 @@ VALUES ('28fde7a2-c4fc-81de-818d-c5f0178d58e2', 'Sheet Pan Hot Honey Mustard Chi
 
 - 1. Preheat the oven to 450° F. Line a baking sheet with parchment paper or grease with oil.2. Add the chicken and egg to a bowl. Toss to combine. Add the cornflakes, flour, and a pinch of salt to another bowl. Dredge the chicken in batches through the crumbs, tossing to coat. Place the chicken on one side of the prepared baking sheet. Drizzle with olive oil. 3. Add the Brussels sprouts and shallots to the other side of the pan and toss with 2 tablespoons oil, salt, and pepper. Bake for 20 minutes, until the chicken is cooked through. Reduce the oven temp to 400° F.4. Meanwhile, make the sauce. Combine all ingredients in a bowl until smooth and creamy. If the sauce stiffens, warm in the microwave or on the stove. 5. Spoon the sauce over the chicken, coating each piece. Toss the sprouts with 1 tablespoon oil. Return everything to the oven for 3-5 minutes. 6. Serve the chicken with extra sauce and the Brussels sprouts on the side. Top with fresh thyme.
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8173-9736-f750b9e45990', 'Sous Vide Ginger Soy Salmon', '🎣', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8173-9736-f750b9e45990', 'team_default', 'Sous Vide Ginger Soy Salmon', '🎣', NULL, NULL, NULL, NULL, 0, '
 Marinade: 
 
 - 1/4 cup soy sauce
@@ -10259,8 +10298,8 @@ Marinade:
 2. Heat medium size skillet on high and add oil. Sear the fish skin side down for 1 minute, flip the salmon and sear for 30 seconds - 1 minute fish side down. Remove from pan, serve and enjoy!
 
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8115-bd0e-c54c6743f8f9', 'Maple Chicken Hash', '🍳', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8115-bd0e-c54c6743f8f9', 'team_default', 'Maple Chicken Hash', '🍳', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - 1 T butter
@@ -10296,8 +10335,8 @@ Optional: make a few wells and crack some eggs! Cover and cook until whites are 
 Pairs well with: a side of fruit, if needed!
 
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81c3-a1a2-c30405020eee', 'Blueberry Muffins', '🍳', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81c3-a1a2-c30405020eee', 'team_default', 'Blueberry Muffins', '🍳', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 - 1 tsp lemon juice
@@ -10329,10 +10368,10 @@ PREPARATION
 Pairs well with: sausages, eggs, or yogurt
 
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8170-9904-ea4ee06bd6c0', 'Mustard + Dill Smashed Taters ', '🥔', NULL, NULL, NULL, NULL, 0, NULL, 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8104-823c-c166855db50a', 'Dill Pickle Salt and Vinegar Chicken Salad', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8170-9904-ea4ee06bd6c0', 'team_default', 'Mustard + Dill Smashed Taters ', '🥔', NULL, NULL, NULL, NULL, 0, NULL, 1760729616543, 1760729616543, 0);
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8104-823c-c166855db50a', 'team_default', 'Dill Pickle Salt and Vinegar Chicken Salad', '🐔', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 
@@ -10365,8 +10404,8 @@ Ingredients:
 - [ ] 1/3 cup [fresh chopped basil](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fsalt-and-vinegar-chicken-salad%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Fgourmet-garden-lightly-dried-basil-0-42oz%2F-%2FA-49132048&u=https%3A%2F%2Fwww.target.com%2Fp%2Fgourmet-garden-lightly-dried-basil-0-42oz%2F-%2FA-49132048#donotlink)
 - [ ] 2 tablespoons [fresh chopped dill](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fsalt-and-vinegar-chicken-salad%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Forganic-dill-0-5oz-good-38-gather-8482%2F-%2FA-79495117&u=https%3A%2F%2Fwww.target.com%2Fp%2Forganic-dill-0-5oz-good-38-gather-8482%2F-%2FA-79495117#donotlink)
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-810a-b7f6-d19320999987', 'Garlic Parmesan Chicken Skewers', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-810a-b7f6-d19320999987', 'team_default', 'Garlic Parmesan Chicken Skewers', '🐔', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 
@@ -10422,8 +10461,8 @@ chicken rest for 5 minutes, then baste with the
 reserved butter. Optionallv finish with more
 parmesan and fresh parsley. Enjoy!
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81ba-88eb-f2435df51c59', 'Korean Style Grilled Short Ribs', '🐄', NULL, NULL, NULL, NULL, 0, '- ¼ cup (60 mL) tamari
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81ba-88eb-f2435df51c59', 'team_default', 'Korean Style Grilled Short Ribs', '🐄', NULL, NULL, NULL, NULL, 0, '- ¼ cup (60 mL) tamari
 - 3 tablespoons (45 mL) raw honey
 - 3 tablespoons (45 mL) rice vinegar
 - 1 tablespoon sesame oil
@@ -10435,8 +10474,8 @@ VALUES ('28fde7a2-c4fc-81ba-88eb-f2435df51c59', 'Korean Style Grilled Short Ribs
 - 1 tablespoon unsalted grass-fed
 butter (optional)
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81e1-a977-db6935330995', 'Beef Bone Broth', '🍲', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81e1-a977-db6935330995', 'team_default', 'Beef Bone Broth', '🍲', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - 5 lbs beef bones, joints are best, try to avoid fatty bones like marrow bones.
@@ -10449,8 +10488,8 @@ Ingredients:
 - 5 sprigs of thyme
 - 1 head of garlic, sliced in half
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81b8-91de-f7d4407a9c02', 'Greek Chicken Souvlaki Recipe', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81b8-91de-f7d4407a9c02', 'team_default', 'Greek Chicken Souvlaki Recipe', '🐔', NULL, NULL, NULL, NULL, 0, '
 # **Ingredients**
 
 - 1 lb. boneless, skinless, chicken breasts, in bite size pieces
@@ -10469,8 +10508,8 @@ VALUES ('28fde7a2-c4fc-81b8-91de-f7d4407a9c02', 'Greek Chicken Souvlaki Recipe',
 - Remove chicken from marinade, and toss leftover marinade. Thread chicken onto skewers and grill until cooked thoroughly on an outdoor grill or on the stove top with grill pan. Serve warm!
 - Serve with [**Tzatziki sauce**](https://thenovicechefblog.com/tzatziki-sauce/) for dipping, as a topping for Greek salad, in pita for chicken gyros or wiht Greek sides or roasted vegetables.
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8181-a069-fb18b9237dfd', 'greek seasoning', '🌿', NULL, NULL, NULL, NULL, 0, '- 2 teaspoons salt
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8181-a069-fb18b9237dfd', 'team_default', 'greek seasoning', '🌿', NULL, NULL, NULL, NULL, 0, '- 2 teaspoons salt
 - 2 teaspoons garlic powder
 - 2 teaspoons Greek oregano
 - 2 teaspoons dried basil
@@ -10483,8 +10522,8 @@ VALUES ('28fde7a2-c4fc-8181-a069-fb18b9237dfd', 'greek seasoning', '🌿', NULL,
 - ¼ teaspoon ground cinnamon
 - ¼ teaspoon ground nutmeg
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8138-be92-f97603eb681c', 'Mediterranean Salmon', '🐟', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8138-be92-f97603eb681c', 'team_default', 'Mediterranean Salmon', '🐟', NULL, NULL, NULL, NULL, 0, '
 ### SALMON:
 
 
@@ -10539,8 +10578,8 @@ Cracked **black Pepper**
 Cracked **black pepper**
 
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81e7-8021-c77383684d5d', 'One Pan Spicy Sesame Butter Chicken.', '🐔', NULL, NULL, NULL, NULL, 0, '- [ ] 2 pounds [small boneless chicken breasts or thighs](https://www.target.com/p/boneless-38-skinless-chicken-breasts-1-65-3-975-lbs-price-per-lb-good-38-gather-8482/-/A-54197514#lnk=sametab)
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81e7-8021-c77383684d5d', 'team_default', 'One Pan Spicy Sesame Butter Chicken.', '🐔', NULL, NULL, NULL, NULL, 0, '- [ ] 2 pounds [small boneless chicken breasts or thighs](https://www.target.com/p/boneless-38-skinless-chicken-breasts-1-65-3-975-lbs-price-per-lb-good-38-gather-8482/-/A-54197514#lnk=sametab)
 - [ ] 1/4 cup [plain Greek yogurt](https://www.target.com/p/fage-total-2-milkfat-plain-greek-yogurt-32oz/-/A-14931777#lnk=sametab)
 - [ ] 6 cloves [garlic, chopped](https://www.target.com/p/spice-world-fresh-whole-garlic-3ct-bag/-/A-14917318#lnk=sametab)
 - [ ] 2 tablespoons [fresh grated ginger](https://www.target.com/p/frozen-crushed-ginger-cubes-2-5oz-good-38-gather-8482/-/A-78470749#lnk=sametab)
@@ -10564,8 +10603,8 @@ VALUES ('28fde7a2-c4fc-81e7-8021-c77383684d5d', 'One Pan Spicy Sesame Butter Chi
 - [ ] 1-2 teaspoons [chili flakes](https://shopstyle.it/l/b7lE6)
 - [ ] 1/2 teaspoon [paprika](https://www.target.com/p/grounpaprika-2-12oz-good-38-gather-8482/-/A-77587875#lnk=sametab)
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-817e-9bad-e52bc2851e31', 'cilantro lime salmon', '🐟', NULL, NULL, NULL, NULL, 0, '- **2** **tbsp.** extra-virgin olive oil
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-817e-9bad-e52bc2851e31', 'team_default', 'cilantro lime salmon', '🐟', NULL, NULL, NULL, NULL, 0, '- **2** **tbsp.** extra-virgin olive oil
 - **4** (6-oz.) salmon fillets
 - kosher salt
 - Freshly ground black pepper
@@ -10578,8 +10617,8 @@ VALUES ('28fde7a2-c4fc-817e-9bad-e52bc2851e31', 'cilantro lime salmon', '🐟', 
 - **1/4** **c.** freshly chopped cilantro, plus more for garnish
 - **1** **1/2** **c.** cooked white rice, for serving
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81b2-9ab8-e46345060fcf', 'Whole Roasted Cauliflower with Nutty Dijon Vinaigrette', '🥦', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81b2-9ab8-e46345060fcf', 'team_default', 'Whole Roasted Cauliflower with Nutty Dijon Vinaigrette', '🥦', NULL, NULL, NULL, NULL, 0, '
 INGREDIENTS:
 ¼ cup Nutty Dijon Vinaigrette (page 53)
 1 whole cauliflower head (about 2 pounds)
@@ -10588,8 +10627,8 @@ Kosher salt
 ¼cup minced fresh Italian parsley
 
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81d9-ad3f-f5f5f81efcc9', 'Oven Braised Beef Stew', '🐮', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81d9-ad3f-f5f5f81efcc9', 'team_default', 'Oven Braised Beef Stew', '🐮', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 - 2 tbsp tallow, [Zero Acre oil](http://zeroacre.com/KELLY), or avocado oil
@@ -10608,8 +10647,8 @@ Ingredients:
 - 12 oz [beef bone broth](https://fondbonebroth.com/?rfsn=6630615.2a157d8) (about 1 ½ cups)
 - Bag of small potatoes of choice
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8140-8df3-c4eeb2641246', 'Grilled Burger with Swiss Cheese, Sauerkraut, and Chipotle Mayo', '🍔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8140-8df3-c4eeb2641246', 'team_default', 'Grilled Burger with Swiss Cheese, Sauerkraut, and Chipotle Mayo', '🍔', NULL, NULL, NULL, NULL, 0, '
 ### Ingredients:
 
 - 24 oz ground beef
@@ -10624,8 +10663,8 @@ VALUES ('28fde7a2-c4fc-8140-8df3-c4eeb2641246', 'Grilled Burger with Swiss Chees
 - ¼ cup chipotle mayonnaise
 - Salt and pepper, to taste
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-819f-97c7-e05613ecb6b9', 'Cilantro Lime Sweet Potatoes ', '🍠', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-819f-97c7-e05613ecb6b9', 'team_default', 'Cilantro Lime Sweet Potatoes ', '🍠', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 - 3 cups peeled and diced sweet potato
@@ -10637,8 +10676,8 @@ Ingredients:
 - juice of 1/2 lime
 - top with fresh cilantro
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-811f-9cca-d9c6aa01a73f', 'Zucchini Banana Bread', '🍆', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-811f-9cca-d9c6aa01a73f', 'team_default', 'Zucchini Banana Bread', '🍆', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 - 1&1/2 cups oats (can swap for 1 cup cassava if you prefer grain-free)
@@ -10654,8 +10693,8 @@ Ingredients:
 - 1/2 tsp salt
 - 1/2 tsp baking soda
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81c7-9ed3-eb2c1dac633d', 'Strawberry Jelly Gummies', '🍓', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81c7-9ed3-eb2c1dac633d', 'team_default', 'Strawberry Jelly Gummies', '🍓', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 - 2 cups frozen strawberries
@@ -10695,8 +10734,8 @@ parchment paper-lined baking dish and
 allow to set in fridge. Serves 3.
 
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81bc-9af8-c80990de33cc', 'Herb-crusted chicken with roasted veggies ', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81bc-9af8-c80990de33cc', 'team_default', 'Herb-crusted chicken with roasted veggies ', '🐔', NULL, NULL, NULL, NULL, 0, '
 Herb-Crusted Chicken with Roasted Vegetables This is a simple yet impressive recipe that''s great for a weeknight meal or a dinner party. The herb crust adds a wonderful texture and aroma.
 
 
@@ -10721,8 +10760,8 @@ Instructions:
 5. Place the herb-crusted chicken breasts on the baking sheet alongside the vegetables.
 6. Roast for 20-25 minutes, or until the chicken is cooked through and the vegetables are tender and lightly caramelized.
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8106-b1d8-ed492fb77194', 'Lemony chicken stirfry', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8106-b1d8-ed492fb77194', 'team_default', 'Lemony chicken stirfry', '🐔', NULL, NULL, NULL, NULL, 0, '
 Lemony Chicken and Zucchini Stir-Fry
 
 
@@ -10753,8 +10792,8 @@ Remove from the skillet and set aside.
 5. Return the cooked chicken to the skillet. Pour the lemon sauce over everything and toss to combine.
 6. Cook for another minute to heat the sauce through. Serve immediately, perhaps with a garnish of fresh parsley.
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-811b-af73-fc7cd9da750b', 'Thyme Pork Skillet', '🐖', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-811b-af73-fc7cd9da750b', 'team_default', 'Thyme Pork Skillet', '🐖', NULL, NULL, NULL, NULL, 0, '
 **Ingredients**
 
 
@@ -10800,8 +10839,8 @@ Optional, balsamic vinegar or glaze to top
 3. Drizzle balsamic glaze and a few more dashes of thyme for an extra flavor burst. Serves 5.
 
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8151-b5b4-f7b3636cf8f3', 'Grilled chicken', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8151-b5b4-f7b3636cf8f3', 'team_default', 'Grilled chicken', '🐔', NULL, NULL, NULL, NULL, 0, '
 **Lemon Garlic Chicken Marinade:**
 
 - 4 skinless, boneless chicken breasts
@@ -10813,8 +10852,8 @@ VALUES ('28fde7a2-c4fc-8151-b5b4-f7b3636cf8f3', 'Grilled chicken', '🐔', NULL,
 - 1/4 teaspoon salt
 - 1/4 teaspoon pepper
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-816e-a6ee-df612900a902', 'Feta Salad', '🥗', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-816e-a6ee-df612900a902', 'team_default', 'Feta Salad', '🥗', NULL, NULL, NULL, NULL, 0, '
 Dressing: 
 
 
@@ -10834,8 +10873,8 @@ Salad:
 - avocado
 - peperoncini
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81f3-90db-d0b8e3381912', 'Frozen Peach Lemonade', '🍹', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81f3-90db-d0b8e3381912', 'team_default', 'Frozen Peach Lemonade', '🍹', NULL, NULL, NULL, NULL, 0, '
 Recipe:
 
 - 2 Cups Frozen Peaches
@@ -10844,8 +10883,8 @@ Recipe:
 - 1/2 Cup Water
 - Ice - for texture
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8196-bbb7-de6aa3883d90', 'Zucchini Bread', '🍞', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8196-bbb7-de6aa3883d90', 'team_default', 'Zucchini Bread', '🍞', NULL, NULL, NULL, NULL, 0, '
 Ingredients:
 
 - 2 cups all purpose flour
@@ -10859,8 +10898,8 @@ Ingredients:
 - 1 tablespoon vanilla
 - 1 ½ cups walnuts chopped
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81ff-af5a-dd708cb56c95', 'Almost Instant Red Curry Beef and Garlic Noodles', '🐮', NULL, NULL, NULL, NULL, 0, '- [ ] 1/4 cup [sesame or olive oil](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fred-curry-beef-and-garlic-noodles%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Forganic-virgin-sesame-oil-8-45oz-good-38-gather-8482%2F-%2FA-77597065&u=https%3A%2F%2Fwww.target.com%2Fp%2Forganic-virgin-sesame-oil-8-45oz-good-38-gather-8482%2F-%2FA-77597065#donotlink)
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81ff-af5a-dd708cb56c95', 'team_default', 'Almost Instant Red Curry Beef and Garlic Noodles', '🐮', NULL, NULL, NULL, NULL, 0, '- [ ] 1/4 cup [sesame or olive oil](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fred-curry-beef-and-garlic-noodles%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Forganic-virgin-sesame-oil-8-45oz-good-38-gather-8482%2F-%2FA-77597065&u=https%3A%2F%2Fwww.target.com%2Fp%2Forganic-virgin-sesame-oil-8-45oz-good-38-gather-8482%2F-%2FA-77597065#donotlink)
 - [ ] 2 tablespoons [butter](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fred-curry-beef-and-garlic-noodles%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Forganic-salted-butter-1lb-good-gather-8482%2F-%2FA-54575962&u=https%3A%2F%2Fwww.target.com%2Fp%2Forganic-salted-butter-1lb-good-gather-8482%2F-%2FA-54575962#donotlink)
 - [ ] 1/3 cup [green onions, sliced](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fred-curry-beef-and-garlic-noodles%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Forganic-green-onion-bunch-4-5oz%2F-%2FA-16250486&u=https%3A%2F%2Fwww.target.com%2Fp%2Forganic-green-onion-bunch-4-5oz%2F-%2FA-16250486#donotlink)
 - [ ] 1-3 tablespoons [Thai red curry paste](https://shopstyle.it/l/bKbWL)
@@ -10876,16 +10915,16 @@ VALUES ('28fde7a2-c4fc-81ff-af5a-dd708cb56c95', 'Almost Instant Red Curry Beef a
 - [ ] 1/3 cup [tamari or soy sauce](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fred-curry-beef-and-garlic-noodles%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Fsan-j-organic-tamari-wheat-free-soy-sauce-10-oz%2F-%2FA-13097075&u=https%3A%2F%2Fwww.target.com%2Fp%2Fsan-j-organic-tamari-wheat-free-soy-sauce-10-oz%2F-%2FA-13097075#donotlink)
 - [ ] 1 teaspoon [honey](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Fred-curry-beef-and-garlic-noodles%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Forganic-raw-unfiltered-pure-honey-12oz-good-38-gather-8482%2F-%2FA-54436263&u=https%3A%2F%2Fwww.target.com%2Fp%2Forganic-raw-unfiltered-pure-honey-12oz-good-38-gather-8482%2F-%2FA-54436263#donotlink)
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8198-b348-ffd7854816de', 'Mint chocolate chip ice cream', '🍦', NULL, NULL, NULL, NULL, 0, '- 1 tbsp cream cheese
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8198-b348-ffd7854816de', 'team_default', 'Mint chocolate chip ice cream', '🍦', NULL, NULL, NULL, NULL, 0, '- 1 tbsp cream cheese
 - 1/3 cup sugar
 - 1 tsp peppermint extract
 - 1 cup whole milk
 - 3/4 cup heavy cream
 - 1/4 cup mini chocolate chips or finely chopped chocolate
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-814e-83b7-c77bf7579000', 'Chocolate Chip cookie dough ice cream', '🍦', NULL, NULL, NULL, NULL, 0, '- **1 tablespoon** cream cheese, softened
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-814e-83b7-c77bf7579000', 'team_default', 'Chocolate Chip cookie dough ice cream', '🍦', NULL, NULL, NULL, NULL, 0, '- **1 tablespoon** cream cheese, softened
 - **1/3 cup** granulated sugar
 - **1 teaspoon** vanilla extract
 - **3/4 cup** heavy cream
@@ -10893,8 +10932,8 @@ VALUES ('28fde7a2-c4fc-814e-83b7-c77bf7579000', 'Chocolate Chip cookie dough ice
 - **1/4 cup** edible frozen cookie dough chunks
 - **1 tablespoon** mini chocolate chips
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81c3-9347-f1fa78958c3d', 'Apple Pop Tarts', '🥧', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81c3-9347-f1fa78958c3d', 'team_default', 'Apple Pop Tarts', '🥧', NULL, NULL, NULL, NULL, 0, '
 **Ingredients:**
 
 
@@ -10928,10 +10967,10 @@ VALUES ('28fde7a2-c4fc-81c3-9347-f1fa78958c3d', 'Apple Pop Tarts', '🥧', NULL,
 - 1 tsp cinnamon
 - 1 - 2 Tbsp apple cider
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8155-a0e0-fac2f9c6a7d6', 'Sourdough pie crust', '🥧', NULL, NULL, NULL, NULL, 0, NULL, 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8151-845c-d1fd3e83dcac', 'Thai Basil Beef', '🍔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8155-a0e0-fac2f9c6a7d6', 'team_default', 'Sourdough pie crust', '🥧', NULL, NULL, NULL, NULL, 0, NULL, 1760729616543, 1760729616543, 0);
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8151-845c-d1fd3e83dcac', 'team_default', 'Thai Basil Beef', '🍔', NULL, NULL, NULL, NULL, 0, '
 ### ingredients
 
 - 1 pound ground beef
@@ -10952,12 +10991,12 @@ VALUES ('28fde7a2-c4fc-8151-845c-d1fd3e83dcac', 'Thai Basil Beef', '🍔', NULL,
 3. Add the fish sauce, sugar, lime and basil and cook until the basil just starts to wilt, about a minute. (Taste test and adjust to make sure that the balance of salty, sweet and sour is just the way you like it!)
 4. Enjoy garnished with green onions!
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81da-ade6-f2bbe8ea7a0e', 'Sweet Potato', '🍠', NULL, NULL, NULL, NULL, 0, NULL, 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-810b-8f07-c864d0587609', 'Grilled Pork chop', '🐷', NULL, NULL, NULL, NULL, 0, NULL, 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8146-bf11-f98268745316', 'Goat cheese stuffed Rosemary chicken', '🐔', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81da-ade6-f2bbe8ea7a0e', 'team_default', 'Sweet Potato', '🍠', NULL, NULL, NULL, NULL, 0, NULL, 1760729616543, 1760729616543, 0);
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-810b-8f07-c864d0587609', 'team_default', 'Grilled Pork chop', '🐷', NULL, NULL, NULL, NULL, 0, NULL, 1760729616543, 1760729616543, 0);
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8146-bf11-f98268745316', 'team_default', 'Goat cheese stuffed Rosemary chicken', '🐔', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 - 3 large chicken breasts
@@ -10969,10 +11008,10 @@ Ingredients:
 - 6 tablespoons of goat cheese (3–4 ounces)
 - 6 slices of prosciutto
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81fd-95a5-f91ca570dd61', 'Smoked brisket', '🐮', NULL, NULL, NULL, NULL, 0, NULL, 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81b9-a3af-c6abab6fa872', 'Sunday Gravy', '🐮', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81fd-95a5-f91ca570dd61', 'team_default', 'Smoked brisket', '🐮', NULL, NULL, NULL, NULL, 0, NULL, 1760729616543, 1760729616543, 0);
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81b9-a3af-c6abab6fa872', 'team_default', 'Sunday Gravy', '🐮', NULL, NULL, NULL, NULL, 0, '
 INGREDIENTS:
 
 
@@ -11030,8 +11069,8 @@ Kosher salt
 ¼ cup chopped fresh Italian parsley
 
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-817f-88bf-cee0771f874a', 'One Pan Roasted Herb Chicken and Wild Rice', '🐔', NULL, NULL, NULL, NULL, 0, '- [ ] 6 chicken thighs _(skin on or off)_
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-817f-88bf-cee0771f874a', 'team_default', 'One Pan Roasted Herb Chicken and Wild Rice', '🐔', NULL, NULL, NULL, NULL, 0, '- [ ] 6 chicken thighs _(skin on or off)_
 - [ ] 2 tablespoons [extra virgin olive oil](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Froasted-herb-chicken-and-wild-rice%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Forganic-extra-virgin-olive-oil-16-9-fl-oz-good-38-gather-8482%2F-%2FA-82102661&u=https%3A%2F%2Fwww.target.com%2Fp%2Forganic-extra-virgin-olive-oil-16-9-fl-oz-good-38-gather-8482%2F-%2FA-82102661#donotlink)
 - [ ] 2 [shallots, chopped](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Froasted-herb-chicken-and-wild-rice%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Fshallots-price-per-lb%2F-%2FA-14993271&u=https%3A%2F%2Fwww.target.com%2Fp%2Fshallots-price-per-lb%2F-%2FA-14993271#donotlink)
 - [ ] 2 cloves [garlic, chopped](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Froasted-herb-chicken-and-wild-rice%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Fspice-world-fresh-whole-garlic-3ct-bag%2F-%2FA-14917318&u=https%3A%2F%2Fwww.target.com%2Fp%2Fspice-world-fresh-whole-garlic-3ct-bag%2F-%2FA-14917318#donotlink)
@@ -11049,8 +11088,8 @@ VALUES ('28fde7a2-c4fc-817f-88bf-cee0771f874a', 'One Pan Roasted Herb Chicken an
 - [ ] 2 cup [chicken or chicken bone broth](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Froasted-herb-chicken-and-wild-rice%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Fkettle-38-fire-organic-gluten-free-chicken-bone-broth-16-9oz%2F-%2FA-79750659&u=https%3A%2F%2Fwww.target.com%2Fp%2Fkettle-38-fire-organic-gluten-free-chicken-bone-broth-16-9oz%2F-%2FA-79750659#donotlink)
 - [ ] 6 tablespoons [salted butter](https://goto.target.com/c/2773249/81938/2092?subid1=58c18d1bf051050f829e3c0b&subid2=https%3A%2F%2Fwww.halfbakedharvest.com%2Froasted-herb-chicken-and-wild-rice%2F&sharedid=Half%20Baked%20Harvest&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Forganic-salted-butter-1lb-good-gather-8482%2F-%2FA-54575962&u=https%3A%2F%2Fwww.target.com%2Fp%2Forganic-salted-butter-1lb-good-gather-8482%2F-%2FA-54575962#donotlink)
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-81b7-a94b-dfbc27562071', 'Sticky Mongolian Meatballs', '🧆', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-81b7-a94b-dfbc27562071', 'team_default', 'Sticky Mongolian Meatballs', '🧆', NULL, NULL, NULL, NULL, 0, '
 ### **Ingredients**
 
 - 2 pounds ground beef
@@ -11078,8 +11117,8 @@ VALUES ('28fde7a2-c4fc-81b7-a94b-dfbc27562071', 'Sticky Mongolian Meatballs', '�
 - 3 [green onions](https://goto.target.com/c/2773249/81938/2092?subid1=57e5910763fc93c1288f0930&subid2=https%3A%2F%2Fwww.platingsandpairings.com%2Fsticky-mongolian-beef-meatballs-30-minute-recipe%2F&sharedid=Platings%20and%20Pairings&subid3=https%3A%2F%2Fwww.target.com%2Fp%2Fgreen-onions-5-5oz-good-38-gather-8482%2F-%2FA-78873596%3Faflt%3Dplt&u=https%3A%2F%2Fwww.target.com%2Fp%2Fgreen-onions-5-5oz-good-38-gather-8482%2F-%2FA-78873596%3Faflt%3Dplt#donotlink) (thinly sliced)
 - [Sesame seeds](http://amzn.to/2rjs5Id)
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8103-89da-fa0eb89c33d2', 'Shawarma "Singapore" Noodles ', '🍜', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8103-89da-fa0eb89c33d2', 'team_default', 'Shawarma "Singapore" Noodles ', '🍜', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 
@@ -11130,8 +11169,8 @@ Veggies:
 - Broccoli
 - Tomatoes
 ', 1760729616543, 1760729616543, 0);
-INSERT INTO recipes (id, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
-VALUES ('28fde7a2-c4fc-8129-a3df-f66d19d85e30', 'Lemon Curd Gummies', '🍋', NULL, NULL, NULL, NULL, 0, '
+INSERT INTO recipes (id, teamId, name, emoji, tags, mealType, difficulty, lastMadeDate, mealsEatenCount, recipeBody, createdAt, updatedAt, updateCounter)
+VALUES ('28fde7a2-c4fc-8129-a3df-f66d19d85e30', 'team_default', 'Lemon Curd Gummies', '🍋', NULL, NULL, NULL, NULL, 0, '
 Ingredients: 
 
 - 1/3 C butter
