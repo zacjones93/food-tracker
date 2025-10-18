@@ -4,14 +4,19 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import type { Recipe } from "@/db/schema";
+import type { Recipe, RecipeBook } from "@/db/schema";
 import { format } from "date-fns";
-import { ArrowLeft, Clock, ChefHat, Calendar, Plus } from "lucide-react";
+import { ArrowLeft, Clock, ChefHat, Calendar, Plus, ExternalLink, BookOpen } from "lucide-react";
 import { useRouter } from "next/navigation";
 import ReactMarkdown from "react-markdown";
+import { AddToSchedule } from "../../_components/add-to-schedule";
+import { EditIngredientsDialog } from "./edit-ingredients-dialog";
+import { EditInstructionsDialog } from "./edit-instructions-dialog";
 
 interface RecipeDetailProps {
-  recipe: Recipe;
+  recipe: Recipe & {
+    recipeBook?: RecipeBook | null;
+  };
 }
 
 export function RecipeDetail({ recipe }: RecipeDetailProps) {
@@ -36,6 +41,7 @@ export function RecipeDetail({ recipe }: RecipeDetailProps) {
             <h1 className="text-3xl font-bold">{recipe.name}</h1>
           </div>
         </div>
+        <AddToSchedule recipeId={recipe.id} variant="default" />
       </div>
 
       {/* Metadata */}
@@ -92,6 +98,48 @@ export function RecipeDetail({ recipe }: RecipeDetailProps) {
           )}
         </div>
 
+        {(recipe.recipeLink || recipe.recipeBook) && (
+          <>
+            <Separator className="my-4" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {recipe.recipeLink && (
+                <div className="space-y-1">
+                  <div className="text-sm text-muted-foreground flex items-center gap-2">
+                    <ExternalLink className="h-4 w-4" />
+                    Recipe Link
+                  </div>
+                  <a
+                    href={recipe.recipeLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline flex items-center gap-1 text-sm"
+                  >
+                    View Original
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                </div>
+              )}
+
+              {recipe.recipeBook && (
+                <div className="space-y-1">
+                  <div className="text-sm text-muted-foreground flex items-center gap-2">
+                    <BookOpen className="h-4 w-4" />
+                    Recipe Book
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium">{recipe.recipeBook.name}</span>
+                    {recipe.page && (
+                      <Badge variant="outline" className="text-xs">
+                        p. {recipe.page}
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </>
+        )}
+
         {recipe.tags && recipe.tags.length > 0 && (
           <>
             <Separator className="my-4" />
@@ -110,9 +158,12 @@ export function RecipeDetail({ recipe }: RecipeDetailProps) {
       </Card>
 
       {/* Ingredients */}
-      {recipe.ingredients && recipe.ingredients.length > 0 && (
+      {recipe.ingredients && recipe.ingredients.length > 0 ? (
         <Card className="p-6">
-          <h2 className="text-xl font-semibold mb-4">Ingredients</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold">Ingredients</h2>
+            <EditIngredientsDialog recipe={recipe} />
+          </div>
           <ul className="space-y-2">
             {recipe.ingredients.map((ingredient, i) => (
               <li key={i} className="flex items-start gap-2">
@@ -122,26 +173,34 @@ export function RecipeDetail({ recipe }: RecipeDetailProps) {
             ))}
           </ul>
         </Card>
+      ) : (
+        <Card className="p-12 text-center">
+          <p className="text-muted-foreground mb-4">
+            No ingredients added yet.
+          </p>
+          <EditIngredientsDialog recipe={recipe} />
+        </Card>
       )}
 
       {/* Recipe Body */}
-      {recipe.recipeBody && (
+      {recipe.recipeBody ? (
         <Card className="p-6">
-          <h2 className="text-xl font-semibold mb-4">Instructions</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold">Instructions</h2>
+            <EditInstructionsDialog recipe={recipe} />
+          </div>
           <div className="prose prose-sm max-w-none dark:prose-invert">
             <ReactMarkdown>{recipe.recipeBody}</ReactMarkdown>
           </div>
         </Card>
+      ) : (
+        <Card className="p-12 text-center">
+          <p className="text-muted-foreground mb-4">
+            No instructions added yet.
+          </p>
+          <EditInstructionsDialog recipe={recipe} />
+        </Card>
       )}
-
-      {(!recipe.ingredients || recipe.ingredients.length === 0) &&
-        !recipe.recipeBody && (
-          <Card className="p-12 text-center">
-            <p className="text-muted-foreground">
-              No recipe content added yet.
-            </p>
-          </Card>
-        )}
     </div>
   );
 }

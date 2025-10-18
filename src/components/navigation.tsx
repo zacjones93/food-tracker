@@ -1,9 +1,10 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import type { Route } from 'next'
 import { usePathname } from "next/navigation"
-import { ComponentIcon, Menu } from 'lucide-react'
+import { Menu } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { useSessionStore } from "@/state/session"
@@ -61,8 +62,14 @@ export function Navigation() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
-            <Link href="/" className="text-xl md:text-2xl font-bold text-primary flex items-center gap-2 md:gap-3">
-              <ComponentIcon className="w-6 h-6 md:w-7 md:h-7" />
+            <Link href="/" className="text-xl md:text-2xl font-heading font-bold text-primary flex items-center gap-2 md:gap-3">
+              <Image
+                src="/assets/logo.svg"
+                alt="Logo"
+                width={28}
+                height={28}
+                className="w-10 h-10"
+              />
               {SITE_NAME}
             </Link>
           </div>

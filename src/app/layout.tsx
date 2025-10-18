@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Rosarivo, Raleway } from "next/font/google";
 import "./globals.css";
 import "server-only";
 
@@ -11,7 +11,16 @@ import { SITE_NAME, SITE_DESCRIPTION, SITE_URL } from "@/constants";
 
 export const dynamic = "force-dynamic";
 
-const inter = Inter({ subsets: ["latin"] });
+const rosarivo = Rosarivo({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--font-rosarivo"
+});
+
+const raleway = Raleway({
+  subsets: ["latin"],
+  variable: "--font-raleway"
+});
 
 export const metadata: Metadata = {
   title: {
@@ -57,7 +66,7 @@ export default function BaseLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
+      <body className={`${raleway.variable} ${rosarivo.variable} font-sans`}>
         <NextTopLoader
           initialPosition={0.15}
           shadow="0 0 10px #000, 0 0 5px #000"
