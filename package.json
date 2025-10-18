@@ -13,6 +13,7 @@
     "deploy": "pnpm run opennext:build && opennextjs-cloudflare deploy",
     "preview": "pnpm run opennext:build && opennextjs-cloudflare preview",
     "cf-typegen": "wrangler types --env-interface CloudflareEnv ./cloudflare-env.d.ts",
+    "db:studio": "drizzle-kit studio",
     "db:generate": "drizzle-kit generate --name",
     "db:migrate:local": "wrangler d1 migrations apply $(node scripts/get-db-name.mjs) --local",
     "db:migrate:remote": "wrangler d1 migrations apply $(node scripts/get-db-name.mjs) --remote",
