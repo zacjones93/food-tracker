@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useServerAction } from "zsa-react";
+import Link from "next/link";
 import {
   getUserTeamsAction,
   getTeamMembersAction,
@@ -47,7 +48,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Loader2, Trash2, UserPlus, X, Crown, Shield, User, Eye, Plus } from "lucide-react";
+import { Loader2, Trash2, UserPlus, X, Crown, Shield, User, Eye, Plus, Settings } from "lucide-react";
 import { toast } from "sonner";
 import { SYSTEM_ROLES_ENUM } from "@/db/schema";
 import type { Team, TeamMembership, TeamInvitation } from "@/db/schema";
@@ -304,6 +305,27 @@ export function TeamsManagement() {
                       </CardContent>
                     </Card>
                   )}
+
+                  {/* Team Settings */}
+                  {(isOwner || team.roleId === SYSTEM_ROLES_ENUM.ADMIN) && (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Team Settings</CardTitle>
+                        <CardDescription>
+                          Configure recipe visibility and default settings for this team
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <Link href={`/settings/teams/${team.slug}/settings`}>
+                          <Button variant="outline">
+                            <Settings className="mr-2 h-4 w-4" />
+                            Manage Team Settings
+                          </Button>
+                        </Link>
+                      </CardContent>
+                    </Card>
+                  )}
+
                   {/* Team Information */}
                   {isOwner && (
                     <TeamInformation
