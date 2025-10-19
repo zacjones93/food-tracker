@@ -447,6 +447,7 @@ export type Team = InferSelectModel<typeof teamTable>;
 export type TeamMembership = InferSelectModel<typeof teamMembershipTable>;
 export type TeamRole = InferSelectModel<typeof teamRoleTable>;
 export type TeamInvitation = InferSelectModel<typeof teamInvitationTable>;
+export type TeamSettings = InferSelectModel<typeof teamSettingsTable>;
 export type RecipeBook = InferSelectModel<typeof recipeBooksTable>;
 export type Recipe = InferSelectModel<typeof recipesTable>;
 export type Week = InferSelectModel<typeof weeksTable>;
