@@ -161,6 +161,23 @@ export const teamInvitationTable = sqliteTable("team_invitation", {
   index("ti_token_idx").on(table.token),
 ]));
 
+// Team settings table
+export const teamSettingsTable = sqliteTable("team_settings", {
+  ...commonColumns,
+  id: text().primaryKey().$defaultFn(() => `tset_${createId()}`).notNull(),
+  teamId: text().notNull().unique().references(() => teamTable.id, { onDelete: 'cascade' }),
+
+  // Recipe settings
+  recipeVisibilityMode: text({ length: 20 }).notNull().default('all'),
+  // Values: 'all', 'team_only'
+
+  defaultRecipeVisibility: text({ length: 20 }).notNull().default('public'),
+  // Values: 'public', 'private', 'unlisted'
+  // Controls the default visibility when creating new recipes
+}, (table) => ([
+  index("tset_team_idx").on(table.teamId),
+]));
+
 // Recipe books table
 export const recipeBooksTable = sqliteTable("recipe_books", {
   id: text().primaryKey().$defaultFn(() => `rb_${createId()}`).notNull(),
@@ -304,13 +321,14 @@ export const recipeBooksRelations = relations(recipeBooksTable, ({ many }) => ({
 }));
 
 // Team relations
-export const teamRelations = relations(teamTable, ({ many }) => ({
+export const teamRelations = relations(teamTable, ({ many, one }) => ({
   memberships: many(teamMembershipTable),
   invitations: many(teamInvitationTable),
   roles: many(teamRoleTable),
   weeks: many(weeksTable),
   recipes: many(recipesTable),
   groceryTemplates: many(groceryListTemplatesTable),
+  settings: one(teamSettingsTable),
 }));
 
 export const teamRoleRelations = relations(teamRoleTable, ({ one }) => ({
@@ -347,6 +365,13 @@ export const teamInvitationRelations = relations(teamInvitationTable, ({ one }) 
   acceptedByUser: one(userTable, {
     fields: [teamInvitationTable.acceptedBy],
     references: [userTable.id],
+  }),
+}));
+
+export const teamSettingsRelations = relations(teamSettingsTable, ({ one }) => ({
+  team: one(teamTable, {
+    fields: [teamSettingsTable.teamId],
+    references: [teamTable.id],
   }),
 }));
 
