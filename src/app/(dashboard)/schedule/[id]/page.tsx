@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
 import { getWeekByIdAction } from "../weeks.actions";
-import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -26,19 +25,24 @@ export default async function ScheduleDetailPage({ params }: ScheduleDetailPageP
 
   return (
     <div className="flex flex-col gap-6 p-6">
-      <div className="flex items-start justify-between gap-4">
-        <PageHeader
-          title={`${week.emoji || '📅'} ${week.name}`}
-          description={week.status === 'current' ? 'Current week' : week.status === 'upcoming' ? 'Upcoming week' : 'Archived week'}
-        >
-          <Link href="/schedule">
-            <Button variant="outline">
+      <div className="flex flex-col sm:flex-row gap-4 items-center sm:justify-between justify-center">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-center sm:text-left">
+            {week.emoji || '📅'} {week.name}
+          </h1>
+          <p className="text-muted-foreground">
+            {week.status === 'current' ? 'Current week' : week.status === 'upcoming' ? 'Upcoming week' : 'Archived week'}
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Button asChild variant="outline">
+            <Link href="/schedule">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Schedule
-            </Button>
-          </Link>
-        </PageHeader>
-        <WeekStatusSelector weekId={week.id} currentStatus={week.status} />
+            </Link>
+          </Button>
+          <WeekStatusSelector weekId={week.id} currentStatus={week.status as "current" | "upcoming" | "archived"} />
+        </div>
       </div>
 
       <div className="space-y-8">

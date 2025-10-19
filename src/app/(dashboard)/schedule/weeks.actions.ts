@@ -21,10 +21,11 @@ import { revalidatePath } from "next/cache";
 export const createWeekAction = createServerAction()
   .input(createWeekSchema)
   .handler(async ({ input }) => {
-    const { user } = await getSessionFromCookie();
-    if (!user) {
-      throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+    const session = await getSessionFromCookie();
+    if (!session) {
+      throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
     }
+    const { user } = session;
 
     // Require permission
     await requirePermission(user.id, input.teamId, TEAM_PERMISSIONS.CREATE_SCHEDULES);
@@ -49,10 +50,11 @@ export const createWeekAction = createServerAction()
 export const updateWeekAction = createServerAction()
   .input(updateWeekSchema)
   .handler(async ({ input }) => {
-    const { user } = await getSessionFromCookie();
-    if (!user) {
-      throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+    const session = await getSessionFromCookie();
+    if (!session) {
+      throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
     }
+    const { user } = session;
 
     const db = getDB();
     const { id, ...updateData } = input;
@@ -82,10 +84,11 @@ export const updateWeekAction = createServerAction()
 export const deleteWeekAction = createServerAction()
   .input(deleteWeekSchema)
   .handler(async ({ input }) => {
-    const { user } = await getSessionFromCookie();
-    if (!user) {
-      throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+    const session = await getSessionFromCookie();
+    if (!session) {
+      throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
     }
+    const { user } = session;
 
     const db = getDB();
 
@@ -108,10 +111,11 @@ export const deleteWeekAction = createServerAction()
 export const getWeekByIdAction = createServerAction()
   .input(getWeekByIdSchema)
   .handler(async ({ input }) => {
-    const { user } = await getSessionFromCookie();
-    if (!user) {
-      throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+    const session = await getSessionFromCookie();
+    if (!session) {
+      throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
     }
+    const { user } = session;
 
     const db = getDB();
 
@@ -143,7 +147,7 @@ export const getWeeksAction = createServerAction()
   .handler(async () => {
     const session = await getSessionFromCookie();
     if (!session) {
-      throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+      throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
     }
 
     if (!session.activeTeamId) {
@@ -157,7 +161,7 @@ export const getWeeksAction = createServerAction()
 
     // Only return weeks from active team
     const weeks = await db.query.weeksTable.findMany({
-      where: eq(weeksTable.teamId, session.activeTeamId),
+      where: eq(weeksTable.teamId, session.activeTeamId!),
       orderBy: (weeks, { desc }) => [desc(weeks.startDate)],
       with: {
         recipes: {
@@ -176,7 +180,7 @@ export const getCurrentAndUpcomingWeeksAction = createServerAction()
   .handler(async () => {
     const session = await getSessionFromCookie();
     if (!session) {
-      throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+      throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
     }
 
     if (!session.activeTeamId) {
@@ -190,7 +194,7 @@ export const getCurrentAndUpcomingWeeksAction = createServerAction()
 
     const weeks = await db.query.weeksTable.findMany({
       where: (weeks, { or, eq, and: andFn }) => andFn(
-        eq(weeks.teamId, session.activeTeamId),
+        eq(weeks.teamId, session.activeTeamId!),
         or(
           eq(weeks.status, 'current'),
           eq(weeks.status, 'upcoming')
@@ -207,7 +211,7 @@ export const getWeeksForRecipeAction = createServerAction()
   .handler(async ({ input }) => {
     const session = await getSessionFromCookie();
     if (!session) {
-      throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+      throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
     }
 
     if (!session.activeTeamId) {
@@ -221,7 +225,7 @@ export const getWeeksForRecipeAction = createServerAction()
 
     const weeks = await db.query.weeksTable.findMany({
       where: (weeks, { or, eq, and: andFn }) => andFn(
-        eq(weeks.teamId, session.activeTeamId),
+        eq(weeks.teamId, session.activeTeamId!),
         or(
           eq(weeks.status, 'current'),
           eq(weeks.status, 'upcoming')
@@ -247,10 +251,11 @@ export const getWeeksForRecipeAction = createServerAction()
 export const addRecipeToWeekAction = createServerAction()
   .input(addRecipeToWeekSchema)
   .handler(async ({ input }) => {
-    const { user } = await getSessionFromCookie();
-    if (!user) {
-      throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+    const session = await getSessionFromCookie();
+    if (!session) {
+      throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
     }
+    const { user } = session;
 
     const db = getDB();
 
@@ -326,10 +331,11 @@ export const addRecipeToWeekAction = createServerAction()
 export const removeRecipeFromWeekAction = createServerAction()
   .input(removeRecipeFromWeekSchema)
   .handler(async ({ input }) => {
-    const { user } = await getSessionFromCookie();
-    if (!user) {
-      throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+    const session = await getSessionFromCookie();
+    if (!session) {
+      throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
     }
+    const { user } = session;
 
     const db = getDB();
 
@@ -361,10 +367,11 @@ export const removeRecipeFromWeekAction = createServerAction()
 export const reorderWeekRecipesAction = createServerAction()
   .input(reorderWeekRecipesSchema)
   .handler(async ({ input }) => {
-    const { user } = await getSessionFromCookie();
-    if (!user) {
-      throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+    const session = await getSessionFromCookie();
+    if (!session) {
+      throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
     }
+    const { user } = session;
 
     const db = getDB();
 

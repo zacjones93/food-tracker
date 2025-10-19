@@ -18,10 +18,11 @@ import { revalidatePath } from "next/cache";
 export const createGroceryListTemplateAction = createServerAction()
   .input(createGroceryListTemplateSchema)
   .handler(async ({ input }) => {
-    const { user } = await getSessionFromCookie();
-    if (!user) {
-      throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+    const session = await getSessionFromCookie();
+    if (!session) {
+      throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
     }
+    const { user } = session;
 
     await requirePermission(user.id, input.teamId, TEAM_PERMISSIONS.CREATE_GROCERY_TEMPLATES);
 
@@ -43,10 +44,11 @@ export const createGroceryListTemplateAction = createServerAction()
 export const updateGroceryListTemplateAction = createServerAction()
   .input(updateGroceryListTemplateSchema)
   .handler(async ({ input }) => {
-    const { user } = await getSessionFromCookie();
-    if (!user) {
-      throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+    const session = await getSessionFromCookie();
+    if (!session) {
+      throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
     }
+    const { user } = session;
 
     const db = getDB();
     const { id, ...updateData } = input;
@@ -78,10 +80,11 @@ export const updateGroceryListTemplateAction = createServerAction()
 export const deleteGroceryListTemplateAction = createServerAction()
   .input(deleteGroceryListTemplateSchema)
   .handler(async ({ input }) => {
-    const { user } = await getSessionFromCookie();
-    if (!user) {
-      throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+    const session = await getSessionFromCookie();
+    if (!session) {
+      throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
     }
+    const { user } = session;
 
     const db = getDB();
 
@@ -110,10 +113,11 @@ export const deleteGroceryListTemplateAction = createServerAction()
 export const getGroceryListTemplateByIdAction = createServerAction()
   .input(getGroceryListTemplateByIdSchema)
   .handler(async ({ input }) => {
-    const { user } = await getSessionFromCookie();
-    if (!user) {
-      throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+    const session = await getSessionFromCookie();
+    if (!session) {
+      throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
     }
+    const { user } = session;
 
     const db = getDB();
 
@@ -137,7 +141,7 @@ export const getGroceryListTemplatesAction = createServerAction()
   .handler(async () => {
     const session = await getSessionFromCookie();
     if (!session) {
-      throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+      throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
     }
 
     if (!session.activeTeamId) {
@@ -164,10 +168,11 @@ export const getGroceryListTemplatesAction = createServerAction()
 export const applyTemplateToWeekAction = createServerAction()
   .input(applyTemplateToWeekSchema)
   .handler(async ({ input }) => {
-    const { user } = await getSessionFromCookie();
-    if (!user) {
-      throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+    const session = await getSessionFromCookie();
+    if (!session) {
+      throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
     }
+    const { user } = session;
 
     const db = getDB();
 

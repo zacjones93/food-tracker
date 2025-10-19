@@ -18,9 +18,9 @@ async function GroceryTemplatesContent() {
 export default async function GroceryTemplatesPage() {
   return (
     <div className="flex flex-col gap-6 p-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row gap-4 items-center sm:justify-between justify-center">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Grocery List Templates</h1>
+            <h1 className="text-3xl font-bold tracking-tight text-center sm:text-left">Grocery List Templates</h1>
             <p className="text-muted-foreground">Manage reusable grocery list templates</p>
           </div>
           <Button asChild>

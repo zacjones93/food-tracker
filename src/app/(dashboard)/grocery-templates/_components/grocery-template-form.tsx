@@ -1,20 +1,20 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useServerAction } from "zsa-react";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray, Control, UseFormRegister, FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Plus, Trash2, GripVertical, Save, X } from "lucide-react";
 import { toast } from "sonner";
 import type { GroceryListTemplate } from "@/db/schema";
 import { createGroceryListTemplateAction, updateGroceryListTemplateAction } from "../../schedule/grocery-templates.actions";
 import { groceryTemplateCategorySchema } from "@/schemas/grocery-template.schema";
+import { useSessionStore } from "@/state/session";
 
 const formSchema = z.object({
   name: z.string().min(2).max(255),
@@ -29,6 +29,7 @@ interface GroceryTemplateFormProps {
 
 export function GroceryTemplateForm({ template }: GroceryTemplateFormProps) {
   const router = useRouter();
+  const session = useSessionStore((state) => state.session);
   const { execute: createTemplate, isPending: isCreating } = useServerAction(createGroceryListTemplateAction);
   const { execute: updateTemplate, isPending: isUpdating } = useServerAction(updateGroceryListTemplateAction);
 
@@ -66,7 +67,9 @@ export function GroceryTemplateForm({ template }: GroceryTemplateFormProps) {
         router.refresh();
       }
     } else {
+      const teamId = session?.activeTeamId || "";
       const [, error] = await createTemplate({
+        teamId,
         name: data.name,
         template: data.categories,
       });
@@ -147,10 +150,10 @@ function CategoryCard({
   errors,
 }: {
   categoryIndex: number;
-  control: any;
-  register: any;
+  control: Control<FormValues>;
+  register: UseFormRegister<FormValues>;
   removeCategory: (index: number) => void;
-  errors: any;
+  errors: FieldErrors<FormValues>;
 }) {
   const { fields: items, append: appendItem, remove: removeItem } = useFieldArray({
     control,

@@ -50,8 +50,7 @@ export function GroceryList({ weekId, items: initialItems }: GroceryListProps) {
   );
 
   const { execute: deleteItem } = useServerAction(deleteGroceryItemAction, {
-    onSuccess: (_, input) => {
-      setItems((prev) => prev.filter((item) => item.id !== input.id));
+    onSuccess: () => {
       toast.success("Item deleted");
     },
     onError: ({ err }) => {
@@ -99,6 +98,7 @@ export function GroceryList({ weekId, items: initialItems }: GroceryListProps) {
   };
 
   const handleDelete = async (id: string) => {
+    setItems((prev) => prev.filter((item) => item.id !== id));
     await deleteItem({ id });
   };
 

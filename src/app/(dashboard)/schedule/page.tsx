@@ -11,9 +11,9 @@ export default async function SchedulePage() {
 
   return (
     <div className="flex flex-col gap-6 p-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row gap-4 items-center sm:justify-between justify-center">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Food Schedule</h1>
+            <h1 className="text-3xl font-bold tracking-tight text-center sm:text-left">Food Schedule</h1>
             <p className="text-muted-foreground">Organize your meal planning by week</p>
           </div>
           <Button asChild>

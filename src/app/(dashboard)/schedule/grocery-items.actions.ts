@@ -18,9 +18,9 @@ import { revalidatePath } from "next/cache";
 export const createGroceryItemAction = createServerAction()
   .input(createGroceryItemSchema)
   .handler(async ({ input }) => {
-    const { user } = await getSessionFromCookie();
-    if (!user) {
-      throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+    const session = await getSessionFromCookie();
+    if (!session) {
+      throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
     }
 
     const db = getDB();
@@ -49,9 +49,9 @@ export const createGroceryItemAction = createServerAction()
 export const updateGroceryItemAction = createServerAction()
   .input(updateGroceryItemSchema)
   .handler(async ({ input }) => {
-    const { user } = await getSessionFromCookie();
-    if (!user) {
-      throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+    const session = await getSessionFromCookie();
+    if (!session) {
+      throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
     }
 
     const db = getDB();
@@ -74,9 +74,9 @@ export const updateGroceryItemAction = createServerAction()
 export const deleteGroceryItemAction = createServerAction()
   .input(deleteGroceryItemSchema)
   .handler(async ({ input }) => {
-    const { user } = await getSessionFromCookie();
-    if (!user) {
-      throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+    const session = await getSessionFromCookie();
+    if (!session) {
+      throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
     }
 
     const db = getDB();
@@ -99,9 +99,9 @@ export const deleteGroceryItemAction = createServerAction()
 export const toggleGroceryItemAction = createServerAction()
   .input(toggleGroceryItemSchema)
   .handler(async ({ input }) => {
-    const { user } = await getSessionFromCookie();
-    if (!user) {
-      throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+    const session = await getSessionFromCookie();
+    if (!session) {
+      throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
     }
 
     const db = getDB();
@@ -123,9 +123,9 @@ export const toggleGroceryItemAction = createServerAction()
 export const reorderGroceryItemsAction = createServerAction()
   .input(reorderGroceryItemsSchema)
   .handler(async ({ input }) => {
-    const { user } = await getSessionFromCookie();
-    if (!user) {
-      throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+    const session = await getSessionFromCookie();
+    if (!session) {
+      throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
     }
 
     const db = getDB();
@@ -148,9 +148,9 @@ export const reorderGroceryItemsAction = createServerAction()
 export const bulkUpdateGroceryItemsAction = createServerAction()
   .input(bulkUpdateGroceryItemsSchema)
   .handler(async ({ input }) => {
-    const { user } = await getSessionFromCookie();
-    if (!user) {
-      throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+    const session = await getSessionFromCookie();
+    if (!session) {
+      throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
     }
 
     const db = getDB();

@@ -135,7 +135,7 @@ export default function CreateWeekPage() {
       }
     }
     loadTemplates();
-  }, []);
+  }, [fetchTemplates]);
 
   async function onSubmit(values: CreateWeekSchema) {
     const [data, err] = await execute(values);

@@ -23,10 +23,12 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, Trash2 } from "lucide-react";
+import { GripVertical, Trash2, Plus } from "lucide-react";
 import { useServerAction } from "zsa-react";
 import { reorderWeekRecipesAction, removeRecipeFromWeekAction } from "../../weeks.actions";
 import { toast } from "sonner";
+import { AddRecipeDialog } from "./add-recipe-dialog";
+import { useRouter } from "next/navigation";
 
 interface WeekRecipesListProps {
   weekId: string;
@@ -37,6 +39,8 @@ interface WeekRecipesListProps {
 export function WeekRecipesList({ weekId, recipes: initialRecipes, embedded = false }: WeekRecipesListProps) {
   const [recipes, setRecipes] = useState(initialRecipes);
   const [isMounted, setIsMounted] = useState(false);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     setIsMounted(true);
@@ -57,8 +61,7 @@ export function WeekRecipesList({ weekId, recipes: initialRecipes, embedded = fa
   });
 
   const { execute: removeRecipe } = useServerAction(removeRecipeFromWeekAction, {
-    onSuccess: (_, input) => {
-      setRecipes(prev => prev.filter(r => r.recipe.id !== input.recipeId));
+    onSuccess: () => {
       toast.success("Recipe removed from week");
     },
     onError: ({ err }) => {
@@ -67,6 +70,8 @@ export function WeekRecipesList({ weekId, recipes: initialRecipes, embedded = fa
   });
 
   const handleRemoveRecipe = async (recipeId: string) => {
+    // Optimistically update UI
+    setRecipes(prev => prev.filter(r => r.recipe.id !== recipeId));
     await removeRecipe({ weekId, recipeId });
   };
 
@@ -90,6 +95,10 @@ export function WeekRecipesList({ weekId, recipes: initialRecipes, embedded = fa
       weekId,
       recipeIds: newOrder.map((item) => item.recipe.id),
     });
+  };
+
+  const handleRecipeAdded = () => {
+    router.refresh();
   };
 
   const content = recipes.length === 0 ? (
@@ -146,15 +155,44 @@ export function WeekRecipesList({ weekId, recipes: initialRecipes, embedded = fa
   );
 
   if (embedded) {
-    return <div className="mt-4">{content}</div>;
+    return (
+      <>
+        <div className="mt-4">{content}</div>
+        <AddRecipeDialog
+          weekId={weekId}
+          open={isAddDialogOpen}
+          onOpenChange={setIsAddDialogOpen}
+          onRecipeAdded={handleRecipeAdded}
+        />
+      </>
+    );
   }
 
   return (
-    <Card>
-      <CardContent className="p-4">
-        {content}
-      </CardContent>
-    </Card>
+    <>
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-medium text-muted-foreground">Week Recipes</h3>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsAddDialogOpen(true)}
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add Recipe
+            </Button>
+          </div>
+          {content}
+        </CardContent>
+      </Card>
+      <AddRecipeDialog
+        weekId={weekId}
+        open={isAddDialogOpen}
+        onOpenChange={setIsAddDialogOpen}
+        onRecipeAdded={handleRecipeAdded}
+      />
+    </>
   );
 }
 

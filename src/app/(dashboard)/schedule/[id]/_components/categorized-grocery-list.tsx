@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { type GroceryItem } from "@/db/schema";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -52,9 +52,8 @@ interface SortableItemProps {
   editValue: string;
   setEditValue: (value: string) => void;
   saveEdit: () => void;
-  cancelEdit: () => void;
   handleKeyDown: (e: React.KeyboardEvent) => void;
-  inputRef: React.RefObject<HTMLInputElement>;
+  inputRef: React.RefObject<HTMLInputElement | null>;
 }
 
 function SortableItem({
@@ -66,7 +65,6 @@ function SortableItem({
   editValue,
   setEditValue,
   saveEdit,
-  cancelEdit,
   handleKeyDown,
   inputRef,
 }: SortableItemProps) {
@@ -213,28 +211,7 @@ export function CategorizedGroceryList({ weekId, items: initialItems }: Categori
   );
 
   const { execute: deleteItem } = useServerAction(deleteGroceryItemAction, {
-    onSuccess: (_, input) => {
-      const deletedItem = items.find(item => item.id === input.id);
-      setItems((prev) => {
-        const newItems = prev.filter((item) => item.id !== input.id);
-
-        // If this was the last item in a category, convert to empty category
-        if (deletedItem?.category) {
-          const remainingInCategory = newItems.filter(
-            item => item.category === deletedItem.category
-          );
-          if (remainingInCategory.length === 0) {
-            setEmptyCategories(prevCats => {
-              if (!prevCats.includes(deletedItem.category!)) {
-                return [...prevCats, deletedItem.category!];
-              }
-              return prevCats;
-            });
-          }
-        }
-
-        return newItems;
-      });
+    onSuccess: () => {
       toast.success("Item deleted");
     },
     onError: ({ err }) => {
@@ -318,7 +295,32 @@ export function CategorizedGroceryList({ weekId, items: initialItems }: Categori
   };
 
   const handleDelete = async (id: string) => {
+    // Find the item before deleting to check category
+    const deletedItem = items.find(item => item.id === id);
+
     await deleteItem({ id });
+
+    // Update state after successful deletion
+    setItems((prev) => {
+      const newItems = prev.filter((item) => item.id !== id);
+
+      // If this was the last item in a category, convert to empty category
+      if (deletedItem?.category) {
+        const remainingInCategory = newItems.filter(
+          item => item.category === deletedItem.category
+        );
+        if (remainingInCategory.length === 0) {
+          setEmptyCategories((prevCats) => {
+            if (!prevCats.includes(deletedItem.category!)) {
+              return [...prevCats, deletedItem.category!];
+            }
+            return prevCats;
+          });
+        }
+      }
+
+      return newItems;
+    });
   };
 
   const startEdit = (item: GroceryItem) => {
@@ -390,7 +392,6 @@ export function CategorizedGroceryList({ weekId, items: initialItems }: Categori
 
     if (!activeItem || !overItem) return;
 
-    const activeCategory = activeItem.category || "Uncategorized";
     const overCategory = overItem.category || "Uncategorized";
 
     // Get items in the target category
@@ -407,10 +408,10 @@ export function CategorizedGroceryList({ weekId, items: initialItems }: Categori
     const reorderedCategoryItems = arrayMove(categoryItems, oldIndex, newIndex);
 
     // Update the order property on each reordered item
-    const reorderedWithNewOrder = reorderedCategoryItems.map((item, index) => ({
+    const reorderedWithNewOrder: GroceryItem[] = reorderedCategoryItems.map((item, index) => ({
       ...item,
       order: index,
-      category: overCategory === "Uncategorized" ? undefined : overCategory,
+      category: overCategory === "Uncategorized" ? null : overCategory,
     }));
 
     // Update all items
@@ -426,7 +427,7 @@ export function CategorizedGroceryList({ weekId, items: initialItems }: Categori
     // Prepare bulk update
     const updates = reorderedWithNewOrder.map((item) => ({
       id: item.id,
-      category: item.category,
+      category: item.category || undefined,
       order: item.order ?? 0,
     }));
 
@@ -544,7 +545,6 @@ export function CategorizedGroceryList({ weekId, items: initialItems }: Categori
                               editValue={editValue}
                               setEditValue={setEditValue}
                               saveEdit={saveEdit}
-                              cancelEdit={cancelEdit}
                               handleKeyDown={handleKeyDown}
                               inputRef={inputRef}
                             />
