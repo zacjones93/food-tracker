@@ -18,7 +18,7 @@ export const getTeamSettingsAction = createServerAction()
   .handler(async ({ input }) => {
     const session = await getSessionFromCookie();
     if (!session) {
-      throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+      throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
     }
 
     await requirePermission(session.user.id, input.teamId, TEAM_PERMISSIONS.EDIT_TEAM_SETTINGS);
@@ -48,7 +48,7 @@ export const updateRecipeVisibilityModeAction = createServerAction()
   .handler(async ({ input }) => {
     const session = await getSessionFromCookie();
     if (!session) {
-      throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+      throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
     }
 
     await requirePermission(session.user.id, input.teamId, TEAM_PERMISSIONS.EDIT_TEAM_SETTINGS);
@@ -88,7 +88,7 @@ export const updateDefaultRecipeVisibilityAction = createServerAction()
   .handler(async ({ input }) => {
     const session = await getSessionFromCookie();
     if (!session) {
-      throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+      throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
     }
 
     await requirePermission(session.user.id, input.teamId, TEAM_PERMISSIONS.EDIT_TEAM_SETTINGS);

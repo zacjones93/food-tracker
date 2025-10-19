@@ -296,6 +296,50 @@ If we want to access the session in a server component, we need to use the `getS
 
 If we want to access the session in a client component, we can get it from `const session = useSessionStore();` in `src/state/session.ts`.
 
+## Server Actions (ZSA)
+
+This project uses `zsa` (Zod Server Actions) for type-safe server actions.
+
+### ZSA Error Codes
+
+**CRITICAL**: When throwing ZSA errors for authentication checks, always use the correct error code:
+
+```typescript
+// ✅ CORRECT
+throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
+
+// ❌ WRONG - will cause TypeScript build errors
+throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+```
+
+**Valid ZSA error codes:**
+- `"NOT_AUTHORIZED"` - User not authenticated/logged in
+- `"FORBIDDEN"` - User authenticated but lacks permission
+- `"NOT_FOUND"` - Resource not found
+- `"CONFLICT"` - Resource conflict (e.g., duplicate)
+- `"PRECONDITION_FAILED"` - Precondition not met
+- `"INPUT_PARSE_ERROR"` - Input validation failed
+- `"OUTPUT_PARSE_ERROR"` - Output validation failed
+- `"ERROR"` - Generic error
+- `"TIMEOUT"` - Operation timed out
+- `"INTERNAL_SERVER_ERROR"` - Server error
+
+**Common patterns:**
+```typescript
+// Check authentication
+const session = await getSessionFromCookie();
+if (!session) {
+  throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
+}
+
+// Check team membership/permissions
+if (!session.activeTeamId) {
+  throw new ZSAError("FORBIDDEN", "No active team selected");
+}
+
+await requirePermission(session.user.id, teamId, TEAM_PERMISSIONS.SOME_PERMISSION);
+```
+
 ## Database Patterns
 
 The database schema is in `src/db/schema.ts`.
