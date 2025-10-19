@@ -1,5 +1,16 @@
 import "server-only";
 
+/*
+ * PASSKEY/WEBAUTHN AUTHENTICATION - REMOVED
+ *
+ * This file contained passkey authentication logic that was removed during
+ * the SaaS template simplification. The passKeyCredentialTable no longer
+ * exists in the database schema.
+ *
+ * Keeping this file for reference, but all code is commented out.
+ */
+
+/*
 import { generateAuthenticationOptions, generateRegistrationOptions, verifyAuthenticationResponse, verifyRegistrationResponse } from "@simplewebauthn/server";
 import type {
   AuthenticationResponseJSON,
@@ -139,3 +150,4 @@ export async function verifyPasskeyAuthentication(
     credential,
   };
 }
+*/
