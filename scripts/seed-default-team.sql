@@ -24,7 +24,7 @@ INSERT OR IGNORE INTO user (
   updatedAt,
   updateCounter
 )
-VALUES (
+SELECT
   'usr_default',
   'default@foodtracker.local',
   '$argon2id$v=19$m=65536,t=3,p=4$AAAAAAAAAAAAAAAAAAAAAAAAAA$AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
@@ -33,8 +33,7 @@ VALUES (
   'user',
   strftime('%s', 'now'),
   strftime('%s', 'now'),
-  0
-);
+  0;
 
 -- Create team membership for default user (owner role)
 INSERT OR IGNORE INTO team_membership (
@@ -141,12 +140,11 @@ INSERT OR IGNORE INTO grocery_list_templates (
   createdAt,
   updatedAt
 )
-VALUES (
+SELECT
   'glt_default',
   'Default Grocery Template',
   1,
   NULL,
   '[{"category":"Produce","order":0,"items":[{"name":"Bananas","order":0},{"name":"Apples","order":1}]},{"category":"Meat","order":1,"items":[{"name":"Chicken","order":0}]},{"category":"Dairy","order":2,"items":[{"name":"Milk","order":0},{"name":"Eggs","order":1}]}]',
   strftime('%s', 'now'),
-  strftime('%s', 'now')
-);
+  strftime('%s', 'now');

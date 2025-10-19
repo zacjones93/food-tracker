@@ -30,8 +30,6 @@ import { ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import type { GroceryListTemplate } from "@/db/schema";
-import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Separator } from "@/components/ui/separator";
 
 // Get the next Sunday from today (or today if it's Sunday) in local timezone
 function getNextSunday(): Date {
@@ -167,14 +165,7 @@ export default function CreateWeekPage() {
   }
 
   return (
-    <>
-      <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
-        <div className="flex items-center gap-2 px-4">
-          <SidebarTrigger className="-ml-1" />
-          <Separator orientation="vertical" className="mr-2 h-4" />
-        </div>
-      </header>
-      <div className="flex flex-col gap-6 p-6">
+    <div className="flex flex-col gap-6 p-6">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Create Week</h1>
@@ -414,7 +405,6 @@ export default function CreateWeekPage() {
           </form>
         </Form>
         </div>
-      </div>
-    </>
+    </div>
   );
 }

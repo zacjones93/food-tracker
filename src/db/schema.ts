@@ -94,6 +94,10 @@ export const userTable = sqliteTable("user", {
   avatar: text({
     length: 600,
   }),
+  /**
+   * The default team to load when the user signs in
+   */
+  defaultTeamId: text().references(() => teamTable.id, { onDelete: 'set null' }),
 }, (table) => ([
   index('email_idx').on(table.email),
   index('role_idx').on(table.role),

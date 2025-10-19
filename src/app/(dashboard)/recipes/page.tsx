@@ -5,8 +5,6 @@ import { RecipesTable } from "./_components/recipes-table";
 import { RecipeFilters } from "./_components/recipe-filters";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Separator } from "@/components/ui/separator";
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -66,14 +64,7 @@ export default async function RecipesPage({ searchParams }: RecipesPageProps) {
   const suspenseKey = JSON.stringify(params);
 
   return (
-    <>
-      <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
-        <div className="flex items-center gap-2 px-4">
-          <SidebarTrigger className="-ml-1" />
-          <Separator orientation="vertical" className="mr-2 h-4" />
-        </div>
-      </header>
-      <div className="flex flex-col gap-6 p-6">
+    <div className="flex flex-col gap-6 p-6">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Recipes</h1>
@@ -89,10 +80,9 @@ export default async function RecipesPage({ searchParams }: RecipesPageProps) {
 
         <RecipeFilters />
 
-        <Suspense key={suspenseKey} fallback={<div className="flex justify-center py-12">Loading recipes...</div>}>
-          <RecipesContent searchParams={searchParams} />
-        </Suspense>
-      </div>
-    </>
+      <Suspense key={suspenseKey} fallback={<div className="flex justify-center py-12">Loading recipes...</div>}>
+        <RecipesContent searchParams={searchParams} />
+      </Suspense>
+    </div>
   );
 }

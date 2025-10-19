@@ -5,16 +5,22 @@ import path from "node:path";
 function getLocalD1DB() {
   try {
     const basePath = path.resolve(".wrangler/state/v3/d1");
-    const dbFile = fs
+    const files = fs
       .readdirSync(basePath, { encoding: "utf-8", recursive: true })
-      .find((f) => f.endsWith(".sqlite"));
+      .filter((f) => f.endsWith(".sqlite"))
+      .map((f) => ({
+        name: f,
+        path: path.resolve(basePath, f),
+        mtime: fs.statSync(path.resolve(basePath, f)).mtime
+      }))
+      .sort((a, b) => b.mtime.getTime() - a.mtime.getTime());
 
-    if (!dbFile) {
+    if (files.length === 0) {
       throw new Error(`.sqlite file not found in ${basePath}`);
     }
 
-    const url = path.resolve(basePath, dbFile);
-    return url;
+    // Return most recently modified database
+    return files[0].path;
   } catch (err) {
     console.error(err)
 

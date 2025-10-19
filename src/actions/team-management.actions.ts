@@ -7,6 +7,7 @@ import {
   teamTable,
   teamMembershipTable,
   teamInvitationTable,
+  userTable,
   TEAM_PERMISSIONS,
 } from "@/db/schema";
 import { getSessionFromCookie } from "@/utils/auth";
@@ -31,6 +32,14 @@ export const getUserTeamsAction = createServerAction()
       },
     });
 
+    // Get user's default team
+    const userRecord = await db.query.userTable.findFirst({
+      where: eq(userTable.id, user.id),
+      columns: {
+        defaultTeamId: true,
+      },
+    });
+
     return {
       teams: memberships.map((m) => ({
         ...m.team,
@@ -38,6 +47,7 @@ export const getUserTeamsAction = createServerAction()
         isSystemRole: m.isSystemRole,
         joinedAt: m.joinedAt,
       })),
+      defaultTeamId: userRecord?.defaultTeamId,
     };
   });
 
@@ -392,4 +402,40 @@ export const createTeamAction = createServerAction()
     await updateKVSessionTeam(session.id, session.userId, newTeam.id);
 
     return { team: newTeam };
+  });
+
+// Set default team for user
+const setDefaultTeamSchema = z.object({
+  teamId: z.string(),
+});
+
+export const setDefaultTeamAction = createServerAction()
+  .input(setDefaultTeamSchema)
+  .handler(async ({ input }) => {
+    const session = await getSessionFromCookie();
+    if (!session) throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+
+    const db = getDB();
+    const { userTable } = await import("@/db/schema");
+
+    // Verify user is a member of the team
+    const membership = await db.query.teamMembershipTable.findFirst({
+      where: and(
+        eq(teamMembershipTable.userId, session.user.id),
+        eq(teamMembershipTable.teamId, input.teamId),
+        eq(teamMembershipTable.isActive, 1)
+      ),
+    });
+
+    if (!membership) {
+      throw new ZSAError("FORBIDDEN", "You are not a member of this team");
+    }
+
+    // Update user's default team
+    const [updatedUser] = await db.update(userTable)
+      .set({ defaultTeamId: input.teamId })
+      .where(eq(userTable.id, session.user.id))
+      .returning();
+
+    return { success: true, defaultTeamId: input.teamId };
   });

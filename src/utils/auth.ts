@@ -43,6 +43,7 @@ export async function getUserFromDB(userId: string) {
       lastName: true,
       role: true,
       avatar: true,
+      defaultTeamId: true,
       createdAt: true,
       updatedAt: true,
     },
@@ -91,18 +92,24 @@ export async function createSession({
     throw new Error("User not found");
   }
 
-  // Get user's first team as default activeTeamId
+  // Get user's default team or first team as fallback
   const db = getDB();
   const { teamMembershipTable } = await import("@/db/schema");
   const { and } = await import("drizzle-orm");
 
-  const firstMembership = await db.query.teamMembershipTable.findFirst({
-    where: and(
-      eq(teamMembershipTable.userId, userId),
-      eq(teamMembershipTable.isActive, 1)
-    ),
-    orderBy: (memberships, { asc }) => [asc(memberships.createdAt)],
-  });
+  let activeTeamId = user.defaultTeamId || undefined;
+
+  // If no default team is set, fall back to first team
+  if (!activeTeamId) {
+    const firstMembership = await db.query.teamMembershipTable.findFirst({
+      where: and(
+        eq(teamMembershipTable.userId, userId),
+        eq(teamMembershipTable.isActive, 1)
+      ),
+      orderBy: (memberships, { asc }) => [asc(memberships.createdAt)],
+    });
+    activeTeamId = firstMembership?.teamId;
+  }
 
   return createKVSession({
     sessionId,
@@ -111,7 +118,7 @@ export async function createSession({
     user,
     authenticationType,
     passkeyCredentialId,
-    activeTeamId: firstMembership?.teamId
+    activeTeamId
   });
 }
 

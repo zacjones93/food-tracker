@@ -12,6 +12,7 @@ import {
   getMyPendingInvitationsAction,
   getMyTeamsPendingInvitationsAction,
   createTeamAction,
+  setDefaultTeamAction,
 } from "@/actions/team-management.actions";
 import {
   createTeamInviteAction,
@@ -118,6 +119,7 @@ const roleLabels = {
 
 export function TeamsManagement() {
   const [teams, setTeams] = useState<TeamWithRole[]>([]);
+  const [defaultTeamId, setDefaultTeamId] = useState<string | null>(null);
   const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
   const [members, setMembers] = useState<Record<string, MemberWithUser[]>>({});
   const [invitations, setInvitations] = useState<Record<string, InvitationWithUser[]>>({});
@@ -129,6 +131,7 @@ export function TeamsManagement() {
   const { execute: getInvitations, isPending: isLoadingInvitations } = useServerAction(getTeamInvitationsAction);
   const { execute: getMyInvitations } = useServerAction(getMyPendingInvitationsAction);
   const { execute: getOwnerInvitations } = useServerAction(getMyTeamsPendingInvitationsAction);
+  const { execute: setDefaultTeam, isPending: isSettingDefault } = useServerAction(setDefaultTeamAction);
 
   useEffect(() => {
     loadTeams();
@@ -143,6 +146,7 @@ export function TeamsManagement() {
       return;
     }
     setTeams(data.teams);
+    setDefaultTeamId(data.defaultTeamId || null);
   };
 
   const loadTeamData = async (teamId: string) => {
@@ -177,6 +181,16 @@ export function TeamsManagement() {
       return;
     }
     setOwnerInvitations(data.invitations as OwnerInvitation[]);
+  };
+
+  const handleSetDefaultTeam = async (teamId: string) => {
+    const [data, err] = await setDefaultTeam({ teamId });
+    if (err) {
+      toast.error(err.message);
+      return;
+    }
+    toast.success("Default team updated");
+    setDefaultTeamId(teamId);
   };
 
   if (isLoadingTeams) {
@@ -236,6 +250,7 @@ export function TeamsManagement() {
         {teams.map((team) => {
           const isOwner = team.roleId === SYSTEM_ROLES_ENUM.OWNER;
           const RoleIcon = roleIcons[team.roleId as keyof typeof roleIcons] || User;
+          const isDefault = defaultTeamId === team.id;
 
           return (
             <AccordionItem key={team.id} value={team.id}>
@@ -255,6 +270,11 @@ export function TeamsManagement() {
                         <RoleIcon className="h-3 w-3" />
                         {roleLabels[team.roleId as keyof typeof roleLabels]}
                       </Badge>
+                      {isDefault && (
+                        <Badge variant="secondary" className="flex items-center gap-1">
+                          Default
+                        </Badge>
+                      )}
                     </div>
                     {team.description && (
                       <p className="text-sm text-muted-foreground">{team.description}</p>
@@ -264,6 +284,26 @@ export function TeamsManagement() {
               </AccordionTrigger>
               <AccordionContent>
                 <div className="space-y-6 pt-4">
+                  {/* Default Team Setting */}
+                  {!isDefault && (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Default Team</CardTitle>
+                        <CardDescription>
+                          Set this team as your default for sign-in
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <Button
+                          onClick={() => handleSetDefaultTeam(team.id)}
+                          disabled={isSettingDefault}
+                        >
+                          {isSettingDefault && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                          Set as Default Team
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  )}
                   {/* Team Information */}
                   {isOwner && (
                     <TeamInformation

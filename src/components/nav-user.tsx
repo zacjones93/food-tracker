@@ -85,12 +85,6 @@ export function NavUser() {
               <div className="grid flex-1 gap-0.5 text-left text-sm leading-tight">
                 <span className="font-semibold overflow-hidden text-ellipsis whitespace-nowrap">{displayName}</span>
                 <span className="truncate text-xs text-muted-foreground">{user.email}</span>
-                <Badge variant="secondary" className="w-fit text-[10px]" onClick={() => {
-                  setOpenMobile(false)
-                  router.push('/dashboard/billing')
-                }}>
-                  {user.currentCredits} credits
-                </Badge>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
             </SidebarMenuButton>
@@ -110,9 +104,6 @@ export function NavUser() {
                 <div className="grid flex-1 gap-0.5 text-left text-sm leading-tight">
                   <span className="font-semibold">{displayName}</span>
                   <span className="truncate text-xs text-muted-foreground">{user.email}</span>
-                  <Badge variant="secondary" className="w-fit text-[10px]">
-                    {user.currentCredits} credits
-                  </Badge>
                 </div>
               </div>
             </DropdownMenuLabel>
