@@ -1,3 +1,11 @@
+/*
+ * DISABLED: Marketplace/billing feature was removed during SaaS simplification
+ * This file references removed features:
+ * - purchaseAction from marketplace module
+ * - PURCHASABLE_ITEM_TYPE from schema
+ */
+
+/*
 "use client"
 
 import { toast } from "sonner"
@@ -42,3 +50,4 @@ export default function PurchaseButton({ itemId, itemType }: PurchaseButtonProps
     </ShinyButton>
   )
 }
+*/

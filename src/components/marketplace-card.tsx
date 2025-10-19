@@ -1,3 +1,12 @@
+/*
+ * DISABLED: Marketplace feature was removed during SaaS simplification
+ * This file references removed marketplace/billing features:
+ * - PURCHASABLE_ITEM_TYPE from schema
+ * - marketplace/components-catalog
+ * - PurchaseButton component
+ */
+
+/*
 "use client"
 
 import * as React from "react"
@@ -50,3 +59,4 @@ export function MarketplaceCard({ id, name, description, credits, containerClass
     </Card>
   )
 }
+*/
