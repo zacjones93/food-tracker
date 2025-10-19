@@ -120,15 +120,14 @@ const roleLabels = {
 export function TeamsManagement() {
   const [teams, setTeams] = useState<TeamWithRole[]>([]);
   const [defaultTeamId, setDefaultTeamId] = useState<string | null>(null);
-  const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
   const [members, setMembers] = useState<Record<string, MemberWithUser[]>>({});
   const [invitations, setInvitations] = useState<Record<string, InvitationWithUser[]>>({});
   const [myInvitations, setMyInvitations] = useState<MyInvitation[]>([]);
   const [ownerInvitations, setOwnerInvitations] = useState<OwnerInvitation[]>([]);
 
   const { execute: getTeams, isPending: isLoadingTeams } = useServerAction(getUserTeamsAction);
-  const { execute: getMembers, isPending: isLoadingMembers } = useServerAction(getTeamMembersAction);
-  const { execute: getInvitations, isPending: isLoadingInvitations } = useServerAction(getTeamInvitationsAction);
+  const { execute: getMembers } = useServerAction(getTeamMembersAction);
+  const { execute: getInvitations } = useServerAction(getTeamInvitationsAction);
   const { execute: getMyInvitations } = useServerAction(getMyPendingInvitationsAction);
   const { execute: getOwnerInvitations } = useServerAction(getMyTeamsPendingInvitationsAction);
   const { execute: setDefaultTeam, isPending: isSettingDefault } = useServerAction(setDefaultTeamAction);
@@ -137,6 +136,7 @@ export function TeamsManagement() {
     loadTeams();
     loadMyInvitations();
     loadOwnerInvitations();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadTeams = async () => {
@@ -184,7 +184,7 @@ export function TeamsManagement() {
   };
 
   const handleSetDefaultTeam = async (teamId: string) => {
-    const [data, err] = await setDefaultTeam({ teamId });
+    const [, err] = await setDefaultTeam({ teamId });
     if (err) {
       toast.error(err.message);
       return;
@@ -332,7 +332,6 @@ export function TeamsManagement() {
                   {/* Pending Invitations */}
                   {isOwner && invitations[team.id] && invitations[team.id].length > 0 && (
                     <PendingInvitations
-                      teamId={team.id}
                       invitations={invitations[team.id]}
                       onInvitationCancelled={() => loadTeamData(team.id)}
                     />
@@ -360,7 +359,7 @@ function CreateTeamDialog({ onTeamCreated }: { onTeamCreated: () => void }) {
       return;
     }
 
-    const [data, err] = await createTeam({
+    const [, err] = await createTeam({
       name,
       slug,
       description,
@@ -451,7 +450,7 @@ function TeamInformation({ team, onUpdate }: { team: Team; onUpdate: () => void 
   const { execute: updateTeam, isPending } = useServerAction(updateTeamAction);
 
   const handleUpdate = async () => {
-    const [data, err] = await updateTeam({
+    const [, err] = await updateTeam({
       teamId: team.id,
       name,
       description,
@@ -518,7 +517,7 @@ function TeamMembers({
   const { execute: changeRole } = useServerAction(changeMemberRoleAction);
 
   const handleRemoveMember = async (membershipId: string) => {
-    const [data, err] = await removeMember({ teamId, membershipId });
+    const [, err] = await removeMember({ teamId, membershipId });
     if (err) {
       toast.error(err.message);
       return;
@@ -528,7 +527,7 @@ function TeamMembers({
   };
 
   const handleRoleChange = async (membershipId: string, roleId: string) => {
-    const [data, err] = await changeRole({
+    const [, err] = await changeRole({
       teamId,
       membershipId,
       roleId,
@@ -644,7 +643,7 @@ function TeamMembers({
 
 function InviteMembers({ teamId, onInviteSent }: { teamId: string; onInviteSent: () => void }) {
   const [email, setEmail] = useState("");
-  const [roleId, setRoleId] = useState(SYSTEM_ROLES_ENUM.MEMBER);
+  const [roleId, setRoleId] = useState<string>(SYSTEM_ROLES_ENUM.MEMBER);
   const { execute: createInvite, isPending } = useServerAction(createTeamInviteAction);
 
   const handleInvite = async () => {
@@ -653,7 +652,7 @@ function InviteMembers({ teamId, onInviteSent }: { teamId: string; onInviteSent:
       return;
     }
 
-    const [data, err] = await createInvite({
+    const [, err] = await createInvite({
       teamId,
       email,
       roleId,
@@ -675,7 +674,7 @@ function InviteMembers({ teamId, onInviteSent }: { teamId: string; onInviteSent:
     <Card>
       <CardHeader>
         <CardTitle>Invite Members</CardTitle>
-        <CardDescription>Invite users by email - they'll see the invitation on their Teams page</CardDescription>
+        <CardDescription>Invite users by email - they&apos;ll see the invitation on their Teams page</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
@@ -690,7 +689,7 @@ function InviteMembers({ teamId, onInviteSent }: { teamId: string; onInviteSent:
         </div>
         <div className="space-y-2">
           <Label htmlFor="invite-role">Role</Label>
-          <Select value={roleId} onValueChange={setRoleId}>
+          <Select value={roleId} onValueChange={(value) => setRoleId(value)}>
             <SelectTrigger id="invite-role">
               <SelectValue />
             </SelectTrigger>
@@ -715,18 +714,16 @@ function InviteMembers({ teamId, onInviteSent }: { teamId: string; onInviteSent:
 }
 
 function PendingInvitations({
-  teamId,
   invitations,
   onInvitationCancelled,
 }: {
-  teamId: string;
   invitations: InvitationWithUser[];
   onInvitationCancelled: () => void;
 }) {
   const { execute: cancelInvite } = useServerAction(cancelTeamInviteAction);
 
   const handleCancelInvite = async (inviteId: string) => {
-    const [data, err] = await cancelInvite({ inviteId });
+    const [, err] = await cancelInvite({ inviteId });
     if (err) {
       toast.error(err.message);
       return;
@@ -787,7 +784,7 @@ function MyPendingInvitations({
   const { execute: declineInvite, isPending: isDeclining } = useServerAction(declineTeamInviteAction);
 
   const handleAccept = async (inviteId: string) => {
-    const [data, err] = await acceptInvite({ inviteId });
+    const [, err] = await acceptInvite({ inviteId });
     if (err) {
       toast.error(err.message);
       return;
@@ -797,7 +794,7 @@ function MyPendingInvitations({
   };
 
   const handleDecline = async (inviteId: string) => {
-    const [data, err] = await declineInvite({ inviteId });
+    const [, err] = await declineInvite({ inviteId });
     if (err) {
       toast.error(err.message);
       return;
@@ -882,7 +879,7 @@ function OwnerPendingInvitations({
   const { execute: cancelInvite, isPending: isCancelling } = useServerAction(cancelTeamInviteAction);
 
   const handleCancel = async (inviteId: string) => {
-    const [data, err] = await cancelInvite({ inviteId });
+    const [, err] = await cancelInvite({ inviteId });
     if (err) {
       toast.error(err.message);
       return;

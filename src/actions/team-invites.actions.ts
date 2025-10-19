@@ -35,8 +35,9 @@ const acceptInviteByIdSchema = z.object({
 export const createTeamInviteAction = createServerAction()
   .input(createInviteSchema)
   .handler(async ({ input }) => {
-    const { user } = await getSessionFromCookie();
-    if (!user) throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+    const session = await getSessionFromCookie();
+    if (!session) throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
+    const { user } = session;
 
     await requirePermission(user.id, input.teamId, TEAM_PERMISSIONS.INVITE_MEMBERS);
 
@@ -77,8 +78,9 @@ export const createTeamInviteAction = createServerAction()
 export const acceptTeamInviteAction = createServerAction()
   .input(acceptInviteSchema)
   .handler(async ({ input }) => {
-    const { user } = await getSessionFromCookie();
-    if (!user) throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+    const session = await getSessionFromCookie();
+    if (!session) throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
+    const { user } = session;
 
     const db = getDB();
 
@@ -134,8 +136,9 @@ export const acceptTeamInviteAction = createServerAction()
 export const cancelTeamInviteAction = createServerAction()
   .input(cancelInviteSchema)
   .handler(async ({ input }) => {
-    const { user } = await getSessionFromCookie();
-    if (!user) throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+    const session = await getSessionFromCookie();
+    if (!session) throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
+    const { user } = session;
 
     const db = getDB();
 
@@ -156,8 +159,9 @@ export const cancelTeamInviteAction = createServerAction()
 export const declineTeamInviteAction = createServerAction()
   .input(declineInviteSchema)
   .handler(async ({ input }) => {
-    const { user } = await getSessionFromCookie();
-    if (!user) throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+    const session = await getSessionFromCookie();
+    if (!session) throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
+    const { user } = session;
 
     const db = getDB();
 
@@ -182,8 +186,9 @@ export const declineTeamInviteAction = createServerAction()
 export const acceptTeamInviteByIdAction = createServerAction()
   .input(acceptInviteByIdSchema)
   .handler(async ({ input }) => {
-    const { user } = await getSessionFromCookie();
-    if (!user) throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+    const session = await getSessionFromCookie();
+    if (!session) throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
+    const { user } = session;
 
     const db = getDB();
 

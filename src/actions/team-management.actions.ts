@@ -12,13 +12,14 @@ import {
 } from "@/db/schema";
 import { getSessionFromCookie } from "@/utils/auth";
 import { requirePermission } from "@/utils/team-auth";
-import { eq, and, isNull } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 
 // Get all teams user is a member of
 export const getUserTeamsAction = createServerAction()
   .handler(async () => {
-    const { user } = await getSessionFromCookie();
-    if (!user) throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+    const session = await getSessionFromCookie();
+    if (!session) throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
+    const { user } = session;
 
     const db = getDB();
 
@@ -59,8 +60,9 @@ const getTeamMembersSchema = z.object({
 export const getTeamMembersAction = createServerAction()
   .input(getTeamMembersSchema)
   .handler(async ({ input }) => {
-    const { user } = await getSessionFromCookie();
-    if (!user) throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+    const session = await getSessionFromCookie();
+    if (!session) throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
+    const { user } = session;
 
     const db = getDB();
 
@@ -99,8 +101,9 @@ const getTeamInvitationsSchema = z.object({
 export const getTeamInvitationsAction = createServerAction()
   .input(getTeamInvitationsSchema)
   .handler(async ({ input }) => {
-    const { user } = await getSessionFromCookie();
-    if (!user) throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+    const session = await getSessionFromCookie();
+    if (!session) throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
+    const { user } = session;
 
     const db = getDB();
 
@@ -132,8 +135,9 @@ const removeMemberSchema = z.object({
 export const removeTeamMemberAction = createServerAction()
   .input(removeMemberSchema)
   .handler(async ({ input }) => {
-    const { user } = await getSessionFromCookie();
-    if (!user) throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+    const session = await getSessionFromCookie();
+    if (!session) throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
+    const { user } = session;
 
     const db = getDB();
 
@@ -174,8 +178,9 @@ const updateTeamSchema = z.object({
 export const updateTeamAction = createServerAction()
   .input(updateTeamSchema)
   .handler(async ({ input }) => {
-    const { user } = await getSessionFromCookie();
-    if (!user) throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+    const session = await getSessionFromCookie();
+    if (!session) throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
+    const { user } = session;
 
     const db = getDB();
 
@@ -203,8 +208,9 @@ const changeMemberRoleSchema = z.object({
 export const changeMemberRoleAction = createServerAction()
   .input(changeMemberRoleSchema)
   .handler(async ({ input }) => {
-    const { user } = await getSessionFromCookie();
-    if (!user) throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+    const session = await getSessionFromCookie();
+    if (!session) throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
+    const { user } = session;
 
     const db = getDB();
 
@@ -242,8 +248,9 @@ export const changeMemberRoleAction = createServerAction()
 // Get pending invitations for current user
 export const getMyPendingInvitationsAction = createServerAction()
   .handler(async () => {
-    const { user } = await getSessionFromCookie();
-    if (!user) throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+    const session = await getSessionFromCookie();
+    if (!session) throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
+    const { user } = session;
 
     const db = getDB();
 
@@ -268,8 +275,9 @@ export const getMyPendingInvitationsAction = createServerAction()
 // Get all pending invitations from teams where user is owner
 export const getMyTeamsPendingInvitationsAction = createServerAction()
   .handler(async () => {
-    const { user } = await getSessionFromCookie();
-    if (!user) throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+    const session = await getSessionFromCookie();
+    if (!session) throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
+    const { user } = session;
 
     const db = getDB();
 
@@ -321,7 +329,7 @@ export const switchTeamAction = createServerAction()
   .input(switchTeamSchema)
   .handler(async ({ input }) => {
     const session = await getSessionFromCookie();
-    if (!session) throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+    if (!session) throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
 
     const db = getDB();
 
@@ -364,7 +372,7 @@ export const createTeamAction = createServerAction()
   .input(createTeamSchema)
   .handler(async ({ input }) => {
     const session = await getSessionFromCookie();
-    if (!session) throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+    if (!session) throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
 
     const db = getDB();
     const { SYSTEM_ROLES_ENUM } = await import("@/db/schema");
@@ -413,7 +421,7 @@ export const setDefaultTeamAction = createServerAction()
   .input(setDefaultTeamSchema)
   .handler(async ({ input }) => {
     const session = await getSessionFromCookie();
-    if (!session) throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+    if (!session) throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
 
     const db = getDB();
     const { userTable } = await import("@/db/schema");
@@ -432,7 +440,7 @@ export const setDefaultTeamAction = createServerAction()
     }
 
     // Update user's default team
-    const [updatedUser] = await db.update(userTable)
+    await db.update(userTable)
       .set({ defaultTeamId: input.teamId })
       .where(eq(userTable.id, session.user.id))
       .returning();

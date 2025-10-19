@@ -7,7 +7,6 @@ import { ScrollShadow } from '@heroui/react'
 import {
   User,
   Smartphone,
-  Lock,
   LogOut,
   Users
 } from "lucide-react";

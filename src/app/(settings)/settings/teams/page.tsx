@@ -1,7 +1,7 @@
 import { getSessionFromCookie } from "@/utils/auth";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TeamsManagement } from "./teams-management";
 

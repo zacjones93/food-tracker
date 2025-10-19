@@ -13,7 +13,6 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -119,13 +118,6 @@ export function NavUser() {
               }}>
                 <BadgeCheck />
                 Account
-              </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer" onClick={() => {
-                setOpenMobile(false)
-                router.push('/dashboard/billing')
-              }}>
-                <CreditCard />
-                Billing
               </DropdownMenuItem>
               <DropdownMenuItem className="cursor-pointer">
                 <Bell />
