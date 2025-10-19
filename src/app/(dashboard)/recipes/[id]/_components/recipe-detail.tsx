@@ -10,8 +10,11 @@ import { ArrowLeft, Clock, ChefHat, Calendar, Plus, ExternalLink, BookOpen } fro
 import { useRouter } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import { AddToSchedule } from "../../_components/add-to-schedule";
+import { AddIngredientToWeek } from "../../_components/add-ingredient-to-week";
+import { AddAllIngredientsToWeek } from "../../_components/add-all-ingredients-to-week";
 import { EditIngredientsDialog } from "./edit-ingredients-dialog";
 import { EditInstructionsDialog } from "./edit-instructions-dialog";
+import { EditRecipeDialog } from "./edit-recipe-dialog";
 
 interface RecipeDetailProps {
   recipe: Recipe & {
@@ -39,6 +42,7 @@ export function RecipeDetail({ recipe }: RecipeDetailProps) {
               <span className="text-4xl">{recipe.emoji}</span>
             )}
             <h1 className="text-3xl font-bold">{recipe.name}</h1>
+            <EditRecipeDialog recipe={recipe} />
           </div>
         </div>
         <AddToSchedule recipeId={recipe.id} variant="default" />
@@ -162,13 +166,17 @@ export function RecipeDetail({ recipe }: RecipeDetailProps) {
         <Card className="p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold">Ingredients</h2>
-            <EditIngredientsDialog recipe={recipe} />
+            <div className="flex gap-2">
+              <AddAllIngredientsToWeek ingredients={recipe.ingredients} />
+              <EditIngredientsDialog recipe={recipe} />
+            </div>
           </div>
           <ul className="space-y-2">
             {recipe.ingredients.map((ingredient, i) => (
               <li key={i} className="flex items-start gap-2">
                 <span className="text-primary mt-1">•</span>
-                <span>{ingredient}</span>
+                <span className="flex-1">{ingredient}</span>
+                <AddIngredientToWeek ingredient={ingredient} />
               </li>
             ))}
           </ul>

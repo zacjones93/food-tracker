@@ -8,8 +8,8 @@ export const createRecipeSchema = z.object({
   mealType: z.string().max(50).optional(), // Allow any meal type string
   difficulty: z.string().max(20).optional(), // Allow any difficulty string
   visibility: z.enum([RECIPE_VISIBILITY.PUBLIC, RECIPE_VISIBILITY.PRIVATE, RECIPE_VISIBILITY.UNLISTED]).default(RECIPE_VISIBILITY.PUBLIC),
-  ingredients: z.array(z.string()).optional(),
-  recipeBody: z.string().optional(),
+  ingredients: z.array(z.string()).nullable().optional(),
+  recipeBody: z.string().nullable().optional(),
   recipeLink: z.string().max(1000).optional(),
   recipeBookId: z.string().optional(),
   page: z.string().max(50).optional(),
@@ -34,7 +34,7 @@ export const incrementMealsEatenSchema = z.object({
 export const getRecipesSchema = z.object({
   search: z.string().optional(),
   page: z.coerce.number().min(1).optional().default(1),
-  limit: z.coerce.number().min(1).max(100).optional().default(100),
+  limit: z.coerce.number().min(1).max(10000).optional().default(100), // Increased for client-side filtering
   mealType: z.string().optional(), // Allow any meal type for filtering
   difficulty: z.string().optional(), // Allow any difficulty for filtering
   visibility: z.enum([RECIPE_VISIBILITY.PUBLIC, RECIPE_VISIBILITY.PRIVATE, RECIPE_VISIBILITY.UNLISTED]).optional(),

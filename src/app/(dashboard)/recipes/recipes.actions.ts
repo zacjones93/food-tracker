@@ -21,14 +21,15 @@ export const createRecipeAction = createServerAction()
   .handler(async ({ input }) => {
     const session = await getSessionFromCookie();
     if (!session) {
-      throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+      throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
     }
+    const { user } = session;
 
     if (!session.activeTeamId) {
       throw new ZSAError("FORBIDDEN", "No active team selected");
     }
 
-    await requirePermission(session.user.id, session.activeTeamId, TEAM_PERMISSIONS.CREATE_RECIPES);
+    await requirePermission(user.id, session.activeTeamId, TEAM_PERMISSIONS.CREATE_RECIPES);
 
     const db = getDB();
 
@@ -55,10 +56,11 @@ export const createRecipeAction = createServerAction()
 export const updateRecipeAction = createServerAction()
   .input(updateRecipeSchema)
   .handler(async ({ input }) => {
-    const { user } = await getSessionFromCookie();
-    if (!user) {
-      throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+    const session = await getSessionFromCookie();
+    if (!session) {
+      throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
     }
+    const { user } = session;
 
     const db = getDB();
     const { id, ...updateData } = input;
@@ -85,10 +87,11 @@ export const updateRecipeAction = createServerAction()
 export const deleteRecipeAction = createServerAction()
   .input(deleteRecipeSchema)
   .handler(async ({ input }) => {
-    const { user } = await getSessionFromCookie();
-    if (!user) {
-      throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+    const session = await getSessionFromCookie();
+    if (!session) {
+      throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
     }
+    const { user } = session;
 
     const db = getDB();
 
@@ -114,14 +117,15 @@ export const getRecipeByIdAction = createServerAction()
   .handler(async ({ input }) => {
     const session = await getSessionFromCookie();
     if (!session) {
-      throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+      throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
     }
+    const { user } = session;
 
     if (!session.activeTeamId) {
       throw new ZSAError("FORBIDDEN", "No active team selected");
     }
 
-    await requirePermission(session.user.id, session.activeTeamId, TEAM_PERMISSIONS.ACCESS_RECIPES);
+    await requirePermission(user.id, session.activeTeamId, TEAM_PERMISSIONS.ACCESS_RECIPES);
 
     const db = getDB();
 
@@ -170,14 +174,15 @@ export const getRecipesAction = createServerAction()
   .handler(async ({ input }) => {
     const session = await getSessionFromCookie();
     if (!session) {
-      throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+      throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
     }
+    const { user } = session;
 
     if (!session.activeTeamId) {
       throw new ZSAError("FORBIDDEN", "No active team selected");
     }
 
-    await requirePermission(session.user.id, session.activeTeamId, TEAM_PERMISSIONS.ACCESS_RECIPES);
+    await requirePermission(user.id, session.activeTeamId, TEAM_PERMISSIONS.ACCESS_RECIPES);
 
     const db = getDB();
     const { search, page, limit, mealType, difficulty, visibility, tags, seasons, minMealsEaten, maxMealsEaten, recipeBookId } = input;
@@ -300,10 +305,11 @@ export const getRecipesAction = createServerAction()
 export const incrementMealsEatenAction = createServerAction()
   .input(incrementMealsEatenSchema)
   .handler(async ({ input }) => {
-    const { user } = await getSessionFromCookie();
-    if (!user) {
-      throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+    const session = await getSessionFromCookie();
+    if (!session) {
+      throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
     }
+    const { user } = session;
 
     const db = getDB();
 
@@ -330,14 +336,15 @@ export const getRecipeMetadataAction = createServerAction()
   .handler(async () => {
     const session = await getSessionFromCookie();
     if (!session) {
-      throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+      throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
     }
+    const { user } = session;
 
     if (!session.activeTeamId) {
       throw new ZSAError("FORBIDDEN", "No active team selected");
     }
 
-    await requirePermission(session.user.id, session.activeTeamId, TEAM_PERMISSIONS.ACCESS_RECIPES);
+    await requirePermission(user.id, session.activeTeamId, TEAM_PERMISSIONS.ACCESS_RECIPES);
 
     const db = getDB();
 
@@ -389,10 +396,11 @@ export const getRecipeMetadataAction = createServerAction()
 export const createRecipeBookAction = createServerAction()
   .input(z.object({ name: z.string().min(1).max(500) }))
   .handler(async ({ input }) => {
-    const { user } = await getSessionFromCookie();
-    if (!user) {
-      throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+    const session = await getSessionFromCookie();
+    if (!session) {
+      throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
     }
+    const { user } = session;
 
     const db = getDB();
 

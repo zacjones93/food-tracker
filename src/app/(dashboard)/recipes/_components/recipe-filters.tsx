@@ -1,7 +1,11 @@
 "use client";
 
-import { useQueryStates, parseAsString, parseAsInteger, parseAsArrayOf } from "nuqs";
-import { useRouter } from "next/navigation";
+import {
+  useQueryStates,
+  parseAsString,
+  parseAsInteger,
+  parseAsArrayOf,
+} from "nuqs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -12,20 +16,28 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Search, X, Check, ChevronDown, SlidersHorizontal } from "lucide-react";
+import { X, ChevronDown, SlidersHorizontal } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useState, useEffect, useCallback } from "react";
+import { useEffect, useCallback } from "react";
 import { getRecipeBooksAction } from "../../recipe-books/recipe-books.actions";
 import { useServerAction } from "zsa-react";
 
 export function RecipeFilters() {
-  const router = useRouter();
   const [filters, setFilters] = useQueryStates(
     {
-      search: parseAsString,
       mealType: parseAsString,
       difficulty: parseAsString,
       seasons: parseAsArrayOf(parseAsString),
@@ -39,44 +51,20 @@ export function RecipeFilters() {
     }
   );
 
-  const SEASONAL_TAGS = ['Spring', 'Summer', 'Fall', 'Winter'];
+  const SEASONAL_TAGS = ["Spring", "Summer", "Fall", "Winter"];
 
-  // Fetch recipe books for filter dropdown
-  const { execute: fetchRecipeBooks, data: recipeBooksData } = useServerAction(getRecipeBooksAction);
+  const { execute: fetchRecipeBooks, data: recipeBooksData } =
+    useServerAction(getRecipeBooksAction);
 
   useEffect(() => {
     fetchRecipeBooks({ page: 1, limit: 100 });
-  }, [fetchRecipeBooks]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  const recipeBooks = recipeBooksData?.[0]?.recipeBooks || [];
-
-  // Local state for debounced search
-  const [searchInput, setSearchInput] = useState(filters.search || "");
-
-  // Update local search input when URL param changes (e.g., on clear)
-  useEffect(() => {
-    setSearchInput(filters.search || "");
-  }, [filters.search]);
-
-  // Debounced search update
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      const trimmedSearch = searchInput.trim();
-      const currentSearch = filters.search || "";
-      if (trimmedSearch !== currentSearch) {
-        setFilters({ search: trimmedSearch || null, page: 1 }).then(() => {
-          router.refresh();
-        });
-      }
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [searchInput, filters.search, setFilters, router]);
+  const recipeBooks = recipeBooksData?.recipeBooks || [];
 
   const handleClearFilters = () => {
-    setSearchInput("");
     setFilters({
-      search: null,
       mealType: null,
       difficulty: null,
       seasons: null,
@@ -84,22 +72,21 @@ export function RecipeFilters() {
       maxMealsEaten: null,
       recipeBookId: null,
       page: 1,
-    }).then(() => {
-      router.refresh();
     });
   };
 
   // Reset to page 1 when any filter changes (except search, which is handled above)
-  const handleFilterChange = useCallback((updates: Record<string, string | number | null>) => {
-    setFilters({ ...updates, page: 1 }).then(() => {
-      router.refresh();
-    });
-  }, [setFilters, router]);
+  const handleFilterChange = useCallback(
+    (updates: Record<string, string | number | string[] | null>) => {
+      setFilters({ ...updates, page: 1 });
+    },
+    [setFilters]
+  );
 
   const handleSeasonToggle = (season: string) => {
     const currentSeasons = filters.seasons || [];
     const newSeasons = currentSeasons.includes(season)
-      ? currentSeasons.filter(s => s !== season)
+      ? currentSeasons.filter((s) => s !== season)
       : [...currentSeasons, season];
 
     handleFilterChange({
@@ -108,7 +95,6 @@ export function RecipeFilters() {
   };
 
   const hasActiveFilters =
-    filters.search ||
     filters.mealType ||
     filters.difficulty ||
     (filters.seasons && filters.seasons.length > 0) ||
@@ -116,30 +102,14 @@ export function RecipeFilters() {
     filters.maxMealsEaten !== null ||
     filters.recipeBookId;
 
-  const activeFilterCount = [
-    filters.search,
-    filters.mealType,
-    filters.difficulty,
-    filters.recipeBookId,
-    filters.minMealsEaten !== null,
-    filters.maxMealsEaten !== null,
-  ].filter(Boolean).length + (filters.seasons?.length || 0);
-
-  const SearchField = () => (
-    <div className="space-y-2">
-      <Label htmlFor="search">Search</Label>
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input
-          id="search"
-          placeholder="Search recipes..."
-          value={searchInput}
-          onChange={(e) => setSearchInput(e.target.value)}
-          className="pl-9"
-        />
-      </div>
-    </div>
-  );
+  const activeFilterCount =
+    [
+      filters.mealType,
+      filters.difficulty,
+      filters.recipeBookId,
+      filters.minMealsEaten !== null,
+      filters.maxMealsEaten !== null,
+    ].filter(Boolean).length + (filters.seasons?.length || 0);
 
   const FilterFields = () => (
     <>
@@ -286,9 +256,8 @@ export function RecipeFilters() {
 
   return (
     <>
-      {/* Mobile: Search bar + Sheet with filter button */}
-      <div className="md:hidden space-y-3">
-        <SearchField />
+      {/* Mobile: Sheet with filter button */}
+      <div className="md:hidden">
         <Sheet>
           <SheetTrigger asChild>
             <Button variant="outline" className="w-full">
@@ -309,7 +278,12 @@ export function RecipeFilters() {
               <FilterFields />
               {hasActiveFilters && (
                 <div className="pt-4">
-                  <Button variant="ghost" size="sm" onClick={handleClearFilters} className="w-full">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleClearFilters}
+                    className="w-full"
+                  >
                     <X className="h-4 w-4 mr-2" />
                     Clear Filters
                   </Button>
@@ -322,8 +296,7 @@ export function RecipeFilters() {
 
       {/* Desktop: Card with all filters */}
       <Card className="p-4 hidden md:block">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-4">
-          <SearchField />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
           <FilterFields />
         </div>
 

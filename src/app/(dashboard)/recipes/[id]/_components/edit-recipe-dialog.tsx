@@ -1,13 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { createRecipeSchema, type CreateRecipeSchema } from "@/schemas/recipe.schema";
-import { createRecipeAction, getRecipeMetadataAction, createRecipeBookAction } from "../recipes.actions";
-import { useServerAction } from "zsa-react";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -38,23 +41,34 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Loader2, X, Check, ChevronsUpDown } from "lucide-react";
-import Link from "next/link";
-import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
+import { Pencil, X, Check, ChevronsUpDown } from "lucide-react";
+import { updateRecipeAction, getRecipeMetadataAction, createRecipeBookAction } from "../../recipes.actions";
+import { useServerAction } from "zsa-react";
+import { useRouter } from "next/navigation";
+import type { Recipe, RecipeBook } from "@/db/schema";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { updateRecipeSchema, type UpdateRecipeSchema } from "@/schemas/recipe.schema";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
-export default function CreateRecipePage() {
+interface EditRecipeDialogProps {
+  recipe: Recipe & {
+    recipeBook?: RecipeBook | null;
+  };
+}
+
+export function EditRecipeDialog({ recipe }: EditRecipeDialogProps) {
+  const [open, setOpen] = useState(false);
   const router = useRouter();
-  const [ingredients, setIngredients] = useState<string>("");
   const [metadata, setMetadata] = useState<{
     mealTypes: string[];
     difficulties: string[];
     tags: string[];
     recipeBooks: Array<{ id: string; name: string }>;
   } | null>(null);
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [selectedTags, setSelectedTags] = useState<string[]>(recipe.tags || []);
   const [tagInput, setTagInput] = useState("");
   const [showMealTypeInput, setShowMealTypeInput] = useState(false);
   const [showDifficultyInput, setShowDifficultyInput] = useState(false);
@@ -64,35 +78,45 @@ export default function CreateRecipePage() {
   const [newRecipeBook, setNewRecipeBook] = useState("");
   const [recipeBookOpen, setRecipeBookOpen] = useState(false);
 
-  const { execute, isPending } = useServerAction(createRecipeAction);
+  const { execute, isPending } = useServerAction(updateRecipeAction, {
+    onSuccess: () => {
+      setOpen(false);
+      router.refresh();
+      toast.success("Recipe updated successfully!");
+    },
+    onError: ({ err }) => {
+      toast.error(err.message || "Failed to update recipe");
+    },
+  });
+
   const { execute: fetchMetadata } = useServerAction(getRecipeMetadataAction);
   const { execute: createRecipeBook } = useServerAction(createRecipeBookAction);
 
-  const form = useForm<CreateRecipeSchema>({
-    resolver: zodResolver(createRecipeSchema),
+  const form = useForm<UpdateRecipeSchema>({
+    resolver: zodResolver(updateRecipeSchema),
     defaultValues: {
-      name: "",
-      emoji: "",
-      tags: [],
-      mealType: "",
-      difficulty: "",
-      ingredients: [],
-      recipeBody: "",
-      recipeLink: "",
-      recipeBookId: "",
-      page: "",
+      id: recipe.id,
+      name: recipe.name || "",
+      emoji: recipe.emoji || "",
+      mealType: recipe.mealType || "",
+      difficulty: recipe.difficulty || "",
+      recipeLink: recipe.recipeLink || "",
+      recipeBookId: recipe.recipeBookId || "",
+      page: recipe.page || "",
     },
   });
 
   useEffect(() => {
-    async function loadMetadata() {
-      const [data, err] = await fetchMetadata();
-      if (!err && data) {
-        setMetadata(data);
+    if (open) {
+      async function loadMetadata() {
+        const [data, err] = await fetchMetadata();
+        if (!err && data) {
+          setMetadata(data);
+        }
       }
+      loadMetadata();
     }
-    loadMetadata();
-  }, [fetchMetadata]);
+  }, [open, fetchMetadata]);
 
   const handleAddTag = (tag: string) => {
     const trimmedTag = tag.trim();
@@ -132,7 +156,6 @@ export default function CreateRecipePage() {
 
   const handleAddRecipeBook = async () => {
     if (newRecipeBook.trim() && metadata) {
-      // For now, just add to local state - we'd need a server action to persist
       const tempId = `rb_temp_${Date.now()}`;
       const newBook = { id: tempId, name: newRecipeBook.trim() };
 
@@ -144,15 +167,14 @@ export default function CreateRecipePage() {
       setNewRecipeBook("");
       setShowRecipeBookInput(false);
 
-      toast.success("Recipe book added (will be created when you save the recipe)");
+      toast.success("Recipe book added (will be created when you save)");
     }
   };
 
-  async function onSubmit(values: CreateRecipeSchema) {
+  async function onSubmit(values: UpdateRecipeSchema) {
     const finalValues = {
       ...values,
       tags: selectedTags.length > 0 ? selectedTags : undefined,
-      ingredients: ingredients ? ingredients.split("\n").filter(Boolean) : undefined,
     };
 
     // If recipe book is a temp ID, create it first
@@ -169,40 +191,29 @@ export default function CreateRecipePage() {
           return;
         }
 
-        // Use the real recipe book ID
         finalValues.recipeBookId = bookData.recipeBook.id;
       }
     }
 
-    const [data, err] = await execute(finalValues);
-
-    if (err) {
-      toast.error(err.message || "Failed to create recipe");
-      return;
-    }
-
-    toast.success("Recipe created successfully!");
-    router.push(`/recipes/${data.recipe.id}`);
+    await execute(finalValues);
   }
 
   return (
-    <div className="flex flex-col gap-6 p-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Create Recipe</h1>
-            <p className="text-muted-foreground">Add a new recipe to your collection</p>
-          </div>
-          <Button variant="outline" asChild>
-            <Link href="/recipes">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Recipes
-            </Link>
-          </Button>
-        </div>
-
-        <div className="max-w-2xl">
-          <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="ghost" size="icon">
+          <Pencil className="h-4 w-4" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Edit Recipe</DialogTitle>
+          <DialogDescription>
+            Update recipe details, tags, and metadata
+          </DialogDescription>
+        </DialogHeader>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
               name="name"
@@ -226,9 +237,6 @@ export default function CreateRecipePage() {
                   <FormControl>
                     <Input placeholder="🍝" maxLength={10} {...field} />
                   </FormControl>
-                  <FormDescription>
-                    Add an emoji to make your recipe easier to identify
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -305,7 +313,7 @@ export default function CreateRecipePage() {
                       </>
                     ) : (
                       <FormControl>
-                        <Input placeholder="e.g., Dinner, Lunch" {...field} />
+                        <Input placeholder="Loading..." disabled {...field} />
                       </FormControl>
                     )}
                     <FormMessage />
@@ -383,7 +391,7 @@ export default function CreateRecipePage() {
                       </>
                     ) : (
                       <FormControl>
-                        <Input placeholder="e.g., Easy, Medium, Hard" {...field} />
+                        <Input placeholder="Loading..." disabled {...field} />
                       </FormControl>
                     )}
                     <FormMessage />
@@ -614,60 +622,17 @@ export default function CreateRecipePage() {
               />
             </div>
 
-            <FormItem>
-              <FormLabel>Ingredients</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Enter each ingredient on a new line&#10;e.g.,&#10;200g spaghetti&#10;100g pancetta&#10;2 eggs"
-                  value={ingredients}
-                  onChange={(e) => setIngredients(e.target.value)}
-                  rows={6}
-                />
-              </FormControl>
-              <FormDescription>
-                One ingredient per line
-              </FormDescription>
-            </FormItem>
-
-            <FormField
-              control={form.control}
-              name="recipeBody"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Instructions</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Enter cooking instructions..."
-                      rows={10}
-                      {...field}
-                      value={field.value ?? ""}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Full recipe instructions and notes (supports markdown)
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="flex gap-3">
-              <Button type="submit" disabled={isPending}>
-                {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Create Recipe
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => router.push("/recipes")}
-                disabled={isPending}
-              >
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setOpen(false)}>
                 Cancel
               </Button>
-            </div>
+              <Button type="submit" disabled={isPending}>
+                {isPending ? "Saving..." : "Save Changes"}
+              </Button>
+            </DialogFooter>
           </form>
         </Form>
-        </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

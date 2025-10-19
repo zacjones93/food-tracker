@@ -170,7 +170,7 @@ export function RecipesTable({ recipes, pagination }: RecipesTableProps) {
               variant="outline"
               size="icon"
               className="h-8 w-8"
-              onClick={() => setPage(1).then(() => router.refresh())}
+              onClick={() => setPage(1)}
               disabled={pagination.page === 1}
             >
               <ChevronsLeft className="h-4 w-4" />
@@ -179,7 +179,7 @@ export function RecipesTable({ recipes, pagination }: RecipesTableProps) {
               variant="outline"
               size="icon"
               className="h-8 w-8"
-              onClick={() => setPage(pagination.page - 1).then(() => router.refresh())}
+              onClick={() => setPage(pagination.page - 1)}
               disabled={pagination.page === 1}
             >
               <ChevronLeft className="h-4 w-4" />
@@ -191,7 +191,7 @@ export function RecipesTable({ recipes, pagination }: RecipesTableProps) {
               variant="outline"
               size="icon"
               className="h-8 w-8"
-              onClick={() => setPage(pagination.page + 1).then(() => router.refresh())}
+              onClick={() => setPage(pagination.page + 1)}
               disabled={pagination.page === pagination.totalPages}
             >
               <ChevronRight className="h-4 w-4" />
@@ -200,7 +200,7 @@ export function RecipesTable({ recipes, pagination }: RecipesTableProps) {
               variant="outline"
               size="icon"
               className="h-8 w-8"
-              onClick={() => setPage(pagination.totalPages).then(() => router.refresh())}
+              onClick={() => setPage(pagination.totalPages)}
               disabled={pagination.page === pagination.totalPages}
             >
               <ChevronsRight className="h-4 w-4" />
