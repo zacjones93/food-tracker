@@ -15,6 +15,7 @@ import { AddAllIngredientsToWeek } from "../../_components/add-all-ingredients-t
 import { EditIngredientsDialog } from "./edit-ingredients-dialog";
 import { EditInstructionsDialog } from "./edit-instructions-dialog";
 import { EditRecipeDialog } from "./edit-recipe-dialog";
+import { useSessionStore } from "@/state/session";
 
 interface RecipeDetailProps {
   recipe: Recipe & {
@@ -24,6 +25,7 @@ interface RecipeDetailProps {
 
 export function RecipeDetail({ recipe }: RecipeDetailProps) {
   const router = useRouter();
+  const session = useSessionStore();
 
   return (
     <div className="flex flex-col gap-6 p-6 max-w-4xl mx-auto">
@@ -42,10 +44,10 @@ export function RecipeDetail({ recipe }: RecipeDetailProps) {
               <span className="text-4xl">{recipe.emoji}</span>
             )}
             <h1 className="text-3xl font-bold">{recipe.name}</h1>
-            <EditRecipeDialog recipe={recipe} />
+            {session?.user && <EditRecipeDialog recipe={recipe} />}
           </div>
         </div>
-        <AddToSchedule recipeId={recipe.id} variant="default" />
+        {session?.user && <AddToSchedule recipeId={recipe.id} variant="default" />}
       </div>
 
       {/* Metadata */}
@@ -166,49 +168,51 @@ export function RecipeDetail({ recipe }: RecipeDetailProps) {
         <Card className="p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold">Ingredients</h2>
-            <div className="flex gap-2">
-              <AddAllIngredientsToWeek ingredients={recipe.ingredients} />
-              <EditIngredientsDialog recipe={recipe} />
-            </div>
+            {session?.user && (
+              <div className="flex gap-2">
+                <AddAllIngredientsToWeek ingredients={recipe.ingredients} />
+                <EditIngredientsDialog recipe={recipe} />
+              </div>
+            )}
           </div>
           <ul className="space-y-2">
             {recipe.ingredients.map((ingredient, i) => (
               <li key={i} className="flex items-start gap-2">
                 <span className="text-primary mt-1">•</span>
                 <span className="flex-1">{ingredient}</span>
-                <AddIngredientToWeek ingredient={ingredient} />
+                {session?.user && <AddIngredientToWeek ingredient={ingredient} />}
               </li>
             ))}
           </ul>
         </Card>
-      ) : (
+      ) : session?.user ? (
         <Card className="p-12 text-center">
           <p className="text-muted-foreground mb-4">
             No ingredients added yet.
           </p>
           <EditIngredientsDialog recipe={recipe} />
         </Card>
-      )}
+      ) : null}
 
       {/* Recipe Body */}
       {recipe.recipeBody ? (
         <Card className="p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold">Instructions</h2>
-            <EditInstructionsDialog recipe={recipe} />
+            {session?.user && <EditInstructionsDialog recipe={recipe} />}
           </div>
           <div className="prose prose-sm max-w-none dark:prose-invert">
             <ReactMarkdown>{recipe.recipeBody}</ReactMarkdown>
           </div>
         </Card>
-      ) : (
+      ) : session?.user ? (
         <Card className="p-12 text-center">
           <p className="text-muted-foreground mb-4">
             No instructions added yet.
           </p>
           <EditInstructionsDialog recipe={recipe} />
         </Card>
-      )}
+      ) : null}
     </div>
   );
 }

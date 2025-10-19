@@ -43,6 +43,7 @@ export const getRecipesSchema = z.object({
   minMealsEaten: z.coerce.number().min(0).optional(),
   maxMealsEaten: z.coerce.number().min(0).optional(),
   recipeBookId: z.string().optional(), // Filter by recipe book
+  sortBy: z.enum(["newest", "mostEaten", "name"]).optional().default("newest"),
 });
 
 export type CreateRecipeSchema = z.infer<typeof createRecipeSchema>;

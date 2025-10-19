@@ -135,10 +135,11 @@ export const getRecipeByIdAction = createServerAction()
     const [result] = await db
       .select({
         recipe: recipesTable,
-        weekCount: sql<number>`count(distinct ${weekRecipesTable.weekId})`.as('weekCount'),
+        weekCount: sql<number>`count(distinct case when ${weeksTable.teamId} = ${session.activeTeamId} then ${weekRecipesTable.weekId} end)`.as('weekCount'),
       })
       .from(recipesTable)
       .leftJoin(weekRecipesTable, eq(recipesTable.id, weekRecipesTable.recipeId))
+      .leftJoin(weeksTable, eq(weekRecipesTable.weekId, weeksTable.id))
       .where(and(
         eq(recipesTable.id, input.id),
         or(
@@ -185,7 +186,7 @@ export const getRecipesAction = createServerAction()
     await requirePermission(user.id, session.activeTeamId, TEAM_PERMISSIONS.ACCESS_RECIPES);
 
     const db = getDB();
-    const { search, page, limit, mealType, difficulty, visibility, tags, seasons, minMealsEaten, maxMealsEaten, recipeBookId } = input;
+    const { search, page, limit, mealType, difficulty, visibility, tags, seasons, minMealsEaten, maxMealsEaten, recipeBookId, sortBy } = input;
 
     // Build WHERE conditions for visibility filtering:
     // - Show own team's recipes (all visibilities)
@@ -223,12 +224,13 @@ export const getRecipesAction = createServerAction()
     let allRecipes = await db
       .select({
         recipe: recipesTable,
-        weekCount: sql<number>`count(distinct ${weekRecipesTable.weekId})`.as('weekCount'),
+        weekCount: sql<number>`count(distinct case when ${weeksTable.teamId} = ${session.activeTeamId} then ${weekRecipesTable.weekId} end)`.as('weekCount'),
         latestWeekId: sql<string | null>`(
           select ${weeksTable.id}
           from ${weekRecipesTable}
           inner join ${weeksTable} on ${weeksTable.id} = ${weekRecipesTable.weekId}
           where ${weekRecipesTable.recipeId} = ${recipesTable.id}
+            and ${weeksTable.teamId} = ${session.activeTeamId}
           order by ${weeksTable.startDate} desc
           limit 1
         )`.as('latestWeekId'),
@@ -237,12 +239,14 @@ export const getRecipesAction = createServerAction()
           from ${weekRecipesTable}
           inner join ${weeksTable} on ${weeksTable.id} = ${weekRecipesTable.weekId}
           where ${weekRecipesTable.recipeId} = ${recipesTable.id}
+            and ${weeksTable.teamId} = ${session.activeTeamId}
           order by ${weeksTable.startDate} desc
           limit 1
         )`.as('latestWeekName'),
       })
       .from(recipesTable)
       .leftJoin(weekRecipesTable, eq(recipesTable.id, weekRecipesTable.recipeId))
+      .leftJoin(weeksTable, eq(weekRecipesTable.weekId, weeksTable.id))
       .where(whereClause)
       .groupBy(recipesTable.id);
 
@@ -270,11 +274,22 @@ export const getRecipesAction = createServerAction()
       allRecipes = allRecipes.filter(item => (item.weekCount || 0) <= maxMealsEaten);
     }
 
-    // Sort by meals eaten (descending), then by name
+    // Sort based on sortBy parameter
     allRecipes.sort((a, b) => {
-      const countDiff = (b.weekCount || 0) - (a.weekCount || 0);
-      if (countDiff !== 0) return countDiff;
-      return (a.recipe.name || "").localeCompare(b.recipe.name || "");
+      if (sortBy === "mostEaten") {
+        const countDiff = (b.weekCount || 0) - (a.weekCount || 0);
+        if (countDiff !== 0) return countDiff;
+        return (a.recipe.name || "").localeCompare(b.recipe.name || "");
+      } else if (sortBy === "name") {
+        return (a.recipe.name || "").localeCompare(b.recipe.name || "");
+      } else {
+        // Default: newest first
+        const dateA = a.recipe.createdAt ? new Date(a.recipe.createdAt).getTime() : 0;
+        const dateB = b.recipe.createdAt ? new Date(b.recipe.createdAt).getTime() : 0;
+        const dateDiff = dateB - dateA;
+        if (dateDiff !== 0) return dateDiff;
+        return (a.recipe.name || "").localeCompare(b.recipe.name || "");
+      }
     });
 
     // Get total count after filtering
@@ -391,6 +406,62 @@ export const getRecipeMetadataAction = createServerAction()
       tags,
       recipeBooks,
     };
+  });
+
+export const getPublicRecipeByIdAction = createServerAction()
+  .input(getRecipeByIdSchema)
+  .handler(async ({ input }) => {
+    const db = getDB();
+    const session = await getSessionFromCookie();
+
+    // Build visibility conditions based on authentication
+    let visibilityCondition;
+    if (session?.activeTeamId) {
+      // Authenticated: show own team's recipes (all) + other teams' public/unlisted
+      visibilityCondition = or(
+        eq(recipesTable.teamId, session.activeTeamId),
+        inArray(recipesTable.visibility, [RECIPE_VISIBILITY.PUBLIC, RECIPE_VISIBILITY.UNLISTED])
+      );
+    } else {
+      // Unauthenticated: only show public/unlisted recipes
+      visibilityCondition = inArray(recipesTable.visibility, [RECIPE_VISIBILITY.PUBLIC, RECIPE_VISIBILITY.UNLISTED]);
+    }
+
+    const [result] = await db
+      .select({
+        recipe: recipesTable,
+        weekCount: session?.activeTeamId
+          ? sql<number>`count(distinct case when ${weeksTable.teamId} = ${session.activeTeamId} then ${weekRecipesTable.weekId} end)`.as('weekCount')
+          : sql<number>`0`.as('weekCount'),
+      })
+      .from(recipesTable)
+      .leftJoin(weekRecipesTable, eq(recipesTable.id, weekRecipesTable.recipeId))
+      .leftJoin(weeksTable, eq(weekRecipesTable.weekId, weeksTable.id))
+      .where(and(
+        eq(recipesTable.id, input.id),
+        visibilityCondition
+      ))
+      .groupBy(recipesTable.id);
+
+    if (!result) {
+      throw new ZSAError("NOT_FOUND", "Recipe not found");
+    }
+
+    // Fetch recipe book separately if exists
+    let recipeBook = null;
+    if (result.recipe.recipeBookId) {
+      recipeBook = await db.query.recipeBooksTable.findFirst({
+        where: eq(recipeBooksTable.id, result.recipe.recipeBookId),
+      });
+    }
+
+    const recipe = {
+      ...result.recipe,
+      mealsEatenCount: result.weekCount || 0,
+      recipeBook,
+    };
+
+    return { recipe };
   });
 
 export const createRecipeBookAction = createServerAction()

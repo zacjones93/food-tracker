@@ -1,5 +1,5 @@
-import { getPublicRecipeByIdAction } from "../recipes.actions";
-import { RecipeDetail } from "./_components/recipe-detail";
+import { getPublicRecipeByIdAction } from "@/app/(dashboard)/recipes/recipes.actions";
+import { RecipeDetail } from "@/app/(dashboard)/recipes/[id]/_components/recipe-detail";
 import { notFound } from "next/navigation";
 
 interface RecipePageProps {
@@ -8,7 +8,7 @@ interface RecipePageProps {
   }>;
 }
 
-export default async function RecipePage({ params }: RecipePageProps) {
+export default async function PublicRecipePage({ params }: RecipePageProps) {
   const { id } = await params;
 
   const [data, error] = await getPublicRecipeByIdAction({ id });
