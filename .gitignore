@@ -58,3 +58,4 @@ remaining-users.sql
 recipes-batch-*
 *.sql.bak*
 scripts/extract-book-updates.js
+.claude/
