@@ -15,6 +15,8 @@ import {
 import { eq, and, like, sql, or, inArray } from "drizzle-orm";
 import { getSessionFromCookie } from "@/utils/auth";
 import { requirePermission } from "@/utils/team-auth";
+import { getRecipeVisibilityConditions } from "@/utils/recipe-visibility";
+import { teamSettingsTable } from "@/db/schema";
 
 export const createRecipeAction = createServerAction()
   .input(createRecipeSchema)
@@ -33,6 +35,13 @@ export const createRecipeAction = createServerAction()
 
     const db = getDB();
 
+    // Fetch team settings to get default visibility
+    const teamSettings = await db.query.teamSettingsTable.findFirst({
+      where: eq(teamSettingsTable.teamId, session.activeTeamId),
+    });
+
+    const defaultVisibility = teamSettings?.defaultRecipeVisibility || 'public';
+
     const [recipe] = await db.insert(recipesTable)
       .values({
         teamId: session.activeTeamId,
@@ -41,7 +50,8 @@ export const createRecipeAction = createServerAction()
         tags: input.tags,
         mealType: input.mealType,
         difficulty: input.difficulty,
-        visibility: input.visibility,
+        // Use input visibility if provided, otherwise use team default
+        visibility: input.visibility ?? defaultVisibility,
         ingredients: input.ingredients,
         recipeBody: input.recipeBody,
         recipeLink: input.recipeLink,
@@ -129,9 +139,17 @@ export const getRecipeByIdAction = createServerAction()
 
     const db = getDB();
 
-    // Allow viewing:
-    // - Own team's recipes (all visibilities)
-    // - Other teams' public/unlisted recipes (not private)
+    // Fetch team settings to determine visibility mode
+    const teamSettings = await db.query.teamSettingsTable.findFirst({
+      where: eq(teamSettingsTable.teamId, session.activeTeamId),
+    });
+
+    const visibilityMode = teamSettings?.recipeVisibilityMode || 'all';
+    const visibilityConditions = getRecipeVisibilityConditions(
+      session.activeTeamId,
+      visibilityMode
+    );
+
     const [result] = await db
       .select({
         recipe: recipesTable,
@@ -142,10 +160,7 @@ export const getRecipeByIdAction = createServerAction()
       .leftJoin(weeksTable, eq(weekRecipesTable.weekId, weeksTable.id))
       .where(and(
         eq(recipesTable.id, input.id),
-        or(
-          eq(recipesTable.teamId, session.activeTeamId),
-          inArray(recipesTable.visibility, [RECIPE_VISIBILITY.PUBLIC, RECIPE_VISIBILITY.UNLISTED])
-        )
+        visibilityConditions
       ))
       .groupBy(recipesTable.id);
 
@@ -188,12 +203,15 @@ export const getRecipesAction = createServerAction()
     const db = getDB();
     const { search, page, limit, mealType, difficulty, visibility, tags, seasons, minMealsEaten, maxMealsEaten, recipeBookId, sortBy } = input;
 
-    // Build WHERE conditions for visibility filtering:
-    // - Show own team's recipes (all visibilities)
-    // - Show other teams' public recipes only (not private, not unlisted)
-    const visibilityConditions = or(
-      eq(recipesTable.teamId, session.activeTeamId),
-      eq(recipesTable.visibility, RECIPE_VISIBILITY.PUBLIC)
+    // Fetch team settings to determine visibility mode
+    const teamSettings = await db.query.teamSettingsTable.findFirst({
+      where: eq(teamSettingsTable.teamId, session.activeTeamId),
+    });
+
+    const visibilityMode = teamSettings?.recipeVisibilityMode || 'all';
+    const visibilityConditions = getRecipeVisibilityConditions(
+      session.activeTeamId,
+      visibilityMode
     );
 
     const conditions = [visibilityConditions];
@@ -363,19 +381,24 @@ export const getRecipeMetadataAction = createServerAction()
 
     const db = getDB();
 
-    // Get all recipes visible to user to extract unique values
-    // - Own team's recipes (all visibilities)
-    // - Other teams' public recipes only
+    // Fetch team settings to determine visibility mode
+    const teamSettings = await db.query.teamSettingsTable.findFirst({
+      where: eq(teamSettingsTable.teamId, session.activeTeamId),
+    });
+
+    const visibilityMode = teamSettings?.recipeVisibilityMode || 'all';
+    const visibilityConditions = getRecipeVisibilityConditions(
+      session.activeTeamId,
+      visibilityMode
+    );
+
     const recipes = await db.select({
       mealType: recipesTable.mealType,
       difficulty: recipesTable.difficulty,
       tags: recipesTable.tags,
     })
     .from(recipesTable)
-    .where(or(
-      eq(recipesTable.teamId, session.activeTeamId),
-      eq(recipesTable.visibility, RECIPE_VISIBILITY.PUBLIC)
-    ));
+    .where(visibilityConditions);
 
     // Extract unique meal types
     const mealTypes = [...new Set(
