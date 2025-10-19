@@ -44,10 +44,10 @@ export function RecipeDetail({ recipe }: RecipeDetailProps) {
               <span className="text-4xl">{recipe.emoji}</span>
             )}
             <h1 className="text-3xl font-bold">{recipe.name}</h1>
-            {session?.user && <EditRecipeDialog recipe={recipe} />}
+            {session.session?.user && <EditRecipeDialog recipe={recipe} />}
           </div>
         </div>
-        {session?.user && <AddToSchedule recipeId={recipe.id} variant="default" />}
+        {session.session?.user && <AddToSchedule recipeId={recipe.id} variant="default" />}
       </div>
 
       {/* Metadata */}
@@ -168,7 +168,7 @@ export function RecipeDetail({ recipe }: RecipeDetailProps) {
         <Card className="p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold">Ingredients</h2>
-            {session?.user && (
+            {session.session?.user && (
               <div className="flex gap-2">
                 <AddAllIngredientsToWeek ingredients={recipe.ingredients} />
                 <EditIngredientsDialog recipe={recipe} />
@@ -180,12 +180,12 @@ export function RecipeDetail({ recipe }: RecipeDetailProps) {
               <li key={i} className="flex items-start gap-2">
                 <span className="text-primary mt-1">•</span>
                 <span className="flex-1">{ingredient}</span>
-                {session?.user && <AddIngredientToWeek ingredient={ingredient} />}
+                {session.session?.user && <AddIngredientToWeek ingredient={ingredient} />}
               </li>
             ))}
           </ul>
         </Card>
-      ) : session?.user ? (
+      ) : session.session?.user ? (
         <Card className="p-12 text-center">
           <p className="text-muted-foreground mb-4">
             No ingredients added yet.
@@ -199,13 +199,13 @@ export function RecipeDetail({ recipe }: RecipeDetailProps) {
         <Card className="p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold">Instructions</h2>
-            {session?.user && <EditInstructionsDialog recipe={recipe} />}
+            {session.session?.user && <EditInstructionsDialog recipe={recipe} />}
           </div>
           <div className="prose prose-sm max-w-none dark:prose-invert">
             <ReactMarkdown>{recipe.recipeBody}</ReactMarkdown>
           </div>
         </Card>
-      ) : session?.user ? (
+      ) : session.session?.user ? (
         <Card className="p-12 text-center">
           <p className="text-muted-foreground mb-4">
             No instructions added yet.

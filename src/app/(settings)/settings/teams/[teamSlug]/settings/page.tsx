@@ -38,12 +38,12 @@ async function TeamSettingsContent({ teamSlug }: { teamSlug: string }) {
 
       <RecipeVisibilitySettings
         teamId={team.id}
-        currentMode={team.settings?.recipeVisibilityMode || 'all'}
+        currentMode={(team.settings?.recipeVisibilityMode || 'all') as 'all' | 'team_only'}
       />
 
       <DefaultRecipeVisibilitySettings
         teamId={team.id}
-        currentVisibility={team.settings?.defaultRecipeVisibility || 'public'}
+        currentVisibility={(team.settings?.defaultRecipeVisibility || 'public') as 'public' | 'private' | 'unlisted'}
       />
     </div>
   );

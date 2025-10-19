@@ -40,7 +40,7 @@ export const createRecipeAction = createServerAction()
       where: eq(teamSettingsTable.teamId, session.activeTeamId),
     });
 
-    const defaultVisibility = teamSettings?.defaultRecipeVisibility || 'public';
+    const defaultVisibility = (teamSettings?.defaultRecipeVisibility || 'public') as 'public' | 'private' | 'unlisted';
 
     const [recipe] = await db.insert(recipesTable)
       .values({
@@ -144,7 +144,7 @@ export const getRecipeByIdAction = createServerAction()
       where: eq(teamSettingsTable.teamId, session.activeTeamId),
     });
 
-    const visibilityMode = teamSettings?.recipeVisibilityMode || 'all';
+    const visibilityMode = (teamSettings?.recipeVisibilityMode || 'all') as 'all' | 'team_only';
     const visibilityConditions = getRecipeVisibilityConditions(
       session.activeTeamId,
       visibilityMode
@@ -208,7 +208,7 @@ export const getRecipesAction = createServerAction()
       where: eq(teamSettingsTable.teamId, session.activeTeamId),
     });
 
-    const visibilityMode = teamSettings?.recipeVisibilityMode || 'all';
+    const visibilityMode = (teamSettings?.recipeVisibilityMode || 'all') as 'all' | 'team_only';
     const visibilityConditions = getRecipeVisibilityConditions(
       session.activeTeamId,
       visibilityMode
@@ -386,7 +386,7 @@ export const getRecipeMetadataAction = createServerAction()
       where: eq(teamSettingsTable.teamId, session.activeTeamId),
     });
 
-    const visibilityMode = teamSettings?.recipeVisibilityMode || 'all';
+    const visibilityMode = (teamSettings?.recipeVisibilityMode || 'all') as 'all' | 'team_only';
     const visibilityConditions = getRecipeVisibilityConditions(
       session.activeTeamId,
       visibilityMode

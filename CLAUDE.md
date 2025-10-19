@@ -296,6 +296,28 @@ If we want to access the session in a server component, we need to use the `getS
 
 If we want to access the session in a client component, we can get it from `const session = useSessionStore();` in `src/state/session.ts`.
 
+**CRITICAL**: The session store returns the entire store state, NOT just the session object. To access user data:
+
+```typescript
+// ✅ CORRECT
+const session = useSessionStore();
+if (session.session?.user) {
+  // Access user properties
+  const userId = session.session.user.id;
+}
+
+// ❌ WRONG - will cause TypeScript errors
+const session = useSessionStore();
+if (session?.user) {  // Property 'user' does not exist
+  // ...
+}
+```
+
+**Session store structure:**
+- `session.session` - The actual SessionValidationResult (contains user, activeTeamId, etc.)
+- `session.isLoading` - Loading state boolean
+- `session.lastFetched` - Last fetch timestamp
+
 ## Server Actions (ZSA)
 
 This project uses `zsa` (Zod Server Actions) for type-safe server actions.
