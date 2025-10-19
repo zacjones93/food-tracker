@@ -2,7 +2,7 @@
 
 import { createServerAction, ZSAError } from "zsa";
 import { getDB } from "@/db";
-import { recipeBooksTable, recipesTable } from "@/db/schema";
+import { recipeBooksTable } from "@/db/schema";
 import {
   createRecipeBookSchema,
   updateRecipeBookSchema,
@@ -16,10 +16,11 @@ import { getSessionFromCookie } from "@/utils/auth";
 export const createRecipeBookAction = createServerAction()
   .input(createRecipeBookSchema)
   .handler(async ({ input }) => {
-    const { user } = await getSessionFromCookie();
-    if (!user) {
-      throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+    const session = await getSessionFromCookie();
+    if (!session) {
+      throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
     }
+    const { user } = session;
 
     const db = getDB();
 
@@ -35,10 +36,11 @@ export const createRecipeBookAction = createServerAction()
 export const updateRecipeBookAction = createServerAction()
   .input(updateRecipeBookSchema)
   .handler(async ({ input }) => {
-    const { user } = await getSessionFromCookie();
-    if (!user) {
-      throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+    const session = await getSessionFromCookie();
+    if (!session) {
+      throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
     }
+    const { user } = session;
 
     const db = getDB();
     const { id, ...updateData } = input;
@@ -58,10 +60,11 @@ export const updateRecipeBookAction = createServerAction()
 export const deleteRecipeBookAction = createServerAction()
   .input(deleteRecipeBookSchema)
   .handler(async ({ input }) => {
-    const { user } = await getSessionFromCookie();
-    if (!user) {
-      throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+    const session = await getSessionFromCookie();
+    if (!session) {
+      throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
     }
+    const { user } = session;
 
     const db = getDB();
 
@@ -74,10 +77,11 @@ export const deleteRecipeBookAction = createServerAction()
 export const getRecipeBookByIdAction = createServerAction()
   .input(getRecipeBookByIdSchema)
   .handler(async ({ input }) => {
-    const { user } = await getSessionFromCookie();
-    if (!user) {
-      throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+    const session = await getSessionFromCookie();
+    if (!session) {
+      throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
     }
+    const { user } = session;
 
     const db = getDB();
 
@@ -113,10 +117,11 @@ export const getRecipeBookByIdAction = createServerAction()
 export const getRecipeBooksAction = createServerAction()
   .input(getRecipeBooksSchema)
   .handler(async ({ input }) => {
-    const { user } = await getSessionFromCookie();
-    if (!user) {
-      throw new ZSAError("UNAUTHORIZED", "You must be logged in");
+    const session = await getSessionFromCookie();
+    if (!session) {
+      throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
     }
+    const { user } = session;
 
     const db = getDB();
     const { search, page, limit } = input;
