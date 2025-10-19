@@ -10,6 +10,7 @@ import {
   BookOpen,
   ClipboardList,
   Settings2,
+  Users,
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -86,6 +87,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           {
             title: "Sessions",
             url: "/settings/sessions",
+          },
+          {
+            title: "Team",
+            url: "/settings/teams",
           },
         ],
       },

@@ -15,6 +15,7 @@ interface RecipesPageProps {
     minMealsEaten?: string;
     maxMealsEaten?: string;
     recipeBookId?: string;
+    sortBy?: string;
   }>;
 }
 
@@ -36,6 +37,7 @@ async function RecipesContent({ searchParams }: RecipesPageProps) {
     minMealsEaten: params.minMealsEaten ? parseInt(params.minMealsEaten) : undefined,
     maxMealsEaten: params.maxMealsEaten ? parseInt(params.maxMealsEaten) : undefined,
     recipeBookId: params.recipeBookId,
+    sortBy: params.sortBy as "newest" | "mostEaten" | "name" | undefined,
   });
 
   const recipes = data?.recipes || [];

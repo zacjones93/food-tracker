@@ -44,6 +44,7 @@ export function RecipeFilters() {
       minMealsEaten: parseAsInteger,
       maxMealsEaten: parseAsInteger,
       recipeBookId: parseAsString,
+      sortBy: parseAsString,
       page: parseAsInteger,
     },
     {
@@ -71,6 +72,7 @@ export function RecipeFilters() {
       minMealsEaten: null,
       maxMealsEaten: null,
       recipeBookId: null,
+      sortBy: null,
       page: 1,
     });
   };
@@ -113,6 +115,26 @@ export function RecipeFilters() {
 
   const FilterFields = () => (
     <>
+      {/* Sort By */}
+      <div className="space-y-2">
+        <Label htmlFor="sortBy">Sort By</Label>
+        <Select
+          value={filters.sortBy || "newest"}
+          onValueChange={(value) =>
+            handleFilterChange({ sortBy: value === "newest" ? null : value })
+          }
+        >
+          <SelectTrigger id="sortBy">
+            <SelectValue placeholder="Newest" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="newest">Newest</SelectItem>
+            <SelectItem value="mostEaten">Most Eaten</SelectItem>
+            <SelectItem value="name">Name (A-Z)</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
       {/* Recipe Book */}
       <div className="space-y-2">
         <Label htmlFor="recipeBook">Recipe Book</Label>
@@ -296,7 +318,7 @@ export function RecipeFilters() {
 
       {/* Desktop: Card with all filters */}
       <Card className="p-4 hidden md:block">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-4">
           <FilterFields />
         </div>
 
