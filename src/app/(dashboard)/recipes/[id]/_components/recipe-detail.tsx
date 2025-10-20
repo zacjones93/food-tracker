@@ -30,20 +30,21 @@ export function RecipeDetail({ recipe }: RecipeDetailProps) {
   return (
     <div className="flex flex-col gap-6 p-6 max-w-4xl mx-auto">
       {/* Header */}
-      <div className="flex items-start gap-4">
+      <div className="flex flex-col md:flex-row md:items-start items-center gap-4">
         <Button
           variant="ghost"
           size="icon"
           onClick={() => router.back()}
+          className="md:self-start self-start absolute left-6 md:relative md:left-0"
         >
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        <div className="flex-1">
-          <div className="flex items-center gap-3 mb-2">
+        <div className="flex-1 w-full md:w-auto">
+          <div className="flex flex-col md:flex-row items-center md:items-center gap-3 mb-2">
             {recipe.emoji && (
               <span className="text-4xl">{recipe.emoji}</span>
             )}
-            <h1 className="text-3xl font-bold">{recipe.name}</h1>
+            <h1 className="text-3xl font-bold text-center md:text-left">{recipe.name}</h1>
             {session.session?.user && <EditRecipeDialog recipe={recipe} />}
           </div>
         </div>

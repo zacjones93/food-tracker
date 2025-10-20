@@ -102,7 +102,7 @@ export function WeekRecipesList({ weekId, recipes: initialRecipes, embedded = fa
   };
 
   const content = recipes.length === 0 ? (
-    <div className="p-6 text-center text-muted-foreground">
+    <div className="p-6 text-center text-mystic-700 dark:text-cream-200">
       No recipes added to this week yet.
     </div>
   ) : !isMounted ? (
@@ -110,10 +110,10 @@ export function WeekRecipesList({ weekId, recipes: initialRecipes, embedded = fa
     <div className="space-y-2">
       {recipes.map(({ recipe }) => (
         <Link key={recipe.id} href={`/recipes/${recipe.id}`}>
-          <div className="flex items-center gap-3 p-3 rounded-lg bg-background border hover:bg-muted/50 transition-colors">
-            <div className="text-2xl">{recipe.emoji || '🍽️'}</div>
+          <div className="flex items-center gap-3 p-3 rounded-lg bg-background border hover:bg-mystic-50 dark:hover:bg-mystic-900/20 transition-colors">
+            <div className="text-xl">{recipe.emoji || '🍽️'}</div>
             <div className="flex-1 min-w-0">
-              <h3 className="font-medium truncate">{recipe.name}</h3>
+              <div className="text-sm font-medium truncate text-mystic-900 dark:text-cream-100">{recipe.name}</div>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
               {recipe.mealType && (
@@ -216,19 +216,19 @@ function SortableRecipeItem({ recipe, onRemove }: { recipe: Recipe; onRemove: (r
     <div
       ref={setNodeRef}
       style={style}
-      className="flex items-center gap-3 p-3 rounded-lg bg-background border hover:bg-muted/50 transition-colors group"
+      className="flex items-center gap-3 p-3 rounded-lg bg-background border hover:bg-mystic-50 dark:hover:bg-mystic-900/20 transition-colors group"
     >
       <div
         {...attributes}
         {...listeners}
         className="cursor-grab active:cursor-grabbing touch-none"
       >
-        <GripVertical className="h-5 w-5 text-muted-foreground" />
+        <GripVertical className="h-5 w-5 text-mystic-600 dark:text-cream-300" />
       </div>
       <Link href={`/recipes/${recipe.id}`} className="flex items-center gap-3 flex-1 min-w-0">
-        <div className="text-2xl">{recipe.emoji || '🍽️'}</div>
+        <div className="text-xl">{recipe.emoji || '🍽️'}</div>
         <div className="flex-1 min-w-0">
-          <h3 className="font-medium truncate">{recipe.name}</h3>
+          <div className="text-sm font-medium truncate text-mystic-900 dark:text-cream-100">{recipe.name}</div>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
           {recipe.mealType && (

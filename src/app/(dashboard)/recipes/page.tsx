@@ -54,8 +54,8 @@ export default async function RecipesPage({ searchParams }: RecipesPageProps) {
     <div className="flex flex-col gap-6 p-6">
       <div className="flex flex-col sm:flex-row gap-4 items-center sm:justify-between justify-center">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-center sm:text-left">Recipes</h1>
-          <p className="text-muted-foreground">Manage your recipe collection</p>
+          <h1 className="text-3xl font-bold tracking-tight text-center sm:text-left text-mystic-900 dark:text-cream-100">Recipes</h1>
+          <p className="text-mystic-700 dark:text-cream-200">Manage your recipe collection</p>
         </div>
         <Button asChild>
           <Link href="/recipes/create">

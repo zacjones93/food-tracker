@@ -77,7 +77,7 @@ export function RecipesTable({ recipes, pagination }: RecipesTableProps) {
             {recipes.map((recipe) => (
               <TableRow key={recipe.id}>
                 <TableCell
-                  className="font-medium cursor-pointer hover:bg-muted/50"
+                  className="font-medium cursor-pointer hover:bg-mystic-50 dark:hover:bg-mystic-900/20 text-mystic-900 dark:text-cream-100"
                   onClick={() => router.push(`/recipes/${recipe.id}`)}
                 >
                   <div className="flex items-center gap-2">
@@ -88,7 +88,7 @@ export function RecipesTable({ recipes, pagination }: RecipesTableProps) {
                   </div>
                 </TableCell>
                 <TableCell
-                  className="cursor-pointer hover:bg-muted/50"
+                  className="cursor-pointer hover:bg-mystic-50 dark:hover:bg-mystic-900/20"
                   onClick={() => router.push(`/recipes/${recipe.id}`)}
                 >
                   {recipe.mealType && (
@@ -96,7 +96,7 @@ export function RecipesTable({ recipes, pagination }: RecipesTableProps) {
                   )}
                 </TableCell>
                 <TableCell
-                  className="cursor-pointer hover:bg-muted/50"
+                  className="cursor-pointer hover:bg-mystic-50 dark:hover:bg-mystic-900/20"
                   onClick={() => router.push(`/recipes/${recipe.id}`)}
                 >
                   {recipe.difficulty && (
@@ -114,7 +114,7 @@ export function RecipesTable({ recipes, pagination }: RecipesTableProps) {
                   )}
                 </TableCell>
                 <TableCell
-                  className="cursor-pointer hover:bg-muted/50"
+                  className="cursor-pointer hover:bg-mystic-50 dark:hover:bg-mystic-900/20"
                   onClick={() => router.push(`/recipes/${recipe.id}`)}
                 >
                   {recipe.tags && recipe.tags.length > 0 && (
@@ -128,12 +128,12 @@ export function RecipesTable({ recipes, pagination }: RecipesTableProps) {
                   )}
                 </TableCell>
                 <TableCell
-                  className="cursor-pointer hover:bg-muted/50"
+                  className="cursor-pointer hover:bg-mystic-50 dark:hover:bg-mystic-900/20 text-mystic-900 dark:text-cream-100"
                   onClick={() => router.push(`/recipes/${recipe.id}`)}
                 >
                   {recipe.mealsEatenCount}
                 </TableCell>
-                <TableCell className="text-muted-foreground">
+                <TableCell className="text-mystic-700 dark:text-cream-200">
                   {recipe.latestWeekId && recipe.latestWeekName ? (
                     <Link href={`/schedule/${recipe.latestWeekId}`}>
                       <Button variant="ghost" size="sm" className="h-8 gap-2">
@@ -157,12 +157,12 @@ export function RecipesTable({ recipes, pagination }: RecipesTableProps) {
       {/* Pagination */}
       {pagination && pagination.totalPages > 1 && (
         <div className="flex items-center justify-between px-2">
-          <div className="text-sm text-muted-foreground hidden sm:block">
+          <div className="text-sm text-mystic-700 dark:text-cream-200 hidden sm:block">
             Showing {((pagination.page - 1) * pagination.limit) + 1} to{" "}
             {Math.min(pagination.page * pagination.limit, pagination.total)} of{" "}
             {pagination.total} recipes
           </div>
-          <div className="text-sm text-muted-foreground sm:hidden">
+          <div className="text-sm text-mystic-700 dark:text-cream-200 sm:hidden">
             Page {pagination.page} of {pagination.totalPages}
           </div>
           <div className="flex items-center gap-2">
