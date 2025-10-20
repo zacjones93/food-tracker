@@ -11,6 +11,13 @@ const config: Config = {
     "./node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
+    container: {
+      center: true,
+      padding: "2rem",
+      screens: {
+        "2xl": "1400px",
+      },
+    },
   	extend: {
   		fontFamily: {
   			sans: ['var(--font-raleway)', 'sans-serif'],
@@ -18,7 +25,10 @@ const config: Config = {
   		},
   		backgroundImage: {
   			'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-  			'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))'
+  			'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
+  			'mystic-gradient': 'linear-gradient(135deg, #4A3B5C 0%, #2D1F3D 100%)',
+  			'mystic-gradient-soft': 'linear-gradient(135deg, #7A6491 0%, #574265 100%)',
+  			'cream-gradient': 'linear-gradient(135deg, #F5EFE6 0%, #EDE4D3 100%)',
   		},
   		borderRadius: {
   			lg: 'var(--radius)',
@@ -26,6 +36,36 @@ const config: Config = {
   			sm: 'calc(var(--radius) - 4px)'
   		},
   		colors: {
+  			mystic: {
+  				50: '#F5F3F7',
+  				100: '#EBE7EF',
+  				200: '#D7CFE0',
+  				300: '#B8A9C9',
+  				400: '#9784AD',
+  				500: '#7A6491',
+  				600: '#6B4E71',
+  				700: '#574265',
+  				800: '#4A3B5C',
+  				900: '#2D1F3D',
+  				950: '#1A1125',
+  			},
+  			cream: {
+  				50: '#FEFBF6',
+  				100: '#F5EFE6',
+  				200: '#EDE4D3',
+  				300: '#E4D9C0',
+  				400: '#D4C5B0',
+  				500: '#C4B5A0',
+  				600: '#A89679',
+  				700: '#8C7A5E',
+  				800: '#6F5F47',
+  				900: '#504435',
+  			},
+  			lavender: {
+  				light: '#B8A9C9',
+  				DEFAULT: '#8B7B99',
+  				dark: '#6B5D7A',
+  			},
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {
@@ -77,6 +117,14 @@ const config: Config = {
   				ring: 'hsl(var(--sidebar-ring))'
   			}
   		},
+  		boxShadow: {
+  			'mystic-sm': '0 1px 2px 0 rgba(74, 59, 92, 0.05)',
+  			'mystic': '0 4px 6px -1px rgba(74, 59, 92, 0.1), 0 2px 4px -1px rgba(74, 59, 92, 0.06)',
+  			'mystic-md': '0 10px 15px -3px rgba(74, 59, 92, 0.1), 0 4px 6px -2px rgba(74, 59, 92, 0.05)',
+  			'mystic-lg': '0 20px 25px -5px rgba(74, 59, 92, 0.1), 0 10px 10px -5px rgba(74, 59, 92, 0.04)',
+  			'mystic-xl': '0 25px 50px -12px rgba(74, 59, 92, 0.25)',
+  			'cream': '0 4px 6px -1px rgba(196, 181, 160, 0.1), 0 2px 4px -1px rgba(196, 181, 160, 0.06)',
+  		},
   		keyframes: {
   			'accordion-down': {
   				from: {
@@ -93,11 +141,16 @@ const config: Config = {
   				to: {
   					height: '0'
   				}
-  			}
+  			},
+  			shimmer: {
+  				'0%': { transform: 'translateX(-100%)' },
+  				'100%': { transform: 'translateX(100%)' },
+  			},
   		},
   		animation: {
   			'accordion-down': 'accordion-down 0.2s ease-out',
-  			'accordion-up': 'accordion-up 0.2s ease-out'
+  			'accordion-up': 'accordion-up 0.2s ease-out',
+  			shimmer: 'shimmer 2s infinite',
   		}
   	}
   },
