@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import type { Recipe, RecipeBook } from "@/db/schema";
 import { format } from "date-fns";
-import { ArrowLeft, Clock, ChefHat, Calendar, Plus, ExternalLink, BookOpen } from "lucide-react";
+import { ArrowLeft, Clock, ChefHat, Calendar, Plus, ExternalLink, BookOpen } from "@/components/ui/themed-icons";
 import { useRouter } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import { AddToSchedule } from "../../_components/add-to-schedule";
@@ -37,7 +37,7 @@ export function RecipeDetail({ recipe }: RecipeDetailProps) {
           onClick={() => router.back()}
           className="md:self-start self-start absolute left-6 md:relative md:left-0"
         >
-          <ArrowLeft className="h-4 w-4" />
+          <ArrowLeft className="h-4 w-4 text-cream-100" />
         </Button>
         <div className="flex-1 w-full md:w-auto">
           <div className="flex flex-col md:flex-row items-center md:items-center gap-3 mb-2">
@@ -57,7 +57,7 @@ export function RecipeDetail({ recipe }: RecipeDetailProps) {
           {recipe.mealType && (
             <div className="space-y-1">
               <div className="text-sm text-muted-foreground flex items-center gap-2">
-                <ChefHat className="h-4 w-4" />
+                <ChefHat className="h-4 w-4 text-cream-100" />
                 Meal Type
               </div>
               <Badge variant="outline">{recipe.mealType}</Badge>
@@ -67,7 +67,7 @@ export function RecipeDetail({ recipe }: RecipeDetailProps) {
           {recipe.difficulty && (
             <div className="space-y-1">
               <div className="text-sm text-muted-foreground flex items-center gap-2">
-                <Clock className="h-4 w-4" />
+                <Clock className="h-4 w-4 text-cream-100" />
                 Difficulty
               </div>
               <Badge
@@ -86,7 +86,7 @@ export function RecipeDetail({ recipe }: RecipeDetailProps) {
 
           <div className="space-y-1">
             <div className="text-sm text-muted-foreground flex items-center gap-2">
-              <Plus className="h-4 w-4" />
+              <Plus className="h-4 w-4 text-cream-100" />
               Times Made
             </div>
             <div className="font-medium">{recipe.mealsEatenCount}</div>
@@ -95,7 +95,7 @@ export function RecipeDetail({ recipe }: RecipeDetailProps) {
           {recipe.lastMadeDate && (
             <div className="space-y-1">
               <div className="text-sm text-muted-foreground flex items-center gap-2">
-                <Calendar className="h-4 w-4" />
+                <Calendar className="h-4 w-4 text-cream-100" />
                 Last Made
               </div>
               <div className="font-medium">
@@ -112,17 +112,17 @@ export function RecipeDetail({ recipe }: RecipeDetailProps) {
               {recipe.recipeLink && (
                 <div className="space-y-1">
                   <div className="text-sm text-muted-foreground flex items-center gap-2">
-                    <ExternalLink className="h-4 w-4" />
+                    <ExternalLink className="h-4 w-4 text-cream-100" />
                     Recipe Link
                   </div>
                   <a
                     href={recipe.recipeLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-primary hover:underline flex items-center gap-1 text-sm"
+                    className="text-mystic-600 dark:text-cream-200 hover:underline flex items-center gap-1 text-sm"
                   >
                     View Original
-                    <ExternalLink className="h-3 w-3" />
+                    <ExternalLink className="h-3 w-3 text-cream-100" />
                   </a>
                 </div>
               )}
@@ -130,7 +130,7 @@ export function RecipeDetail({ recipe }: RecipeDetailProps) {
               {recipe.recipeBook && (
                 <div className="space-y-1">
                   <div className="text-sm text-muted-foreground flex items-center gap-2">
-                    <BookOpen className="h-4 w-4" />
+                    <BookOpen className="h-4 w-4 text-cream-100" />
                     Recipe Book
                   </div>
                   <div className="flex items-center gap-2">
@@ -179,7 +179,7 @@ export function RecipeDetail({ recipe }: RecipeDetailProps) {
           <ul className="space-y-2">
             {recipe.ingredients.map((ingredient, i) => (
               <li key={i} className="flex items-start gap-2">
-                <span className="text-primary mt-1">•</span>
+                <span className="text-mystic-600 dark:text-cream-200 mt-1">•</span>
                 <span className="flex-1">{ingredient}</span>
                 {session.session?.user && <AddIngredientToWeek ingredient={ingredient} />}
               </li>

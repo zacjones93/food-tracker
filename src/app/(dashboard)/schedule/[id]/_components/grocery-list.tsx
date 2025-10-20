@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2 } from "@/components/ui/themed-icons";
 import { useServerAction } from "zsa-react";
 import {
   createGroceryItemAction,
@@ -141,7 +141,7 @@ export function GroceryList({ weekId, items: initialItems }: GroceryListProps) {
             disabled={isCreating}
           />
           <Button type="submit" disabled={isCreating || !newItemName.trim()}>
-            <Plus className="h-4 w-4" />
+            <Plus className="h-4 w-4 dark:text-cream-100" />
           </Button>
         </form>
 
@@ -203,7 +203,7 @@ export function GroceryList({ weekId, items: initialItems }: GroceryListProps) {
                     size="sm"
                     onClick={() => handleDelete(item.id)}
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="h-4 w-4 dark:text-cream-300" />
                   </Button>
                 </div>
               ))}

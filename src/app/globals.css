@@ -41,37 +41,37 @@
 
   .dark {
     --background: 270 30% 10%;
-    --foreground: 40 50% 95%;
+    --foreground: 40 60% 92%;
     --card: 270 25% 15%;
-    --card-foreground: 40 50% 96%;
+    --card-foreground: 40 60% 92%;
     --popover: 270 25% 15%;
-    --popover-foreground: 40 50% 96%;
-    --primary: 280 30% 65%;
-    --primary-foreground: 40 50% 98%;
+    --popover-foreground: 40 60% 92%;
+    --primary: 40 40% 85%;
+    --primary-foreground: 270 30% 15%;
     --secondary: 280 20% 25%;
-    --secondary-foreground: 40 40% 92%;
+    --secondary-foreground: 40 50% 90%;
     --muted: 280 20% 20%;
-    --muted-foreground: 40 30% 75%;
-    --accent: 280 35% 55%;
-    --accent-foreground: 40 50% 98%;
+    --muted-foreground: 40 40% 80%;
+    --accent: 40 35% 75%;
+    --accent-foreground: 270 30% 15%;
     --destructive: 0 60% 50%;
     --destructive-foreground: 40 50% 98%;
     --border: 280 20% 30%;
     --input: 280 20% 25%;
-    --ring: 280 30% 65%;
+    --ring: 40 40% 85%;
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
     --sidebar-background: 270 30% 12%;
-    --sidebar-foreground: 40 50% 95%;
-    --sidebar-primary: 280 30% 65%;
-    --sidebar-primary-foreground: 40 50% 98%;
+    --sidebar-foreground: 40 60% 92%;
+    --sidebar-primary: 40 40% 85%;
+    --sidebar-primary-foreground: 270 30% 15%;
     --sidebar-accent: 280 25% 30%;
-    --sidebar-accent-foreground: 40 40% 92%;
+    --sidebar-accent-foreground: 40 50% 90%;
     --sidebar-border: 280 20% 30%;
-    --sidebar-ring: 280 30% 65%;
+    --sidebar-ring: 40 40% 85%;
   }
 }
 
@@ -90,15 +90,15 @@
   }
 
   h1 {
-    @apply text-4xl md:text-5xl font-semibold text-mystic-900 tracking-tight;
+    @apply text-4xl md:text-5xl font-semibold text-mystic-900 dark:text-cream-100 tracking-tight;
   }
 
   h2 {
-    @apply text-3xl md:text-4xl font-semibold text-mystic-900;
+    @apply text-3xl md:text-4xl font-semibold text-mystic-900 dark:text-cream-100;
   }
 
   h3 {
-    @apply text-2xl md:text-3xl font-medium text-mystic-800;
+    @apply text-2xl md:text-3xl font-medium text-mystic-800 dark:text-cream-200;
   }
 }
 
@@ -108,7 +108,7 @@
   }
 
   .text-gradient-mystic {
-    @apply bg-gradient-to-r from-mystic-600 to-mystic-800 bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-mystic-600 to-mystic-800 dark:from-cream-200 dark:to-cream-50 bg-clip-text text-transparent;
   }
 
   .shimmer {
@@ -126,7 +126,7 @@
     background: linear-gradient(
       90deg,
       transparent,
-      rgba(138, 123, 153, 0.2),
+      rgba(228, 217, 192, 0.2),
       transparent
     );
     animation: shimmer 2s infinite;
@@ -142,13 +142,13 @@
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-cream-100;
+  @apply bg-cream-100 dark:bg-neutral-900;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-mystic-400 rounded-full;
+  @apply bg-mystic-400 dark:bg-cream-700 rounded-full;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-mystic-500;
+  @apply bg-mystic-500 dark:bg-cream-600;
 }

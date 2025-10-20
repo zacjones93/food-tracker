@@ -4,7 +4,7 @@ import Link from "next/link"
 import Image from "next/image"
 import type { Route } from 'next'
 import { usePathname } from "next/navigation"
-import { Menu } from 'lucide-react'
+import { Menu } from "@/components/ui/themed-icons"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { useSessionStore } from "@/state/session"

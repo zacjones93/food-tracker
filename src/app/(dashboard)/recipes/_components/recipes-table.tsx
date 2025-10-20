@@ -11,7 +11,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { Recipe } from "@/db/schema";
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ArrowRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ArrowRight } from "@/components/ui/themed-icons";
 import { useRouter } from "next/navigation";
 import { useQueryState, parseAsInteger } from "nuqs";
 import Link from "next/link";
@@ -77,7 +77,7 @@ export function RecipesTable({ recipes, pagination }: RecipesTableProps) {
             {recipes.map((recipe) => (
               <TableRow key={recipe.id}>
                 <TableCell
-                  className="font-medium cursor-pointer hover:bg-mystic-50 dark:hover:bg-mystic-900/20 text-mystic-900 dark:text-cream-100"
+                  className="font-medium cursor-pointer hover:bg-mystic-50 dark:hover:bg-cream-200/10 text-mystic-900 dark:text-cream-100"
                   onClick={() => router.push(`/recipes/${recipe.id}`)}
                 >
                   <div className="flex items-center gap-2">
@@ -88,7 +88,7 @@ export function RecipesTable({ recipes, pagination }: RecipesTableProps) {
                   </div>
                 </TableCell>
                 <TableCell
-                  className="cursor-pointer hover:bg-mystic-50 dark:hover:bg-mystic-900/20"
+                  className="cursor-pointer hover:bg-mystic-50 dark:hover:bg-cream-200/10"
                   onClick={() => router.push(`/recipes/${recipe.id}`)}
                 >
                   {recipe.mealType && (
@@ -96,7 +96,7 @@ export function RecipesTable({ recipes, pagination }: RecipesTableProps) {
                   )}
                 </TableCell>
                 <TableCell
-                  className="cursor-pointer hover:bg-mystic-50 dark:hover:bg-mystic-900/20"
+                  className="cursor-pointer hover:bg-mystic-50 dark:hover:bg-cream-200/10"
                   onClick={() => router.push(`/recipes/${recipe.id}`)}
                 >
                   {recipe.difficulty && (
@@ -114,7 +114,7 @@ export function RecipesTable({ recipes, pagination }: RecipesTableProps) {
                   )}
                 </TableCell>
                 <TableCell
-                  className="cursor-pointer hover:bg-mystic-50 dark:hover:bg-mystic-900/20"
+                  className="cursor-pointer hover:bg-mystic-50 dark:hover:bg-cream-200/10"
                   onClick={() => router.push(`/recipes/${recipe.id}`)}
                 >
                   {recipe.tags && recipe.tags.length > 0 && (
@@ -128,7 +128,7 @@ export function RecipesTable({ recipes, pagination }: RecipesTableProps) {
                   )}
                 </TableCell>
                 <TableCell
-                  className="cursor-pointer hover:bg-mystic-50 dark:hover:bg-mystic-900/20 text-mystic-900 dark:text-cream-100"
+                  className="cursor-pointer hover:bg-mystic-50 dark:hover:bg-cream-200/10 text-mystic-900 dark:text-cream-100"
                   onClick={() => router.push(`/recipes/${recipe.id}`)}
                 >
                   {recipe.mealsEatenCount}
@@ -138,11 +138,11 @@ export function RecipesTable({ recipes, pagination }: RecipesTableProps) {
                     <Link href={`/schedule/${recipe.latestWeekId}`}>
                       <Button variant="ghost" size="sm" className="h-8 gap-2">
                         <span>{recipe.latestWeekName}</span>
-                        <ArrowRight className="h-3 w-3" />
+                        <ArrowRight className="h-3 w-3 text-cream-100" />
                       </Button>
                     </Link>
                   ) : (
-                    "Never"
+                    <span className="text-mystic-700 dark:text-cream-200">Never</span>
                   )}
                 </TableCell>
                 <TableCell className="text-right">
@@ -173,7 +173,7 @@ export function RecipesTable({ recipes, pagination }: RecipesTableProps) {
               onClick={() => setPage(1)}
               disabled={pagination.page === 1}
             >
-              <ChevronsLeft className="h-4 w-4" />
+              <ChevronsLeft className="h-4 w-4 text-cream-100" />
             </Button>
             <Button
               variant="outline"
@@ -182,7 +182,7 @@ export function RecipesTable({ recipes, pagination }: RecipesTableProps) {
               onClick={() => setPage(pagination.page - 1)}
               disabled={pagination.page === 1}
             >
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="h-4 w-4 text-cream-100" />
             </Button>
             <div className="text-sm font-medium hidden sm:block">
               Page {pagination.page} of {pagination.totalPages}
@@ -194,7 +194,7 @@ export function RecipesTable({ recipes, pagination }: RecipesTableProps) {
               onClick={() => setPage(pagination.page + 1)}
               disabled={pagination.page === pagination.totalPages}
             >
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-4 w-4 text-cream-100" />
             </Button>
             <Button
               variant="outline"
@@ -203,7 +203,7 @@ export function RecipesTable({ recipes, pagination }: RecipesTableProps) {
               onClick={() => setPage(pagination.totalPages)}
               disabled={pagination.page === pagination.totalPages}
             >
-              <ChevronsRight className="h-4 w-4" />
+              <ChevronsRight className="h-4 w-4 text-cream-100" />
             </Button>
           </div>
         </div>

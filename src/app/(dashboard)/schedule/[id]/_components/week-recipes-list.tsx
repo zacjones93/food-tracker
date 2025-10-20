@@ -23,7 +23,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, Trash2, Plus } from "lucide-react";
+import { GripVertical, Trash2, Plus } from "@/components/ui/themed-icons";
 import { useServerAction } from "zsa-react";
 import { reorderWeekRecipesAction, removeRecipeFromWeekAction } from "../../weeks.actions";
 import { toast } from "sonner";
@@ -110,7 +110,7 @@ export function WeekRecipesList({ weekId, recipes: initialRecipes, embedded = fa
     <div className="space-y-2">
       {recipes.map(({ recipe }) => (
         <Link key={recipe.id} href={`/recipes/${recipe.id}`}>
-          <div className="flex items-center gap-3 p-3 rounded-lg bg-background border hover:bg-mystic-50 dark:hover:bg-mystic-900/20 transition-colors">
+          <div className="flex items-center gap-3 p-3 rounded-lg bg-background border hover:bg-mystic-50 dark:hover:bg-cream-200/10 transition-colors">
             <div className="text-xl">{recipe.emoji || '🍽️'}</div>
             <div className="flex-1 min-w-0">
               <div className="text-sm font-medium truncate text-mystic-900 dark:text-cream-100">{recipe.name}</div>
@@ -179,7 +179,7 @@ export function WeekRecipesList({ weekId, recipes: initialRecipes, embedded = fa
               size="sm"
               onClick={() => setIsAddDialogOpen(true)}
             >
-              <Plus className="h-4 w-4 mr-2" />
+              <Plus className="h-4 w-4 mr-2 dark:text-cream-200" />
               Add Recipe
             </Button>
           </div>
@@ -216,14 +216,14 @@ function SortableRecipeItem({ recipe, onRemove }: { recipe: Recipe; onRemove: (r
     <div
       ref={setNodeRef}
       style={style}
-      className="flex items-center gap-3 p-3 rounded-lg bg-background border hover:bg-mystic-50 dark:hover:bg-mystic-900/20 transition-colors group"
+      className="flex items-center gap-3 p-3 rounded-lg bg-background border hover:bg-mystic-50 dark:hover:bg-cream-200/10 transition-colors group"
     >
       <div
         {...attributes}
         {...listeners}
         className="cursor-grab active:cursor-grabbing touch-none"
       >
-        <GripVertical className="h-5 w-5 text-mystic-600 dark:text-cream-300" />
+        <GripVertical className="h-5 w-5 text-mystic-600 dark:text-cream-200" />
       </div>
       <Link href={`/recipes/${recipe.id}`} className="flex items-center gap-3 flex-1 min-w-0">
         <div className="text-xl">{recipe.emoji || '🍽️'}</div>
@@ -252,7 +252,7 @@ function SortableRecipeItem({ recipe, onRemove }: { recipe: Recipe; onRemove: (r
         }}
         className="md:opacity-0 md:group-hover:opacity-100 transition-opacity"
       >
-        <Trash2 className="h-4 w-4" />
+        <Trash2 className="h-4 w-4 dark:text-cream-300" />
       </Button>
     </div>
   );

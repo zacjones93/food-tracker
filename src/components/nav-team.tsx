@@ -5,7 +5,7 @@ import {
   ChevronsUpDown,
   Check,
   Plus,
-} from "lucide-react"
+} from "@/components/ui/themed-icons"
 
 import {
   DropdownMenu,

@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Plus, Trash2, GripVertical, Save, X } from "lucide-react";
+import { Plus, Trash2, GripVertical, Save, X } from "@/components/ui/themed-icons";
 import { toast } from "sonner";
 import type { GroceryListTemplate } from "@/db/schema";
 import { createGroceryListTemplateAction, updateGroceryListTemplateAction } from "../../schedule/grocery-templates.actions";
@@ -87,7 +87,7 @@ export function GroceryTemplateForm({ template }: GroceryTemplateFormProps) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div className="space-y-2">
-        <Label htmlFor="name">Template Name</Label>
+        <Label htmlFor="name" className="text-mystic-900 dark:text-cream-100">Template Name</Label>
         <Input
           id="name"
           {...register("name")}
@@ -100,7 +100,7 @@ export function GroceryTemplateForm({ template }: GroceryTemplateFormProps) {
 
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <Label>Categories</Label>
+          <Label className="text-mystic-900 dark:text-cream-100">Categories</Label>
           <Button
             type="button"
             variant="outline"
@@ -165,7 +165,7 @@ function CategoryCard({
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex-1 flex items-center gap-2">
-            <GripVertical className="h-4 w-4 text-muted-foreground" />
+            <GripVertical className="h-4 w-4 text-mystic-400 dark:text-cream-300" />
             <Input
               {...register(`categories.${categoryIndex}.category`)}
               placeholder="Category name (e.g., Produce)"
@@ -190,7 +190,7 @@ function CategoryCard({
       <CardContent className="space-y-2">
         {items.map((item, itemIndex) => (
           <div key={item.id} className="flex items-center gap-2">
-            <GripVertical className="h-4 w-4 text-muted-foreground" />
+            <GripVertical className="h-4 w-4 text-mystic-400 dark:text-cream-300" />
             <Input
               {...register(`categories.${categoryIndex}.items.${itemIndex}.name`)}
               placeholder="Item name"

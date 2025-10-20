@@ -5,7 +5,7 @@ import { RecipesTable } from "./recipes-table";
 import type { Recipe } from "@/db/schema";
 import { useQueryState, parseAsInteger } from "nuqs";
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
+import { Search } from "@/components/ui/themed-icons";
 
 interface RecipeWithWeekInfo extends Recipe {
   latestWeekId: string | null;
@@ -57,7 +57,7 @@ export function RecipesTableWrapper({ recipes, pagination }: RecipesTableWrapper
     <div className="space-y-4">
       {/* Client-side search input - both mobile and desktop */}
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-cream-100" />
         <Input
           placeholder="Search recipes..."
           value={searchInput}

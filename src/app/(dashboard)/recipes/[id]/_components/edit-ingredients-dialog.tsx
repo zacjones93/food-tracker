@@ -12,7 +12,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { Pencil, Plus } from "lucide-react";
+import { Pencil, Plus } from "@/components/ui/themed-icons";
 import { updateRecipeAction } from "../../recipes.actions";
 import { useServerAction } from "zsa-react";
 import { useRouter } from "next/navigation";

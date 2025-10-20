@@ -3,7 +3,7 @@ import Link from "next/link";
 import { getGroceryListTemplatesAction } from "../schedule/grocery-templates.actions";
 import { GroceryTemplatesTable } from "./_components/grocery-templates-table";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus } from "@/components/ui/themed-icons";
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -20,8 +20,8 @@ export default async function GroceryTemplatesPage() {
     <div className="flex flex-col gap-6 p-6">
         <div className="flex flex-col sm:flex-row gap-4 items-center sm:justify-between justify-center">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-center sm:text-left">Grocery List Templates</h1>
-            <p className="text-muted-foreground">Manage reusable grocery list templates</p>
+            <h1 className="text-3xl font-bold tracking-tight text-center sm:text-left text-mystic-900 dark:text-cream-100">Grocery List Templates</h1>
+            <p className="text-mystic-700 dark:text-cream-200">Manage reusable grocery list templates</p>
           </div>
           <Button asChild>
             <Link href="/grocery-templates/create">
@@ -31,7 +31,7 @@ export default async function GroceryTemplatesPage() {
           </Button>
         </div>
 
-      <Suspense fallback={<div className="flex justify-center py-12">Loading templates...</div>}>
+      <Suspense fallback={<div className="flex justify-center py-12 text-mystic-700 dark:text-cream-200">Loading templates...</div>}>
         <GroceryTemplatesContent />
       </Suspense>
     </div>

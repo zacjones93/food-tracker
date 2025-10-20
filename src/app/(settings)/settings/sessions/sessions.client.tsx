@@ -61,7 +61,7 @@ export function SessionsClient({ sessions }: { sessions: SessionWithMeta[] }) {
                       Authenticated with {capitalize(session?.authenticationType ?? "password")?.replace("-", " ")}
                     </Badge>
                   )}
-                  <div className="text-sm text-muted-foreground whitespace-nowrap">
+                  <div className="text-sm text-mystic-700 dark:text-cream-200 whitespace-nowrap">
                     &nbsp;· &nbsp;{formatDistanceToNow(session.createdAt)} ago
                   </div>
                 </div>

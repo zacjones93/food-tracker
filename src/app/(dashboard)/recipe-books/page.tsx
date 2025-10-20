@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { getRecipeBooksAction } from "./recipe-books.actions";
 import { RecipeBooksTable } from "./_components/recipe-books-table";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus } from "@/components/ui/themed-icons";
 import Link from "next/link";
 
 interface RecipeBooksPageProps {
@@ -27,8 +27,8 @@ export default async function RecipeBooksPage({ searchParams }: RecipeBooksPageP
     <div className="flex flex-col gap-6 p-6">
       <div className="flex flex-col sm:flex-row gap-4 items-center sm:justify-between justify-center">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-center sm:text-left">Recipe Books</h1>
-          <p className="text-muted-foreground">Browse your cookbook collection</p>
+          <h1 className="text-3xl font-bold tracking-tight text-center sm:text-left text-cream-900 dark:text-cream-100">Recipe Books</h1>
+          <p className="text-cream-700 dark:text-cream-200">Browse your cookbook collection</p>
         </div>
         <Button asChild>
           <Link href="/recipe-books/create">

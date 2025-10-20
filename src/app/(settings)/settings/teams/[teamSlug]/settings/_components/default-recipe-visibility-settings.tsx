@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, Loader2 } from "lucide-react";
+import { CheckCircle2, Loader2 } from "@/components/ui/themed-icons";
 import { toast } from "sonner";
 
 interface DefaultRecipeVisibilitySettingsProps {
@@ -51,8 +51,8 @@ export function DefaultRecipeVisibilitySettings({ teamId, currentVisibility }: D
           <div className="flex items-start space-x-3 space-y-0 p-4 border rounded-lg">
             <RadioGroupItem value="public" id="public" />
             <Label htmlFor="public" className="flex flex-col gap-1 cursor-pointer font-normal">
-              <span className="font-semibold">Public</span>
-              <span className="text-sm text-muted-foreground">
+              <span className="font-semibold text-mystic-900 dark:text-cream-100">Public</span>
+              <span className="text-sm text-mystic-700 dark:text-cream-200">
                 Recipes are visible to all teams. Anyone can discover and view them.
               </span>
             </Label>
@@ -61,8 +61,8 @@ export function DefaultRecipeVisibilitySettings({ teamId, currentVisibility }: D
           <div className="flex items-start space-x-3 space-y-0 p-4 border rounded-lg">
             <RadioGroupItem value="unlisted" id="unlisted" />
             <Label htmlFor="unlisted" className="flex flex-col gap-1 cursor-pointer font-normal">
-              <span className="font-semibold">Unlisted</span>
-              <span className="text-sm text-muted-foreground">
+              <span className="font-semibold text-mystic-900 dark:text-cream-100">Unlisted</span>
+              <span className="text-sm text-mystic-700 dark:text-cream-200">
                 Recipes are only accessible via direct link. Not shown in public listings.
               </span>
             </Label>
@@ -71,8 +71,8 @@ export function DefaultRecipeVisibilitySettings({ teamId, currentVisibility }: D
           <div className="flex items-start space-x-3 space-y-0 p-4 border rounded-lg">
             <RadioGroupItem value="private" id="private" />
             <Label htmlFor="private" className="flex flex-col gap-1 cursor-pointer font-normal">
-              <span className="font-semibold">Private</span>
-              <span className="text-sm text-muted-foreground">
+              <span className="font-semibold text-mystic-900 dark:text-cream-100">Private</span>
+              <span className="text-sm text-mystic-700 dark:text-cream-200">
                 Recipes are only visible to your team members. Maximum privacy.
               </span>
             </Label>

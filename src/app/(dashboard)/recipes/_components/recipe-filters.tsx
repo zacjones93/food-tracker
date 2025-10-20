@@ -16,7 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { X, ChevronDown, SlidersHorizontal } from "lucide-react";
+import { X, ChevronDown, SlidersHorizontal } from "@/components/ui/themed-icons";
 import { Card } from "@/components/ui/card";
 import {
   Sheet,
@@ -215,7 +215,7 @@ export function RecipeFilters() {
               {filters.seasons && filters.seasons.length > 0
                 ? `${filters.seasons.length} selected`
                 : "All seasons"}
-              <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50 text-cream-100" />
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-[200px] p-0" align="start">
@@ -283,7 +283,7 @@ export function RecipeFilters() {
         <Sheet>
           <SheetTrigger asChild>
             <Button variant="outline" className="w-full">
-              <SlidersHorizontal className="h-4 w-4 mr-2" />
+              <SlidersHorizontal className="h-4 w-4 mr-2 text-cream-100" />
               Filters
               {activeFilterCount > 0 && (
                 <span className="ml-2 bg-primary text-primary-foreground rounded-full px-2 py-0.5 text-xs">

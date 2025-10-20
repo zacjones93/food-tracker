@@ -42,7 +42,7 @@ import {
 } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Pencil, X, Check, ChevronsUpDown } from "lucide-react";
+import { Pencil, X, Check, ChevronsUpDown } from "@/components/ui/themed-icons";
 import { updateRecipeAction, getRecipeMetadataAction, createRecipeBookAction } from "../../recipes.actions";
 import { useServerAction } from "zsa-react";
 import { useRouter } from "next/navigation";

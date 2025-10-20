@@ -4,7 +4,7 @@ import { getRecipesAction } from "./recipes.actions";
 import { RecipesTableWrapper } from "./_components/recipes-table-wrapper";
 import { RecipeFilters } from "./_components/recipe-filters";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus } from "@/components/ui/themed-icons";
 
 interface RecipesPageProps {
   searchParams: Promise<{
@@ -59,7 +59,7 @@ export default async function RecipesPage({ searchParams }: RecipesPageProps) {
         </div>
         <Button asChild>
           <Link href="/recipes/create">
-            <Plus className="h-4 w-4 mr-2" />
+            <Plus className="h-4 w-4 mr-2 text-cream-100" />
             New Recipe
           </Link>
         </Button>

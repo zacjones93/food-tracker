@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { getRecipeBookByIdAction } from "../recipe-books.actions";
 import { PageHeader } from "@/components/page-header";
-import { BookOpen } from "lucide-react";
+import { BookOpen } from "@/components/ui/themed-icons";
 import { RecipeBookRecipesList } from "./_components/recipe-book-recipes-list";
 
 interface RecipeBookDetailPageProps {
@@ -26,7 +26,7 @@ export default async function RecipeBookDetailPage({ params }: RecipeBookDetailP
       <PageHeader
         title={recipeBook.name}
         description={`${recipeBook.recipes.length} ${recipeBook.recipes.length === 1 ? 'recipe' : 'recipes'} in this book`}
-        icon={<BookOpen className="h-8 w-8" />}
+        icon={<BookOpen className="h-8 w-8 text-cream-700 dark:text-cream-200" />}
       />
 
       <RecipeBookRecipesList recipes={recipeBook.recipes} />

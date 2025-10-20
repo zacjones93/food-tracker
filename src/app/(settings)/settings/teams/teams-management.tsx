@@ -48,7 +48,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Loader2, Trash2, UserPlus, X, Crown, Shield, User, Eye, Plus, Settings } from "lucide-react";
+import { Loader2, Trash2, UserPlus, X, Crown, Shield, User, Eye, Plus, Settings } from "@/components/ui/themed-icons";
 import { toast } from "sonner";
 import { SYSTEM_ROLES_ENUM } from "@/db/schema";
 import type { Team, TeamMembership, TeamInvitation } from "@/db/schema";
@@ -207,7 +207,7 @@ export function TeamsManagement() {
   if (teams.length === 0) {
     return (
       <Card>
-        <CardContent className="py-8 text-center text-muted-foreground">
+        <CardContent className="py-8 text-center text-mystic-700 dark:text-cream-200">
           You are not a member of any teams yet.
         </CardContent>
       </Card>
@@ -278,7 +278,7 @@ export function TeamsManagement() {
                       )}
                     </div>
                     {team.description && (
-                      <p className="text-sm text-muted-foreground">{team.description}</p>
+                      <p className="text-sm text-mystic-700 dark:text-cream-200">{team.description}</p>
                     )}
                   </div>
                 </div>
@@ -437,7 +437,7 @@ function CreateTeamDialog({ onTeamCreated }: { onTeamCreated: () => void }) {
               onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''))}
               placeholder="my-team"
             />
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-mystic-700 dark:text-cream-200">
               URL-friendly identifier for your team
             </p>
           </div>
@@ -587,7 +587,7 @@ function TeamMembers({
                     </p>
                     {isCurrentOwner && <Crown className="h-4 w-4 text-yellow-500" />}
                   </div>
-                  <p className="text-sm text-muted-foreground">{member.user.email}</p>
+                  <p className="text-sm text-mystic-700 dark:text-cream-200">{member.user.email}</p>
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -769,11 +769,11 @@ function PendingInvitations({
             >
               <div>
                 <p className="font-medium">{invite.email}</p>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-mystic-700 dark:text-cream-200">
                   Invited as {roleLabels[invite.roleId as keyof typeof roleLabels]} by{" "}
                   {invite.invitedByUser.firstName} {invite.invitedByUser.lastName}
                 </p>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-mystic-700 dark:text-cream-200">
                   Expires: {new Date(invite.expiresAt).toLocaleDateString()}
                 </p>
               </div>
@@ -854,14 +854,14 @@ function MyPendingInvitations({
                   </Badge>
                 </div>
                 {invite.team.description && (
-                  <p className="text-sm text-muted-foreground mt-1">
+                  <p className="text-sm text-mystic-700 dark:text-cream-200 mt-1">
                     {invite.team.description}
                   </p>
                 )}
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-sm text-mystic-700 dark:text-cream-200 mt-1">
                   Invited by {invite.invitedByUser.firstName} {invite.invitedByUser.lastName}
                 </p>
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-xs text-mystic-700 dark:text-cream-200 mt-1">
                   Expires: {new Date(invite.expiresAt).toLocaleDateString()}
                 </p>
               </div>
@@ -931,14 +931,14 @@ function OwnerPendingInvitations({
                   <p className="font-semibold">{invite.team.name}</p>
                   <Badge variant="secondary" className="text-xs">Team</Badge>
                 </div>
-                <p className="text-sm font-medium mt-1">
+                <p className="text-sm font-medium mt-1 text-mystic-900 dark:text-cream-100">
                   {invite.email}
                 </p>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-mystic-700 dark:text-cream-200">
                   Invited as {roleLabels[invite.roleId as keyof typeof roleLabels]} by{" "}
                   {invite.invitedByUser.firstName} {invite.invitedByUser.lastName}
                 </p>
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-xs text-mystic-700 dark:text-cream-200 mt-1">
                   Expires: {new Date(invite.expiresAt).toLocaleDateString()}
                 </p>
               </div>

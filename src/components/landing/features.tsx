@@ -51,7 +51,7 @@ export function Features() {
     <div className="py-24 sm:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-2xl lg:text-center">
-          <h2 className="text-base font-semibold leading-7 text-mystic-600 dark:text-mystic-400">
+          <h2 className="text-base font-semibold leading-7 text-mystic-600 dark:text-cream-200">
             Everything You Need
           </h2>
           <p className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
@@ -67,7 +67,7 @@ export function Features() {
               <div key={feature.name} className="flex flex-col">
                 <dt className="flex items-center gap-x-3 text-base font-semibold leading-7">
                   <feature.icon
-                    className="h-5 w-5 flex-none text-mystic-600 dark:text-mystic-400"
+                    className="h-5 w-5 flex-none text-mystic-600 dark:text-cream-100"
                     aria-hidden="true"
                   />
                   {feature.name}

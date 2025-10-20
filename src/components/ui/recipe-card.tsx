@@ -1,5 +1,5 @@
 import { Card } from './card';
-import { Trash2, GripVertical } from 'lucide-react';
+import { Trash2, GripVertical } from "@/components/ui/themed-icons";
 
 interface RecipeCardProps {
   title: string;

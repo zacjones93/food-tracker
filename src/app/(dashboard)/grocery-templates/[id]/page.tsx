@@ -23,8 +23,8 @@ export default async function GroceryTemplatePage({ params }: GroceryTemplatePag
   return (
     <div className="flex flex-col gap-6 p-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Edit Template</h1>
-          <p className="text-muted-foreground">Update your grocery list template</p>
+          <h1 className="text-3xl font-bold tracking-tight text-mystic-900 dark:text-cream-100">Edit Template</h1>
+          <p className="text-mystic-700 dark:text-cream-200">Update your grocery list template</p>
         </div>
 
       <GroceryTemplateForm template={data.template} />

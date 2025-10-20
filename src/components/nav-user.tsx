@@ -1,12 +1,11 @@
 "use client"
 
 import {
-  BadgeCheck,
-  Bell,
-  ChevronsUpDown,
-  CreditCard,
-  LogOut,
-} from "lucide-react"
+  Gear,
+  CaretUp,
+  Sparkle,
+  SignOut,
+} from "@/components/ui/themed-icons"
 
 import {
   Avatar,
@@ -85,7 +84,7 @@ export function NavUser() {
                 <span className="font-semibold overflow-hidden text-ellipsis whitespace-nowrap">{displayName}</span>
                 <span className="truncate text-xs text-muted-foreground">{user.email}</span>
               </div>
-              <ChevronsUpDown className="ml-auto size-4" />
+              <CaretUp className="ml-auto size-4" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
@@ -116,11 +115,11 @@ export function NavUser() {
                 setOpenMobile(false)
                 router.push('/settings')
               }}>
-                <BadgeCheck />
+                <Gear />
                 Account
               </DropdownMenuItem>
               <DropdownMenuItem className="cursor-pointer">
-                <Bell />
+                <Sparkle />
                 Notifications
               </DropdownMenuItem>
             </DropdownMenuGroup>
@@ -134,7 +133,7 @@ export function NavUser() {
               }}
               className="cursor-pointer"
             >
-              <LogOut />
+              <SignOut />
               Log out
             </DropdownMenuItem>
           </DropdownMenuContent>

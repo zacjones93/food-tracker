@@ -34,8 +34,8 @@ export default async function TeamsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Teams</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-3xl font-bold tracking-tight text-mystic-900 dark:text-cream-100">Teams</h1>
+        <p className="text-mystic-700 dark:text-cream-200">
           Manage your teams, invite members, and control access
         </p>
       </div>

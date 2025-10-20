@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import type { GroceryListTemplate } from "@/db/schema";
-import { ClipboardList, Pencil, Trash2 } from "lucide-react";
+import { ClipboardList, Pencil, Trash2 } from "@/components/ui/themed-icons";
 import { useRouter } from "next/navigation";
 import { deleteGroceryListTemplateAction } from "../../schedule/grocery-templates.actions";
 import { useServerAction } from "zsa-react";
@@ -44,11 +44,11 @@ export function GroceryTemplatesTable({ templates }: GroceryTemplatesTableProps)
   if (templates.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
-        <ClipboardList className="h-12 w-12 text-muted-foreground mb-4" />
-        <p className="text-lg font-medium text-muted-foreground">
+        <ClipboardList className="h-12 w-12 text-mystic-400 dark:text-cream-200 mb-4" />
+        <p className="text-lg font-medium text-mystic-700 dark:text-cream-200">
           No templates yet
         </p>
-        <p className="text-sm text-muted-foreground mt-1">
+        <p className="text-sm text-mystic-600 dark:text-cream-300 mt-1">
           Create your first grocery list template
         </p>
       </div>
@@ -74,19 +74,19 @@ export function GroceryTemplatesTable({ templates }: GroceryTemplatesTableProps)
             return (
               <TableRow
                 key={template.id}
-                className="cursor-pointer hover:bg-muted/50"
+                className="cursor-pointer hover:bg-mystic-50 dark:hover:bg-cream-200/10"
                 onClick={() => router.push(`/grocery-templates/${template.id}`)}
               >
-                <TableCell className="font-medium">
+                <TableCell className="font-medium text-mystic-900 dark:text-cream-100">
                   <div className="flex items-center gap-2">
-                    <ClipboardList className="h-4 w-4 text-muted-foreground" />
+                    <ClipboardList className="h-4 w-4 text-mystic-400 dark:text-cream-300" />
                     <span>{template.name}</span>
                   </div>
                 </TableCell>
-                <TableCell className="text-right text-muted-foreground">
+                <TableCell className="text-right text-mystic-700 dark:text-cream-200">
                   {categoryCount}
                 </TableCell>
-                <TableCell className="text-right text-muted-foreground">
+                <TableCell className="text-right text-mystic-700 dark:text-cream-200">
                   {itemCount}
                 </TableCell>
                 <TableCell className="text-right">

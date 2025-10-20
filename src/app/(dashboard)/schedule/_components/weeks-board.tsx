@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp } from "@/components/ui/themed-icons";
 import type { Week, WeekRecipe, Recipe } from "@/db/schema";
 import { WeekRecipesList } from "../[id]/_components/week-recipes-list";
 
@@ -30,7 +30,7 @@ export function WeeksBoard({ weeks }: WeeksBoardProps) {
       {groupedWeeks.current.length > 0 && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold">Current</h2>
+            <h2 className="text-xl font-semibold text-mystic-900 dark:text-cream-100">Current</h2>
             <Badge variant="default">{groupedWeeks.current.length}</Badge>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -45,7 +45,7 @@ export function WeeksBoard({ weeks }: WeeksBoardProps) {
       {groupedWeeks.upcoming.length > 0 && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold">Upcoming</h2>
+            <h2 className="text-xl font-semibold text-mystic-900 dark:text-cream-100">Upcoming</h2>
             <Badge variant="secondary">{groupedWeeks.upcoming.length}</Badge>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -61,7 +61,7 @@ export function WeeksBoard({ weeks }: WeeksBoardProps) {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <h2 className="text-xl font-semibold">Archived</h2>
+              <h2 className="text-xl font-semibold text-mystic-900 dark:text-cream-100">Archived</h2>
               <Badge variant="outline">{groupedWeeks.archived.length}</Badge>
             </div>
             <Button
@@ -71,12 +71,12 @@ export function WeeksBoard({ weeks }: WeeksBoardProps) {
             >
               {showArchived ? (
                 <>
-                  <ChevronUp className="h-4 w-4 mr-2" />
+                  <ChevronUp className="h-4 w-4 mr-2 dark:text-cream-200" />
                   Hide
                 </>
               ) : (
                 <>
-                  <ChevronDown className="h-4 w-4 mr-2" />
+                  <ChevronDown className="h-4 w-4 mr-2 dark:text-cream-200" />
                   Show
                 </>
               )}
@@ -148,7 +148,7 @@ function WeekCard({
                 </span>
               ))}
               {week.recipes.length > 6 && (
-                <span className="text-xs text-muted-foreground self-center">
+                <span className="text-xs text-mystic-700 dark:text-cream-300 self-center">
                   +{week.recipes.length - 6}
                 </span>
               )}

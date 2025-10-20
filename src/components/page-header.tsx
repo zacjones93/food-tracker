@@ -55,9 +55,9 @@ export function PageHeader({
           <div className="flex items-center gap-3">
             {icon}
             <div>
-              {title && <h1 className="text-2xl font-semibold">{title}</h1>}
+              {title && <h1 className="text-2xl font-semibold text-mystic-900 dark:text-cream-100">{title}</h1>}
               {description && (
-                <p className="text-muted-foreground">{description}</p>
+                <p className="text-mystic-700 dark:text-cream-200">{description}</p>
               )}
             </div>
           </div>

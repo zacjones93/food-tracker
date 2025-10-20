@@ -32,8 +32,8 @@ async function TeamSettingsContent({ teamSlug }: { teamSlug: string }) {
   return (
     <div className="flex flex-col gap-6 p-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Team Settings</h1>
-        <p className="text-muted-foreground">Manage settings for {team.name}</p>
+        <h1 className="text-3xl font-bold tracking-tight text-mystic-900 dark:text-cream-100">Team Settings</h1>
+        <p className="text-mystic-700 dark:text-cream-200">Manage settings for {team.name}</p>
       </div>
 
       <RecipeVisibilitySettings

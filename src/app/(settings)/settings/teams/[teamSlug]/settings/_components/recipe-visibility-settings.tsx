@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, Loader2 } from "lucide-react";
+import { CheckCircle2, Loader2 } from "@/components/ui/themed-icons";
 import { toast } from "sonner";
 
 interface RecipeVisibilitySettingsProps {
@@ -51,8 +51,8 @@ export function RecipeVisibilitySettings({ teamId, currentMode }: RecipeVisibili
           <div className="flex items-start space-x-3 space-y-0 p-4 border rounded-lg">
             <RadioGroupItem value="all" id="all" />
             <Label htmlFor="all" className="flex flex-col gap-1 cursor-pointer font-normal">
-              <span className="font-semibold">All Public Recipes</span>
-              <span className="text-sm text-muted-foreground">
+              <span className="font-semibold text-mystic-900 dark:text-cream-100">All Public Recipes</span>
+              <span className="text-sm text-mystic-700 dark:text-cream-200">
                 Show recipes owned by your team plus all public recipes from other teams.
                 Best for discovering new recipes and collaboration.
               </span>
@@ -62,8 +62,8 @@ export function RecipeVisibilitySettings({ teamId, currentMode }: RecipeVisibili
           <div className="flex items-start space-x-3 space-y-0 p-4 border rounded-lg">
             <RadioGroupItem value="team_only" id="team_only" />
             <Label htmlFor="team_only" className="flex flex-col gap-1 cursor-pointer font-normal">
-              <span className="font-semibold">Team Recipes Only</span>
-              <span className="text-sm text-muted-foreground">
+              <span className="font-semibold text-mystic-900 dark:text-cream-100">Team Recipes Only</span>
+              <span className="text-sm text-mystic-700 dark:text-cream-200">
                 Show only recipes owned by your team (regardless of visibility).
                 Use when you want a curated, private recipe collection.
               </span>

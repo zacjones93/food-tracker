@@ -10,7 +10,7 @@ import {
   BookOpen,
   ClipboardList,
   Settings2,
-} from "lucide-react"
+} from "@/components/ui/themed-icons"
 
 import { NavMain } from "@/components/nav-main"
 import { NavUser } from "@/components/nav-user"

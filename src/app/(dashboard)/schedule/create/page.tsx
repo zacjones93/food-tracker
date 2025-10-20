@@ -26,7 +26,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2 } from "@/components/ui/themed-icons";
 import Link from "next/link";
 import { toast } from "sonner";
 import type { GroceryListTemplate } from "@/db/schema";
@@ -168,12 +168,12 @@ export default function CreateWeekPage() {
     <div className="flex flex-col gap-6 p-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Create Week</h1>
-            <p className="text-muted-foreground">Add a new week to your meal schedule</p>
+            <h1 className="text-3xl font-bold tracking-tight text-mystic-900 dark:text-cream-100">Create Week</h1>
+            <p className="text-mystic-700 dark:text-cream-200">Add a new week to your meal schedule</p>
           </div>
           <Button variant="outline" asChild>
             <Link href="/schedule">
-              <ArrowLeft className="h-4 w-4 mr-2" />
+              <ArrowLeft className="h-4 w-4 mr-2 dark:text-cream-200" />
               Back to Schedule
             </Link>
           </Button>
@@ -390,7 +390,7 @@ export default function CreateWeekPage() {
 
             <div className="flex gap-3">
               <Button type="submit" disabled={isPending}>
-                {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin dark:text-cream-100" />}
                 Create Week
               </Button>
               <Button

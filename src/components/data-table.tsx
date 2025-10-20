@@ -34,7 +34,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ChevronDown } from "lucide-react"
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ChevronDown } from "@/components/ui/themed-icons"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]

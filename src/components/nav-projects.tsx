@@ -5,7 +5,7 @@ import {
   Forward,
   MoreHorizontal,
   Trash2,
-} from "lucide-react"
+} from "@/components/ui/themed-icons"
 
 import {
   DropdownMenu,

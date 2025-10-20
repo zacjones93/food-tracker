@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { Recipe } from "@/db/schema";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight } from "@/components/ui/themed-icons";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { AddToSchedule } from "./add-to-schedule";

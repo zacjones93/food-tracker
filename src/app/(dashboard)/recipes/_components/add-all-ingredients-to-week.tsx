@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Plus, Loader2 } from "lucide-react";
+import { Plus, Loader2 } from "@/components/ui/themed-icons";
 import { useServerAction } from "zsa-react";
 import { getCurrentAndUpcomingWeeksAction } from "@/app/(dashboard)/schedule/weeks.actions";
 import { createGroceryItemAction } from "@/app/(dashboard)/schedule/grocery-items.actions";
@@ -70,7 +70,7 @@ export function AddAllIngredientsToWeek({ ingredients }: AddAllIngredientsToWeek
           size="sm"
           className="gap-2"
         >
-          <Plus className="h-4 w-4" />
+          <Plus className="h-4 w-4 text-cream-100" />
           Add All
         </Button>
       </DropdownMenuTrigger>
@@ -80,7 +80,7 @@ export function AddAllIngredientsToWeek({ ingredients }: AddAllIngredientsToWeek
 
         {isLoadingWeeks ? (
           <div className="flex items-center justify-center py-4">
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <Loader2 className="h-4 w-4 animate-spin text-cream-100" />
           </div>
         ) : weeks.length === 0 ? (
           <div className="px-2 py-4 text-sm text-muted-foreground text-center">
@@ -98,7 +98,7 @@ export function AddAllIngredientsToWeek({ ingredients }: AddAllIngredientsToWeek
                 {week.emoji && <span>{week.emoji}</span>}
                 <span>{week.name}</span>
                 {week.status === 'current' && (
-                  <span className="ml-auto text-xs text-primary">Current</span>
+                  <span className="ml-auto text-xs text-mystic-600 dark:text-cream-200">Current</span>
                 )}
               </div>
             </DropdownMenuItem>

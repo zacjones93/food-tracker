@@ -39,7 +39,7 @@ import {
 } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Loader2, X, Check, ChevronsUpDown } from "lucide-react";
+import { ArrowLeft, Loader2, X, Check, ChevronsUpDown } from "@/components/ui/themed-icons";
 import Link from "next/link";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
@@ -194,7 +194,7 @@ export default function CreateRecipePage() {
           </div>
           <Button variant="outline" asChild>
             <Link href="/recipes">
-              <ArrowLeft className="h-4 w-4 mr-2" />
+              <ArrowLeft className="h-4 w-4 mr-2 text-cream-100" />
               Back to Recipes
             </Link>
           </Button>
@@ -404,7 +404,7 @@ export default function CreateRecipePage() {
                         onClick={() => handleRemoveTag(tag)}
                         className="ml-1 hover:text-destructive"
                       >
-                        <X className="h-3 w-3" />
+                        <X className="h-3 w-3 text-cream-100" />
                       </button>
                     </Badge>
                   ))}
@@ -505,7 +505,7 @@ export default function CreateRecipePage() {
                                             (book) => book.id === field.value
                                           )?.name
                                         : "Select recipe book"}
-                                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50 text-cream-100" />
                                     </Button>
                                   </FormControl>
                                 </PopoverTrigger>
@@ -653,7 +653,7 @@ export default function CreateRecipePage() {
 
             <div className="flex gap-3">
               <Button type="submit" disabled={isPending}>
-                {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin text-cream-100" />}
                 Create Recipe
               </Button>
               <Button

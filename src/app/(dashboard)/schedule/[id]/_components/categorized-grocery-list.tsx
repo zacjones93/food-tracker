@@ -7,7 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Plus, Trash2, GripVertical } from "lucide-react";
+import { Plus, Trash2, GripVertical } from "@/components/ui/themed-icons";
 import { useServerAction } from "zsa-react";
 import {
   createGroceryItemAction,
@@ -94,7 +94,7 @@ function SortableItem({
         {...listeners}
         className="cursor-grab active:cursor-grabbing touch-none"
       >
-        <GripVertical className="h-4 w-4 text-muted-foreground" />
+        <GripVertical className="h-4 w-4 text-muted-foreground dark:text-cream-300" />
       </div>
 
       <Checkbox
@@ -127,7 +127,7 @@ function SortableItem({
         size="sm"
         onClick={() => onDelete(item.id)}
       >
-        <Trash2 className="h-4 w-4" />
+        <Trash2 className="h-4 w-4 dark:text-cream-300" />
       </Button>
     </div>
   );
@@ -455,7 +455,7 @@ export function CategorizedGroceryList({ weekId, items: initialItems }: Categori
                   className="flex-1"
                 />
                 <Button type="submit" variant="outline" disabled={!newCategoryName.trim()}>
-                  <Plus className="h-4 w-4 mr-2" />
+                  <Plus className="h-4 w-4 mr-2 dark:text-cream-200" />
                   Add
                 </Button>
               </div>
@@ -484,7 +484,7 @@ export function CategorizedGroceryList({ weekId, items: initialItems }: Categori
                 ))}
               </datalist>
               <Button type="submit" disabled={isCreating || !newItemName.trim()} className="w-full">
-                <Plus className="h-4 w-4 mr-2" />
+                <Plus className="h-4 w-4 mr-2 dark:text-cream-100" />
                 Add Item
               </Button>
             </div>
@@ -520,7 +520,7 @@ export function CategorizedGroceryList({ weekId, items: initialItems }: Categori
                           size="sm"
                           onClick={() => handleDeleteEmptyCategory(category)}
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <Trash2 className="h-4 w-4 dark:text-cream-300" />
                         </Button>
                       )}
                     </div>
@@ -560,7 +560,7 @@ export function CategorizedGroceryList({ weekId, items: initialItems }: Categori
             <DragOverlay>
               {activeItem ? (
                 <div className="flex items-center gap-2 p-2 rounded-lg bg-background border shadow-lg">
-                  <GripVertical className="h-4 w-4 text-muted-foreground" />
+                  <GripVertical className="h-4 w-4 text-muted-foreground dark:text-cream-300" />
                   <Checkbox checked={activeItem.checked} disabled />
                   <span className={activeItem.checked ? "line-through text-muted-foreground" : ""}>
                     {activeItem.name}

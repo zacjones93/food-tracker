@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { CalendarPlus, Loader2, Check } from "lucide-react";
+import { CalendarPlus, Loader2, Check } from "@/components/ui/themed-icons";
 import { useServerAction } from "zsa-react";
 import { getWeeksForRecipeAction, addRecipeToWeekAction } from "@/app/(dashboard)/schedule/weeks.actions";
 import { useRouter } from "next/navigation";
@@ -67,7 +67,7 @@ export function AddToSchedule({
           size={size}
           className={showLabel ? "gap-2" : ""}
         >
-          <CalendarPlus className="h-4 w-4" />
+          <CalendarPlus className="h-4 w-4 text-cream-100" />
           {showLabel && "Add to Schedule"}
         </Button>
       </DropdownMenuTrigger>
@@ -77,7 +77,7 @@ export function AddToSchedule({
 
         {isLoadingWeeks ? (
           <div className="flex items-center justify-center py-4">
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <Loader2 className="h-4 w-4 animate-spin text-cream-100" />
           </div>
         ) : weeks.length === 0 ? (
           <div className="px-2 py-4 text-sm text-muted-foreground text-center">
@@ -96,10 +96,10 @@ export function AddToSchedule({
                 <span className={week.hasRecipe ? "text-muted-foreground" : ""}>{week.name}</span>
                 <div className="ml-auto flex items-center gap-2">
                   {week.status === 'current' && (
-                    <span className="text-xs text-primary">Current</span>
+                    <span className="text-xs text-mystic-600 dark:text-cream-200">Current</span>
                   )}
                   {week.hasRecipe && (
-                    <Check className="h-4 w-4 text-primary" />
+                    <Check className="h-4 w-4 text-cream-100" />
                   )}
                 </div>
               </div>

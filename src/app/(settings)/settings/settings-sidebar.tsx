@@ -9,7 +9,7 @@ import {
   Smartphone,
   LogOut,
   Users
-} from "lucide-react";
+} from "@/components/ui/themed-icons";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import {
   Dialog,
