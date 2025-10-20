@@ -43,13 +43,20 @@ import {
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Pencil, X, Check, ChevronsUpDown } from "@/components/ui/themed-icons";
-import { updateRecipeAction, getRecipeMetadataAction, createRecipeBookAction } from "../../recipes.actions";
+import {
+  updateRecipeAction,
+  getRecipeMetadataAction,
+  createRecipeBookAction,
+} from "../../recipes.actions";
 import { useServerAction } from "zsa-react";
 import { useRouter } from "next/navigation";
 import type { Recipe, RecipeBook } from "@/db/schema";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { updateRecipeSchema, type UpdateRecipeSchema } from "@/schemas/recipe.schema";
+import {
+  updateRecipeSchema,
+  type UpdateRecipeSchema,
+} from "@/schemas/recipe.schema";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -97,12 +104,16 @@ export function EditRecipeDialog({ recipe }: EditRecipeDialogProps) {
     defaultValues: {
       id: recipe.id,
       name: recipe.name || "",
-      emoji: recipe.emoji || "",
-      mealType: recipe.mealType || "",
-      difficulty: recipe.difficulty || "",
-      recipeLink: recipe.recipeLink || "",
-      recipeBookId: recipe.recipeBookId || "",
-      page: recipe.page || "",
+      emoji: recipe.emoji || undefined,
+      mealType: recipe.mealType || undefined,
+      difficulty: recipe.difficulty || undefined,
+      visibility: (recipe.visibility ||
+        undefined) as UpdateRecipeSchema["visibility"],
+      ingredients: recipe.ingredients || undefined,
+      recipeBody: recipe.recipeBody || undefined,
+      recipeLink: recipe.recipeLink || undefined,
+      recipeBookId: recipe.recipeBookId || undefined,
+      page: recipe.page || undefined,
     },
   });
 
@@ -161,7 +172,9 @@ export function EditRecipeDialog({ recipe }: EditRecipeDialogProps) {
 
       setMetadata({
         ...metadata,
-        recipeBooks: [...metadata.recipeBooks, newBook].sort((a, b) => a.name.localeCompare(b.name)),
+        recipeBooks: [...metadata.recipeBooks, newBook].sort((a, b) =>
+          a.name.localeCompare(b.name)
+        ),
       });
       form.setValue("recipeBookId", tempId);
       setNewRecipeBook("");
@@ -184,7 +197,9 @@ export function EditRecipeDialog({ recipe }: EditRecipeDialogProps) {
       );
 
       if (tempBook) {
-        const [bookData, bookErr] = await createRecipeBook({ name: tempBook.name });
+        const [bookData, bookErr] = await createRecipeBook({
+          name: tempBook.name,
+        });
 
         if (bookErr) {
           toast.error("Failed to create recipe book");
@@ -253,7 +268,10 @@ export function EditRecipeDialog({ recipe }: EditRecipeDialogProps) {
                       <>
                         {!showMealTypeInput ? (
                           <>
-                            <Select onValueChange={field.onChange} value={field.value}>
+                            <Select
+                              onValueChange={field.onChange}
+                              value={field.value}
+                            >
                               <FormControl>
                                 <SelectTrigger>
                                   <SelectValue placeholder="Select meal type" />
@@ -331,7 +349,10 @@ export function EditRecipeDialog({ recipe }: EditRecipeDialogProps) {
                       <>
                         {!showDifficultyInput ? (
                           <>
-                            <Select onValueChange={field.onChange} value={field.value}>
+                            <Select
+                              onValueChange={field.onChange}
+                              value={field.value}
+                            >
                               <FormControl>
                                 <SelectTrigger>
                                   <SelectValue placeholder="Select difficulty" />
@@ -339,7 +360,10 @@ export function EditRecipeDialog({ recipe }: EditRecipeDialogProps) {
                               </FormControl>
                               <SelectContent>
                                 {metadata.difficulties.map((difficulty) => (
-                                  <SelectItem key={difficulty} value={difficulty}>
+                                  <SelectItem
+                                    key={difficulty}
+                                    value={difficulty}
+                                  >
                                     {difficulty}
                                   </SelectItem>
                                 ))}
@@ -419,27 +443,29 @@ export function EditRecipeDialog({ recipe }: EditRecipeDialogProps) {
                 </div>
               )}
               <div className="flex flex-col md:flex-row gap-2">
-                {metadata && metadata.tags.filter((tag) => !selectedTags.includes(tag)).length > 0 && (
-                  <Select
-                    value={tagInput}
-                    onValueChange={(value) => {
-                      handleAddTag(value);
-                    }}
-                  >
-                    <SelectTrigger className="flex-1">
-                      <SelectValue placeholder="Select existing tag" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {metadata.tags
-                        .filter((tag) => !selectedTags.includes(tag))
-                        .map((tag) => (
-                          <SelectItem key={tag} value={tag}>
-                            {tag}
-                          </SelectItem>
-                        ))}
-                    </SelectContent>
-                  </Select>
-                )}
+                {metadata &&
+                  metadata.tags.filter((tag) => !selectedTags.includes(tag))
+                    .length > 0 && (
+                    <Select
+                      value={tagInput}
+                      onValueChange={(value) => {
+                        handleAddTag(value);
+                      }}
+                    >
+                      <SelectTrigger className="flex-1">
+                        <SelectValue placeholder="Select existing tag" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {metadata.tags
+                          .filter((tag) => !selectedTags.includes(tag))
+                          .map((tag) => (
+                            <SelectItem key={tag} value={tag}>
+                              {tag}
+                            </SelectItem>
+                          ))}
+                      </SelectContent>
+                    </Select>
+                  )}
                 <Input
                   className="flex-1"
                   placeholder="Or type new tag"
@@ -496,7 +522,10 @@ export function EditRecipeDialog({ recipe }: EditRecipeDialogProps) {
                         {!showRecipeBookInput ? (
                           <>
                             {metadata.recipeBooks.length > 0 ? (
-                              <Popover open={recipeBookOpen} onOpenChange={setRecipeBookOpen}>
+                              <Popover
+                                open={recipeBookOpen}
+                                onOpenChange={setRecipeBookOpen}
+                              >
                                 <PopoverTrigger asChild>
                                   <FormControl>
                                     <Button
@@ -521,14 +550,19 @@ export function EditRecipeDialog({ recipe }: EditRecipeDialogProps) {
                                   <Command>
                                     <CommandInput placeholder="Search books..." />
                                     <CommandList>
-                                      <CommandEmpty>No recipe book found.</CommandEmpty>
+                                      <CommandEmpty>
+                                        No recipe book found.
+                                      </CommandEmpty>
                                       <CommandGroup>
                                         {metadata.recipeBooks.map((book) => (
                                           <CommandItem
                                             key={book.id}
                                             value={book.name}
                                             onSelect={() => {
-                                              form.setValue("recipeBookId", book.id);
+                                              form.setValue(
+                                                "recipeBookId",
+                                                book.id
+                                              );
                                               setRecipeBookOpen(false);
                                             }}
                                           >
@@ -550,7 +584,11 @@ export function EditRecipeDialog({ recipe }: EditRecipeDialogProps) {
                               </Popover>
                             ) : (
                               <FormControl>
-                                <Input disabled placeholder="No recipe books available" {...field} />
+                                <Input
+                                  disabled
+                                  placeholder="No recipe books available"
+                                  {...field}
+                                />
                               </FormControl>
                             )}
                             <Button
@@ -623,7 +661,11 @@ export function EditRecipeDialog({ recipe }: EditRecipeDialogProps) {
             </div>
 
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setOpen(false)}
+              >
                 Cancel
               </Button>
               <Button type="submit" disabled={isPending}>
