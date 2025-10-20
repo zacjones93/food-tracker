@@ -3,16 +3,16 @@ import { RECIPE_VISIBILITY } from "@/db/schema";
 
 export const createRecipeSchema = z.object({
   name: z.string().min(2).max(500),
-  emoji: z.string().max(10).optional(),
+  emoji: z.string().max(10).optional().transform(val => val === "" ? undefined : val),
   tags: z.array(z.string()).optional(),
-  mealType: z.string().max(50).optional(), // Allow any meal type string
-  difficulty: z.string().max(20).optional(), // Allow any difficulty string
+  mealType: z.string().max(50).optional().transform(val => val === "" ? undefined : val), // Allow any meal type string
+  difficulty: z.string().max(20).optional().transform(val => val === "" ? undefined : val), // Allow any difficulty string
   visibility: z.enum([RECIPE_VISIBILITY.PUBLIC, RECIPE_VISIBILITY.PRIVATE, RECIPE_VISIBILITY.UNLISTED]).default(RECIPE_VISIBILITY.PUBLIC),
   ingredients: z.array(z.string()).nullable().optional(),
-  recipeBody: z.string().nullable().optional(),
-  recipeLink: z.string().max(1000).optional(),
-  recipeBookId: z.string().optional(),
-  page: z.string().max(50).optional(),
+  recipeBody: z.string().nullable().optional().transform(val => val === "" ? undefined : val),
+  recipeLink: z.string().max(1000).optional().transform(val => val === "" ? undefined : val),
+  recipeBookId: z.string().optional().transform(val => val === "" ? undefined : val),
+  page: z.string().max(50).optional().transform(val => val === "" ? undefined : val),
 });
 
 export const updateRecipeSchema = createRecipeSchema.partial().extend({

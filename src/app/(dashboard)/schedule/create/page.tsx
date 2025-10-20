@@ -30,6 +30,7 @@ import { ArrowLeft, Loader2 } from "@/components/ui/themed-icons";
 import Link from "next/link";
 import { toast } from "sonner";
 import type { GroceryListTemplate } from "@/db/schema";
+import { useSessionStore } from "@/state/session";
 
 // Get the next Sunday from today (or today if it's Sunday) in local timezone
 function getNextSunday(): Date {
@@ -100,6 +101,7 @@ function formatWeekName(startDate: Date, endDate: Date): string {
 
 export default function CreateWeekPage() {
   const router = useRouter();
+  const session = useSessionStore((state) => state.session);
   const { execute, isPending } = useServerAction(createWeekAction);
   const { execute: fetchTemplates } = useServerAction(getGroceryListTemplatesAction);
   const { execute: applyTemplate } = useServerAction(applyTemplateToWeekAction);
@@ -138,7 +140,17 @@ export default function CreateWeekPage() {
   }, [fetchTemplates]);
 
   async function onSubmit(values: CreateWeekSchema) {
-    const [data, err] = await execute(values);
+    const teamId = session?.activeTeamId || "";
+    
+    if (!teamId) {
+      toast.error("No active team selected");
+      return;
+    }
+
+    const [data, err] = await execute({
+      ...values,
+      teamId,
+    });
 
     if (err) {
       toast.error(err.message || "Failed to create week");
