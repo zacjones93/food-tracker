@@ -90,15 +90,15 @@
   }
 
   h1 {
-    @apply text-4xl md:text-5xl font-semibold text-mystic-800 tracking-tight;
+    @apply text-4xl md:text-5xl font-semibold text-mystic-900 tracking-tight;
   }
 
   h2 {
-    @apply text-3xl md:text-4xl font-semibold text-mystic-800;
+    @apply text-3xl md:text-4xl font-semibold text-mystic-900;
   }
 
   h3 {
-    @apply text-2xl md:text-3xl font-medium text-mystic-700;
+    @apply text-2xl md:text-3xl font-medium text-mystic-800;
   }
 }
 
