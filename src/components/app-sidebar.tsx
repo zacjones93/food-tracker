@@ -98,16 +98,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   return (
     <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader>
-        <div className="flex items-center gap-2 px-2 py-4">
-          <Image
-            src="/assets/logo.svg"
-            alt="Logo"
-            width={32}
-            height={32}
-            className="size-8"
-          />
-          <span className="font-heading text-lg font-semibold group-data-[collapsible=icon]:hidden">
+      <SidebarHeader className="border-b border-sidebar-border">
+        <div className="flex items-center gap-3 px-2 py-4">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-mystic-gradient shadow-mystic-sm">
+            <Image
+              src="/assets/logo.svg"
+              alt="Logo"
+              width={20}
+              height={20}
+              className="size-5"
+            />
+          </div>
+          <span className="font-heading text-xl font-semibold text-mystic-800 dark:text-cream-100 group-data-[collapsible=icon]:hidden">
             List to Ladle
           </span>
         </div>
