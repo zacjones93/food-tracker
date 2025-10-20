@@ -40,7 +40,6 @@ import {
   Circle as PhosphorCircle,
   MagnifyingGlass,
   DotsThree,
-
   DotsSixVertical,
   Sliders,
   CircleNotch,
@@ -48,11 +47,14 @@ import {
   // Actions
   PencilSimple,
   Trash,
+  FloppyDisk,
   Eye,
   EyeSlash,
 
   // External & Links
   ArrowSquareOut,
+  ShareNetwork,
+  Folder as PhosphorFolder,
 
   // Decorative
   Sparkle,
@@ -289,6 +291,13 @@ export const PanelLeft = (props: ThemedIconProps) => (
   />
 );
 
+export const Save = (props: ThemedIconProps) => (
+  <FloppyDisk
+    weight={props.weight || "regular"}
+    color={props.color || "currentColor"}
+    {...props}
+  />
+);
 
 export const GripVertical = (props: ThemedIconProps) => (
   <DotsSixVertical
@@ -527,6 +536,22 @@ export const EyeIcon = (props: ThemedIconProps) => (
 
 export const EyeOffIcon = (props: ThemedIconProps) => (
   <EyeSlash
+    weight={props.weight || "regular"}
+    color={props.color || "currentColor"}
+    {...props}
+  />
+);
+
+export const Folder = (props: ThemedIconProps) => (
+  <PhosphorFolder
+    weight={props.weight || "regular"}
+    color={props.color || "currentColor"}
+    {...props}
+  />
+);
+
+export const Forward = (props: ThemedIconProps) => (
+  <ShareNetwork
     weight={props.weight || "regular"}
     color={props.color || "currentColor"}
     {...props}
