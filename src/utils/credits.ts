@@ -1,7 +1,7 @@
 import "server-only";
 // import { eq, sql, desc, and, lt, isNull, gt, or, asc } from "drizzle-orm";
 // import { getDB } from "@/db";
-import { userTable } from "@/db/schema";
+// import { userTable } from "@/db/schema";
 // import { updateAllSessionsOfUser, KVSession } from "./kv-session";
 // import { CREDIT_PACKAGES, FREE_MONTHLY_CREDITS, DISABLE_CREDIT_BILLING_SYSTEM } from "@/constants";
 
