@@ -7,7 +7,13 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Plus, Trash2, GripVertical } from "@/components/ui/themed-icons";
+import {
+  Plus,
+  Trash2,
+  GripVertical,
+  ChevronDown,
+  ChevronRight,
+} from "@/components/ui/themed-icons";
 import { useServerAction } from "zsa-react";
 import {
   createGroceryItemAction,
@@ -122,27 +128,186 @@ function SortableItem({
         </span>
       )}
 
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => onDelete(item.id)}
-      >
+      <Button variant="ghost" size="sm" onClick={() => onDelete(item.id)}>
         <Trash2 className="h-4 w-4 dark:text-cream-300" />
       </Button>
     </div>
   );
 }
 
-export function CategorizedGroceryList({ weekId, items: initialItems }: CategorizedGroceryListProps) {
+interface SortableCategoryProps {
+  category: string;
+  categoryItems: GroceryItem[];
+  isEmpty: boolean;
+  isCollapsed: boolean;
+  isManuallyCollapsed: boolean;
+  onToggleCollapse: (category: string) => void;
+  onToggle: (id: string, checked: boolean) => void;
+  onDelete: (id: string) => void;
+  onDeleteEmptyCategory: (category: string) => void;
+  onEdit: (item: GroceryItem) => void;
+  editingId: string | null;
+  editValue: string;
+  setEditValue: (value: string) => void;
+  saveEdit: () => void;
+  handleKeyDown: (e: React.KeyboardEvent) => void;
+  inputRef: React.RefObject<HTMLInputElement | null>;
+}
+
+function SortableCategory({
+  category,
+  categoryItems,
+  isEmpty,
+  isCollapsed,
+  isManuallyCollapsed,
+  onToggleCollapse,
+  onToggle,
+  onDelete,
+  onDeleteEmptyCategory,
+  onEdit,
+  editingId,
+  editValue,
+  setEditValue,
+  saveEdit,
+  handleKeyDown,
+  inputRef,
+}: SortableCategoryProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: `category-${category}` });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  // Determine if category should show collapsed content
+  const shouldShowCollapsed = isCollapsed || isManuallyCollapsed;
+  const checkedCount = categoryItems.filter((item) => item.checked).length;
+
+  return (
+    <div ref={setNodeRef} style={style}>
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <div
+            {...attributes}
+            {...listeners}
+            className="cursor-grab active:cursor-grabbing touch-none"
+          >
+            <GripVertical className="h-4 w-4 text-muted-foreground dark:text-cream-300" />
+          </div>
+          {!isEmpty && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onToggleCollapse(category)}
+              className="h-6 w-6 p-0"
+            >
+              {isManuallyCollapsed ? (
+                <ChevronRight className="h-4 w-4 dark:text-cream-300" />
+              ) : (
+                <ChevronDown className="h-4 w-4 dark:text-cream-300" />
+              )}
+            </Button>
+          )}
+          <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
+            {category}
+          </h3>
+          {!isEmpty && (
+            <span className="text-xs text-muted-foreground/70">
+              ({categoryItems.length} items
+              {checkedCount > 0 ? `, ${checkedCount} checked` : ""})
+            </span>
+          )}
+        </div>
+        {isEmpty && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onDeleteEmptyCategory(category)}
+          >
+            <Trash2 className="h-4 w-4 dark:text-cream-300" />
+          </Button>
+        )}
+      </div>
+      {isEmpty ? (
+        <div className="text-sm text-muted-foreground italic py-2 px-3 border border-dashed rounded-lg">
+          Empty category - add items above
+        </div>
+      ) : shouldShowCollapsed ? (
+        <div className="text-sm text-muted-foreground/50 italic py-2 px-3 border border-dashed rounded-lg">
+          {categoryItems.length} items
+          {checkedCount > 0 ? ` (${checkedCount} checked)` : ""}
+          {isCollapsed && !isManuallyCollapsed
+            ? " - collapsed while dragging"
+            : ""}
+        </div>
+      ) : (
+        <SortableContext
+          items={categoryItems.map((i) => i.id)}
+          strategy={verticalListSortingStrategy}
+        >
+          <div className="space-y-1">
+            {categoryItems.map((item) => (
+              <SortableItem
+                key={item.id}
+                item={item}
+                onToggle={onToggle}
+                onDelete={onDelete}
+                onEdit={onEdit}
+                editingId={editingId}
+                editValue={editValue}
+                setEditValue={setEditValue}
+                saveEdit={saveEdit}
+                handleKeyDown={handleKeyDown}
+                inputRef={inputRef}
+              />
+            ))}
+          </div>
+        </SortableContext>
+      )}
+    </div>
+  );
+}
+
+export function CategorizedGroceryList({
+  weekId,
+  items: initialItems,
+}: CategorizedGroceryListProps) {
   const [newItemName, setNewItemName] = useState("");
   const [newItemCategory, setNewItemCategory] = useState("");
   const [items, setItems] = useState(initialItems);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [activeCategoryId, setActiveCategoryId] = useState<string | null>(null);
   const [emptyCategories, setEmptyCategories] = useState<string[]>([]);
   const [newCategoryName, setNewCategoryName] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Load category order from localStorage
+  const [categoryOrder, setCategoryOrder] = useState<string[]>(() => {
+    if (typeof window === "undefined") return [];
+    const stored = localStorage.getItem(`grocery-category-order-${weekId}`);
+    return stored ? JSON.parse(stored) : [];
+  });
+
+  // Load collapsed categories from localStorage
+  const [collapsedCategories, setCollapsedCategories] = useState<Set<string>>(
+    () => {
+      if (typeof window === "undefined") return new Set();
+      const stored = localStorage.getItem(
+        `grocery-collapsed-categories-${weekId}`
+      );
+      return stored ? new Set(JSON.parse(stored)) : new Set();
+    }
+  );
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -162,6 +327,24 @@ export function CategorizedGroceryList({ weekId, items: initialItems }: Categori
     }
   }, [editingId]);
 
+  // Save category order to localStorage
+  useEffect(() => {
+    if (categoryOrder.length > 0) {
+      localStorage.setItem(
+        `grocery-category-order-${weekId}`,
+        JSON.stringify(categoryOrder)
+      );
+    }
+  }, [categoryOrder, weekId]);
+
+  // Save collapsed categories to localStorage
+  useEffect(() => {
+    localStorage.setItem(
+      `grocery-collapsed-categories-${weekId}`,
+      JSON.stringify(Array.from(collapsedCategories))
+    );
+  }, [collapsedCategories, weekId]);
+
   // Group items by category
   const groupedItems = items.reduce((acc, item) => {
     const category = item.category || "Uncategorized";
@@ -173,7 +356,7 @@ export function CategorizedGroceryList({ weekId, items: initialItems }: Categori
   }, {} as Record<string, GroceryItem[]>);
 
   // Sort items within each category: unchecked first, then by order
-  Object.keys(groupedItems).forEach(category => {
+  Object.keys(groupedItems).forEach((category) => {
     groupedItems[category].sort((a, b) => {
       // First sort by checked status (unchecked first)
       if (a.checked !== b.checked) {
@@ -185,15 +368,44 @@ export function CategorizedGroceryList({ weekId, items: initialItems }: Categori
   });
 
   // Get unique categories from existing items
-  const existingCategories = Array.from(new Set(items.map(i => i.category).filter(Boolean)));
+  const existingCategories = Array.from(
+    new Set(items.map((i) => i.category).filter(Boolean))
+  );
 
   // Merge empty categories with categories that have items
-  const allCategories = Array.from(new Set([
-    ...Object.keys(groupedItems),
-    ...emptyCategories.filter(cat => !groupedItems[cat])
-  ])).sort();
+  const allCategories = Array.from(
+    new Set([
+      ...Object.keys(groupedItems),
+      ...emptyCategories.filter((cat) => !groupedItems[cat]),
+    ])
+  );
 
-  const categories = allCategories;
+  // Sort categories by custom order, then alphabetically for new categories
+  const categories = [...allCategories].sort((a, b) => {
+    const aIndex = categoryOrder.indexOf(a);
+    const bIndex = categoryOrder.indexOf(b);
+
+    // Both in custom order
+    if (aIndex !== -1 && bIndex !== -1) {
+      return aIndex - bIndex;
+    }
+
+    // Only a is in custom order
+    if (aIndex !== -1) return -1;
+
+    // Only b is in custom order
+    if (bIndex !== -1) return 1;
+
+    // Neither in custom order, sort alphabetically
+    return a.localeCompare(b);
+  });
+
+  // Initialize category order if empty and we have categories
+  useEffect(() => {
+    if (categoryOrder.length === 0 && allCategories.length > 0) {
+      setCategoryOrder([...allCategories].sort());
+    }
+  }, [allCategories.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const { execute: createItem, isPending: isCreating } = useServerAction(
     createGroceryItemAction,
@@ -247,11 +459,14 @@ export function CategorizedGroceryList({ weekId, items: initialItems }: Categori
     },
   });
 
-  const { execute: bulkUpdate } = useServerAction(bulkUpdateGroceryItemsAction, {
-    onError: ({ err }) => {
-      toast.error(err.message || "Failed to reorder items");
-    },
-  });
+  const { execute: bulkUpdate } = useServerAction(
+    bulkUpdateGroceryItemsAction,
+    {
+      onError: ({ err }) => {
+        toast.error(err.message || "Failed to reorder items");
+      },
+    }
+  );
 
   const handleAddItem = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -259,7 +474,9 @@ export function CategorizedGroceryList({ weekId, items: initialItems }: Categori
 
     // Remove category from empty categories if it exists
     if (newItemCategory && emptyCategories.includes(newItemCategory)) {
-      setEmptyCategories(prev => prev.filter(cat => cat !== newItemCategory));
+      setEmptyCategories((prev) =>
+        prev.filter((cat) => cat !== newItemCategory)
+      );
     }
 
     await createItem({
@@ -274,19 +491,21 @@ export function CategorizedGroceryList({ weekId, items: initialItems }: Categori
     if (!newCategoryName.trim()) return;
 
     // Check if category already exists
-    if (existingCategories.includes(newCategoryName.trim()) ||
-        emptyCategories.includes(newCategoryName.trim())) {
+    if (
+      existingCategories.includes(newCategoryName.trim()) ||
+      emptyCategories.includes(newCategoryName.trim())
+    ) {
       toast.error("Category already exists");
       return;
     }
 
-    setEmptyCategories(prev => [...prev, newCategoryName.trim()]);
+    setEmptyCategories((prev) => [...prev, newCategoryName.trim()]);
     setNewCategoryName("");
     toast.success("Category created");
   };
 
   const handleDeleteEmptyCategory = (category: string) => {
-    setEmptyCategories(prev => prev.filter(cat => cat !== category));
+    setEmptyCategories((prev) => prev.filter((cat) => cat !== category));
     toast.success("Category deleted");
   };
 
@@ -296,7 +515,7 @@ export function CategorizedGroceryList({ weekId, items: initialItems }: Categori
 
   const handleDelete = async (id: string) => {
     // Find the item before deleting to check category
-    const deletedItem = items.find(item => item.id === id);
+    const deletedItem = items.find((item) => item.id === id);
 
     await deleteItem({ id });
 
@@ -307,7 +526,7 @@ export function CategorizedGroceryList({ weekId, items: initialItems }: Categori
       // If this was the last item in a category, convert to empty category
       if (deletedItem?.category) {
         const remainingInCategory = newItems.filter(
-          item => item.category === deletedItem.category
+          (item) => item.category === deletedItem.category
         );
         if (remainingInCategory.length === 0) {
           setEmptyCategories((prevCats) => {
@@ -351,16 +570,41 @@ export function CategorizedGroceryList({ weekId, items: initialItems }: Categori
     }
   };
 
+  const handleToggleCollapse = (category: string) => {
+    setCollapsedCategories((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(category)) {
+        newSet.delete(category);
+      } else {
+        newSet.add(category);
+      }
+      return newSet;
+    });
+  };
+
   const handleDragStart = (event: DragStartEvent) => {
-    setActiveId(event.active.id as string);
+    const id = event.active.id as string;
+
+    // Check if we're dragging a category
+    if (id.startsWith("category-")) {
+      setActiveCategoryId(id);
+    } else {
+      // Dragging an item
+      setActiveId(id);
+    }
   };
 
   const handleDragOver = (event: DragOverEvent) => {
     const { active, over } = event;
     if (!over) return;
 
-    const activeItem = items.find(i => i.id === active.id);
-    const overItem = items.find(i => i.id === over.id);
+    const activeId = active.id as string;
+
+    // Skip if dragging a category
+    if (activeId.startsWith("category-")) return;
+
+    const activeItem = items.find((i) => i.id === activeId);
+    const overItem = items.find((i) => i.id === over.id);
 
     if (!activeItem || !overItem) return;
 
@@ -369,8 +613,8 @@ export function CategorizedGroceryList({ weekId, items: initialItems }: Categori
 
     if (activeCategory !== overCategory) {
       // Moving to a different category
-      setItems(prevItems => {
-        const updatedItems = prevItems.map(item => {
+      setItems((prevItems) => {
+        const updatedItems = prevItems.map((item) => {
           if (item.id === activeItem.id) {
             return { ...item, category: overItem.category };
           }
@@ -383,59 +627,98 @@ export function CategorizedGroceryList({ weekId, items: initialItems }: Categori
 
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
+    const activeId = active.id as string;
+    const overId = over?.id as string;
+
+    // Clear active states
     setActiveId(null);
+    setActiveCategoryId(null);
 
     if (!over || active.id === over.id) return;
 
-    const activeItem = items.find(i => i.id === active.id);
-    const overItem = items.find(i => i.id === over.id);
+    // Check if we're dragging a category
+    if (activeId.startsWith("category-")) {
+      const activeCategoryName = activeId.replace("category-", "");
+      const overCategoryName = overId.replace("category-", "");
 
-    if (!activeItem || !overItem) return;
+      setCategoryOrder((currentOrder) => {
+        // Get all current categories
+        const allCats = [...allCategories];
 
-    const overCategory = overItem.category || "Uncategorized";
+        // If we don't have a custom order yet, initialize with current categories
+        const workingOrder = currentOrder.length === 0 ? allCats : currentOrder;
 
-    // Get items in the target category
-    const categoryItems = items.filter(
-      i => (i.category || "Uncategorized") === overCategory
-    );
+        // Add any new categories that aren't in the order yet
+        const missingCategories = allCats.filter(
+          (cat) => !workingOrder.includes(cat)
+        );
+        const fullOrder = [...workingOrder, ...missingCategories];
 
-    const oldIndex = categoryItems.findIndex(i => i.id === active.id);
-    const newIndex = categoryItems.findIndex(i => i.id === over.id);
+        const oldIndex = fullOrder.indexOf(activeCategoryName);
+        const newIndex = fullOrder.indexOf(overCategoryName);
 
-    if (oldIndex === -1 || newIndex === -1) return;
+        if (oldIndex === -1 || newIndex === -1) return fullOrder;
 
-    // Reorder within category
-    const reorderedCategoryItems = arrayMove(categoryItems, oldIndex, newIndex);
+        return arrayMove(fullOrder, oldIndex, newIndex);
+      });
+    } else {
+      // Dragging an item
+      const activeItem = items.find((i) => i.id === activeId);
+      const overItem = items.find((i) => i.id === overId);
 
-    // Update the order property on each reordered item
-    const reorderedWithNewOrder: GroceryItem[] = reorderedCategoryItems.map((item, index) => ({
-      ...item,
-      order: index,
-      category: overCategory === "Uncategorized" ? null : overCategory,
-    }));
+      if (!activeItem || !overItem) return;
 
-    // Update all items
-    const otherItems = items.filter(
-      i => (i.category || "Uncategorized") !== overCategory
-    );
+      const overCategory = overItem.category || "Uncategorized";
 
-    const allItems = [...otherItems, ...reorderedWithNewOrder];
+      // Get items in the target category
+      const categoryItems = items.filter(
+        (i) => (i.category || "Uncategorized") === overCategory
+      );
 
-    // Update state first with new order values
-    setItems(allItems);
+      const oldIndex = categoryItems.findIndex((i) => i.id === activeId);
+      const newIndex = categoryItems.findIndex((i) => i.id === overId);
 
-    // Prepare bulk update
-    const updates = reorderedWithNewOrder.map((item) => ({
-      id: item.id,
-      category: item.category || undefined,
-      order: item.order ?? 0,
-    }));
+      if (oldIndex === -1 || newIndex === -1) return;
 
-    // Send to server after state update
-    await bulkUpdate({ weekId, updates });
+      // Reorder within category
+      const reorderedCategoryItems = arrayMove(
+        categoryItems,
+        oldIndex,
+        newIndex
+      );
+
+      // Update the order property on each reordered item
+      const reorderedWithNewOrder: GroceryItem[] = reorderedCategoryItems.map(
+        (item, index) => ({
+          ...item,
+          order: index,
+          category: overCategory === "Uncategorized" ? null : overCategory,
+        })
+      );
+
+      // Update all items
+      const otherItems = items.filter(
+        (i) => (i.category || "Uncategorized") !== overCategory
+      );
+
+      const allItems = [...otherItems, ...reorderedWithNewOrder];
+
+      // Update state first with new order values
+      setItems(allItems);
+
+      // Prepare bulk update
+      const updates = reorderedWithNewOrder.map((item) => ({
+        id: item.id,
+        category: item.category || undefined,
+        order: item.order ?? 0,
+      }));
+
+      // Send to server after state update
+      await bulkUpdate({ weekId, updates });
+    }
   };
 
-  const activeItem = activeId ? items.find(i => i.id === activeId) : null;
+  const activeItem = activeId ? items.find((i) => i.id === activeId) : null;
 
   return (
     <Card>
@@ -454,7 +737,11 @@ export function CategorizedGroceryList({ weekId, items: initialItems }: Categori
                   onChange={(e) => setNewCategoryName(e.target.value)}
                   className="flex-1"
                 />
-                <Button type="submit" variant="outline" disabled={!newCategoryName.trim()}>
+                <Button
+                  type="submit"
+                  variant="outline"
+                  disabled={!newCategoryName.trim()}
+                >
                   <Plus className="h-4 w-4 mr-2 dark:text-cream-200" />
                   Add
                 </Button>
@@ -483,7 +770,11 @@ export function CategorizedGroceryList({ weekId, items: initialItems }: Categori
                   <option key={cat} value={cat} />
                 ))}
               </datalist>
-              <Button type="submit" disabled={isCreating || !newItemName.trim()} className="w-full">
+              <Button
+                type="submit"
+                disabled={isCreating || !newItemName.trim()}
+                className="w-full"
+              >
                 <Plus className="h-4 w-4 mr-2 dark:text-cream-100" />
                 Add Item
               </Button>
@@ -503,66 +794,58 @@ export function CategorizedGroceryList({ weekId, items: initialItems }: Categori
             onDragOver={handleDragOver}
             onDragEnd={handleDragEnd}
           >
-            <div className="space-y-6">
-              {categories.map((category) => {
-                const categoryItems = groupedItems[category] || [];
-                const isEmpty = categoryItems.length === 0;
+            <SortableContext
+              items={[
+                ...categories.map((cat) => `category-${cat}`),
+                ...items.map((item) => item.id),
+              ]}
+              strategy={verticalListSortingStrategy}
+            >
+              <div className="space-y-6">
+                {categories.map((category) => {
+                  const categoryItems = groupedItems[category] || [];
+                  const isEmpty = categoryItems.length === 0;
+                  // Collapse all categories when dragging, except empty ones
+                  const isCollapsed = activeCategoryId !== null && !isEmpty;
+                  const isManuallyCollapsed = collapsedCategories.has(category);
 
-                return (
-                  <div key={category}>
-                    <div className="flex items-center justify-between mb-3">
-                      <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
-                        {category}
-                      </h3>
-                      {isEmpty && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDeleteEmptyCategory(category)}
-                        >
-                          <Trash2 className="h-4 w-4 dark:text-cream-300" />
-                        </Button>
-                      )}
-                    </div>
-                    {isEmpty ? (
-                      <div className="text-sm text-muted-foreground italic py-2 px-3 border border-dashed rounded-lg">
-                        Empty category - add items above
-                      </div>
-                    ) : (
-                      <SortableContext
-                        items={categoryItems.map(i => i.id)}
-                        strategy={verticalListSortingStrategy}
-                      >
-                        <div className="space-y-1">
-                          {categoryItems.map((item) => (
-                            <SortableItem
-                              key={item.id}
-                              item={item}
-                              onToggle={handleToggle}
-                              onDelete={handleDelete}
-                              onEdit={startEdit}
-                              editingId={editingId}
-                              editValue={editValue}
-                              setEditValue={setEditValue}
-                              saveEdit={saveEdit}
-                              handleKeyDown={handleKeyDown}
-                              inputRef={inputRef}
-                            />
-                          ))}
-                        </div>
-                      </SortableContext>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+                  return (
+                    <SortableCategory
+                      key={category}
+                      category={category}
+                      categoryItems={categoryItems}
+                      isEmpty={isEmpty}
+                      isCollapsed={isCollapsed}
+                      isManuallyCollapsed={isManuallyCollapsed}
+                      onToggleCollapse={handleToggleCollapse}
+                      onToggle={handleToggle}
+                      onDelete={handleDelete}
+                      onDeleteEmptyCategory={handleDeleteEmptyCategory}
+                      onEdit={startEdit}
+                      editingId={editingId}
+                      editValue={editValue}
+                      setEditValue={setEditValue}
+                      saveEdit={saveEdit}
+                      handleKeyDown={handleKeyDown}
+                      inputRef={inputRef}
+                    />
+                  );
+                })}
+              </div>
+            </SortableContext>
 
             <DragOverlay>
               {activeItem ? (
                 <div className="flex items-center gap-2 p-2 rounded-lg bg-background border shadow-lg">
                   <GripVertical className="h-4 w-4 text-muted-foreground dark:text-cream-300" />
                   <Checkbox checked={activeItem.checked} disabled />
-                  <span className={activeItem.checked ? "line-through text-muted-foreground" : ""}>
+                  <span
+                    className={
+                      activeItem.checked
+                        ? "line-through text-muted-foreground"
+                        : ""
+                    }
+                  >
                     {activeItem.name}
                   </span>
                 </div>

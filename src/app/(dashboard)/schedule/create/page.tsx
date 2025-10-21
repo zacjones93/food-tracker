@@ -4,9 +4,15 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createWeekSchema, type CreateWeekSchema } from "@/schemas/week.schema";
+import {
+  createWeekFormSchema,
+  type CreateWeekFormSchema,
+} from "@/schemas/week.schema";
 import { createWeekAction } from "../weeks.actions";
-import { getGroceryListTemplatesAction, applyTemplateToWeekAction } from "../grocery-templates.actions";
+import {
+  getGroceryListTemplatesAction,
+  applyTemplateToWeekAction,
+} from "../grocery-templates.actions";
 import { useServerAction } from "zsa-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -41,48 +47,71 @@ function getNextSunday(): Date {
   // Otherwise, calculate days until next Sunday
   const daysUntilSunday = dayOfWeek === 0 ? 7 : 7 - dayOfWeek;
 
-  const nextSunday = new Date(today.getFullYear(), today.getMonth(), today.getDate() + daysUntilSunday);
+  const nextSunday = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate() + daysUntilSunday
+  );
 
   return nextSunday;
 }
 
 // Convert date input string (YYYY-MM-DD) to Date in local timezone
 function parseLocalDate(dateString: string): Date {
-  const [year, month, day] = dateString.split('-').map(Number);
+  const [year, month, day] = dateString.split("-").map(Number);
   return new Date(year, month - 1, day);
 }
 
 // Format Date to YYYY-MM-DD for date input in local timezone
 function formatLocalDate(date: Date): string {
   const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
 }
 
 // Calculate week number from a date
 function getWeekNumber(date: Date): number {
-  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const d = new Date(
+    Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())
+  );
   const dayNum = d.getUTCDay() || 7;
   d.setUTCDate(d.getUTCDate() + 4 - dayNum);
   const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-  return Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+  return Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
 }
 
 // Get ordinal suffix for day (1st, 2nd, 3rd, etc.)
 function getOrdinalSuffix(day: number): string {
-  if (day > 3 && day < 21) return 'th';
+  if (day > 3 && day < 21) return "th";
   switch (day % 10) {
-    case 1: return 'st';
-    case 2: return 'nd';
-    case 3: return 'rd';
-    default: return 'th';
+    case 1:
+      return "st";
+    case 2:
+      return "nd";
+    case 3:
+      return "rd";
+    default:
+      return "th";
   }
 }
 
 // Format week name like "Oct 14th - 19th, 2025" or "Oct 19 - Nov 5, 2025"
 function formatWeekName(startDate: Date, endDate: Date): string {
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
 
   const startMonth = months[startDate.getMonth()];
   const endMonth = months[endDate.getMonth()];
@@ -92,7 +121,9 @@ function formatWeekName(startDate: Date, endDate: Date): string {
 
   // If same month, use ordinals and only show month once
   if (startDate.getMonth() === endDate.getMonth()) {
-    return `${startMonth} ${startDay}${getOrdinalSuffix(startDay)} - ${endDay}${getOrdinalSuffix(endDay)}, ${year}`;
+    return `${startMonth} ${startDay}${getOrdinalSuffix(
+      startDay
+    )} - ${endDay}${getOrdinalSuffix(endDay)}, ${year}`;
   }
 
   // If different months, show both months without ordinals
@@ -103,21 +134,27 @@ export default function CreateWeekPage() {
   const router = useRouter();
   const session = useSessionStore((state) => state.session);
   const { execute, isPending } = useServerAction(createWeekAction);
-  const { execute: fetchTemplates } = useServerAction(getGroceryListTemplatesAction);
+  const { execute: fetchTemplates } = useServerAction(
+    getGroceryListTemplatesAction
+  );
   const { execute: applyTemplate } = useServerAction(applyTemplateToWeekAction);
 
   const [templates, setTemplates] = useState<GroceryListTemplate[]>([]);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>("");
 
   const defaultStartDate = getNextSunday();
-  const defaultEndDate = new Date(defaultStartDate.getFullYear(), defaultStartDate.getMonth(), defaultStartDate.getDate() + 7);
+  const defaultEndDate = new Date(
+    defaultStartDate.getFullYear(),
+    defaultStartDate.getMonth(),
+    defaultStartDate.getDate() + 7
+  );
   const defaultWeekName = formatWeekName(defaultStartDate, defaultEndDate);
 
   // Get the selected template data
-  const selectedTemplate = templates.find(t => t.id === selectedTemplateId);
+  const selectedTemplate = templates.find((t) => t.id === selectedTemplateId);
 
-  const form = useForm<CreateWeekSchema>({
-    resolver: zodResolver(createWeekSchema),
+  const form = useForm<CreateWeekFormSchema>({
+    resolver: zodResolver(createWeekFormSchema),
     defaultValues: {
       name: defaultWeekName,
       emoji: "📅",
@@ -139,9 +176,9 @@ export default function CreateWeekPage() {
     loadTemplates();
   }, [fetchTemplates]);
 
-  async function onSubmit(values: CreateWeekSchema) {
+  async function onSubmit(values: CreateWeekFormSchema) {
     const teamId = session?.activeTeamId || "";
-    
+
     if (!teamId) {
       toast.error("No active team selected");
       return;
@@ -167,7 +204,9 @@ export default function CreateWeekPage() {
       if (templateErr) {
         toast.error("Week created but failed to apply grocery template");
       } else {
-        toast.success(`Week created with ${templateData.itemCount} grocery items!`);
+        toast.success(
+          `Week created with ${templateData.itemCount} grocery items!`
+        );
       }
     } else {
       toast.success("Week created successfully!");
@@ -178,21 +217,25 @@ export default function CreateWeekPage() {
 
   return (
     <div className="flex flex-col gap-6 p-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight text-mystic-900 dark:text-cream-100">Create Week</h1>
-            <p className="text-mystic-700 dark:text-cream-200">Add a new week to your meal schedule</p>
-          </div>
-          <Button variant="outline" asChild>
-            <Link href="/schedule">
-              <ArrowLeft className="h-4 w-4 mr-2 dark:text-cream-200" />
-              Back to Schedule
-            </Link>
-          </Button>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-mystic-900 dark:text-cream-100">
+            Create Week
+          </h1>
+          <p className="text-mystic-700 dark:text-cream-200">
+            Add a new week to your meal schedule
+          </p>
         </div>
+        <Button variant="outline" asChild>
+          <Link href="/schedule">
+            <ArrowLeft className="h-4 w-4 mr-2 dark:text-cream-200" />
+            Back to Schedule
+          </Link>
+        </Button>
+      </div>
 
-        <div className="max-w-2xl">
-          <Form {...form}>
+      <div className="max-w-2xl">
+        <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
@@ -204,7 +247,7 @@ export default function CreateWeekPage() {
                     <FormControl>
                       <Input
                         type="date"
-                        value={field.value ? formatLocalDate(field.value) : ''}
+                        value={field.value ? formatLocalDate(field.value) : ""}
                         onChange={(e) => {
                           if (!e.target.value) {
                             field.onChange(undefined);
@@ -213,18 +256,23 @@ export default function CreateWeekPage() {
                           const date = parseLocalDate(e.target.value);
                           field.onChange(date);
                           // Update end date to be 7 days after start date
-                          const newEndDate = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 7);
-                          form.setValue('endDate', newEndDate);
+                          const newEndDate = new Date(
+                            date.getFullYear(),
+                            date.getMonth(),
+                            date.getDate() + 7
+                          );
+                          form.setValue("endDate", newEndDate);
                           // Update week name to match new dates
-                          form.setValue('name', formatWeekName(date, newEndDate));
+                          form.setValue(
+                            "name",
+                            formatWeekName(date, newEndDate)
+                          );
                           // Update week number
-                          form.setValue('weekNumber', getWeekNumber(date));
+                          form.setValue("weekNumber", getWeekNumber(date));
                         }}
                       />
                     </FormControl>
-                    <FormDescription>
-                      Defaults to next Sunday
-                    </FormDescription>
+                    <FormDescription>Defaults to next Sunday</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -239,7 +287,7 @@ export default function CreateWeekPage() {
                     <FormControl>
                       <Input
                         type="date"
-                        value={field.value ? formatLocalDate(field.value) : ''}
+                        value={field.value ? formatLocalDate(field.value) : ""}
                         onChange={(e) => {
                           if (!e.target.value) {
                             field.onChange(undefined);
@@ -248,9 +296,12 @@ export default function CreateWeekPage() {
                           const date = parseLocalDate(e.target.value);
                           field.onChange(date);
                           // Update week name when end date changes
-                          const startDate = form.getValues('startDate');
+                          const startDate = form.getValues("startDate");
                           if (startDate) {
-                            form.setValue('name', formatWeekName(startDate, date));
+                            form.setValue(
+                              "name",
+                              formatWeekName(startDate, date)
+                            );
                           }
                         }}
                       />
@@ -271,7 +322,10 @@ export default function CreateWeekPage() {
                 <FormItem>
                   <FormLabel>Week Name *</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., Oct 14th - 19th, 2025" {...field} />
+                    <Input
+                      placeholder="e.g., Oct 14th - 19th, 2025"
+                      {...field}
+                    />
                   </FormControl>
                   <FormDescription>
                     A descriptive name for this week (auto-generated from dates)
@@ -335,9 +389,11 @@ export default function CreateWeekPage() {
                       type="number"
                       placeholder="e.g., 52"
                       {...field}
-                      value={field.value ?? ''}
+                      value={field.value ?? ""}
                       onChange={(e) => {
-                        const value = e.target.value ? parseInt(e.target.value) : undefined;
+                        const value = e.target.value
+                          ? parseInt(e.target.value)
+                          : undefined;
                         field.onChange(value);
                       }}
                     />
@@ -376,13 +432,17 @@ export default function CreateWeekPage() {
 
             {selectedTemplate && (
               <div className="rounded-lg border p-4 bg-muted/50">
-                <h4 className="font-medium mb-3">Template Preview: {selectedTemplate.name}</h4>
+                <h4 className="font-medium mb-3">
+                  Template Preview: {selectedTemplate.name}
+                </h4>
                 <div className="space-y-3">
                   {selectedTemplate.template
                     .sort((a, b) => a.order - b.order)
                     .map((category) => (
                       <div key={category.category}>
-                        <h5 className="font-medium text-sm mb-1">{category.category}</h5>
+                        <h5 className="font-medium text-sm mb-1">
+                          {category.category}
+                        </h5>
                         {category.items.length > 0 ? (
                           <ul className="list-disc list-inside text-sm text-muted-foreground ml-2 space-y-0.5">
                             {category.items
@@ -392,7 +452,9 @@ export default function CreateWeekPage() {
                               ))}
                           </ul>
                         ) : (
-                          <p className="text-sm text-muted-foreground italic ml-2">Empty category</p>
+                          <p className="text-sm text-muted-foreground italic ml-2">
+                            Empty category
+                          </p>
                         )}
                       </div>
                     ))}
@@ -402,7 +464,9 @@ export default function CreateWeekPage() {
 
             <div className="flex gap-3">
               <Button type="submit" disabled={isPending}>
-                {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin dark:text-cream-100" />}
+                {isPending && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin dark:text-cream-100" />
+                )}
                 Create Week
               </Button>
               <Button
@@ -416,7 +480,7 @@ export default function CreateWeekPage() {
             </div>
           </form>
         </Form>
-        </div>
+      </div>
     </div>
   );
 }

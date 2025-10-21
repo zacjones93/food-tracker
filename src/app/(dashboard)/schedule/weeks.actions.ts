@@ -44,6 +44,9 @@ export const createWeekAction = createServerAction()
       })
       .returning();
 
+    revalidatePath("/schedule");
+    revalidatePath(`/schedule/${week.id}`);
+
     return { week };
   });
 
@@ -311,11 +314,25 @@ export const addRecipeToWeekAction = createServerAction()
 
       const maxGroceryOrder = existingGroceryItems.reduce((max, item) => Math.max(max, item.order ?? 0), -1);
 
+      let allIngredients: string[] = [];
+
+      // Handle both old format (string[]) and new format (sections with items)
+      if (recipe.ingredients.length > 0) {
+        const firstItem = recipe.ingredients[0];
+        if (typeof firstItem === "string") {
+          // Old format: array of strings
+          allIngredients = recipe.ingredients as unknown as string[];
+        } else if (typeof firstItem === "object" && "items" in firstItem) {
+          // New format: array of sections
+          allIngredients = recipe.ingredients.flatMap((section: { items: string[] }) => section.items);
+        }
+      }
+
       // Insert each ingredient as a grocery item
-      for (let i = 0; i < recipe.ingredients.length; i++) {
+      for (let i = 0; i < allIngredients.length; i++) {
         await db.insert(groceryItemsTable).values({
           weekId: input.weekId,
-          name: recipe.ingredients[i],
+          name: allIngredients[i],
           checked: false,
           order: maxGroceryOrder + i + 1,
         });
