@@ -20,7 +20,6 @@ export const createRecipeBookAction = createServerAction()
     if (!session) {
       throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
     }
-    const { user } = session;
 
     const db = getDB();
 
@@ -40,7 +39,6 @@ export const updateRecipeBookAction = createServerAction()
     if (!session) {
       throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
     }
-    const { user } = session;
 
     const db = getDB();
     const { id, ...updateData } = input;
@@ -64,7 +62,6 @@ export const deleteRecipeBookAction = createServerAction()
     if (!session) {
       throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
     }
-    const { user } = session;
 
     const db = getDB();
 
@@ -81,7 +78,6 @@ export const getRecipeBookByIdAction = createServerAction()
     if (!session) {
       throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
     }
-    const { user } = session;
 
     const db = getDB();
 
@@ -121,7 +117,6 @@ export const getRecipeBooksAction = createServerAction()
     if (!session) {
       throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
     }
-    const { user } = session;
 
     const db = getDB();
     const { search, page, limit } = input;
