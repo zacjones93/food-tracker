@@ -1,6 +1,12 @@
 import { z } from "zod";
 import { RECIPE_VISIBILITY } from "@/db/schema";
 
+// Ingredient section schema
+export const ingredientSectionSchema = z.object({
+  title: z.string().optional(), // Optional section title like "Main Dish", "Sauce", etc.
+  items: z.array(z.string()), // Array of ingredient strings
+});
+
 export const createRecipeSchema = z.object({
   name: z.string().min(2).max(500),
   emoji: z.string().max(10).optional().transform(val => val === "" ? undefined : val),
@@ -8,7 +14,7 @@ export const createRecipeSchema = z.object({
   mealType: z.string().max(50).optional().transform(val => val === "" ? undefined : val), // Allow any meal type string
   difficulty: z.string().max(20).optional().transform(val => val === "" ? undefined : val), // Allow any difficulty string
   visibility: z.enum([RECIPE_VISIBILITY.PUBLIC, RECIPE_VISIBILITY.PRIVATE, RECIPE_VISIBILITY.UNLISTED]).default(RECIPE_VISIBILITY.PUBLIC),
-  ingredients: z.array(z.string()).nullable().optional(),
+  ingredients: z.array(ingredientSectionSchema).nullable().optional(),
   recipeBody: z.string().nullable().optional().transform(val => val === "" ? undefined : val),
   recipeLink: z.string().max(1000).optional().transform(val => val === "" ? undefined : val),
   recipeBookId: z.string().optional().transform(val => val === "" ? undefined : val),

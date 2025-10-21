@@ -214,7 +214,7 @@ export const recipesTable = sqliteTable("recipes", {
   mealsEatenCount: integer().default(0).notNull(),
 
   // Content
-  ingredients: text({ mode: 'json' }).$type<string[]>(),  // JSON array of ingredients
+  ingredients: text({ mode: 'json' }).$type<Array<{ title?: string; items: string[] }>>(),  // JSON array of ingredient sections
   recipeBody: text(),  // Full recipe instructions (markdown)
 }, (table) => ([
   index("recipes_name_idx").on(table.name),

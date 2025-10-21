@@ -1,13 +1,18 @@
 import { z } from "zod";
 
-export const createWeekSchema = z.object({
-  teamId: z.string(),
+// Client-side form schema (without teamId, which is added server-side)
+export const createWeekFormSchema = z.object({
   name: z.string().min(2).max(255),
   emoji: z.string().max(10).optional(),
   status: z.enum(['current', 'upcoming', 'archived']).default('upcoming'),
   startDate: z.date().optional(),
   endDate: z.date().optional(),
   weekNumber: z.number().optional(),
+});
+
+// Server-side schema with teamId
+export const createWeekSchema = createWeekFormSchema.extend({
+  teamId: z.string(),
 });
 
 export const updateWeekSchema = createWeekSchema.partial().extend({
@@ -38,6 +43,7 @@ export const reorderWeekRecipesSchema = z.object({
   recipeIds: z.array(z.string()),
 });
 
+export type CreateWeekFormSchema = z.infer<typeof createWeekFormSchema>;
 export type CreateWeekSchema = z.infer<typeof createWeekSchema>;
 export type UpdateWeekSchema = z.infer<typeof updateWeekSchema>;
 export type DeleteWeekSchema = z.infer<typeof deleteWeekSchema>;
