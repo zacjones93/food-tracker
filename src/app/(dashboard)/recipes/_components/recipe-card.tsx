@@ -32,13 +32,15 @@ export function RecipeCard({ recipe }: RecipeCardProps) {
           {recipe.emoji && (
             <span className="text-2xl flex-shrink-0">{recipe.emoji}</span>
           )}
-          <h3 className="font-semibold text-lg flex-1 line-clamp-2">{recipe.name}</h3>
+          <h3 className="font-semibold text-lg flex-1 line-clamp-2">
+            {recipe.name}
+          </h3>
         </div>
 
         {/* Badges: Meal Type + Difficulty */}
         <div className="flex gap-2 flex-wrap">
           {recipe.mealType && (
-            <Badge variant="outline" className="text-xs">
+            <Badge variant="secondary" className="text-xs">
               {recipe.mealType}
             </Badge>
           )}
@@ -84,7 +86,11 @@ export function RecipeCard({ recipe }: RecipeCardProps) {
             <span>Last made:</span>
             {recipe.latestWeekId && recipe.latestWeekName ? (
               <Link href={`/schedule/${recipe.latestWeekId}`}>
-                <Button variant="ghost" size="sm" className="h-6 gap-1 px-2 -mr-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 gap-1 px-2 -mr-2"
+                >
                   <span className="text-xs">{recipe.latestWeekName}</span>
                   <ArrowRight className="h-3 w-3" />
                 </Button>
@@ -97,7 +103,12 @@ export function RecipeCard({ recipe }: RecipeCardProps) {
 
         {/* Add to Schedule Button */}
         <div className="pt-2 border-t">
-          <AddToSchedule recipeId={recipe.id} variant="default" size="sm" showLabel={true} />
+          <AddToSchedule
+            recipeId={recipe.id}
+            variant="default"
+            size="sm"
+            showLabel={true}
+          />
         </div>
       </div>
     </Card>

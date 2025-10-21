@@ -4,8 +4,15 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createRecipeSchema, type CreateRecipeSchema } from "@/schemas/recipe.schema";
-import { createRecipeAction, getRecipeMetadataAction, createRecipeBookAction } from "../recipes.actions";
+import {
+  createRecipeSchema,
+  type CreateRecipeSchema,
+} from "@/schemas/recipe.schema";
+import {
+  createRecipeAction,
+  getRecipeMetadataAction,
+  createRecipeBookAction,
+} from "../recipes.actions";
 import { useServerAction } from "zsa-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -39,15 +46,32 @@ import {
 } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Loader2, X, Check, ChevronsUpDown } from "@/components/ui/themed-icons";
+import {
+  ArrowLeft,
+  Loader2,
+  X,
+  Check,
+  ChevronsUpDown,
+} from "@/components/ui/themed-icons";
 import Link from "next/link";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import {
+  SortableIngredientSections,
+  type IngredientSection,
+} from "../[id]/_components/sortable-ingredient-sections";
 
 export default function CreateRecipePage() {
   const router = useRouter();
-  const [ingredients, setIngredients] = useState<string>("");
+  const [ingredientSections, setIngredientSections] = useState<
+    IngredientSection[]
+  >([
+    {
+      id: `section-${Date.now()}`,
+      items: [],
+    },
+  ]);
   const [metadata, setMetadata] = useState<{
     mealTypes: string[];
     difficulties: string[];
@@ -138,21 +162,33 @@ export default function CreateRecipePage() {
 
       setMetadata({
         ...metadata,
-        recipeBooks: [...metadata.recipeBooks, newBook].sort((a, b) => a.name.localeCompare(b.name)),
+        recipeBooks: [...metadata.recipeBooks, newBook].sort((a, b) =>
+          a.name.localeCompare(b.name)
+        ),
       });
       form.setValue("recipeBookId", tempId);
       setNewRecipeBook("");
       setShowRecipeBookInput(false);
 
-      toast.success("Recipe book added (will be created when you save the recipe)");
+      toast.success(
+        "Recipe book added (will be created when you save the recipe)"
+      );
     }
   };
 
   async function onSubmit(values: CreateRecipeSchema) {
+    // Filter out sections with no items and remove IDs
+    const sectionsToSave = ingredientSections
+      .filter((section) => section.items.length > 0)
+      .map(({ title, items }) => ({
+        title: title || undefined,
+        items,
+      }));
+
     const finalValues = {
       ...values,
       tags: selectedTags.length > 0 ? selectedTags : undefined,
-      ingredients: ingredients ? ingredients.split("\n").filter(Boolean) : undefined,
+      ingredients: sectionsToSave.length > 0 ? sectionsToSave : undefined,
     };
 
     // If recipe book is a temp ID, create it first
@@ -162,7 +198,9 @@ export default function CreateRecipePage() {
       );
 
       if (tempBook) {
-        const [bookData, bookErr] = await createRecipeBook({ name: tempBook.name });
+        const [bookData, bookErr] = await createRecipeBook({
+          name: tempBook.name,
+        });
 
         if (bookErr) {
           toast.error("Failed to create recipe book");
@@ -187,21 +225,23 @@ export default function CreateRecipePage() {
 
   return (
     <div className="flex flex-col gap-6 p-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Create Recipe</h1>
-            <p className="text-muted-foreground">Add a new recipe to your collection</p>
-          </div>
-          <Button variant="outline" asChild>
-            <Link href="/recipes">
-              <ArrowLeft className="h-4 w-4 mr-2 text-cream-100" />
-              Back to Recipes
-            </Link>
-          </Button>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Create Recipe</h1>
+          <p className="text-muted-foreground">
+            Add a new recipe to your collection
+          </p>
         </div>
+        <Button variant="outline" asChild>
+          <Link href="/recipes">
+            <ArrowLeft className="h-4 w-4 mr-2 text-cream-100" />
+            Back to Recipes
+          </Link>
+        </Button>
+      </div>
 
-        <div className="max-w-2xl">
-          <Form {...form}>
+      <div className="max-w-2xl">
+        <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
               control={form.control}
@@ -245,7 +285,10 @@ export default function CreateRecipePage() {
                       <>
                         {!showMealTypeInput ? (
                           <>
-                            <Select onValueChange={field.onChange} value={field.value}>
+                            <Select
+                              onValueChange={field.onChange}
+                              value={field.value}
+                            >
                               <FormControl>
                                 <SelectTrigger>
                                   <SelectValue placeholder="Select meal type" />
@@ -323,7 +366,10 @@ export default function CreateRecipePage() {
                       <>
                         {!showDifficultyInput ? (
                           <>
-                            <Select onValueChange={field.onChange} value={field.value}>
+                            <Select
+                              onValueChange={field.onChange}
+                              value={field.value}
+                            >
                               <FormControl>
                                 <SelectTrigger>
                                   <SelectValue placeholder="Select difficulty" />
@@ -331,7 +377,10 @@ export default function CreateRecipePage() {
                               </FormControl>
                               <SelectContent>
                                 {metadata.difficulties.map((difficulty) => (
-                                  <SelectItem key={difficulty} value={difficulty}>
+                                  <SelectItem
+                                    key={difficulty}
+                                    value={difficulty}
+                                  >
                                     {difficulty}
                                   </SelectItem>
                                 ))}
@@ -383,7 +432,10 @@ export default function CreateRecipePage() {
                       </>
                     ) : (
                       <FormControl>
-                        <Input placeholder="e.g., Easy, Medium, Hard" {...field} />
+                        <Input
+                          placeholder="e.g., Easy, Medium, Hard"
+                          {...field}
+                        />
                       </FormControl>
                     )}
                     <FormMessage />
@@ -411,27 +463,29 @@ export default function CreateRecipePage() {
                 </div>
               )}
               <div className="flex flex-col md:flex-row gap-2">
-                {metadata && metadata.tags.filter((tag) => !selectedTags.includes(tag)).length > 0 && (
-                  <Select
-                    value={tagInput}
-                    onValueChange={(value) => {
-                      handleAddTag(value);
-                    }}
-                  >
-                    <SelectTrigger className="flex-1">
-                      <SelectValue placeholder="Select existing tag" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {metadata.tags
-                        .filter((tag) => !selectedTags.includes(tag))
-                        .map((tag) => (
-                          <SelectItem key={tag} value={tag}>
-                            {tag}
-                          </SelectItem>
-                        ))}
-                    </SelectContent>
-                  </Select>
-                )}
+                {metadata &&
+                  metadata.tags.filter((tag) => !selectedTags.includes(tag))
+                    .length > 0 && (
+                    <Select
+                      value={tagInput}
+                      onValueChange={(value) => {
+                        handleAddTag(value);
+                      }}
+                    >
+                      <SelectTrigger className="flex-1">
+                        <SelectValue placeholder="Select existing tag" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {metadata.tags
+                          .filter((tag) => !selectedTags.includes(tag))
+                          .map((tag) => (
+                            <SelectItem key={tag} value={tag}>
+                              {tag}
+                            </SelectItem>
+                          ))}
+                      </SelectContent>
+                    </Select>
+                  )}
                 <Input
                   className="flex-1"
                   placeholder="Or type new tag"
@@ -488,7 +542,10 @@ export default function CreateRecipePage() {
                         {!showRecipeBookInput ? (
                           <>
                             {metadata.recipeBooks.length > 0 ? (
-                              <Popover open={recipeBookOpen} onOpenChange={setRecipeBookOpen}>
+                              <Popover
+                                open={recipeBookOpen}
+                                onOpenChange={setRecipeBookOpen}
+                              >
                                 <PopoverTrigger asChild>
                                   <FormControl>
                                     <Button
@@ -513,14 +570,19 @@ export default function CreateRecipePage() {
                                   <Command>
                                     <CommandInput placeholder="Search books..." />
                                     <CommandList>
-                                      <CommandEmpty>No recipe book found.</CommandEmpty>
+                                      <CommandEmpty>
+                                        No recipe book found.
+                                      </CommandEmpty>
                                       <CommandGroup>
                                         {metadata.recipeBooks.map((book) => (
                                           <CommandItem
                                             key={book.id}
                                             value={book.name}
                                             onSelect={() => {
-                                              form.setValue("recipeBookId", book.id);
+                                              form.setValue(
+                                                "recipeBookId",
+                                                book.id
+                                              );
                                               setRecipeBookOpen(false);
                                             }}
                                           >
@@ -542,7 +604,11 @@ export default function CreateRecipePage() {
                               </Popover>
                             ) : (
                               <FormControl>
-                                <Input disabled placeholder="No recipe books available" {...field} />
+                                <Input
+                                  disabled
+                                  placeholder="No recipe books available"
+                                  {...field}
+                                />
                               </FormControl>
                             )}
                             <Button
@@ -616,16 +682,13 @@ export default function CreateRecipePage() {
 
             <FormItem>
               <FormLabel>Ingredients</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Enter each ingredient on a new line&#10;e.g.,&#10;200g spaghetti&#10;100g pancetta&#10;2 eggs"
-                  value={ingredients}
-                  onChange={(e) => setIngredients(e.target.value)}
-                  rows={6}
-                />
-              </FormControl>
+              <SortableIngredientSections
+                sections={ingredientSections}
+                onChange={setIngredientSections}
+              />
               <FormDescription>
-                One ingredient per line
+                Organize ingredients into sections. Section titles are optional
+                (e.g., &quot;Main Dish&quot;, &quot;Sauce&quot;).
               </FormDescription>
             </FormItem>
 
@@ -653,7 +716,9 @@ export default function CreateRecipePage() {
 
             <div className="flex gap-3">
               <Button type="submit" disabled={isPending}>
-                {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin text-cream-100" />}
+                {isPending && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin text-cream-100" />
+                )}
                 Create Recipe
               </Button>
               <Button
@@ -667,7 +732,7 @@ export default function CreateRecipePage() {
             </div>
           </form>
         </Form>
-        </div>
+      </div>
     </div>
   );
 }

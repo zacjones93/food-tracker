@@ -16,6 +16,7 @@ import { EditIngredientsDialog } from "./edit-ingredients-dialog";
 import { EditInstructionsDialog } from "./edit-instructions-dialog";
 import { EditRecipeDialog } from "./edit-recipe-dialog";
 import { useSessionStore } from "@/state/session";
+import { useMemo } from "react";
 
 interface RecipeDetailProps {
   recipe: Recipe & {
@@ -23,9 +24,37 @@ interface RecipeDetailProps {
   };
 }
 
+// Helper to normalize ingredients for backward compatibility
+function normalizeIngredients(ingredients: unknown) {
+  if (!ingredients) return null;
+  
+  // If it's already in the new format
+  if (
+    Array.isArray(ingredients) &&
+    ingredients.length > 0 &&
+    typeof ingredients[0] === "object" &&
+    "items" in ingredients[0]
+  ) {
+    return ingredients as Array<{ title?: string; items: string[] }>;
+  }
+  
+  // If it's in the old format (array of strings), convert it
+  if (Array.isArray(ingredients) && ingredients.every((i) => typeof i === "string")) {
+    return [{ items: ingredients as string[] }];
+  }
+  
+  return null;
+}
+
 export function RecipeDetail({ recipe }: RecipeDetailProps) {
   const router = useRouter();
   const session = useSessionStore();
+  
+  // Normalize ingredients to handle backward compatibility
+  const normalizedIngredients = useMemo(
+    () => normalizeIngredients(recipe.ingredients),
+    [recipe.ingredients]
+  );
 
   return (
     <div className="flex flex-col gap-6 p-6 max-w-4xl mx-auto">
@@ -165,26 +194,39 @@ export function RecipeDetail({ recipe }: RecipeDetailProps) {
       </Card>
 
       {/* Ingredients */}
-      {recipe.ingredients && recipe.ingredients.length > 0 ? (
+      {normalizedIngredients && normalizedIngredients.length > 0 ? (
         <Card className="p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold">Ingredients</h2>
             {session.session?.user && (
               <div className="flex gap-2">
-                <AddAllIngredientsToWeek ingredients={recipe.ingredients} />
+                <AddAllIngredientsToWeek 
+                  ingredients={normalizedIngredients.flatMap(section => section.items)} 
+                />
                 <EditIngredientsDialog recipe={recipe} />
               </div>
             )}
           </div>
-          <ul className="space-y-2">
-            {recipe.ingredients.map((ingredient, i) => (
-              <li key={i} className="flex items-start gap-2">
-                <span className="text-mystic-600 dark:text-cream-200 mt-1">•</span>
-                <span className="flex-1">{ingredient}</span>
-                {session.session?.user && <AddIngredientToWeek ingredient={ingredient} />}
-              </li>
+          <div className="space-y-6">
+            {normalizedIngredients.map((section, sectionIdx) => (
+              <div key={sectionIdx}>
+                {section.title && (
+                  <h3 className="text-lg font-semibold mb-3 text-mystic-700 dark:text-cream-100">
+                    {section.title}
+                  </h3>
+                )}
+                <ul className="space-y-2">
+                  {section.items.map((ingredient, itemIdx) => (
+                    <li key={itemIdx} className="flex items-start gap-2">
+                      <span className="text-mystic-600 dark:text-cream-200 mt-1">•</span>
+                      <span className="flex-1">{ingredient}</span>
+                      {session.session?.user && <AddIngredientToWeek ingredient={ingredient} />}
+                    </li>
+                  ))}
+                </ul>
+              </div>
             ))}
-          </ul>
+          </div>
         </Card>
       ) : session.session?.user ? (
         <Card className="p-12 text-center">

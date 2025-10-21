@@ -23,7 +23,7 @@ interface RecipesTableWrapperProps {
   };
 }
 
-export function RecipesTableWrapper({ recipes, pagination }: RecipesTableWrapperProps) {
+export function RecipesTableWrapper({ recipes }: RecipesTableWrapperProps) {
   const [searchInput, setSearchInput] = useState("");
   const [page] = useQueryState("page", parseAsInteger.withDefault(1));
 
@@ -32,7 +32,7 @@ export function RecipesTableWrapper({ recipes, pagination }: RecipesTableWrapper
     if (!searchInput.trim()) return recipes;
 
     const search = searchInput.toLowerCase();
-    return recipes.filter(recipe =>
+    return recipes.filter((recipe) =>
       recipe.name?.toLowerCase().includes(search)
     );
   }, [recipes, searchInput]);

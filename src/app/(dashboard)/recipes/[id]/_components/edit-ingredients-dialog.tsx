@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -11,23 +11,80 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
 import { Pencil, Plus } from "@/components/ui/themed-icons";
 import { updateRecipeAction } from "../../recipes.actions";
 import { useServerAction } from "zsa-react";
 import { useRouter } from "next/navigation";
 import type { Recipe } from "@/db/schema";
+import {
+  SortableIngredientSections,
+  type IngredientSection,
+} from "./sortable-ingredient-sections";
 
 interface EditIngredientsDialogProps {
   recipe: Recipe;
 }
 
+// Helper to normalize ingredients for backward compatibility
+function normalizeIngredients(
+  ingredients: unknown
+): Array<{ title?: string; items: string[] }> | null {
+  if (!ingredients) return null;
+
+  // If it's already in the new format
+  if (
+    Array.isArray(ingredients) &&
+    ingredients.length > 0 &&
+    typeof ingredients[0] === "object" &&
+    "items" in ingredients[0]
+  ) {
+    return ingredients as Array<{ title?: string; items: string[] }>;
+  }
+
+  // If it's in the old format (array of strings), convert it
+  if (
+    Array.isArray(ingredients) &&
+    ingredients.every((i) => typeof i === "string")
+  ) {
+    return [{ items: ingredients as string[] }];
+  }
+
+  return null;
+}
+
+// Convert sections to include IDs for sorting
+function sectionsWithIds(
+  sections: Array<{ title?: string; items: string[] }> | null
+): IngredientSection[] {
+  if (!sections) {
+    return [
+      {
+        id: `section-${Date.now()}`,
+        items: [],
+      },
+    ];
+  }
+
+  return sections.map((section, index) => ({
+    id: `section-${index}`,
+    title: section.title,
+    items: section.items,
+  }));
+}
+
 export function EditIngredientsDialog({ recipe }: EditIngredientsDialogProps) {
   const [open, setOpen] = useState(false);
-  const [ingredientsText, setIngredientsText] = useState(
-    recipe.ingredients?.join("\n") || ""
+  const [sections, setSections] = useState<IngredientSection[]>(() =>
+    sectionsWithIds(normalizeIngredients(recipe.ingredients))
   );
   const router = useRouter();
+
+  // Reset sections when dialog opens
+  useEffect(() => {
+    if (open) {
+      setSections(sectionsWithIds(normalizeIngredients(recipe.ingredients)));
+    }
+  }, [open, recipe.ingredients]);
 
   const { execute, isPending } = useServerAction(updateRecipeAction, {
     onSuccess: () => {
@@ -37,14 +94,17 @@ export function EditIngredientsDialog({ recipe }: EditIngredientsDialogProps) {
   });
 
   const handleSave = async () => {
-    const ingredientsArray = ingredientsText
-      .split("\n")
-      .map(line => line.trim())
-      .filter(line => line.length > 0);
+    // Filter out sections with no items and remove IDs
+    const sectionsToSave = sections
+      .filter((section) => section.items.length > 0)
+      .map(({ title, items }) => ({
+        title: title || undefined,
+        items,
+      }));
 
     await execute({
       id: recipe.id,
-      ingredients: ingredientsArray.length > 0 ? ingredientsArray : null,
+      ingredients: sectionsToSave.length > 0 ? sectionsToSave : null,
     });
   };
 
@@ -64,19 +124,19 @@ export function EditIngredientsDialog({ recipe }: EditIngredientsDialogProps) {
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-3xl max-h-[85vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Edit Ingredients</DialogTitle>
           <DialogDescription>
-            Enter each ingredient on a new line.
+            Organize ingredients into sections. Drag sections to reorder them.
+            Section titles are optional (e.g., &quot;Main Dish&quot;,
+            &quot;Sauce&quot;).
           </DialogDescription>
         </DialogHeader>
-        <div className="space-y-4 py-4">
-          <Textarea
-            value={ingredientsText}
-            onChange={(e) => setIngredientsText(e.target.value)}
-            placeholder="1 cup flour&#10;2 eggs&#10;1/2 cup milk"
-            className="min-h-[300px] font-mono"
+        <div className="flex-1 overflow-y-auto py-4 pr-2">
+          <SortableIngredientSections
+            sections={sections}
+            onChange={setSections}
           />
         </div>
         <DialogFooter>

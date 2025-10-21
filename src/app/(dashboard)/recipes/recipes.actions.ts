@@ -342,7 +342,6 @@ export const incrementMealsEatenAction = createServerAction()
     if (!session) {
       throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
     }
-    const { user } = session;
 
     const db = getDB();
 
@@ -397,8 +396,8 @@ export const getRecipeMetadataAction = createServerAction()
       difficulty: recipesTable.difficulty,
       tags: recipesTable.tags,
     })
-    .from(recipesTable)
-    .where(visibilityConditions);
+      .from(recipesTable)
+      .where(visibilityConditions);
 
     // Extract unique meal types
     const mealTypes = [...new Set(
@@ -494,7 +493,6 @@ export const createRecipeBookAction = createServerAction()
     if (!session) {
       throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
     }
-    const { user } = session;
 
     const db = getDB();
 

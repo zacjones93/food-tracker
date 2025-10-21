@@ -11,7 +11,13 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { Recipe } from "@/db/schema";
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ArrowRight } from "@/components/ui/themed-icons";
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  ArrowRight,
+} from "@/components/ui/themed-icons";
 import { useRouter } from "next/navigation";
 import { useQueryState, parseAsInteger } from "nuqs";
 import Link from "next/link";
@@ -92,7 +98,7 @@ export function RecipesTable({ recipes, pagination }: RecipesTableProps) {
                   onClick={() => router.push(`/recipes/${recipe.id}`)}
                 >
                   {recipe.mealType && (
-                    <Badge variant="outline">{recipe.mealType}</Badge>
+                    <Badge variant="secondary">{recipe.mealType}</Badge>
                   )}
                 </TableCell>
                 <TableCell
@@ -142,7 +148,9 @@ export function RecipesTable({ recipes, pagination }: RecipesTableProps) {
                       </Button>
                     </Link>
                   ) : (
-                    <span className="text-mystic-700 dark:text-cream-200">Never</span>
+                    <span className="text-mystic-700 dark:text-cream-200">
+                      Never
+                    </span>
                   )}
                 </TableCell>
                 <TableCell className="text-right">
@@ -158,7 +166,7 @@ export function RecipesTable({ recipes, pagination }: RecipesTableProps) {
       {pagination && pagination.totalPages > 1 && (
         <div className="flex items-center justify-between px-2">
           <div className="text-sm text-mystic-700 dark:text-cream-200 hidden sm:block">
-            Showing {((pagination.page - 1) * pagination.limit) + 1} to{" "}
+            Showing {(pagination.page - 1) * pagination.limit + 1} to{" "}
             {Math.min(pagination.page * pagination.limit, pagination.total)} of{" "}
             {pagination.total} recipes
           </div>
