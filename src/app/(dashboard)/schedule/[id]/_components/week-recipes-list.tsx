@@ -339,12 +339,12 @@ function StaticRecipeItem({
                 e.stopPropagation();
                 setShowRelated(!showRelated);
               }}
-              className="text-[10px] text-mystic-600 dark:text-cream-100 hover:text-mystic-900 dark:hover:text-cream-50 flex items-center gap-1 mt-0.5"
+              className="text-xs text-mystic-600 dark:text-cream-100 hover:text-mystic-900 dark:hover:text-cream-50 flex items-center gap-1 mt-0.5"
             >
               {showRelated ? (
-                <ChevronUp className="h-3 w-3" />
+                <ChevronUp className="h-3.5 w-3.5" />
               ) : (
-                <ChevronDown className="h-3 w-3" />
+                <ChevronDown className="h-3.5 w-3.5" />
               )}
               {recipe.relatedRecipes!.length} related recipe{recipe.relatedRecipes!.length !== 1 ? 's' : ''}
             </button>
@@ -453,12 +453,12 @@ function SortableRecipeItem({
                 e.stopPropagation();
                 setShowRelated(!showRelated);
               }}
-              className="text-[10px] text-mystic-600 dark:text-cream-100 hover:text-mystic-900 dark:hover:text-cream-50 flex items-center gap-1 mt-0.5"
+              className="text-xs text-mystic-600 dark:text-cream-100 hover:text-mystic-900 dark:hover:text-cream-50 flex items-center gap-1 mt-0.5"
             >
               {showRelated ? (
-                <ChevronUp className="h-3 w-3" />
+                <ChevronUp className="h-3.5 w-3.5" />
               ) : (
-                <ChevronDown className="h-3 w-3" />
+                <ChevronDown className="h-3.5 w-3.5" />
               )}
               {recipe.relatedRecipes!.length} related recipe{recipe.relatedRecipes!.length !== 1 ? 's' : ''}
             </button>
