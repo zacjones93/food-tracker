@@ -325,44 +325,44 @@ function StaticRecipeItem({
 
   return (
     <div>
-      <Link href={`/recipes/${recipe.id}`}>
-        <div className={`flex items-center gap-3 p-3 rounded-lg bg-background border hover:bg-mystic-50 dark:hover:bg-cream-200/10 transition-colors ${isMade ? 'opacity-60' : ''}`}>
-          <div className="text-xl">{recipe.emoji || "🍽️"}</div>
-          <div className="flex-1 min-w-0">
-            <div className={`text-sm font-medium truncate text-mystic-900 dark:text-cream-100 ${isMade ? 'line-through' : ''}`}>
+      <div className={`flex items-center gap-3 p-3 rounded-lg bg-background border hover:bg-mystic-50 dark:hover:bg-cream-200/10 transition-colors ${isMade ? 'opacity-60' : ''}`}>
+        <div className="text-xl">{recipe.emoji || "🍽️"}</div>
+        <div className="flex-1 min-w-0">
+          <Link href={`/recipes/${recipe.id}`} className="block">
+            <div className={`text-sm font-medium truncate text-mystic-900 dark:text-cream-100 hover:underline ${isMade ? 'line-through' : ''}`}>
               {recipe.name}
             </div>
-            {hasRelated && (
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  setShowRelated(!showRelated);
-                }}
-                className="text-[10px] text-mystic-600 dark:text-cream-100 hover:text-mystic-900 dark:hover:text-cream-50 flex items-center gap-1 mt-0.5"
-              >
-                {showRelated ? (
-                  <ChevronUp className="h-3 w-3" />
-                ) : (
-                  <ChevronDown className="h-3 w-3" />
-                )}
-                {recipe.relatedRecipes!.length} related recipe{recipe.relatedRecipes!.length !== 1 ? 's' : ''}
-              </button>
-            )}
-          </div>
-          <div className="flex items-center gap-2 flex-shrink-0">
-            {recipe.mealType && (
-              <Badge variant="secondary" className="text-xs">
-                {recipe.mealType}
-              </Badge>
-            )}
-            {recipe.difficulty && (
-              <Badge variant="outline" className="text-xs">
-                {recipe.difficulty}
-              </Badge>
-            )}
-          </div>
+          </Link>
+          {hasRelated && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowRelated(!showRelated);
+              }}
+              className="text-[10px] text-mystic-600 dark:text-cream-100 hover:text-mystic-900 dark:hover:text-cream-50 flex items-center gap-1 mt-0.5"
+            >
+              {showRelated ? (
+                <ChevronUp className="h-3 w-3" />
+              ) : (
+                <ChevronDown className="h-3 w-3" />
+              )}
+              {recipe.relatedRecipes!.length} related recipe{recipe.relatedRecipes!.length !== 1 ? 's' : ''}
+            </button>
+          )}
         </div>
-      </Link>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          {recipe.mealType && (
+            <Badge variant="secondary" className="text-xs">
+              {recipe.mealType}
+            </Badge>
+          )}
+          {recipe.difficulty && (
+            <Badge variant="outline" className="text-xs">
+              {recipe.difficulty}
+            </Badge>
+          )}
+        </div>
+      </div>
       {hasRelated && showRelated && (
         <div className="ml-12 mt-1 space-y-1">
           {recipe.relatedRecipes!.map((relatedRecipe: any) => (
@@ -433,49 +433,49 @@ function SortableRecipeItem({
           onCheckedChange={() => onToggleMade(recipe.id, weekRecipe.made)}
           className="flex-shrink-0"
         />
-        <Link
-          href={`/recipes/${recipe.id}`}
-          className="flex items-center gap-3 flex-1 min-w-0"
-        >
-          <div className="text-xl">{recipe.emoji || "🍽️"}</div>
-          <div className="flex-1 min-w-0">
+        <div className="text-xl">{recipe.emoji || "🍽️"}</div>
+        <div className="flex-1 min-w-0">
+          <Link
+            href={`/recipes/${recipe.id}`}
+            className="block"
+          >
             <div
-              className={`text-sm font-medium truncate text-mystic-900 dark:text-cream-100 ${
+              className={`text-sm font-medium truncate text-mystic-900 dark:text-cream-100 hover:underline ${
                 isMade ? "line-through" : ""
               }`}
             >
               {recipe.name}
             </div>
-            {hasRelatedRecipes && (
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  setShowRelated(!showRelated);
-                }}
-                className="text-[10px] text-mystic-600 dark:text-cream-100 hover:text-mystic-900 dark:hover:text-cream-50 flex items-center gap-1 mt-0.5"
-              >
-                {showRelated ? (
-                  <ChevronUp className="h-3 w-3" />
-                ) : (
-                  <ChevronDown className="h-3 w-3" />
-                )}
-                {recipe.relatedRecipes!.length} related recipe{recipe.relatedRecipes!.length !== 1 ? 's' : ''}
-              </button>
-            )}
-          </div>
-          <div className="flex items-center gap-2 flex-shrink-0">
-            {recipe.mealType && (
-              <Badge variant="secondary" className="text-xs">
-                {recipe.mealType}
-              </Badge>
-            )}
-            {recipe.difficulty && (
-              <Badge variant="outline" className="text-xs">
-                {recipe.difficulty}
-              </Badge>
-            )}
-          </div>
-        </Link>
+          </Link>
+          {hasRelatedRecipes && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowRelated(!showRelated);
+              }}
+              className="text-[10px] text-mystic-600 dark:text-cream-100 hover:text-mystic-900 dark:hover:text-cream-50 flex items-center gap-1 mt-0.5"
+            >
+              {showRelated ? (
+                <ChevronUp className="h-3 w-3" />
+              ) : (
+                <ChevronDown className="h-3 w-3" />
+              )}
+              {recipe.relatedRecipes!.length} related recipe{recipe.relatedRecipes!.length !== 1 ? 's' : ''}
+            </button>
+          )}
+        </div>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          {recipe.mealType && (
+            <Badge variant="secondary" className="text-xs">
+              {recipe.mealType}
+            </Badge>
+          )}
+          {recipe.difficulty && (
+            <Badge variant="outline" className="text-xs">
+              {recipe.difficulty}
+            </Badge>
+          )}
+        </div>
         <Button
           variant="ghost"
           size="sm"
