@@ -3,7 +3,7 @@
 import { createServerAction, ZSAError } from "zsa";
 import { z } from "zod";
 import { getDB } from "@/db";
-import { recipesTable, weekRecipesTable, weeksTable, recipeBooksTable, TEAM_PERMISSIONS, RECIPE_VISIBILITY } from "@/db/schema";
+import { recipesTable, weekRecipesTable, weeksTable, recipeBooksTable, TEAM_PERMISSIONS, RECIPE_VISIBILITY, recipeRelationsTable } from "@/db/schema";
 import {
   createRecipeSchema,
   updateRecipeSchema,
@@ -60,6 +60,25 @@ export const createRecipeAction = createServerAction()
       })
       .returning();
 
+    // Handle related recipes if provided
+    if (input.relatedRecipes && input.relatedRecipes.length > 0) {
+      // D1 doesn't support transactions, so we insert relations sequentially
+      for (let i = 0; i < input.relatedRecipes.length; i++) {
+        const relatedRecipe = input.relatedRecipes[i];
+        try {
+          await db.insert(recipeRelationsTable).values({
+            mainRecipeId: recipe.id,
+            sideRecipeId: relatedRecipe.recipeId,
+            relationType: relatedRecipe.relationType,
+            order: i,
+          });
+        } catch (error) {
+          console.error('[CREATE RECIPE] Failed to insert relation:', error);
+          // Continue with other relations even if one fails
+        }
+      }
+    }
+
     return { recipe };
   });
 
@@ -73,7 +92,10 @@ export const updateRecipeAction = createServerAction()
     const { user } = session;
 
     const db = getDB();
-    const { id, ...updateData } = input;
+    const { id, relatedRecipes, ...updateData } = input;
+
+    console.log('[UPDATE RECIPE] Input:', JSON.stringify(input, null, 2));
+    console.log('[UPDATE RECIPE] UpdateData:', JSON.stringify(updateData, null, 2));
 
     // Fetch recipe to get teamId
     const existingRecipe = await db.query.recipesTable.findFirst({
@@ -90,6 +112,31 @@ export const updateRecipeAction = createServerAction()
       .set(updateData)
       .where(eq(recipesTable.id, id))
       .returning();
+
+    // Handle related recipes if provided
+    if (relatedRecipes !== undefined) {
+      // Delete all existing relations where this recipe is the main recipe
+      await db.delete(recipeRelationsTable)
+        .where(eq(recipeRelationsTable.mainRecipeId, id));
+
+      // Insert new relations
+      if (relatedRecipes.length > 0) {
+        for (let i = 0; i < relatedRecipes.length; i++) {
+          const relatedRecipe = relatedRecipes[i];
+          try {
+            await db.insert(recipeRelationsTable).values({
+              mainRecipeId: id,
+              sideRecipeId: relatedRecipe.recipeId,
+              relationType: relatedRecipe.relationType,
+              order: i,
+            });
+          } catch (error) {
+            console.error('[UPDATE RECIPE] Failed to insert relation:', error);
+            // Continue with other relations even if one fails
+          }
+        }
+      }
+    }
 
     return { recipe };
   });
