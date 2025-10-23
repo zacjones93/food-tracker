@@ -17,5 +17,11 @@ export default async function RecipePage({ params }: RecipePageProps) {
     notFound();
   }
 
-  return <RecipeDetail recipe={data.recipe} />;
+  return (
+    <RecipeDetail
+      recipe={data.recipe}
+      relationsAsMain={data.relationsAsMain}
+      relationsAsSide={data.relationsAsSide}
+    />
+  );
 }

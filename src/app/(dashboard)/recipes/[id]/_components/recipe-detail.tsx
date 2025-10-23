@@ -15,13 +15,17 @@ import { AddAllIngredientsToWeek } from "../../_components/add-all-ingredients-t
 import { EditIngredientsDialog } from "./edit-ingredients-dialog";
 import { EditInstructionsDialog } from "./edit-instructions-dialog";
 import { EditRecipeDialog } from "./edit-recipe-dialog";
+import { RelatedRecipesDisplay } from "./related-recipes-display";
 import { useSessionStore } from "@/state/session";
 import { useMemo } from "react";
+import type { RecipeRelation } from "@/db/schema";
 
 interface RecipeDetailProps {
   recipe: Recipe & {
     recipeBook?: RecipeBook | null;
   };
+  relationsAsMain?: Array<RecipeRelation & { sideRecipe: Recipe }>;
+  relationsAsSide?: Array<RecipeRelation & { mainRecipe: Recipe }>;
 }
 
 // Helper to normalize ingredients for backward compatibility
@@ -46,10 +50,10 @@ function normalizeIngredients(ingredients: unknown) {
   return null;
 }
 
-export function RecipeDetail({ recipe }: RecipeDetailProps) {
+export function RecipeDetail({ recipe, relationsAsMain, relationsAsSide }: RecipeDetailProps) {
   const router = useRouter();
   const session = useSessionStore();
-  
+
   // Normalize ingredients to handle backward compatibility
   const normalizedIngredients = useMemo(
     () => normalizeIngredients(recipe.ingredients),
@@ -256,6 +260,12 @@ export function RecipeDetail({ recipe }: RecipeDetailProps) {
           <EditInstructionsDialog recipe={recipe} />
         </Card>
       ) : null}
+
+      {/* Related Recipes */}
+      <RelatedRecipesDisplay
+        relationsAsMain={relationsAsMain}
+        relationsAsSide={relationsAsSide}
+      />
     </div>
   );
 }

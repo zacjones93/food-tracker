@@ -94,9 +94,6 @@ export const updateRecipeAction = createServerAction()
     const db = getDB();
     const { id, relatedRecipes, ...updateData } = input;
 
-    console.log('[UPDATE RECIPE] Input:', JSON.stringify(input, null, 2));
-    console.log('[UPDATE RECIPE] UpdateData:', JSON.stringify(updateData, null, 2));
-
     // Fetch recipe to get teamId
     const existingRecipe = await db.query.recipesTable.findFirst({
       where: eq(recipesTable.id, id),
@@ -545,13 +542,34 @@ export const getPublicRecipeByIdAction = createServerAction()
       });
     }
 
+    // Fetch related recipes (as main)
+    const relationsAsMain = await db.query.recipeRelationsTable.findMany({
+      where: eq(recipeRelationsTable.mainRecipeId, input.id),
+      with: {
+        sideRecipe: true,
+      },
+      orderBy: (relations, { asc }) => [asc(relations.order)],
+    });
+
+    // Fetch related recipes (as side)
+    const relationsAsSide = await db.query.recipeRelationsTable.findMany({
+      where: eq(recipeRelationsTable.sideRecipeId, input.id),
+      with: {
+        mainRecipe: true,
+      },
+    });
+
     const recipe = {
       ...result.recipe,
       mealsEatenCount: result.weekCount || 0,
       recipeBook,
     };
 
-    return { recipe };
+    return {
+      recipe,
+      relationsAsMain,
+      relationsAsSide,
+    };
   });
 
 export const createRecipeBookAction = createServerAction()
