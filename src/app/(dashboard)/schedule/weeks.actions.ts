@@ -2,7 +2,7 @@
 
 import { createServerAction, ZSAError } from "zsa";
 import { getDB } from "@/db";
-import { weeksTable, weekRecipesTable, groceryItemsTable, recipesTable, TEAM_PERMISSIONS } from "@/db/schema";
+import { weeksTable, weekRecipesTable, groceryItemsTable, recipesTable, TEAM_PERMISSIONS, recipeRelationsTable } from "@/db/schema";
 import {
   createWeekSchema,
   updateWeekSchema,
@@ -11,8 +11,9 @@ import {
   addRecipeToWeekSchema,
   removeRecipeFromWeekSchema,
   reorderWeekRecipesSchema,
+  toggleWeekRecipeMadeSchema,
 } from "@/schemas/week.schema";
-import { eq, and } from "drizzle-orm";
+import { eq, and, inArray } from "drizzle-orm";
 import { getSessionFromCookie } from "@/utils/auth";
 import { requirePermission } from "@/utils/team-auth";
 import { z } from "zod";
@@ -143,6 +144,38 @@ export const getWeekByIdAction = createServerAction()
 
     await requirePermission(user.id, week.teamId, TEAM_PERMISSIONS.ACCESS_SCHEDULES);
 
+    // Fetch related recipes for all recipes in the week
+    const recipeIds = week.recipes.map((wr) => wr.recipe.id);
+    if (recipeIds.length > 0) {
+      const relatedRecipes = await db.query.recipeRelationsTable.findMany({
+        where: inArray(recipeRelationsTable.mainRecipeId, recipeIds),
+        with: {
+          sideRecipe: true,
+        },
+        orderBy: (relations, { asc }) => [asc(relations.order)],
+      });
+
+      // Attach related recipes to each week recipe
+      const weekWithRelations = {
+        ...week,
+        recipes: week.recipes.map((wr) => ({
+          ...wr,
+          recipe: {
+            ...wr.recipe,
+            relatedRecipes: relatedRecipes
+              .filter((rel) => rel.mainRecipeId === wr.recipe.id)
+              .map((rel) => ({
+                ...rel.sideRecipe,
+                relationType: rel.relationType,
+                relationOrder: rel.order,
+              })),
+          },
+        })),
+      };
+
+      return { week: weekWithRelations };
+    }
+
     return { week };
   });
 
@@ -175,6 +208,41 @@ export const getWeeksAction = createServerAction()
         },
       },
     });
+
+    // Fetch related recipes for all recipes across all weeks
+    const allRecipeIds = weeks.flatMap((week) =>
+      week.recipes.map((wr) => wr.recipe.id)
+    );
+
+    if (allRecipeIds.length > 0) {
+      const relatedRecipes = await db.query.recipeRelationsTable.findMany({
+        where: inArray(recipeRelationsTable.mainRecipeId, allRecipeIds),
+        with: {
+          sideRecipe: true,
+        },
+        orderBy: (relations, { asc }) => [asc(relations.order)],
+      });
+
+      // Attach related recipes to each week recipe
+      const weeksWithRelations = weeks.map((week) => ({
+        ...week,
+        recipes: week.recipes.map((wr) => ({
+          ...wr,
+          recipe: {
+            ...wr.recipe,
+            relatedRecipes: relatedRecipes
+              .filter((rel) => rel.mainRecipeId === wr.recipe.id)
+              .map((rel) => ({
+                ...rel.sideRecipe,
+                relationType: rel.relationType,
+                relationOrder: rel.order,
+              })),
+          },
+        })),
+      }));
+
+      return { weeks: weeksWithRelations };
+    }
 
     return { weeks };
   });
@@ -419,4 +487,47 @@ export const reorderWeekRecipesAction = createServerAction()
     revalidatePath(`/schedule/${input.weekId}`);
 
     return { success: true };
+  });
+
+export const toggleWeekRecipeMadeAction = createServerAction()
+  .input(toggleWeekRecipeMadeSchema)
+  .handler(async ({ input }) => {
+    const session = await getSessionFromCookie();
+    if (!session) {
+      throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
+    }
+    const { user } = session;
+
+    const db = getDB();
+
+    // Get week to verify permission
+    const week = await db.query.weeksTable.findFirst({
+      where: eq(weeksTable.id, input.weekId),
+    });
+
+    if (!week) {
+      throw new ZSAError("NOT_FOUND", "Week not found");
+    }
+
+    await requirePermission(user.id, week.teamId, TEAM_PERMISSIONS.EDIT_SCHEDULES);
+
+    // Update the made status
+    const [weekRecipe] = await db.update(weekRecipesTable)
+      .set({ made: input.made })
+      .where(
+        and(
+          eq(weekRecipesTable.weekId, input.weekId),
+          eq(weekRecipesTable.recipeId, input.recipeId)
+        )
+      )
+      .returning();
+
+    if (!weekRecipe) {
+      throw new ZSAError("NOT_FOUND", "Recipe not found in this week");
+    }
+
+    revalidatePath("/schedule");
+    revalidatePath(`/schedule/${input.weekId}`);
+
+    return { weekRecipe };
   });
