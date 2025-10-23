@@ -41,7 +41,7 @@ export function DefaultRecipeVisibilitySettings({ teamId, currentVisibility }: D
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Default Recipe Visibility</CardTitle>
+        <CardTitle>Default New Recipe Visibility</CardTitle>
         <CardDescription>
           Set the default visibility for new recipes created by your team
         </CardDescription>
