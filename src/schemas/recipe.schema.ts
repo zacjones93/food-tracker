@@ -1,10 +1,24 @@
 import { z } from "zod";
 import { RECIPE_VISIBILITY } from "@/db/schema";
+import { RELATION_TYPES } from "./recipe-relation.schema";
 
 // Ingredient section schema
 export const ingredientSectionSchema = z.object({
   title: z.string().optional(), // Optional section title like "Main Dish", "Sauce", etc.
   items: z.array(z.string()), // Array of ingredient strings
+});
+
+// Related recipe schema for create/update
+export const relatedRecipeSchema = z.object({
+  recipeId: z.string(),
+  relationType: z.enum([
+    RELATION_TYPES.SIDE,
+    RELATION_TYPES.BASE,
+    RELATION_TYPES.SAUCE,
+    RELATION_TYPES.TOPPING,
+    RELATION_TYPES.DESSERT,
+    RELATION_TYPES.CUSTOM,
+  ]),
 });
 
 export const createRecipeSchema = z.object({
@@ -19,6 +33,7 @@ export const createRecipeSchema = z.object({
   recipeLink: z.string().max(1000).optional().transform(val => val === "" ? undefined : val),
   recipeBookId: z.string().optional().transform(val => val === "" ? undefined : val),
   page: z.string().max(50).optional().transform(val => val === "" ? undefined : val),
+  relatedRecipes: z.array(relatedRecipeSchema).optional(),
 });
 
 export const updateRecipeSchema = createRecipeSchema.partial().extend({
