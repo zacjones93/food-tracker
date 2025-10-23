@@ -223,13 +223,34 @@ export const getRecipeByIdAction = createServerAction()
       });
     }
 
+    // Fetch related recipes (as main)
+    const relationsAsMain = await db.query.recipeRelationsTable.findMany({
+      where: eq(recipeRelationsTable.mainRecipeId, input.id),
+      with: {
+        sideRecipe: true,
+      },
+      orderBy: (relations, { asc }) => [asc(relations.order)],
+    });
+
+    // Fetch related recipes (as side)
+    const relationsAsSide = await db.query.recipeRelationsTable.findMany({
+      where: eq(recipeRelationsTable.sideRecipeId, input.id),
+      with: {
+        mainRecipe: true,
+      },
+    });
+
     const recipe = {
       ...result.recipe,
       mealsEatenCount: result.weekCount || 0,
       recipeBook,
     };
 
-    return { recipe };
+    return {
+      recipe,
+      relationsAsMain,
+      relationsAsSide,
+    };
   });
 
 export const getRecipesAction = createServerAction()
