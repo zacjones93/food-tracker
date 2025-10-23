@@ -119,3 +119,43 @@ export const updateDefaultRecipeVisibilityAction = createServerAction()
 
     return { settings };
   });
+
+export const updateAutoAddIngredientsAction = createServerAction()
+  .input(z.object({
+    teamId: z.string(),
+    autoAddIngredientsToGrocery: z.boolean(),
+  }))
+  .handler(async ({ input }) => {
+    const session = await getSessionFromCookie();
+    if (!session) {
+      throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
+    }
+
+    await requirePermission(session.user.id, input.teamId, TEAM_PERMISSIONS.EDIT_TEAM_SETTINGS);
+
+    const db = getDB();
+
+    // Check if settings exist
+    const existing = await db.query.teamSettingsTable.findFirst({
+      where: eq(teamSettingsTable.teamId, input.teamId),
+    });
+
+    let settings;
+    if (existing) {
+      // Update existing
+      [settings] = await db.update(teamSettingsTable)
+        .set({ autoAddIngredientsToGrocery: input.autoAddIngredientsToGrocery })
+        .where(eq(teamSettingsTable.teamId, input.teamId))
+        .returning();
+    } else {
+      // Create new
+      [settings] = await db.insert(teamSettingsTable)
+        .values({
+          teamId: input.teamId,
+          autoAddIngredientsToGrocery: input.autoAddIngredientsToGrocery,
+        })
+        .returning();
+    }
+
+    return { settings };
+  });

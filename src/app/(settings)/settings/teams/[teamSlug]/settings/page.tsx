@@ -6,6 +6,7 @@ import { eq } from "drizzle-orm";
 import { getSessionFromCookie } from "@/utils/auth";
 import { RecipeVisibilitySettings } from "./_components/recipe-visibility-settings";
 import { DefaultRecipeVisibilitySettings } from "./_components/default-recipe-visibility-settings";
+import { AutoAddIngredientsSettings } from "./_components/auto-add-ingredients-settings";
 
 interface TeamSettingsPageProps {
   params: Promise<{ teamSlug: string }>;
@@ -44,6 +45,11 @@ async function TeamSettingsContent({ teamSlug }: { teamSlug: string }) {
       <DefaultRecipeVisibilitySettings
         teamId={team.id}
         currentVisibility={(team.settings?.defaultRecipeVisibility || 'public') as 'public' | 'private' | 'unlisted'}
+      />
+
+      <AutoAddIngredientsSettings
+        teamId={team.id}
+        currentSetting={team.settings?.autoAddIngredientsToGrocery ?? true}
       />
     </div>
   );

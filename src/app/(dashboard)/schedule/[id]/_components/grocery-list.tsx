@@ -207,13 +207,6 @@ export function GroceryList({ weekId, items: initialItems }: GroceryListProps) {
   });
 
   const { execute: toggleItem } = useServerAction(toggleGroceryItemAction, {
-    onSuccess: ({ data }) => {
-      setItems((prev) =>
-        prev.map((item) =>
-          item.id === data.groceryItem.id ? data.groceryItem : item
-        )
-      );
-    },
     onError: ({ err }) => {
       toast.error(err.message || "Failed to update item");
     },
@@ -242,7 +235,22 @@ export function GroceryList({ weekId, items: initialItems }: GroceryListProps) {
   };
 
   const handleToggle = async (id: string, checked: boolean) => {
-    await toggleItem({ id, checked });
+    // Optimistic update
+    setItems((prev) =>
+      prev.map((item) =>
+        item.id === id ? { ...item, checked } : item
+      )
+    );
+
+    // Revert on error
+    const [, err] = await toggleItem({ id, checked });
+    if (err) {
+      setItems((prev) =>
+        prev.map((item) =>
+          item.id === id ? { ...item, checked: !checked } : item
+        )
+      );
+    }
   };
 
   const handleDelete = async (id: string) => {

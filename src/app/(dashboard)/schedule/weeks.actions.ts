@@ -2,7 +2,7 @@
 
 import { createServerAction, ZSAError } from "zsa";
 import { getDB } from "@/db";
-import { weeksTable, weekRecipesTable, groceryItemsTable, recipesTable, TEAM_PERMISSIONS, recipeRelationsTable } from "@/db/schema";
+import { weeksTable, weekRecipesTable, groceryItemsTable, recipesTable, TEAM_PERMISSIONS, recipeRelationsTable, teamSettingsTable } from "@/db/schema";
 import {
   createWeekSchema,
   updateWeekSchema,
@@ -368,42 +368,52 @@ export const addRecipeToWeekAction = createServerAction()
       })
       .returning();
 
-    // Get recipe with ingredients
-    const recipe = await db.query.recipesTable.findFirst({
-      where: eq(recipesTable.id, input.recipeId),
+    // Check team settings to see if we should auto-add ingredients
+    const teamSettings = await db.query.teamSettingsTable.findFirst({
+      where: eq(teamSettingsTable.teamId, week.teamId),
     });
 
-    // Add ingredients to grocery list if recipe has ingredients
-    if (recipe?.ingredients && Array.isArray(recipe.ingredients) && recipe.ingredients.length > 0) {
-      // Get current grocery items to calculate max order
-      const existingGroceryItems = await db.query.groceryItemsTable.findMany({
-        where: eq(groceryItemsTable.weekId, input.weekId),
+    // Only add ingredients if team setting is enabled (defaults to true if not set)
+    const shouldAutoAddIngredients = teamSettings?.autoAddIngredientsToGrocery ?? true;
+
+    if (shouldAutoAddIngredients) {
+      // Get recipe with ingredients
+      const recipe = await db.query.recipesTable.findFirst({
+        where: eq(recipesTable.id, input.recipeId),
       });
 
-      const maxGroceryOrder = existingGroceryItems.reduce((max, item) => Math.max(max, item.order ?? 0), -1);
-
-      let allIngredients: string[] = [];
-
-      // Handle both old format (string[]) and new format (sections with items)
-      if (recipe.ingredients.length > 0) {
-        const firstItem = recipe.ingredients[0];
-        if (typeof firstItem === "string") {
-          // Old format: array of strings
-          allIngredients = recipe.ingredients as unknown as string[];
-        } else if (typeof firstItem === "object" && "items" in firstItem) {
-          // New format: array of sections
-          allIngredients = recipe.ingredients.flatMap((section: { items: string[] }) => section.items);
-        }
-      }
-
-      // Insert each ingredient as a grocery item
-      for (let i = 0; i < allIngredients.length; i++) {
-        await db.insert(groceryItemsTable).values({
-          weekId: input.weekId,
-          name: allIngredients[i],
-          checked: false,
-          order: maxGroceryOrder + i + 1,
+      // Add ingredients to grocery list if recipe has ingredients
+      if (recipe?.ingredients && Array.isArray(recipe.ingredients) && recipe.ingredients.length > 0) {
+        // Get current grocery items to calculate max order
+        const existingGroceryItems = await db.query.groceryItemsTable.findMany({
+          where: eq(groceryItemsTable.weekId, input.weekId),
         });
+
+        const maxGroceryOrder = existingGroceryItems.reduce((max, item) => Math.max(max, item.order ?? 0), -1);
+
+        let allIngredients: string[] = [];
+
+        // Handle both old format (string[]) and new format (sections with items)
+        if (recipe.ingredients.length > 0) {
+          const firstItem = recipe.ingredients[0];
+          if (typeof firstItem === "string") {
+            // Old format: array of strings
+            allIngredients = recipe.ingredients as unknown as string[];
+          } else if (typeof firstItem === "object" && "items" in firstItem) {
+            // New format: array of sections
+            allIngredients = recipe.ingredients.flatMap((section: { items: string[] }) => section.items);
+          }
+        }
+
+        // Insert each ingredient as a grocery item
+        for (let i = 0; i < allIngredients.length; i++) {
+          await db.insert(groceryItemsTable).values({
+            weekId: input.weekId,
+            name: allIngredients[i],
+            checked: false,
+            order: maxGroceryOrder + i + 1,
+          });
+        }
       }
     }
 

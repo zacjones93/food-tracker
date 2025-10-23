@@ -174,6 +174,11 @@ export const teamSettingsTable = sqliteTable("team_settings", {
   defaultRecipeVisibility: text({ length: 20 }).notNull().default('public'),
   // Values: 'public', 'private', 'unlisted'
   // Controls the default visibility when creating new recipes
+
+  // Schedule settings
+  autoAddIngredientsToGrocery: integer({ mode: 'boolean' }).notNull().default(true),
+  // Controls whether recipe ingredients are automatically added to grocery list
+  // when a recipe is added to a schedule
 }, (table) => ([
   index("tset_team_idx").on(table.teamId),
 ]));

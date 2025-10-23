@@ -43,6 +43,12 @@ export const reorderWeekRecipesSchema = z.object({
   recipeIds: z.array(z.string()),
 });
 
+export const toggleWeekRecipeMadeSchema = z.object({
+  weekId: z.string(),
+  recipeId: z.string(),
+  made: z.boolean(),
+});
+
 export type CreateWeekFormSchema = z.infer<typeof createWeekFormSchema>;
 export type CreateWeekSchema = z.infer<typeof createWeekSchema>;
 export type UpdateWeekSchema = z.infer<typeof updateWeekSchema>;
@@ -51,3 +57,4 @@ export type GetWeekByIdSchema = z.infer<typeof getWeekByIdSchema>;
 export type AddRecipeToWeekSchema = z.infer<typeof addRecipeToWeekSchema>;
 export type RemoveRecipeFromWeekSchema = z.infer<typeof removeRecipeFromWeekSchema>;
 export type ReorderWeekRecipesSchema = z.infer<typeof reorderWeekRecipesSchema>;
+export type ToggleWeekRecipeMadeSchema = z.infer<typeof toggleWeekRecipeMadeSchema>;

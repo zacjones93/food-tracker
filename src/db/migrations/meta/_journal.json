@@ -120,6 +120,34 @@
       "when": 1760806000000,
       "tag": "0016_add-teamid-to-recipes",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "6",
+      "when": 1760810000000,
+      "tag": "0017_add-recipe-visibility",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "6",
+      "when": 1760815000000,
+      "tag": "0018_add-default-team-id",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "6",
+      "when": 1760820000000,
+      "tag": "0019_add-team-settings-table",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "6",
+      "when": 1760825000000,
+      "tag": "0020_add-made-to-week-recipes",
+      "breakpoints": true
     }
   ]
 }
