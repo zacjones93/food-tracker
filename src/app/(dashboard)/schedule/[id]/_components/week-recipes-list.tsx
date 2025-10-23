@@ -164,51 +164,11 @@ export function WeekRecipesList({
               {unmadeRecipes.map(({ recipe }) => {
                 const hasRelated = (recipe as any).relatedRecipes && (recipe as any).relatedRecipes.length > 0;
                 return (
-                  <div key={recipe.id}>
-                    <Link href={`/recipes/${recipe.id}`}>
-                      <div className="flex items-center gap-3 p-3 rounded-lg bg-background border hover:bg-mystic-50 dark:hover:bg-cream-200/10 transition-colors">
-                        <div className="text-xl">{recipe.emoji || "🍽️"}</div>
-                        <div className="flex-1 min-w-0">
-                          <div className="text-sm font-medium truncate text-mystic-900 dark:text-cream-100">
-                            {recipe.name}
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2 flex-shrink-0">
-                          {recipe.mealType && (
-                            <Badge variant="secondary" className="text-xs">
-                              {recipe.mealType}
-                            </Badge>
-                          )}
-                          {recipe.difficulty && (
-                            <Badge variant="outline" className="text-xs">
-                              {recipe.difficulty}
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
-                    </Link>
-                    {hasRelated && (
-                      <div className="ml-12 mt-1 space-y-1">
-                        {(recipe as any).relatedRecipes.map((relatedRecipe: any) => (
-                          <Link
-                            key={relatedRecipe.id}
-                            href={`/recipes/${relatedRecipe.id}`}
-                            className="flex items-center gap-2 p-2 rounded-md bg-mystic-50/50 dark:bg-cream-200/5 border border-mystic-200/50 dark:border-cream-200/10 hover:bg-mystic-100 dark:hover:bg-cream-200/10 transition-colors"
-                          >
-                            <div className="text-sm opacity-60">{relatedRecipe.emoji || "🍽️"}</div>
-                            <div className="flex-1 min-w-0">
-                              <div className="text-xs font-medium truncate text-mystic-700 dark:text-cream-200">
-                                {relatedRecipe.name}
-                              </div>
-                            </div>
-                            <Badge variant="outline" className="text-[10px] px-1.5 py-0">
-                              {relationTypeLabels[relatedRecipe.relationType] || "Related"}
-                            </Badge>
-                          </Link>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                  <StaticRecipeItem
+                    key={recipe.id}
+                    recipe={recipe}
+                    hasRelated={hasRelated}
+                  />
                 );
               })}
             </div>
@@ -220,18 +180,17 @@ export function WeekRecipesList({
               Made Recipes ({madeRecipes.length})
             </h4>
             <div className="space-y-2">
-              {madeRecipes.map(({ recipe }) => (
-                <Link key={recipe.id} href={`/recipes/${recipe.id}`}>
-                  <div className="flex items-center gap-3 p-3 rounded-lg bg-background border hover:bg-mystic-50 dark:hover:bg-cream-200/10 transition-colors opacity-60">
-                    <div className="text-xl">{recipe.emoji || "🍽️"}</div>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium truncate text-mystic-900 dark:text-cream-100 line-through">
-                        {recipe.name}
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              ))}
+              {madeRecipes.map(({ recipe }) => {
+                const hasRelated = (recipe as any).relatedRecipes && (recipe as any).relatedRecipes.length > 0;
+                return (
+                  <StaticRecipeItem
+                    key={recipe.id}
+                    recipe={recipe}
+                    hasRelated={hasRelated}
+                    isMade
+                  />
+                );
+              })}
             </div>
           </div>
         )}
@@ -353,6 +312,82 @@ const relationTypeLabels: Record<string, string> = {
   [RELATION_TYPES.CUSTOM]: "Related",
 };
 
+function StaticRecipeItem({
+  recipe,
+  hasRelated,
+  isMade = false,
+}: {
+  recipe: Recipe & { relatedRecipes?: any[] };
+  hasRelated: boolean;
+  isMade?: boolean;
+}) {
+  const [showRelated, setShowRelated] = useState(false);
+
+  return (
+    <div>
+      <Link href={`/recipes/${recipe.id}`}>
+        <div className={`flex items-center gap-3 p-3 rounded-lg bg-background border hover:bg-mystic-50 dark:hover:bg-cream-200/10 transition-colors ${isMade ? 'opacity-60' : ''}`}>
+          <div className="text-xl">{recipe.emoji || "🍽️"}</div>
+          <div className="flex-1 min-w-0">
+            <div className={`text-sm font-medium truncate text-mystic-900 dark:text-cream-100 ${isMade ? 'line-through' : ''}`}>
+              {recipe.name}
+            </div>
+            {hasRelated && (
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  setShowRelated(!showRelated);
+                }}
+                className="text-[10px] text-mystic-600 dark:text-cream-100 hover:text-mystic-900 dark:hover:text-cream-50 flex items-center gap-1 mt-0.5"
+              >
+                {showRelated ? (
+                  <ChevronUp className="h-3 w-3" />
+                ) : (
+                  <ChevronDown className="h-3 w-3" />
+                )}
+                {recipe.relatedRecipes!.length} related recipe{recipe.relatedRecipes!.length !== 1 ? 's' : ''}
+              </button>
+            )}
+          </div>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {recipe.mealType && (
+              <Badge variant="secondary" className="text-xs">
+                {recipe.mealType}
+              </Badge>
+            )}
+            {recipe.difficulty && (
+              <Badge variant="outline" className="text-xs">
+                {recipe.difficulty}
+              </Badge>
+            )}
+          </div>
+        </div>
+      </Link>
+      {hasRelated && showRelated && (
+        <div className="ml-12 mt-1 space-y-1">
+          {recipe.relatedRecipes!.map((relatedRecipe: any) => (
+            <Link
+              key={relatedRecipe.id}
+              href={`/recipes/${relatedRecipe.id}`}
+              className="flex items-center gap-2 p-2 rounded-md bg-mystic-50/50 dark:bg-cream-200/5 border border-mystic-200/50 dark:border-cream-200/10 hover:bg-mystic-100 dark:hover:bg-cream-200/10 transition-colors"
+            >
+              <Badge variant="outline" className="text-[10px] px-1.5 py-0 flex-shrink-0">
+                {relationTypeLabels[relatedRecipe.relationType] || "Related"}
+              </Badge>
+              <div className="text-sm opacity-60">{relatedRecipe.emoji || "🍽️"}</div>
+              <div className="flex-1 min-w-0">
+                <div className="text-xs font-medium truncate text-mystic-800 dark:text-cream-100">
+                  {relatedRecipe.name}
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function SortableRecipeItem({
   weekRecipe,
   onRemove,
@@ -365,6 +400,7 @@ function SortableRecipeItem({
   isMade?: boolean;
 }) {
   const { recipe } = weekRecipe;
+  const [showRelated, setShowRelated] = useState(false);
   const {
     attributes,
     listeners,
@@ -410,6 +446,22 @@ function SortableRecipeItem({
             >
               {recipe.name}
             </div>
+            {hasRelatedRecipes && (
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  setShowRelated(!showRelated);
+                }}
+                className="text-[10px] text-mystic-600 dark:text-cream-100 hover:text-mystic-900 dark:hover:text-cream-50 flex items-center gap-1 mt-0.5"
+              >
+                {showRelated ? (
+                  <ChevronUp className="h-3 w-3" />
+                ) : (
+                  <ChevronDown className="h-3 w-3" />
+                )}
+                {recipe.relatedRecipes!.length} related recipe{recipe.relatedRecipes!.length !== 1 ? 's' : ''}
+              </button>
+            )}
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
             {recipe.mealType && (
@@ -437,8 +489,8 @@ function SortableRecipeItem({
         </Button>
       </div>
 
-      {/* Related Recipes - nested below main recipe */}
-      {hasRelatedRecipes && (
+      {/* Related Recipes - collapsible nested below main recipe */}
+      {hasRelatedRecipes && showRelated && (
         <div className="ml-12 mt-1 space-y-1">
           {recipe.relatedRecipes!.map((relatedRecipe: any) => (
             <Link
@@ -446,15 +498,15 @@ function SortableRecipeItem({
               href={`/recipes/${relatedRecipe.id}`}
               className="flex items-center gap-2 p-2 rounded-md bg-mystic-50/50 dark:bg-cream-200/5 border border-mystic-200/50 dark:border-cream-200/10 hover:bg-mystic-100 dark:hover:bg-cream-200/10 transition-colors group/related"
             >
+              <Badge variant="outline" className="text-[10px] px-1.5 py-0 flex-shrink-0">
+                {relationTypeLabels[relatedRecipe.relationType] || "Related"}
+              </Badge>
               <div className="text-sm opacity-60">{relatedRecipe.emoji || "🍽️"}</div>
               <div className="flex-1 min-w-0">
-                <div className="text-xs font-medium truncate text-mystic-700 dark:text-cream-200">
+                <div className="text-xs font-medium truncate text-mystic-800 dark:text-cream-100">
                   {relatedRecipe.name}
                 </div>
               </div>
-              <Badge variant="outline" className="text-[10px] px-1.5 py-0">
-                {relationTypeLabels[relatedRecipe.relationType] || "Related"}
-              </Badge>
             </Link>
           ))}
         </div>
