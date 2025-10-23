@@ -255,6 +255,7 @@ export const weekRecipesTable = sqliteTable("week_recipes", {
   recipeId: text().notNull().references(() => recipesTable.id, { onDelete: 'cascade' }),
 
   order: integer().default(0),  // Display order in week
+  made: integer({ mode: 'boolean' }).default(false).notNull(),  // Whether recipe has been made/eaten
   createdAt: integer({ mode: 'timestamp' }).$defaultFn(() => new Date()).notNull(),
 }, (table) => ([
   index("wr_week_idx").on(table.weekId),
@@ -267,6 +268,8 @@ export const recipeRelationsTable = sqliteTable("recipe_relations", {
   id: text().primaryKey().$defaultFn(() => `rr_${createId()}`).notNull(),
   mainRecipeId: text().notNull().references(() => recipesTable.id, { onDelete: 'cascade' }),
   sideRecipeId: text().notNull().references(() => recipesTable.id, { onDelete: 'cascade' }),
+  relationType: text({ length: 50 }).notNull().default('side'),
+  order: integer().default(0).notNull(),
 
   createdAt: integer({ mode: 'timestamp' }).$defaultFn(() => new Date()).notNull(),
 }, (table) => ([
