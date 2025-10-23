@@ -47,7 +47,9 @@ import {
   updateRecipeAction,
   getRecipeMetadataAction,
   createRecipeBookAction,
+  getRecipesAction,
 } from "../../recipes.actions";
+import { getRecipeRelationsAction } from "../../recipe-relations.actions";
 import { useServerAction } from "zsa-react";
 import { useRouter } from "next/navigation";
 import type { Recipe, RecipeBook } from "@/db/schema";
@@ -59,6 +61,10 @@ import {
 } from "@/schemas/recipe.schema";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import {
+  RelatedRecipesSelector,
+  type RelatedRecipeItem,
+} from "@/components/related-recipes-selector";
 
 interface EditRecipeDialogProps {
   recipe: Recipe & {
@@ -84,6 +90,8 @@ export function EditRecipeDialog({ recipe }: EditRecipeDialogProps) {
   const [newDifficulty, setNewDifficulty] = useState("");
   const [newRecipeBook, setNewRecipeBook] = useState("");
   const [recipeBookOpen, setRecipeBookOpen] = useState(false);
+  const [relatedRecipes, setRelatedRecipes] = useState<RelatedRecipeItem[]>([]);
+  const [availableRecipes, setAvailableRecipes] = useState<Array<{ id: string; name: string; emoji: string | null }>>([]);
 
   const { execute, isPending } = useServerAction(updateRecipeAction, {
     onSuccess: () => {
@@ -98,36 +106,67 @@ export function EditRecipeDialog({ recipe }: EditRecipeDialogProps) {
 
   const { execute: fetchMetadata } = useServerAction(getRecipeMetadataAction);
   const { execute: createRecipeBook } = useServerAction(createRecipeBookAction);
+  const { execute: fetchRecipes } = useServerAction(getRecipesAction);
+  const { execute: fetchRelations } = useServerAction(getRecipeRelationsAction);
 
   const form = useForm<UpdateRecipeSchema>({
     resolver: zodResolver(updateRecipeSchema),
     defaultValues: {
       id: recipe.id,
       name: recipe.name || "",
-      emoji: recipe.emoji || undefined,
-      mealType: recipe.mealType || undefined,
-      difficulty: recipe.difficulty || undefined,
+      emoji: recipe.emoji || "",
+      mealType: recipe.mealType || "",
+      difficulty: recipe.difficulty || "",
       visibility: (recipe.visibility ||
         undefined) as UpdateRecipeSchema["visibility"],
       ingredients: recipe.ingredients || undefined,
-      recipeBody: recipe.recipeBody || undefined,
-      recipeLink: recipe.recipeLink || undefined,
-      recipeBookId: recipe.recipeBookId || undefined,
-      page: recipe.page || undefined,
+      recipeBody: recipe.recipeBody || "",
+      recipeLink: recipe.recipeLink || "",
+      recipeBookId: recipe.recipeBookId || "",
+      page: recipe.page || "",
     },
   });
 
   useEffect(() => {
     if (open) {
-      async function loadMetadata() {
-        const [data, err] = await fetchMetadata();
-        if (!err && data) {
-          setMetadata(data);
+      async function loadData() {
+        // Load metadata
+        const [metadataData, metadataErr] = await fetchMetadata();
+        if (!metadataErr && metadataData) {
+          setMetadata(metadataData);
+        }
+
+        // Load all recipes for selector
+        const [recipesData, recipesErr] = await fetchRecipes({ limit: 1000 });
+        if (!recipesErr && recipesData) {
+          setAvailableRecipes(
+            recipesData.recipes.map((r) => ({
+              id: r.id,
+              name: r.name,
+              emoji: r.emoji,
+            }))
+          );
+        }
+
+        // Load existing relations
+        const [relationsData, relationsErr] = await fetchRelations({
+          recipeId: recipe.id,
+        });
+        if (!relationsErr && relationsData) {
+          // Convert relationsAsMain to RelatedRecipeItem format
+          const existingRelations: RelatedRecipeItem[] =
+            relationsData.relationsAsMain.map((rel) => ({
+              recipeId: rel.sideRecipeId,
+              recipeTitle: rel.sideRecipe.name,
+              recipeEmoji: rel.sideRecipe.emoji,
+              relationType: rel.relationType,
+            }));
+          setRelatedRecipes(existingRelations);
         }
       }
-      loadMetadata();
+      loadData();
     }
-  }, [open, fetchMetadata]);
+  }, [open, fetchMetadata, fetchRecipes, fetchRelations, recipe.id]);
 
   const handleAddTag = (tag: string) => {
     const trimmedTag = tag.trim();
@@ -188,6 +227,12 @@ export function EditRecipeDialog({ recipe }: EditRecipeDialogProps) {
     const finalValues = {
       ...values,
       tags: selectedTags.length > 0 ? selectedTags : undefined,
+      relatedRecipes: relatedRecipes.length > 0
+        ? relatedRecipes.map((r) => ({
+            recipeId: r.recipeId,
+            relationType: r.relationType,
+          }))
+        : undefined,
     };
 
     // If recipe book is a temp ID, create it first
@@ -659,6 +704,19 @@ export function EditRecipeDialog({ recipe }: EditRecipeDialogProps) {
                 )}
               />
             </div>
+
+            <FormItem>
+              <FormLabel>Related Recipes</FormLabel>
+              <RelatedRecipesSelector
+                currentRecipeId={recipe.id}
+                selectedRecipes={relatedRecipes}
+                availableRecipes={availableRecipes}
+                onChange={setRelatedRecipes}
+              />
+              <FormDescription>
+                Add side dishes, sauces, or other recipes that pair well with this one
+              </FormDescription>
+            </FormItem>
 
             <DialogFooter>
               <Button
