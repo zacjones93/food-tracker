@@ -91,7 +91,9 @@ export function EditRecipeDialog({ recipe }: EditRecipeDialogProps) {
   const [newRecipeBook, setNewRecipeBook] = useState("");
   const [recipeBookOpen, setRecipeBookOpen] = useState(false);
   const [relatedRecipes, setRelatedRecipes] = useState<RelatedRecipeItem[]>([]);
-  const [availableRecipes, setAvailableRecipes] = useState<Array<{ id: string; name: string; emoji: string | null }>>([]);
+  const [availableRecipes, setAvailableRecipes] = useState<
+    Array<{ id: string; name: string; emoji: string | null }>
+  >([]);
 
   const { execute, isPending } = useServerAction(updateRecipeAction, {
     onSuccess: () => {
@@ -159,7 +161,8 @@ export function EditRecipeDialog({ recipe }: EditRecipeDialogProps) {
               recipeId: rel.sideRecipeId,
               recipeTitle: rel.sideRecipe.name,
               recipeEmoji: rel.sideRecipe.emoji,
-              relationType: rel.relationType,
+              relationType:
+                rel.relationType as RelatedRecipeItem["relationType"],
             }));
           setRelatedRecipes(existingRelations);
         }
@@ -227,12 +230,13 @@ export function EditRecipeDialog({ recipe }: EditRecipeDialogProps) {
     const finalValues = {
       ...values,
       tags: selectedTags.length > 0 ? selectedTags : undefined,
-      relatedRecipes: relatedRecipes.length > 0
-        ? relatedRecipes.map((r) => ({
-            recipeId: r.recipeId,
-            relationType: r.relationType,
-          }))
-        : undefined,
+      relatedRecipes:
+        relatedRecipes.length > 0
+          ? relatedRecipes.map((r) => ({
+              recipeId: r.recipeId,
+              relationType: r.relationType,
+            }))
+          : undefined,
     };
 
     // If recipe book is a temp ID, create it first
@@ -714,7 +718,8 @@ export function EditRecipeDialog({ recipe }: EditRecipeDialogProps) {
                 onChange={setRelatedRecipes}
               />
               <FormDescription>
-                Add side dishes, sauces, or other recipes that pair well with this one
+                Add side dishes, sauces, or other recipes that pair well with
+                this one
               </FormDescription>
             </FormItem>
 
