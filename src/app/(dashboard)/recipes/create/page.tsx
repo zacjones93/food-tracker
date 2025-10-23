@@ -61,6 +61,11 @@ import {
   SortableIngredientSections,
   type IngredientSection,
 } from "../[id]/_components/sortable-ingredient-sections";
+import {
+  RelatedRecipesSelector,
+  type RelatedRecipeItem,
+} from "@/components/related-recipes-selector";
+import { getRecipesAction } from "../recipes.actions";
 
 export default function CreateRecipePage() {
   const router = useRouter();
@@ -87,10 +92,13 @@ export default function CreateRecipePage() {
   const [newDifficulty, setNewDifficulty] = useState("");
   const [newRecipeBook, setNewRecipeBook] = useState("");
   const [recipeBookOpen, setRecipeBookOpen] = useState(false);
+  const [relatedRecipes, setRelatedRecipes] = useState<RelatedRecipeItem[]>([]);
+  const [availableRecipes, setAvailableRecipes] = useState<Array<{ id: string; name: string; emoji: string | null }>>([]);
 
   const { execute, isPending } = useServerAction(createRecipeAction);
   const { execute: fetchMetadata } = useServerAction(getRecipeMetadataAction);
   const { execute: createRecipeBook } = useServerAction(createRecipeBookAction);
+  const { execute: fetchRecipes } = useServerAction(getRecipesAction);
 
   const form = useForm<CreateRecipeSchema>({
     resolver: zodResolver(createRecipeSchema),
@@ -117,6 +125,22 @@ export default function CreateRecipePage() {
     }
     loadMetadata();
   }, [fetchMetadata]);
+
+  useEffect(() => {
+    async function loadRecipes() {
+      const [data, err] = await fetchRecipes({ limit: 1000 });
+      if (!err && data) {
+        setAvailableRecipes(
+          data.recipes.map((r) => ({
+            id: r.id,
+            name: r.name,
+            emoji: r.emoji,
+          }))
+        );
+      }
+    }
+    loadRecipes();
+  }, [fetchRecipes]);
 
   const handleAddTag = (tag: string) => {
     const trimmedTag = tag.trim();
@@ -189,6 +213,12 @@ export default function CreateRecipePage() {
       ...values,
       tags: selectedTags.length > 0 ? selectedTags : undefined,
       ingredients: sectionsToSave.length > 0 ? sectionsToSave : undefined,
+      relatedRecipes: relatedRecipes.length > 0
+        ? relatedRecipes.map((r) => ({
+            recipeId: r.recipeId,
+            relationType: r.relationType,
+          }))
+        : undefined,
     };
 
     // If recipe book is a temp ID, create it first
@@ -713,6 +743,18 @@ export default function CreateRecipePage() {
                 </FormItem>
               )}
             />
+
+            <FormItem>
+              <FormLabel>Related Recipes</FormLabel>
+              <RelatedRecipesSelector
+                selectedRecipes={relatedRecipes}
+                availableRecipes={availableRecipes}
+                onChange={setRelatedRecipes}
+              />
+              <FormDescription>
+                Add side dishes, sauces, or other recipes that pair well with this one
+              </FormDescription>
+            </FormItem>
 
             <div className="flex gap-3">
               <Button type="submit" disabled={isPending}>
