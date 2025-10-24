@@ -36,8 +36,11 @@ export const createRecipeSchema = z.object({
   relatedRecipes: z.array(relatedRecipeSchema).optional(),
 });
 
+// Update schema - all fields optional, no defaults
+// We explicitly override visibility to remove the default value from createRecipeSchema
 export const updateRecipeSchema = createRecipeSchema.partial().extend({
   id: z.string(),
+  visibility: z.enum([RECIPE_VISIBILITY.PUBLIC, RECIPE_VISIBILITY.PRIVATE, RECIPE_VISIBILITY.UNLISTED]).optional(),
 });
 
 export const deleteRecipeSchema = z.object({
