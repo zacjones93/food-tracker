@@ -209,14 +209,14 @@ export const getWeeksAction = createServerAction()
       },
     });
 
-    // Fetch related recipes for all recipes across all weeks
-    const allRecipeIds = weeks.flatMap((week) =>
-      week.recipes.map((wr) => wr.recipe.id)
-    );
+    // Fetch related recipes ONLY for current/upcoming weeks (not archived)
+    const currentAndUpcomingRecipeIds = weeks
+      .filter((week) => week.status === 'current' || week.status === 'upcoming')
+      .flatMap((week) => week.recipes.map((wr) => wr.recipe.id));
 
-    if (allRecipeIds.length > 0) {
+    if (currentAndUpcomingRecipeIds.length > 0) {
       const relatedRecipes = await db.query.recipeRelationsTable.findMany({
-        where: inArray(recipeRelationsTable.mainRecipeId, allRecipeIds),
+        where: inArray(recipeRelationsTable.mainRecipeId, currentAndUpcomingRecipeIds),
         with: {
           sideRecipe: true,
         },
