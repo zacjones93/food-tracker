@@ -3,6 +3,9 @@
 import { useState, useEffect } from "react";
 import { type Recipe, type WeekRecipe } from "@/db/schema";
 import { Card, CardContent } from "@/components/ui/card";
+
+type RelatedRecipe = Pick<Recipe, 'id' | 'name' | 'emoji'> & { relationType: string };
+type RecipeWithRelated = Recipe & { relatedRecipes?: RelatedRecipe[] };
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -44,7 +47,7 @@ import { useRouter } from "next/navigation";
 
 interface WeekRecipesListProps {
   weekId: string;
-  recipes: (WeekRecipe & { recipe: Recipe })[];
+  recipes: (WeekRecipe & { recipe: RecipeWithRelated })[];
   embedded?: boolean;
 }
 
@@ -162,7 +165,7 @@ export function WeekRecipesList({
             </h4>
             <div className="space-y-2">
               {unmadeRecipes.map(({ recipe }) => {
-                const hasRelated = (recipe as any).relatedRecipes && (recipe as any).relatedRecipes.length > 0;
+                const hasRelated = !!(recipe.relatedRecipes && recipe.relatedRecipes.length > 0);
                 return (
                   <StaticRecipeItem
                     key={recipe.id}
@@ -181,7 +184,7 @@ export function WeekRecipesList({
             </h4>
             <div className="space-y-2">
               {madeRecipes.map(({ recipe }) => {
-                const hasRelated = (recipe as any).relatedRecipes && (recipe as any).relatedRecipes.length > 0;
+                const hasRelated = !!(recipe.relatedRecipes && recipe.relatedRecipes.length > 0);
                 return (
                   <StaticRecipeItem
                     key={recipe.id}
@@ -317,7 +320,7 @@ function StaticRecipeItem({
   hasRelated,
   isMade = false,
 }: {
-  recipe: Recipe & { relatedRecipes?: any[] };
+  recipe: RecipeWithRelated;
   hasRelated: boolean;
   isMade?: boolean;
 }) {
@@ -365,7 +368,7 @@ function StaticRecipeItem({
       </div>
       {hasRelated && showRelated && (
         <div className="ml-12 mt-1 space-y-1">
-          {recipe.relatedRecipes!.map((relatedRecipe: any) => (
+          {recipe.relatedRecipes!.map((relatedRecipe) => (
             <Link
               key={relatedRecipe.id}
               href={`/recipes/${relatedRecipe.id}`}
@@ -394,7 +397,7 @@ function SortableRecipeItem({
   onToggleMade,
   isMade = false,
 }: {
-  weekRecipe: WeekRecipe & { recipe: Recipe & { relatedRecipes?: any[] } };
+  weekRecipe: WeekRecipe & { recipe: RecipeWithRelated };
   onRemove: (recipeId: string) => void;
   onToggleMade: (recipeId: string, currentMade: boolean) => void;
   isMade?: boolean;
@@ -492,7 +495,7 @@ function SortableRecipeItem({
       {/* Related Recipes - collapsible nested below main recipe */}
       {hasRelatedRecipes && showRelated && (
         <div className="ml-12 mt-1 space-y-1">
-          {recipe.relatedRecipes!.map((relatedRecipe: any) => (
+          {recipe.relatedRecipes!.map((relatedRecipe) => (
             <Link
               key={relatedRecipe.id}
               href={`/recipes/${relatedRecipe.id}`}

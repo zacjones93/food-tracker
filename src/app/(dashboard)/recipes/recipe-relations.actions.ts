@@ -9,7 +9,7 @@ import {
   getRecipeRelationsSchema,
   reorderRecipeRelationsSchema,
 } from "@/schemas/recipe-relation.schema";
-import { eq, and, or } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { getSessionFromCookie } from "@/utils/auth";
 import { requirePermission } from "@/utils/team-auth";
 import { hasAccessToRecipe } from "@/utils/recipe-visibility";
