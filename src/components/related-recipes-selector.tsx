@@ -22,7 +22,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
 import { X, ChevronsUpDown, GripVertical } from "@/components/ui/themed-icons";
 import { cn } from "@/lib/utils";
 import { RELATION_TYPES, type RelationType } from "@/schemas/recipe-relation.schema";
