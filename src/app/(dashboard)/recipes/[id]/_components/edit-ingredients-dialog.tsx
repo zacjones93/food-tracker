@@ -29,24 +29,35 @@ interface EditIngredientsDialogProps {
 function normalizeIngredients(
   ingredients: unknown
 ): Array<{ title?: string; items: string[] }> | null {
-  if (!ingredients) return null;
+  if (!ingredients || !Array.isArray(ingredients)) return null;
+  if (ingredients.length === 0) return null;
 
   // If it's already in the new format
   if (
-    Array.isArray(ingredients) &&
-    ingredients.length > 0 &&
     typeof ingredients[0] === "object" &&
+    ingredients[0] !== null &&
     "items" in ingredients[0]
   ) {
-    return ingredients as Array<{ title?: string; items: string[] }>;
+    // Ensure all sections have valid items arrays
+    return ingredients
+      .filter(
+        (section): section is { title?: string; items: unknown } =>
+          section !== null && typeof section === "object" && "items" in section
+      )
+      .map((section) => ({
+        title: section.title,
+        items: Array.isArray(section.items)
+          ? section.items.filter(
+              (item): item is string => typeof item === "string"
+            )
+          : [],
+      }))
+      .filter((section) => section.items.length > 0);
   }
 
   // If it's in the old format (array of strings), convert it
-  if (
-    Array.isArray(ingredients) &&
-    ingredients.every((i) => typeof i === "string")
-  ) {
-    return [{ items: ingredients as string[] }];
+  if (ingredients.every((i) => typeof i === "string")) {
+    return [{ title: undefined, items: ingredients as string[] }];
   }
 
   return null;
@@ -108,7 +119,8 @@ export function EditIngredientsDialog({ recipe }: EditIngredientsDialogProps) {
     });
   };
 
-  const hasIngredients = recipe.ingredients && recipe.ingredients.length > 0;
+  const hasIngredients =
+    Array.isArray(recipe.ingredients) && recipe.ingredients.length > 0;
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

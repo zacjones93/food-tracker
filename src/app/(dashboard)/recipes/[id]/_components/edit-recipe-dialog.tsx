@@ -56,8 +56,8 @@ import type { Recipe, RecipeBook } from "@/db/schema";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  updateRecipeSchema,
-  type UpdateRecipeSchema,
+  updateRecipeMetadataSchema,
+  type UpdateRecipeMetadataSchema,
 } from "@/schemas/recipe.schema";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -81,7 +81,9 @@ export function EditRecipeDialog({ recipe }: EditRecipeDialogProps) {
     tags: string[];
     recipeBooks: Array<{ id: string; name: string }>;
   } | null>(null);
-  const [selectedTags, setSelectedTags] = useState<string[]>(recipe.tags || []);
+  const [selectedTags, setSelectedTags] = useState<string[]>(
+    Array.isArray(recipe.tags) ? recipe.tags : []
+  );
   const [tagInput, setTagInput] = useState("");
   const [showMealTypeInput, setShowMealTypeInput] = useState(false);
   const [showDifficultyInput, setShowDifficultyInput] = useState(false);
@@ -111,8 +113,8 @@ export function EditRecipeDialog({ recipe }: EditRecipeDialogProps) {
   const { execute: fetchRecipes } = useServerAction(getRecipesAction);
   const { execute: fetchRelations } = useServerAction(getRecipeRelationsAction);
 
-  const form = useForm<UpdateRecipeSchema>({
-    resolver: zodResolver(updateRecipeSchema),
+  const form = useForm<UpdateRecipeMetadataSchema>({
+    resolver: zodResolver(updateRecipeMetadataSchema),
     defaultValues: {
       id: recipe.id,
       name: recipe.name || "",
@@ -120,8 +122,8 @@ export function EditRecipeDialog({ recipe }: EditRecipeDialogProps) {
       mealType: recipe.mealType || "",
       difficulty: recipe.difficulty || "",
       visibility: (recipe.visibility ||
-        undefined) as UpdateRecipeSchema["visibility"],
-      ingredients: recipe.ingredients || undefined,
+        undefined) as UpdateRecipeMetadataSchema["visibility"],
+      // ingredients are handled by EditIngredientsDialog separately
       recipeBody: recipe.recipeBody || "",
       recipeLink: recipe.recipeLink || "",
       recipeBookId: recipe.recipeBookId || "",
@@ -154,7 +156,7 @@ export function EditRecipeDialog({ recipe }: EditRecipeDialogProps) {
         const [relationsData, relationsErr] = await fetchRelations({
           recipeId: recipe.id,
         });
-        if (!relationsErr && relationsData) {
+        if (!relationsErr && relationsData && relationsData.relationsAsMain) {
           // Convert relationsAsMain to RelatedRecipeItem format
           const existingRelations: RelatedRecipeItem[] =
             relationsData.relationsAsMain.map((rel) => ({
@@ -184,7 +186,7 @@ export function EditRecipeDialog({ recipe }: EditRecipeDialogProps) {
   };
 
   const handleAddMealType = () => {
-    if (newMealType.trim() && metadata) {
+    if (newMealType.trim() && metadata && metadata.mealTypes) {
       form.setValue("mealType", newMealType.trim());
       setMetadata({
         ...metadata,
@@ -196,7 +198,7 @@ export function EditRecipeDialog({ recipe }: EditRecipeDialogProps) {
   };
 
   const handleAddDifficulty = () => {
-    if (newDifficulty.trim() && metadata) {
+    if (newDifficulty.trim() && metadata && metadata.difficulties) {
       form.setValue("difficulty", newDifficulty.trim());
       setMetadata({
         ...metadata,
@@ -208,7 +210,7 @@ export function EditRecipeDialog({ recipe }: EditRecipeDialogProps) {
   };
 
   const handleAddRecipeBook = async () => {
-    if (newRecipeBook.trim() && metadata) {
+    if (newRecipeBook.trim() && metadata && metadata.recipeBooks) {
       const tempId = `rb_temp_${Date.now()}`;
       const newBook = { id: tempId, name: newRecipeBook.trim() };
 
@@ -226,22 +228,50 @@ export function EditRecipeDialog({ recipe }: EditRecipeDialogProps) {
     }
   };
 
-  async function onSubmit(values: UpdateRecipeSchema) {
+  async function onSubmit(values: UpdateRecipeMetadataSchema) {
+    // Clean up the values: convert empty strings to null, keep undefined fields
+    const cleanedValues: UpdateRecipeMetadataSchema = {
+      id: values.id,
+    };
+
+    // Only include fields that are actually present
+    if (values.name !== undefined) cleanedValues.name = values.name;
+    if (values.emoji !== undefined)
+      cleanedValues.emoji = values.emoji === "" ? null : values.emoji;
+    if (values.mealType !== undefined)
+      cleanedValues.mealType = values.mealType === "" ? null : values.mealType;
+    if (values.difficulty !== undefined)
+      cleanedValues.difficulty =
+        values.difficulty === "" ? null : values.difficulty;
+    if (values.visibility !== undefined)
+      cleanedValues.visibility = values.visibility;
+    if (values.recipeBody !== undefined)
+      cleanedValues.recipeBody =
+        values.recipeBody === "" ? null : values.recipeBody;
+    if (values.recipeLink !== undefined)
+      cleanedValues.recipeLink =
+        values.recipeLink === "" ? null : values.recipeLink;
+    if (values.recipeBookId !== undefined)
+      cleanedValues.recipeBookId =
+        values.recipeBookId === "" ? null : values.recipeBookId;
+    if (values.page !== undefined)
+      cleanedValues.page = values.page === "" ? null : values.page;
+
     const finalValues = {
-      ...values,
-      tags: selectedTags.length > 0 ? selectedTags : undefined,
+      ...cleanedValues,
+      tags: selectedTags.length > 0 ? selectedTags : null,
       relatedRecipes:
         relatedRecipes.length > 0
           ? relatedRecipes.map((r) => ({
               recipeId: r.recipeId,
               relationType: r.relationType,
             }))
-          : undefined,
+          : null,
     };
 
     // If recipe book is a temp ID, create it first
     if (finalValues.recipeBookId?.startsWith("rb_temp_")) {
-      const tempBook = metadata?.recipeBooks.find(
+      const tempBook = metadata?.recipeBooks?.find(
         (book) => book.id === finalValues.recipeBookId
       );
 
@@ -285,7 +315,11 @@ export function EditRecipeDialog({ recipe }: EditRecipeDialogProps) {
                 <FormItem>
                   <FormLabel>Recipe Name *</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., Spaghetti Carbonara" {...field} />
+                    <Input
+                      placeholder="e.g., Spaghetti Carbonara"
+                      {...field}
+                      value={field.value ?? ""}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -299,7 +333,12 @@ export function EditRecipeDialog({ recipe }: EditRecipeDialogProps) {
                 <FormItem>
                   <FormLabel>Emoji</FormLabel>
                   <FormControl>
-                    <Input placeholder="🍝" maxLength={10} {...field} />
+                    <Input
+                      placeholder="🍝"
+                      maxLength={10}
+                      {...field}
+                      value={field.value ?? ""}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -319,7 +358,7 @@ export function EditRecipeDialog({ recipe }: EditRecipeDialogProps) {
                           <>
                             <Select
                               onValueChange={field.onChange}
-                              value={field.value}
+                              value={field.value ?? undefined}
                             >
                               <FormControl>
                                 <SelectTrigger>
@@ -327,7 +366,7 @@ export function EditRecipeDialog({ recipe }: EditRecipeDialogProps) {
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                {metadata.mealTypes.map((type) => (
+                                {metadata.mealTypes?.map((type) => (
                                   <SelectItem key={type} value={type}>
                                     {type}
                                   </SelectItem>
@@ -380,7 +419,12 @@ export function EditRecipeDialog({ recipe }: EditRecipeDialogProps) {
                       </>
                     ) : (
                       <FormControl>
-                        <Input placeholder="Loading..." disabled {...field} />
+                        <Input
+                          placeholder="Loading..."
+                          disabled
+                          {...field}
+                          value={field.value ?? ""}
+                        />
                       </FormControl>
                     )}
                     <FormMessage />
@@ -400,7 +444,7 @@ export function EditRecipeDialog({ recipe }: EditRecipeDialogProps) {
                           <>
                             <Select
                               onValueChange={field.onChange}
-                              value={field.value}
+                              value={field.value ?? undefined}
                             >
                               <FormControl>
                                 <SelectTrigger>
@@ -408,7 +452,7 @@ export function EditRecipeDialog({ recipe }: EditRecipeDialogProps) {
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                {metadata.difficulties.map((difficulty) => (
+                                {metadata.difficulties?.map((difficulty) => (
                                   <SelectItem
                                     key={difficulty}
                                     value={difficulty}
@@ -464,7 +508,12 @@ export function EditRecipeDialog({ recipe }: EditRecipeDialogProps) {
                       </>
                     ) : (
                       <FormControl>
-                        <Input placeholder="Loading..." disabled {...field} />
+                        <Input
+                          placeholder="Loading..."
+                          disabled
+                          {...field}
+                          value={field.value ?? ""}
+                        />
                       </FormControl>
                     )}
                     <FormMessage />
@@ -493,6 +542,7 @@ export function EditRecipeDialog({ recipe }: EditRecipeDialogProps) {
               )}
               <div className="flex flex-col md:flex-row gap-2">
                 {metadata &&
+                  metadata.tags &&
                   metadata.tags.filter((tag) => !selectedTags.includes(tag))
                     .length > 0 && (
                     <Select
@@ -549,7 +599,11 @@ export function EditRecipeDialog({ recipe }: EditRecipeDialogProps) {
                 <FormItem>
                   <FormLabel>Recipe Link</FormLabel>
                   <FormControl>
-                    <Input placeholder="https://..." {...field} />
+                    <Input
+                      placeholder="https://..."
+                      {...field}
+                      value={field.value ?? ""}
+                    />
                   </FormControl>
                   <FormDescription>
                     URL to the original recipe online
@@ -570,7 +624,8 @@ export function EditRecipeDialog({ recipe }: EditRecipeDialogProps) {
                       <>
                         {!showRecipeBookInput ? (
                           <>
-                            {metadata.recipeBooks.length > 0 ? (
+                            {metadata.recipeBooks &&
+                            metadata.recipeBooks.length > 0 ? (
                               <Popover
                                 open={recipeBookOpen}
                                 onOpenChange={setRecipeBookOpen}
@@ -587,7 +642,7 @@ export function EditRecipeDialog({ recipe }: EditRecipeDialogProps) {
                                       )}
                                     >
                                       {field.value
-                                        ? metadata.recipeBooks.find(
+                                        ? metadata.recipeBooks?.find(
                                             (book) => book.id === field.value
                                           )?.name
                                         : "Select recipe book"}
@@ -603,7 +658,7 @@ export function EditRecipeDialog({ recipe }: EditRecipeDialogProps) {
                                         No recipe book found.
                                       </CommandEmpty>
                                       <CommandGroup>
-                                        {metadata.recipeBooks.map((book) => (
+                                        {metadata.recipeBooks?.map((book) => (
                                           <CommandItem
                                             key={book.id}
                                             value={book.name}
@@ -637,6 +692,7 @@ export function EditRecipeDialog({ recipe }: EditRecipeDialogProps) {
                                   disabled
                                   placeholder="No recipe books available"
                                   {...field}
+                                  value={field.value ?? ""}
                                 />
                               </FormControl>
                             )}
@@ -686,7 +742,12 @@ export function EditRecipeDialog({ recipe }: EditRecipeDialogProps) {
                       </>
                     ) : (
                       <FormControl>
-                        <Input disabled placeholder="Loading..." {...field} />
+                        <Input
+                          disabled
+                          placeholder="Loading..."
+                          {...field}
+                          value={field.value ?? ""}
+                        />
                       </FormControl>
                     )}
                     <FormMessage />
@@ -701,7 +762,11 @@ export function EditRecipeDialog({ recipe }: EditRecipeDialogProps) {
                   <FormItem>
                     <FormLabel>Page Number</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g., 42" {...field} />
+                      <Input
+                        placeholder="e.g., 42"
+                        {...field}
+                        value={field.value ?? ""}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

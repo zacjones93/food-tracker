@@ -42,21 +42,24 @@ export const createRecipeAction = createServerAction()
 
     const defaultVisibility = (teamSettings?.defaultRecipeVisibility || 'public') as 'public' | 'private' | 'unlisted';
 
+    // Helper to convert empty strings to undefined
+    const cleanString = (val: string | undefined) => val === "" ? undefined : val;
+
     const [recipe] = await db.insert(recipesTable)
       .values({
         teamId: session.activeTeamId,
         name: input.name,
-        emoji: input.emoji,
+        emoji: cleanString(input.emoji),
         tags: input.tags,
-        mealType: input.mealType,
-        difficulty: input.difficulty,
+        mealType: cleanString(input.mealType),
+        difficulty: cleanString(input.difficulty),
         // Use input visibility if provided, otherwise use team default
         visibility: input.visibility ?? defaultVisibility,
         ingredients: input.ingredients,
         recipeBody: input.recipeBody,
-        recipeLink: input.recipeLink,
-        recipeBookId: input.recipeBookId,
-        page: input.page,
+        recipeLink: cleanString(input.recipeLink),
+        recipeBookId: cleanString(input.recipeBookId),
+        page: cleanString(input.page),
       })
       .returning();
 
@@ -72,8 +75,7 @@ export const createRecipeAction = createServerAction()
             relationType: relatedRecipe.relationType,
             order: i,
           });
-        } catch (error) {
-          console.error('[CREATE RECIPE] Failed to insert relation:', error);
+        } catch {
           // Continue with other relations even if one fails
         }
       }
@@ -105,8 +107,21 @@ export const updateRecipeAction = createServerAction()
 
     await requirePermission(user.id, existingRecipe.teamId, TEAM_PERMISSIONS.EDIT_RECIPES);
 
+    // Process update data: convert empty strings to null, filter out undefined
+    const processedData: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(updateData)) {
+      if (value !== undefined) {
+        // Convert empty strings to null (to clear fields)
+        if (typeof value === "string" && value === "") {
+          processedData[key] = null;
+        } else {
+          processedData[key] = value;
+        }
+      }
+    }
+
     const [recipe] = await db.update(recipesTable)
-      .set(updateData)
+      .set(processedData)
       .where(eq(recipesTable.id, id))
       .returning();
 
@@ -117,7 +132,7 @@ export const updateRecipeAction = createServerAction()
         .where(eq(recipeRelationsTable.mainRecipeId, id));
 
       // Insert new relations
-      if (relatedRecipes.length > 0) {
+      if (relatedRecipes && relatedRecipes.length > 0) {
         for (let i = 0; i < relatedRecipes.length; i++) {
           const relatedRecipe = relatedRecipes[i];
           try {
@@ -127,8 +142,7 @@ export const updateRecipeAction = createServerAction()
               relationType: relatedRecipe.relationType,
               order: i,
             });
-          } catch (error) {
-            console.error('[UPDATE RECIPE] Failed to insert relation:', error);
+          } catch {
             // Continue with other relations even if one fails
           }
         }
@@ -488,10 +502,10 @@ export const getRecipeMetadataAction = createServerAction()
     const recipeBooks = await db.select().from(recipeBooksTable);
 
     return {
-      mealTypes,
-      difficulties,
-      tags,
-      recipeBooks,
+      mealTypes: mealTypes || [],
+      difficulties: difficulties || [],
+      tags: tags || [],
+      recipeBooks: recipeBooks || [],
     };
   });
 

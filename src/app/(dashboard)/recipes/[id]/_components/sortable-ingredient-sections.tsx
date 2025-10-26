@@ -100,7 +100,7 @@ function SortableSection({
             placeholder="Enter ingredients (one per line)&#10;1 cup flour&#10;2 eggs&#10;1/2 cup milk"
             value={itemsText}
             onChange={(e) => handleItemsChange(e.target.value)}
-            className="min-h-[120px] font-mono text-sm"
+            className="min-h-[240px] font-mono text-sm"
           />
         </div>
       </div>

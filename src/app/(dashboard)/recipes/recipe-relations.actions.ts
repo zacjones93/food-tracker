@@ -190,8 +190,8 @@ export const getRecipeRelationsAction = createServerAction()
     });
 
     return {
-      relationsAsMain,
-      relationsAsSide,
+      relationsAsMain: relationsAsMain || [],
+      relationsAsSide: relationsAsSide || [],
     };
   });
 

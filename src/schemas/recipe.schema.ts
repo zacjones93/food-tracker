@@ -2,11 +2,11 @@ import { z } from "zod";
 import { RECIPE_VISIBILITY } from "@/db/schema";
 import { RELATION_TYPES } from "./recipe-relation.schema";
 
-// Ingredient section schema
+// Ingredient section schema - lenient to handle various data formats
 export const ingredientSectionSchema = z.object({
-  title: z.string().optional(), // Optional section title like "Main Dish", "Sauce", etc.
-  items: z.array(z.string()), // Array of ingredient strings
-});
+  title: z.string().optional(),
+  items: z.array(z.string()).default([]),
+}).passthrough(); // Allow additional properties that might exist in the data
 
 // Related recipe schema for create/update
 export const relatedRecipeSchema = z.object({
@@ -23,24 +23,51 @@ export const relatedRecipeSchema = z.object({
 
 export const createRecipeSchema = z.object({
   name: z.string().min(2).max(500),
-  emoji: z.string().max(10).optional().transform(val => val === "" ? undefined : val),
+  emoji: z.string().max(10).optional(),
   tags: z.array(z.string()).optional(),
-  mealType: z.string().max(50).optional().transform(val => val === "" ? undefined : val), // Allow any meal type string
-  difficulty: z.string().max(20).optional().transform(val => val === "" ? undefined : val), // Allow any difficulty string
+  mealType: z.string().max(50).optional(),
+  difficulty: z.string().max(20).optional(),
   visibility: z.enum([RECIPE_VISIBILITY.PUBLIC, RECIPE_VISIBILITY.PRIVATE, RECIPE_VISIBILITY.UNLISTED]).default(RECIPE_VISIBILITY.PUBLIC),
   ingredients: z.array(ingredientSectionSchema).nullable().optional(),
-  recipeBody: z.string().nullable().optional().transform(val => val === "" ? undefined : val),
-  recipeLink: z.string().max(1000).optional().transform(val => val === "" ? undefined : val),
-  recipeBookId: z.string().optional().transform(val => val === "" ? undefined : val),
-  page: z.string().max(50).optional().transform(val => val === "" ? undefined : val),
+  recipeBody: z.string().nullable().optional(),
+  recipeLink: z.string().max(1000).optional(),
+  recipeBookId: z.string().optional(),
+  page: z.string().max(50).optional(),
   relatedRecipes: z.array(relatedRecipeSchema).optional(),
 });
 
 // Update schema - all fields optional, no defaults
-// We explicitly override visibility to remove the default value from createRecipeSchema
-export const updateRecipeSchema = createRecipeSchema.partial().extend({
+// null = clear field, undefined = don't update field
+export const updateRecipeSchema = z.object({
   id: z.string(),
+  name: z.string().min(2).max(500).optional(),
+  emoji: z.string().max(10).nullable().optional(),
+  tags: z.array(z.string()).nullable().optional(),
+  mealType: z.string().max(50).nullable().optional(),
+  difficulty: z.string().max(20).nullable().optional(),
   visibility: z.enum([RECIPE_VISIBILITY.PUBLIC, RECIPE_VISIBILITY.PRIVATE, RECIPE_VISIBILITY.UNLISTED]).optional(),
+  ingredients: z.array(ingredientSectionSchema).nullable().optional(),
+  recipeBody: z.string().nullable().optional(),
+  recipeLink: z.string().max(1000).nullable().optional(),
+  recipeBookId: z.string().nullable().optional(),
+  page: z.string().max(50).nullable().optional(),
+  relatedRecipes: z.array(relatedRecipeSchema).nullable().optional(),
+});
+
+// Update recipe metadata schema - excludes ingredients (handled by separate dialog)
+export const updateRecipeMetadataSchema = z.object({
+  id: z.string(),
+  name: z.string().min(2).max(500).optional(),
+  emoji: z.string().max(10).nullable().optional(),
+  tags: z.array(z.string()).nullable().optional(),
+  mealType: z.string().max(50).nullable().optional(),
+  difficulty: z.string().max(20).nullable().optional(),
+  visibility: z.enum([RECIPE_VISIBILITY.PUBLIC, RECIPE_VISIBILITY.PRIVATE, RECIPE_VISIBILITY.UNLISTED]).optional(),
+  recipeBody: z.string().nullable().optional(),
+  recipeLink: z.string().max(1000).nullable().optional(),
+  recipeBookId: z.string().nullable().optional(),
+  page: z.string().max(50).nullable().optional(),
+  relatedRecipes: z.array(relatedRecipeSchema).nullable().optional(),
 });
 
 export const deleteRecipeSchema = z.object({
@@ -72,6 +99,7 @@ export const getRecipesSchema = z.object({
 
 export type CreateRecipeSchema = z.infer<typeof createRecipeSchema>;
 export type UpdateRecipeSchema = z.infer<typeof updateRecipeSchema>;
+export type UpdateRecipeMetadataSchema = z.infer<typeof updateRecipeMetadataSchema>;
 export type DeleteRecipeSchema = z.infer<typeof deleteRecipeSchema>;
 export type GetRecipeByIdSchema = z.infer<typeof getRecipeByIdSchema>;
 export type IncrementMealsEatenSchema = z.infer<typeof incrementMealsEatenSchema>;

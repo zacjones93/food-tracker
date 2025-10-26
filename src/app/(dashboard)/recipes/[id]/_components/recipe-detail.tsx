@@ -6,7 +6,15 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import type { Recipe, RecipeBook } from "@/db/schema";
 import { format } from "date-fns";
-import { ArrowLeft, Clock, ChefHat, Calendar, Plus, ExternalLink, BookOpen } from "@/components/ui/themed-icons";
+import {
+  ArrowLeft,
+  Clock,
+  ChefHat,
+  Calendar,
+  Plus,
+  ExternalLink,
+  BookOpen,
+} from "@/components/ui/themed-icons";
 import { useRouter } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import { AddToSchedule } from "../../_components/add-to-schedule";
@@ -30,27 +38,45 @@ interface RecipeDetailProps {
 
 // Helper to normalize ingredients for backward compatibility
 function normalizeIngredients(ingredients: unknown) {
-  if (!ingredients) return null;
-  
+  if (!ingredients || !Array.isArray(ingredients)) return null;
+  if (ingredients.length === 0) return null;
+
   // If it's already in the new format
   if (
-    Array.isArray(ingredients) &&
-    ingredients.length > 0 &&
     typeof ingredients[0] === "object" &&
+    ingredients[0] !== null &&
     "items" in ingredients[0]
   ) {
-    return ingredients as Array<{ title?: string; items: string[] }>;
+    // Ensure all sections have valid items arrays
+    return ingredients
+      .filter(
+        (section): section is { title?: string; items: unknown } =>
+          section !== null && typeof section === "object" && "items" in section
+      )
+      .map((section) => ({
+        title: section.title,
+        items: Array.isArray(section.items)
+          ? section.items.filter(
+              (item): item is string => typeof item === "string"
+            )
+          : [],
+      }))
+      .filter((section) => section.items.length > 0);
   }
-  
+
   // If it's in the old format (array of strings), convert it
-  if (Array.isArray(ingredients) && ingredients.every((i) => typeof i === "string")) {
-    return [{ items: ingredients as string[] }];
+  if (ingredients.every((i) => typeof i === "string")) {
+    return [{ title: undefined, items: ingredients as string[] }];
   }
-  
+
   return null;
 }
 
-export function RecipeDetail({ recipe, relationsAsMain, relationsAsSide }: RecipeDetailProps) {
+export function RecipeDetail({
+  recipe,
+  relationsAsMain,
+  relationsAsSide,
+}: RecipeDetailProps) {
   const router = useRouter();
   const session = useSessionStore();
 
@@ -74,14 +100,16 @@ export function RecipeDetail({ recipe, relationsAsMain, relationsAsSide }: Recip
         </Button>
         <div className="flex-1 w-full md:w-auto">
           <div className="flex flex-col md:flex-row items-center md:items-center gap-3 mb-2">
-            {recipe.emoji && (
-              <span className="text-4xl">{recipe.emoji}</span>
-            )}
-            <h1 className="text-3xl font-bold text-center md:text-left">{recipe.name}</h1>
+            {recipe.emoji && <span className="text-4xl">{recipe.emoji}</span>}
+            <h1 className="text-3xl font-bold text-center md:text-left">
+              {recipe.name}
+            </h1>
             {session.session?.user && <EditRecipeDialog recipe={recipe} />}
           </div>
         </div>
-        {session.session?.user && <AddToSchedule recipeId={recipe.id} variant="default" />}
+        {session.session?.user && (
+          <AddToSchedule recipeId={recipe.id} variant="default" />
+        )}
       </div>
 
       {/* Metadata */}
@@ -167,7 +195,9 @@ export function RecipeDetail({ recipe, relationsAsMain, relationsAsSide }: Recip
                     Recipe Book
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="font-medium">{recipe.recipeBook.name}</span>
+                    <span className="font-medium">
+                      {recipe.recipeBook.name}
+                    </span>
                     {recipe.page && (
                       <Badge variant="outline" className="text-xs">
                         p. {recipe.page}
@@ -180,7 +210,7 @@ export function RecipeDetail({ recipe, relationsAsMain, relationsAsSide }: Recip
           </>
         )}
 
-        {recipe.tags && recipe.tags.length > 0 && (
+        {Array.isArray(recipe.tags) && recipe.tags.length > 0 && (
           <>
             <Separator className="my-4" />
             <div className="space-y-2">
@@ -204,8 +234,10 @@ export function RecipeDetail({ recipe, relationsAsMain, relationsAsSide }: Recip
             <h2 className="text-xl font-semibold">Ingredients</h2>
             {session.session?.user && (
               <div className="flex gap-2">
-                <AddAllIngredientsToWeek 
-                  ingredients={normalizedIngredients.flatMap(section => section.items)} 
+                <AddAllIngredientsToWeek
+                  ingredients={normalizedIngredients.flatMap(
+                    (section) => section.items
+                  )}
                 />
                 <EditIngredientsDialog recipe={recipe} />
               </div>
@@ -214,7 +246,7 @@ export function RecipeDetail({ recipe, relationsAsMain, relationsAsSide }: Recip
           <div className="space-y-6">
             {normalizedIngredients.map((section, sectionIdx) => (
               <div key={sectionIdx}>
-                {section.title && (
+                {section?.title && (
                   <h3 className="text-lg font-semibold mb-3 text-mystic-700 dark:text-cream-100">
                     {section.title}
                   </h3>
@@ -222,9 +254,13 @@ export function RecipeDetail({ recipe, relationsAsMain, relationsAsSide }: Recip
                 <ul className="space-y-2">
                   {section.items.map((ingredient, itemIdx) => (
                     <li key={itemIdx} className="flex items-start gap-2">
-                      <span className="text-mystic-600 dark:text-cream-200 mt-1">•</span>
+                      <span className="text-mystic-600 dark:text-cream-200 mt-1">
+                        •
+                      </span>
                       <span className="flex-1">{ingredient}</span>
-                      {session.session?.user && <AddIngredientToWeek ingredient={ingredient} />}
+                      {session.session?.user && (
+                        <AddIngredientToWeek ingredient={ingredient} />
+                      )}
                     </li>
                   ))}
                 </ul>
@@ -246,7 +282,9 @@ export function RecipeDetail({ recipe, relationsAsMain, relationsAsSide }: Recip
         <Card className="p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold">Instructions</h2>
-            {session.session?.user && <EditInstructionsDialog recipe={recipe} />}
+            {session.session?.user && (
+              <EditInstructionsDialog recipe={recipe} />
+            )}
           </div>
           <div className="prose prose-sm max-w-none dark:prose-invert">
             <ReactMarkdown>{recipe.recipeBody}</ReactMarkdown>

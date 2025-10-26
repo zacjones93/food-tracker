@@ -93,7 +93,9 @@ export default function CreateRecipePage() {
   const [newRecipeBook, setNewRecipeBook] = useState("");
   const [recipeBookOpen, setRecipeBookOpen] = useState(false);
   const [relatedRecipes, setRelatedRecipes] = useState<RelatedRecipeItem[]>([]);
-  const [availableRecipes, setAvailableRecipes] = useState<Array<{ id: string; name: string; emoji: string | null }>>([]);
+  const [availableRecipes, setAvailableRecipes] = useState<
+    Array<{ id: string; name: string; emoji: string | null }>
+  >([]);
 
   const { execute, isPending } = useServerAction(createRecipeAction);
   const { execute: fetchMetadata } = useServerAction(getRecipeMetadataAction);
@@ -155,7 +157,7 @@ export default function CreateRecipePage() {
   };
 
   const handleAddMealType = () => {
-    if (newMealType.trim() && metadata) {
+    if (newMealType.trim() && metadata && metadata.mealTypes) {
       form.setValue("mealType", newMealType.trim());
       setMetadata({
         ...metadata,
@@ -167,7 +169,7 @@ export default function CreateRecipePage() {
   };
 
   const handleAddDifficulty = () => {
-    if (newDifficulty.trim() && metadata) {
+    if (newDifficulty.trim() && metadata && metadata.difficulties) {
       form.setValue("difficulty", newDifficulty.trim());
       setMetadata({
         ...metadata,
@@ -179,7 +181,7 @@ export default function CreateRecipePage() {
   };
 
   const handleAddRecipeBook = async () => {
-    if (newRecipeBook.trim() && metadata) {
+    if (newRecipeBook.trim() && metadata && metadata.recipeBooks) {
       // For now, just add to local state - we'd need a server action to persist
       const tempId = `rb_temp_${Date.now()}`;
       const newBook = { id: tempId, name: newRecipeBook.trim() };
@@ -213,17 +215,18 @@ export default function CreateRecipePage() {
       ...values,
       tags: selectedTags.length > 0 ? selectedTags : undefined,
       ingredients: sectionsToSave.length > 0 ? sectionsToSave : undefined,
-      relatedRecipes: relatedRecipes.length > 0
-        ? relatedRecipes.map((r) => ({
-            recipeId: r.recipeId,
-            relationType: r.relationType,
-          }))
-        : undefined,
+      relatedRecipes:
+        relatedRecipes.length > 0
+          ? relatedRecipes.map((r) => ({
+              recipeId: r.recipeId,
+              relationType: r.relationType,
+            }))
+          : undefined,
     };
 
     // If recipe book is a temp ID, create it first
     if (finalValues.recipeBookId?.startsWith("rb_temp_")) {
-      const tempBook = metadata?.recipeBooks.find(
+      const tempBook = metadata?.recipeBooks?.find(
         (book) => book.id === finalValues.recipeBookId
       );
 
@@ -325,7 +328,7 @@ export default function CreateRecipePage() {
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                {metadata.mealTypes.map((type) => (
+                                {metadata.mealTypes?.map((type) => (
                                   <SelectItem key={type} value={type}>
                                     {type}
                                   </SelectItem>
@@ -406,7 +409,7 @@ export default function CreateRecipePage() {
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                {metadata.difficulties.map((difficulty) => (
+                                {metadata.difficulties?.map((difficulty) => (
                                   <SelectItem
                                     key={difficulty}
                                     value={difficulty}
@@ -494,6 +497,7 @@ export default function CreateRecipePage() {
               )}
               <div className="flex flex-col md:flex-row gap-2">
                 {metadata &&
+                  metadata.tags &&
                   metadata.tags.filter((tag) => !selectedTags.includes(tag))
                     .length > 0 && (
                     <Select
@@ -571,7 +575,8 @@ export default function CreateRecipePage() {
                       <>
                         {!showRecipeBookInput ? (
                           <>
-                            {metadata.recipeBooks.length > 0 ? (
+                            {metadata.recipeBooks &&
+                            metadata.recipeBooks.length > 0 ? (
                               <Popover
                                 open={recipeBookOpen}
                                 onOpenChange={setRecipeBookOpen}
@@ -588,7 +593,7 @@ export default function CreateRecipePage() {
                                       )}
                                     >
                                       {field.value
-                                        ? metadata.recipeBooks.find(
+                                        ? metadata.recipeBooks?.find(
                                             (book) => book.id === field.value
                                           )?.name
                                         : "Select recipe book"}
@@ -604,7 +609,7 @@ export default function CreateRecipePage() {
                                         No recipe book found.
                                       </CommandEmpty>
                                       <CommandGroup>
-                                        {metadata.recipeBooks.map((book) => (
+                                        {metadata.recipeBooks?.map((book) => (
                                           <CommandItem
                                             key={book.id}
                                             value={book.name}
@@ -752,7 +757,8 @@ export default function CreateRecipePage() {
                 onChange={setRelatedRecipes}
               />
               <FormDescription>
-                Add side dishes, sauces, or other recipes that pair well with this one
+                Add side dishes, sauces, or other recipes that pair well with
+                this one
               </FormDescription>
             </FormItem>
 

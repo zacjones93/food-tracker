@@ -22,9 +22,13 @@ interface EditInstructionsDialogProps {
   recipe: Recipe;
 }
 
-export function EditInstructionsDialog({ recipe }: EditInstructionsDialogProps) {
+export function EditInstructionsDialog({
+  recipe,
+}: EditInstructionsDialogProps) {
   const [open, setOpen] = useState(false);
-  const [instructionsText, setInstructionsText] = useState(recipe.recipeBody || "");
+  const [instructionsText, setInstructionsText] = useState(
+    recipe.recipeBody || ""
+  );
   const router = useRouter();
 
   const { execute, isPending } = useServerAction(updateRecipeAction, {
@@ -35,9 +39,10 @@ export function EditInstructionsDialog({ recipe }: EditInstructionsDialogProps) 
   });
 
   const handleSave = async () => {
+    const trimmed = instructionsText.trim();
     await execute({
       id: recipe.id,
-      recipeBody: instructionsText.trim() || null,
+      recipeBody: trimmed === "" ? null : trimmed,
     });
   };
 
