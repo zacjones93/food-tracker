@@ -259,13 +259,15 @@ export const weekRecipesTable = sqliteTable("week_recipes", {
   weekId: text().notNull().references(() => weeksTable.id, { onDelete: 'cascade' }),
   recipeId: text().notNull().references(() => recipesTable.id, { onDelete: 'cascade' }),
 
-  order: integer().default(0),  // Display order in week
+  scheduledDate: integer({ mode: 'timestamp' }),  // Specific date this recipe is scheduled for
+  order: integer().default(0),  // Display order within the day
   made: integer({ mode: 'boolean' }).default(false).notNull(),  // Whether recipe has been made/eaten
   createdAt: integer({ mode: 'timestamp' }).$defaultFn(() => new Date()).notNull(),
 }, (table) => ([
   index("wr_week_idx").on(table.weekId),
   index("wr_recipe_idx").on(table.recipeId),
   index("wr_unique_idx").on(table.weekId, table.recipeId),
+  index("wr_scheduled_date_idx").on(table.scheduledDate),
 ]));
 
 // Self-referencing: Recipe ↔ Recipe (sides/accompaniments)

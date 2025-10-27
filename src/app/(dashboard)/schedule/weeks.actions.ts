@@ -12,6 +12,7 @@ import {
   removeRecipeFromWeekSchema,
   reorderWeekRecipesSchema,
   toggleWeekRecipeMadeSchema,
+  updateWeekRecipeScheduledDateSchema,
 } from "@/schemas/week.schema";
 import { eq, and, inArray } from "drizzle-orm";
 import { getSessionFromCookie } from "@/utils/auth";
@@ -365,6 +366,7 @@ export const addRecipeToWeekAction = createServerAction()
         weekId: input.weekId,
         recipeId: input.recipeId,
         order: input.order ?? maxOrder + 1,
+        scheduledDate: input.scheduledDate,
       })
       .returning();
 
@@ -524,6 +526,49 @@ export const toggleWeekRecipeMadeAction = createServerAction()
     // Update the made status
     const [weekRecipe] = await db.update(weekRecipesTable)
       .set({ made: input.made })
+      .where(
+        and(
+          eq(weekRecipesTable.weekId, input.weekId),
+          eq(weekRecipesTable.recipeId, input.recipeId)
+        )
+      )
+      .returning();
+
+    if (!weekRecipe) {
+      throw new ZSAError("NOT_FOUND", "Recipe not found in this week");
+    }
+
+    revalidatePath("/schedule");
+    revalidatePath(`/schedule/${input.weekId}`);
+
+    return { weekRecipe };
+  });
+
+export const updateWeekRecipeScheduledDateAction = createServerAction()
+  .input(updateWeekRecipeScheduledDateSchema)
+  .handler(async ({ input }) => {
+    const session = await getSessionFromCookie();
+    if (!session) {
+      throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
+    }
+    const { user } = session;
+
+    const db = getDB();
+
+    // Get week to verify permission
+    const week = await db.query.weeksTable.findFirst({
+      where: eq(weeksTable.id, input.weekId),
+    });
+
+    if (!week) {
+      throw new ZSAError("NOT_FOUND", "Week not found");
+    }
+
+    await requirePermission(user.id, week.teamId, TEAM_PERMISSIONS.EDIT_SCHEDULES);
+
+    // Update the scheduled date
+    const [weekRecipe] = await db.update(weekRecipesTable)
+      .set({ scheduledDate: input.scheduledDate })
       .where(
         and(
           eq(weekRecipesTable.weekId, input.weekId),

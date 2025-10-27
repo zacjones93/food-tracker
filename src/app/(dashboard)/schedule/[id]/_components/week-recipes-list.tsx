@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { type Recipe, type WeekRecipe } from "@/db/schema";
 import { Card, CardContent } from "@/components/ui/card";
+import { format, eachDayOfInterval, parseISO } from "date-fns";
 
 type RelatedRecipe = Pick<Recipe, 'id' | 'name' | 'emoji'> & { relationType: string };
 type RecipeWithRelated = Recipe & { relatedRecipes?: RelatedRecipe[] };
@@ -13,12 +14,15 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { RELATION_TYPES } from "@/schemas/recipe-relation.schema";
 import {
   DndContext,
-  closestCenter,
   KeyboardSensor,
   PointerSensor,
   useSensor,
   useSensors,
   type DragEndEvent,
+  type DragStartEvent,
+  pointerWithin,
+  useDroppable,
+  DragOverlay,
 } from "@dnd-kit/core";
 import {
   arrayMove,
@@ -40,6 +44,7 @@ import {
   reorderWeekRecipesAction,
   removeRecipeFromWeekAction,
   toggleWeekRecipeMadeAction,
+  updateWeekRecipeScheduledDateAction,
 } from "../../weeks.actions";
 import { toast } from "sonner";
 import { AddRecipeDialog } from "./add-recipe-dialog";
@@ -49,22 +54,68 @@ interface WeekRecipesListProps {
   weekId: string;
   recipes: (WeekRecipe & { recipe: RecipeWithRelated })[];
   embedded?: boolean;
+  weekStartDate?: Date | null;
+  weekEndDate?: Date | null;
 }
 
 export function WeekRecipesList({
   weekId,
   recipes: initialRecipes,
   embedded = false,
+  weekStartDate,
+  weekEndDate,
 }: WeekRecipesListProps) {
   const [recipes, setRecipes] = useState(initialRecipes);
   const [isMounted, setIsMounted] = useState(false);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [showMade, setShowMade] = useState(false);
+  const [collapsedDates, setCollapsedDates] = useState<Set<string>>(new Set());
+  const [activeId, setActiveId] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  // Generate weekdays based on startDate and endDate
+  const weekdays = useMemo(() => {
+    if (!weekStartDate || !weekEndDate) return [];
+
+    try {
+      const start = weekStartDate instanceof Date ? weekStartDate : parseISO(weekStartDate as unknown as string);
+      const end = weekEndDate instanceof Date ? weekEndDate : parseISO(weekEndDate as unknown as string);
+
+      return eachDayOfInterval({ start, end });
+    } catch {
+      return [];
+    }
+  }, [weekStartDate, weekEndDate]);
+
+  // Group recipes by scheduled date
+  const recipesByDate = useMemo(() => {
+    const grouped = new Map<string, (WeekRecipe & { recipe: RecipeWithRelated })[]>();
+
+    // Initialize all weekdays with empty arrays
+    weekdays.forEach((date) => {
+      grouped.set(format(date, 'yyyy-MM-dd'), []);
+    });
+
+    // Add "Unscheduled" category
+    grouped.set('unscheduled', []);
+
+    // Group recipes by their scheduled date
+    recipes.forEach((weekRecipe) => {
+      if (weekRecipe.scheduledDate) {
+        const dateKey = format(new Date(weekRecipe.scheduledDate), 'yyyy-MM-dd');
+        const existing = grouped.get(dateKey) || [];
+        grouped.set(dateKey, [...existing, weekRecipe]);
+      } else {
+        const existing = grouped.get('unscheduled') || [];
+        grouped.set('unscheduled', [...existing, weekRecipe]);
+      }
+    });
+
+    return grouped;
+  }, [recipes, weekdays]);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -104,6 +155,17 @@ export function WeekRecipesList({
     },
   });
 
+  const { execute: updateScheduledDate } = useServerAction(updateWeekRecipeScheduledDateAction, {
+    onSuccess: () => {
+      toast.success("Recipe moved");
+    },
+    onError: ({ err }) => {
+      toast.error(err.message || "Failed to move recipe");
+      // Revert on error - refresh to get server state
+      router.refresh();
+    },
+  });
+
   const handleRemoveRecipe = async (recipeId: string) => {
     // Optimistically update UI
     setRecipes((prev) => prev.filter((r) => r.recipe.id !== recipeId));
@@ -120,35 +182,134 @@ export function WeekRecipesList({
     await toggleMade({ weekId, recipeId, made: !currentMade });
   };
 
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveId(event.active.id as string);
+  };
+
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
+    setActiveId(null);
 
     if (!over || active.id === over.id) {
       return;
     }
 
-    const oldIndex = recipes.findIndex((item) => item.recipe.id === active.id);
-    const newIndex = recipes.findIndex((item) => item.recipe.id === over.id);
+    const activeRecipeId = active.id as string;
+    const overContainerId = over.id as string;
 
-    const newOrder = arrayMove(recipes, oldIndex, newIndex);
+    // Check if we're dropping on a date container or another recipe
+    const isDateContainer = overContainerId.startsWith('date-container-');
 
-    // Update local state immediately
-    setRecipes(newOrder);
+    if (isDateContainer) {
+      // Dropped into a date section
+      const targetDateKey = overContainerId.replace('date-container-', '');
+      const activeRecipe = recipes.find(r => r.recipe.id === activeRecipeId);
 
-    // Update server with new order
-    reorderRecipes({
-      weekId,
-      recipeIds: newOrder.map((item) => item.recipe.id),
-    });
+      if (!activeRecipe) return;
+
+      // Get current date key for active recipe
+      const currentDateKey = activeRecipe.scheduledDate
+        ? format(new Date(activeRecipe.scheduledDate), 'yyyy-MM-dd')
+        : 'unscheduled';
+
+      // Only update if moving to a different date
+      if (currentDateKey !== targetDateKey) {
+        const newDate = targetDateKey === 'unscheduled'
+          ? null
+          : weekdays.find(d => format(d, 'yyyy-MM-dd') === targetDateKey);
+
+        // Optimistically update the UI
+        setRecipes((prev) =>
+          prev.map((r) =>
+            r.recipe.id === activeRecipeId
+              ? { ...r, scheduledDate: newDate || null }
+              : r
+          )
+        );
+
+        // Update server
+        updateScheduledDate({
+          weekId,
+          recipeId: activeRecipeId,
+          scheduledDate: newDate || null,
+        });
+      }
+    } else {
+      // Dropped on another recipe - check if same date section
+      const activeRecipe = recipes.find(r => r.recipe.id === activeRecipeId);
+      const overRecipe = recipes.find(r => r.recipe.id === overContainerId);
+
+      if (!activeRecipe || !overRecipe) return;
+
+      const activeDateKey = activeRecipe.scheduledDate
+        ? format(new Date(activeRecipe.scheduledDate), 'yyyy-MM-dd')
+        : 'unscheduled';
+      const overDateKey = overRecipe.scheduledDate
+        ? format(new Date(overRecipe.scheduledDate), 'yyyy-MM-dd')
+        : 'unscheduled';
+
+      if (activeDateKey === overDateKey) {
+        // Same section - reorder
+        const oldIndex = recipes.findIndex((item) => item.recipe.id === active.id);
+        const newIndex = recipes.findIndex((item) => item.recipe.id === over.id);
+
+        const newOrder = arrayMove(recipes, oldIndex, newIndex);
+        setRecipes(newOrder);
+
+        reorderRecipes({
+          weekId,
+          recipeIds: newOrder.map((item) => item.recipe.id),
+        });
+      } else {
+        // Different section - move to that date
+        const newDate = overRecipe.scheduledDate || null;
+
+        // Optimistically update the UI
+        setRecipes((prev) =>
+          prev.map((r) =>
+            r.recipe.id === activeRecipeId
+              ? { ...r, scheduledDate: newDate }
+              : r
+          )
+        );
+
+        // Update server
+        updateScheduledDate({
+          weekId,
+          recipeId: activeRecipeId,
+          scheduledDate: newDate,
+        });
+      }
+    }
   };
 
   const handleRecipeAdded = () => {
     router.refresh();
   };
 
-  // Separate recipes into made and unmade
-  const unmadeRecipes = recipes.filter((r) => !r.made);
-  const madeRecipes = recipes.filter((r) => r.made);
+  // Helper to check if all recipes for a date are made
+  const areAllRecipesMadeForDate = (dateKey: string) => {
+    const dateRecipes = recipesByDate.get(dateKey) || [];
+    return dateRecipes.length > 0 && dateRecipes.every((r) => r.made);
+  };
+
+  // Helper to toggle collapsed state for a date
+  const toggleDateCollapsed = (dateKey: string) => {
+    setCollapsedDates((prev) => {
+      const next = new Set(prev);
+      if (next.has(dateKey)) {
+        next.delete(dateKey);
+      } else {
+        next.add(dateKey);
+      }
+      return next;
+    });
+  };
+
+  // Get the active recipe being dragged
+  const activeRecipe = activeId
+    ? recipes.find((r) => r.recipe.id === activeId)
+    : null;
 
   const content =
     recipes.length === 0 ? (
@@ -157,109 +318,245 @@ export function WeekRecipesList({
       </div>
     ) : !isMounted ? (
       // Show non-interactive list during SSR
-      <div className="space-y-4">
-        {unmadeRecipes.length > 0 && (
-          <div>
-            <h4 className="text-sm font-medium mb-2 text-mystic-700 dark:text-cream-200">
-              Upcoming Recipes ({unmadeRecipes.length})
-            </h4>
-            <div className="space-y-2">
-              {unmadeRecipes.map(({ recipe }) => {
-                const hasRelated = !!(recipe.relatedRecipes && recipe.relatedRecipes.length > 0);
-                return (
-                  <StaticRecipeItem
-                    key={recipe.id}
-                    recipe={recipe}
-                    hasRelated={hasRelated}
-                  />
-                );
-              })}
-            </div>
-          </div>
-        )}
-        {madeRecipes.length > 0 && (
-          <div>
-            <h4 className="text-sm font-medium mb-2 text-mystic-700 dark:text-cream-200">
-              Made Recipes ({madeRecipes.length})
-            </h4>
-            <div className="space-y-2">
-              {madeRecipes.map(({ recipe }) => {
-                const hasRelated = !!(recipe.relatedRecipes && recipe.relatedRecipes.length > 0);
-                return (
-                  <StaticRecipeItem
-                    key={recipe.id}
-                    recipe={recipe}
-                    hasRelated={hasRelated}
-                    isMade
-                  />
-                );
-              })}
-            </div>
+      <div className="space-y-6">
+        {weekdays.length > 0 ? (
+          <>
+            {/* Unscheduled recipes - at top */}
+            {(recipesByDate.get('unscheduled') || []).length > 0 && (
+              <div>
+                <h4 className="text-sm font-semibold mb-3 text-mystic-800 dark:text-cream-100">
+                  Unscheduled ({recipesByDate.get('unscheduled')!.length})
+                </h4>
+                <div className="space-y-2">
+                  {recipesByDate.get('unscheduled')!.map(({ recipe }) => {
+                    const hasRelated = !!(recipe.relatedRecipes && recipe.relatedRecipes.length > 0);
+                    return (
+                      <StaticRecipeItem
+                        key={recipe.id}
+                        recipe={recipe}
+                        hasRelated={hasRelated}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Weekday sections */}
+            {weekdays.map((date) => {
+              const dateKey = format(date, 'yyyy-MM-dd');
+              const dateRecipes = recipesByDate.get(dateKey) || [];
+              const allMade = areAllRecipesMadeForDate(dateKey);
+
+              return (
+                <div key={dateKey}>
+                  {allMade ? (
+                    // Minimized completed day (collapsed by default in SSR)
+                    <div className="w-full flex items-center gap-2 text-sm font-medium px-3 py-2 rounded-lg bg-mystic-50/50 dark:bg-cream-200/5 border border-mystic-200/50 dark:border-cream-200/10 text-mystic-600 dark:text-cream-300 mb-3">
+                      <ChevronDown className="h-4 w-4" />
+                      <span className="flex-1 text-left">{format(date, 'EEEE, MMM d')}</span>
+                      <span className="text-xs opacity-60">{dateRecipes.length} completed ✓</span>
+                    </div>
+                  ) : (
+                    // Regular active day
+                    <>
+                      <h4 className="text-sm font-semibold mb-3 text-mystic-800 dark:text-cream-100">
+                        {format(date, 'EEEE, MMM d')} {dateRecipes.length > 0 && `(${dateRecipes.length})`}
+                      </h4>
+                      {dateRecipes.length > 0 ? (
+                        <div className="space-y-2">
+                          {dateRecipes.map(({ recipe }) => {
+                            const hasRelated = !!(recipe.relatedRecipes && recipe.relatedRecipes.length > 0);
+                            return (
+                              <StaticRecipeItem
+                                key={recipe.id}
+                                recipe={recipe}
+                                hasRelated={hasRelated}
+                              />
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <div className="text-sm text-mystic-600 dark:text-cream-300 italic">No recipes scheduled</div>
+                      )}
+                    </>
+                  )}
+                </div>
+              );
+            })}
+          </>
+        ) : (
+          // Fallback to flat list if no date range
+          <div className="space-y-2">
+            {recipes.map(({ recipe }) => {
+              const hasRelated = !!(recipe.relatedRecipes && recipe.relatedRecipes.length > 0);
+              return (
+                <StaticRecipeItem
+                  key={recipe.id}
+                  recipe={recipe}
+                  hasRelated={hasRelated}
+                />
+              );
+            })}
           </div>
         )}
       </div>
     ) : (
-      <div className="space-y-4">
-        {/* Unmade Recipes Section */}
-        {unmadeRecipes.length > 0 && (
-          <div>
-            <h4 className="text-sm font-medium mb-2 text-mystic-700 dark:text-cream-200">
-              Upcoming Recipes ({unmadeRecipes.length})
-            </h4>
-            <DndContext
-              sensors={sensors}
-              collisionDetection={closestCenter}
-              onDragEnd={handleDragEnd}
-            >
+      <DndContext
+        sensors={sensors}
+        collisionDetection={pointerWithin}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+      >
+          <div className="space-y-6">
+            {weekdays.length > 0 ? (
+              <>
+                {/* Unscheduled recipes - at top */}
+                {(recipesByDate.get('unscheduled') || []).length > 0 && (
+                  <div>
+                    <h4 className="text-sm font-semibold mb-3 text-mystic-800 dark:text-cream-100">
+                      Unscheduled ({recipesByDate.get('unscheduled')!.length})
+                    </h4>
+                    <DroppableContainer id="date-container-unscheduled">
+                      <SortableContext
+                        items={recipesByDate.get('unscheduled')!.map((r) => r.recipe.id)}
+                        strategy={verticalListSortingStrategy}
+                      >
+                        <div className="space-y-2">
+                          {recipesByDate.get('unscheduled')!.map((weekRecipe) => (
+                            <SortableRecipeItem
+                              key={weekRecipe.recipe.id}
+                              weekRecipe={weekRecipe}
+                              onRemove={handleRemoveRecipe}
+                              onToggleMade={handleToggleMade}
+                              isMade={weekRecipe.made}
+                            />
+                          ))}
+                        </div>
+                      </SortableContext>
+                    </DroppableContainer>
+                  </div>
+                )}
+
+                {/* Weekday sections */}
+                {weekdays.map((date) => {
+                  const dateKey = format(date, 'yyyy-MM-dd');
+                  const dateRecipes = recipesByDate.get(dateKey) || [];
+                  const allMade = areAllRecipesMadeForDate(dateKey);
+                  const isExpanded = collapsedDates.has(dateKey);
+
+                  return (
+                    <div key={dateKey}>
+                      {allMade ? (
+                        // Minimized completed day - clickable to expand
+                        <>
+                          <button
+                            onClick={() => toggleDateCollapsed(dateKey)}
+                            className="w-full flex items-center gap-2 text-sm font-medium px-3 py-2 rounded-lg bg-mystic-50/50 dark:bg-cream-200/5 border border-mystic-200/50 dark:border-cream-200/10 text-mystic-600 dark:text-cream-300 hover:bg-mystic-100 dark:hover:bg-cream-200/10 transition-colors mb-3"
+                          >
+                            {isExpanded ? (
+                              <ChevronUp className="h-4 w-4" />
+                            ) : (
+                              <ChevronDown className="h-4 w-4" />
+                            )}
+                            <span className="flex-1 text-left">{format(date, 'EEEE, MMM d')}</span>
+                            <span className="text-xs opacity-60">{dateRecipes.length} completed ✓</span>
+                          </button>
+                          {isExpanded && (
+                            <DroppableContainer id={`date-container-${dateKey}`}>
+                              <SortableContext
+                                items={dateRecipes.map((r) => r.recipe.id)}
+                                strategy={verticalListSortingStrategy}
+                              >
+                                <div className="space-y-2 mb-3">
+                                  {dateRecipes.map((weekRecipe) => (
+                                    <SortableRecipeItem
+                                      key={weekRecipe.recipe.id}
+                                      weekRecipe={weekRecipe}
+                                      onRemove={handleRemoveRecipe}
+                                      onToggleMade={handleToggleMade}
+                                      isMade={weekRecipe.made}
+                                    />
+                                  ))}
+                                </div>
+                              </SortableContext>
+                            </DroppableContainer>
+                          )}
+                        </>
+                      ) : (
+                        // Regular active day
+                        <>
+                          <h4 className="text-sm font-semibold mb-3 text-mystic-800 dark:text-cream-100">
+                            {format(date, 'EEEE, MMM d')} {dateRecipes.length > 0 && `(${dateRecipes.length})`}
+                          </h4>
+                          <DroppableContainer id={`date-container-${dateKey}`}>
+                            <SortableContext
+                              items={dateRecipes.map((r) => r.recipe.id)}
+                              strategy={verticalListSortingStrategy}
+                            >
+                              {dateRecipes.length > 0 ? (
+                                <div className="space-y-2">
+                                  {dateRecipes.map((weekRecipe) => (
+                                    <SortableRecipeItem
+                                      key={weekRecipe.recipe.id}
+                                      weekRecipe={weekRecipe}
+                                      onRemove={handleRemoveRecipe}
+                                      onToggleMade={handleToggleMade}
+                                      isMade={weekRecipe.made}
+                                    />
+                                  ))}
+                                </div>
+                              ) : (
+                                <div className="text-sm text-mystic-600 dark:text-cream-300 italic p-3">
+                                  Drop recipes here
+                                </div>
+                              )}
+                            </SortableContext>
+                          </DroppableContainer>
+                        </>
+                      )}
+                    </div>
+                  );
+                })}
+              </>
+            ) : (
+              // Fallback to flat list if no date range
               <SortableContext
-                items={unmadeRecipes.map((r) => r.recipe.id)}
+                items={recipes.map((r) => r.recipe.id)}
                 strategy={verticalListSortingStrategy}
               >
                 <div className="space-y-2">
-                  {unmadeRecipes.map((weekRecipe) => (
+                  {recipes.map((weekRecipe) => (
                     <SortableRecipeItem
                       key={weekRecipe.recipe.id}
                       weekRecipe={weekRecipe}
                       onRemove={handleRemoveRecipe}
                       onToggleMade={handleToggleMade}
+                      isMade={weekRecipe.made}
                     />
                   ))}
                 </div>
               </SortableContext>
-            </DndContext>
-          </div>
-        )}
-
-        {/* Made Recipes Section - Collapsible */}
-        {madeRecipes.length > 0 && (
-          <div>
-            <button
-              onClick={() => setShowMade(!showMade)}
-              className="flex items-center gap-2 text-sm font-medium mb-2 text-mystic-700 dark:text-cream-200 hover:text-mystic-900 dark:hover:text-cream-100 transition-colors"
-            >
-              {showMade ? (
-                <ChevronUp className="h-4 w-4" />
-              ) : (
-                <ChevronDown className="h-4 w-4" />
-              )}
-              Made Recipes ({madeRecipes.length})
-            </button>
-            {showMade && (
-              <div className="space-y-2">
-                {madeRecipes.map((weekRecipe) => (
-                  <SortableRecipeItem
-                    key={weekRecipe.recipe.id}
-                    weekRecipe={weekRecipe}
-                    onRemove={handleRemoveRecipe}
-                    onToggleMade={handleToggleMade}
-                    isMade
-                  />
-                ))}
-              </div>
             )}
           </div>
-        )}
-      </div>
+        <DragOverlay>
+          {activeRecipe ? (
+            <div className="flex items-center gap-3 p-3 rounded-lg bg-background border shadow-lg opacity-90">
+              <div className="text-xl">{activeRecipe.recipe.emoji || "🍽️"}</div>
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium truncate text-mystic-900 dark:text-cream-100">
+                  {activeRecipe.recipe.name}
+                </div>
+              </div>
+              {activeRecipe.recipe.mealType && (
+                <Badge variant="secondary" className="text-xs">
+                  {activeRecipe.recipe.mealType}
+                </Badge>
+              )}
+            </div>
+          ) : null}
+        </DragOverlay>
+      </DndContext>
     );
 
   if (embedded) {
@@ -303,6 +600,22 @@ export function WeekRecipesList({
         onRecipeAdded={handleRecipeAdded}
       />
     </>
+  );
+}
+
+// Droppable container for date sections
+function DroppableContainer({ id, children }: { id: string; children: React.ReactNode }) {
+  const { setNodeRef, isOver } = useDroppable({ id });
+
+  return (
+    <div
+      ref={setNodeRef}
+      className={`min-h-[60px] transition-colors rounded-lg ${
+        isOver ? 'bg-mystic-100 dark:bg-cream-200/10 ring-2 ring-mystic-400 dark:ring-cream-300' : ''
+      }`}
+    >
+      {children}
+    </div>
   );
 }
 

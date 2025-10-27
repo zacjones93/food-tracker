@@ -49,7 +49,12 @@ export default async function ScheduleDetailPage({ params }: ScheduleDetailPageP
         {/* Recipes Section */}
         <section>
           <h2 className="text-2xl font-semibold mb-4 text-mystic-900 dark:text-cream-100">Recipes</h2>
-          <WeekRecipesList weekId={week.id} recipes={week.recipes} />
+          <WeekRecipesList
+            weekId={week.id}
+            recipes={week.recipes}
+            weekStartDate={week.startDate}
+            weekEndDate={week.endDate}
+          />
         </section>
 
         {/* Grocery List Section */}
