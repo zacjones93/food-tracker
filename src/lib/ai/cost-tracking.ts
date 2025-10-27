@@ -3,12 +3,12 @@ import { aiUsageTable } from "@/db/schema";
 import { createId } from "@paralleldrive/cuid2";
 
 const MODEL_COSTS = {
-  // Google Gemini models (primary choice)
-  "gemini-2.5-flash": { prompt: 0, completion: 0 }, // Free during preview
-  "gemini-2.5-flash-lite": { prompt: 0, completion: 0 }, // Free during preview
-  "gemini-1.5-flash": { prompt: 0.00001875, completion: 0.000075 }, // $0.075/$0.30 per 1M tokens
-  "gemini-1.5-flash-8b": { prompt: 0.0000075, completion: 0.00003 }, // $0.03/$0.12 per 1M tokens
-  "gemini-1.5-pro": { prompt: 0.00125, completion: 0.005 }, // $1.25/$5.00 per 1M tokens
+  // Google Gemini models (primary choice) - updated 2025-10-27 from cloud.google.com/vertex-ai/generative-ai/pricing
+  "gemini-2.5-flash": { prompt: 0.0003, completion: 0.0025 }, // $0.30/$2.50 per 1M tokens
+  "gemini-2.5-flash-lite": { prompt: 0.0001, completion: 0.0004 }, // $0.10/$0.40 per 1M tokens
+  "gemini-1.5-flash": { prompt: 0.000075, completion: 0.0003 }, // ~$0.075/$0.30 per 1M tokens (via 1K chars)
+  "gemini-1.5-flash-8b": { prompt: 0.000075, completion: 0.0003 }, // Same as 1.5-flash (not listed separately)
+  "gemini-1.5-pro": { prompt: 0.00125, completion: 0.005 }, // ~$1.25/$5.00 per 1M tokens (via 1K chars)
 
   // OpenAI models (for reference)
   "gpt-4": { prompt: 0.03, completion: 0.06 },
