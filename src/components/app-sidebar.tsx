@@ -10,6 +10,7 @@ import {
   BookOpen,
   ClipboardList,
   Settings2,
+  Sparkles,
 } from "@/components/ui/themed-icons"
 
 import { NavMain } from "@/components/nav-main"
@@ -63,6 +64,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         title: "Recipes",
         url: "/recipes",
         icon: ChefHat,
+      },
+      {
+        title: "AI Assistant",
+        url: "/ai-assistant",
+        icon: Sparkles,
       },
       {
         title: "Recipe Books",
