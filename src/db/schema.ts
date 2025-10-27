@@ -53,6 +53,11 @@ export const TEAM_PERMISSIONS = {
   EDIT_ROLES: 'edit_roles',
   DELETE_ROLES: 'delete_roles',
   ASSIGN_ROLES: 'assign_roles',
+
+  // AI permissions
+  USE_AI_ASSISTANT: 'ai:use_assistant',
+  VIEW_AI_USAGE: 'ai:view_usage',
+  MANAGE_AI_SETTINGS: 'ai:manage_settings',
 } as const;
 
 // Recipe visibility options
@@ -179,6 +184,12 @@ export const teamSettingsTable = sqliteTable("team_settings", {
   autoAddIngredientsToGrocery: integer({ mode: 'boolean' }).notNull().default(true),
   // Controls whether recipe ingredients are automatically added to grocery list
   // when a recipe is added to a schedule
+
+  // AI Features
+  aiEnabled: integer({ mode: 'boolean' }).notNull().default(false),
+  aiMonthlyBudgetUsd: text().default('10.0'), // Stored as text for precise decimal handling
+  aiMaxTokensPerRequest: integer().default(4000),
+  aiMaxRequestsPerDay: integer().default(100),
 }, (table) => ([
   index("tset_team_idx").on(table.teamId),
 ]));
@@ -325,6 +336,26 @@ export const groceryListTemplatesTable = sqliteTable("grocery_list_templates", {
   index("glt_default_idx").on(table.isDefault),
 ]));
 
+// AI Usage tracking table
+export const aiUsageTable = sqliteTable("ai_usage", {
+  ...commonColumns,
+  id: text().primaryKey().$defaultFn(() => `aiu_${createId()}`).notNull(),
+  userId: text().notNull().references(() => userTable.id, { onDelete: 'cascade' }),
+  teamId: text().notNull().references(() => teamTable.id, { onDelete: 'cascade' }),
+  model: text({ length: 100 }).notNull(), // e.g., "gemini-2.5-flash"
+  endpoint: text({ length: 255 }).notNull(), // e.g., "/api/chat"
+  promptTokens: integer().notNull(),
+  completionTokens: integer().notNull(),
+  totalTokens: integer().notNull(),
+  estimatedCostUsd: text().notNull(), // Stored as text for precise decimal handling
+  conversationId: text({ length: 255 }), // Optional: track multi-turn conversations
+  finishReason: text({ length: 50 }), // e.g., "stop", "length", "tool_calls"
+}, (table) => ([
+  index("ai_usage_user_idx").on(table.userId),
+  index("ai_usage_team_idx").on(table.teamId),
+  index("ai_usage_created_idx").on(table.createdAt),
+]));
+
 // Relations
 export const recipeBooksRelations = relations(recipeBooksTable, ({ many }) => ({
   recipes: many(recipesTable),
@@ -338,6 +369,7 @@ export const teamRelations = relations(teamTable, ({ many, one }) => ({
   weeks: many(weeksTable),
   recipes: many(recipesTable),
   groceryTemplates: many(groceryListTemplatesTable),
+  aiUsage: many(aiUsageTable),
   settings: one(teamSettingsTable),
 }));
 
@@ -446,9 +478,21 @@ export const groceryListTemplatesRelations = relations(groceryListTemplatesTable
   }),
 }));
 
+export const aiUsageRelations = relations(aiUsageTable, ({ one }) => ({
+  user: one(userTable, {
+    fields: [aiUsageTable.userId],
+    references: [userTable.id],
+  }),
+  team: one(teamTable, {
+    fields: [aiUsageTable.teamId],
+    references: [teamTable.id],
+  }),
+}));
+
 // User relations
 export const userRelations = relations(userTable, ({ many }) => ({
   teamMemberships: many(teamMembershipTable),
+  aiUsage: many(aiUsageTable),
 }));
 
 // Type exports
@@ -465,3 +509,4 @@ export type WeekRecipe = InferSelectModel<typeof weekRecipesTable>;
 export type RecipeRelation = InferSelectModel<typeof recipeRelationsTable>;
 export type GroceryItem = InferSelectModel<typeof groceryItemsTable>;
 export type GroceryListTemplate = InferSelectModel<typeof groceryListTemplatesTable>;
+export type AiUsage = InferSelectModel<typeof aiUsageTable>;
