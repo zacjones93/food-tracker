@@ -162,7 +162,7 @@ export async function createRecipeTools(db: DrizzleD1Database<typeof schema>) {
         tags: z4.array(z4.string()).optional().describe("Tags for categorization (e.g., ['vegetarian', 'quick'])"),
         ingredients: z4.array(z4.string()).optional().describe("List of ingredients"),
         recipeBody: z4.string().optional().describe("Recipe instructions/notes in markdown"),
-        recipeLink: z4.string().url().optional().describe("URL to original recipe"),
+        recipeLink: z4.string().optional().describe("URL to original recipe (must be valid URL)"),
       }),
       execute: async ({
         name,
@@ -272,7 +272,14 @@ export async function createRecipeTools(db: DrizzleD1Database<typeof schema>) {
             };
           }
 
-          const updates: Partial<Recipe> = {};
+          const updates: {
+            name?: string;
+            emoji?: string;
+            mealType?: string;
+            difficulty?: string;
+            tags?: string[];
+            updatedAt?: Date;
+          } = {};
           if (name !== undefined) updates.name = name;
           if (emoji !== undefined) updates.emoji = emoji;
           if (mealType !== undefined) updates.mealType = mealType;

@@ -109,7 +109,7 @@ export function uiMessageToDbRows(message: MyUIMessage): {
   const partRows: MyDBUIMessagePart[] = message.parts
     .filter((part) => {
       // Filter out AI SDK metadata parts that shouldn't be persisted
-      const partType = part.type;
+      const partType = part.type as string;
 
       // Skip step-start, step-finish, and other internal SDK markers
       if (partType === 'step-start' || partType === 'step-finish' || partType === 'step') {
@@ -123,7 +123,7 @@ export function uiMessageToDbRows(message: MyUIMessage): {
       const baseRow: MyDBUIMessagePart = {
         messageId: message.id,
         partOrder: index,
-        // Initialize all prefix columns as null
+        // Initialize all prefix columns as null1
         text_content: null,
         tool_name: null,
         tool_call_id: null,

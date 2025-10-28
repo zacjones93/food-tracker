@@ -81,9 +81,9 @@ export const Message = ({ message }: { message: MyUIMessage }) => {
             return (
               <div
                 key={index}
-                className="bg-red-900/20 border border-red-700 rounded p-3 text-sm"
+                className="bg-red-950/80 border-2 border-red-500 rounded-lg p-3 text-sm"
               >
-                <div className="font-semibold text-red-300">
+                <div className="font-semibold text-red-100">
                   ❌ Recipe not found
                 </div>
                 {result?.error && (
@@ -98,7 +98,7 @@ export const Message = ({ message }: { message: MyUIMessage }) => {
           return (
             <div
               key={index}
-              className="bg-indigo-950/40 border border-indigo-600 rounded p-4 text-sm"
+              className="bg-indigo-950/90 border-2 border-indigo-400 rounded-lg p-4 text-sm"
             >
               {/* Recipe header */}
               <div className="flex items-start gap-3 mb-3 border-b border-indigo-600/50 pb-3">
@@ -109,18 +109,18 @@ export const Message = ({ message }: { message: MyUIMessage }) => {
                   </h3>
                   <div className="flex flex-wrap gap-2 text-xs">
                     {recipe.mealType && (
-                      <span className="bg-indigo-500/50 text-indigo-100 px-2 py-0.5 rounded">
+                      <span className="bg-indigo-500 text-white px-2 py-1 rounded font-medium">
                         {recipe.mealType}
                       </span>
                     )}
                     {recipe.difficulty && (
-                      <span className="bg-purple-500/50 text-purple-100 px-2 py-0.5 rounded">
+                      <span className="bg-purple-500 text-white px-2 py-1 rounded font-medium">
                         {recipe.difficulty}
                       </span>
                     )}
                     {recipe.tags && recipe.tags.length > 0 && (
                       recipe.tags.map((tag, idx) => (
-                        <span key={idx} className="bg-indigo-700/50 text-indigo-100 px-2 py-0.5 rounded">
+                        <span key={idx} className="bg-indigo-600 text-white px-2 py-1 rounded font-medium">
                           {tag}
                         </span>
                       ))
@@ -216,27 +216,27 @@ export const Message = ({ message }: { message: MyUIMessage }) => {
           return (
             <div
               key={index}
-              className="bg-green-900/20 border border-green-700 rounded p-3 text-sm"
+              className="bg-green-950/80 border-2 border-green-500 rounded-lg p-3 text-sm"
             >
-              <div className="font-semibold text-green-300 mb-2 flex items-center gap-2">
+              <div className="font-semibold text-green-100 mb-2 flex items-center gap-2">
                 🔍 Found {count} recipe{count !== 1 ? 's' : ''}
               </div>
               {recipes.length > 0 && (
                 <div className="space-y-1 text-xs">
                   {recipes.slice(0, 5).map((recipe, idx) => (
-                    <div key={idx} className="text-green-200 flex items-center gap-2">
+                    <div key={idx} className="text-green-50 flex items-center gap-2">
                       <span>{recipe.emoji || '🍽️'}</span>
                       <span className="font-medium">{recipe.name}</span>
                       {recipe.mealType && (
-                        <span className="text-green-400/70">• {recipe.mealType}</span>
+                        <span className="text-green-200">• {recipe.mealType}</span>
                       )}
                       {recipe.difficulty && (
-                        <span className="text-green-400/70">• {recipe.difficulty}</span>
+                        <span className="text-green-200">• {recipe.difficulty}</span>
                       )}
                     </div>
                   ))}
                   {recipes.length > 5 && (
-                    <div className="text-green-400/70 italic">
+                    <div className="text-green-200 italic">
                       ...and {recipes.length - 5} more
                     </div>
                   )}
@@ -253,17 +253,17 @@ export const Message = ({ message }: { message: MyUIMessage }) => {
           return (
             <div
               key={index}
-              className="bg-purple-900/20 border border-purple-700 rounded p-3 text-sm"
+              className="bg-purple-950/80 border-2 border-purple-500 rounded-lg p-3 text-sm"
             >
-              <div className="font-semibold text-purple-300 mb-1">
+              <div className="font-semibold text-purple-100 mb-1">
                 ✅ Recipe added successfully
               </div>
               {result?.recipe && (
-                <div className="text-purple-200 flex items-center gap-2 text-sm">
+                <div className="text-purple-50 flex items-center gap-2 text-sm">
                   <span className="text-lg">{result.recipe.emoji || '🍽️'}</span>
                   <span className="font-medium">{result.recipe.name}</span>
                   {result.recipe.mealType && (
-                    <span className="text-purple-400/70 text-xs">• {result.recipe.mealType}</span>
+                    <span className="text-purple-200 text-xs">• {result.recipe.mealType}</span>
                   )}
                 </div>
               )}
@@ -278,18 +278,18 @@ export const Message = ({ message }: { message: MyUIMessage }) => {
           return (
             <div
               key={index}
-              className="bg-yellow-900/20 border border-yellow-700 rounded p-3 text-sm"
+              className="bg-yellow-950/80 border-2 border-yellow-500 rounded-lg p-3 text-sm"
             >
-              <div className="font-semibold text-yellow-300 mb-1">
+              <div className="font-semibold text-yellow-100 mb-1">
                 ✏️ Recipe updated
               </div>
               {result?.message && (
-                <div className="text-yellow-200 text-xs mb-1">
+                <div className="text-yellow-50 text-xs mb-1">
                   {result.message}
                 </div>
               )}
               {result?.updates && Object.keys(result.updates).length > 0 && (
-                <div className="text-yellow-200/70 text-xs">
+                <div className="text-yellow-200 text-xs">
                   Updated: {Object.keys(result.updates).filter(k => k !== 'updatedAt').join(', ')}
                 </div>
               )}
@@ -306,37 +306,37 @@ export const Message = ({ message }: { message: MyUIMessage }) => {
           return (
             <div
               key={index}
-              className="bg-cyan-900/20 border border-cyan-700 rounded p-3 text-sm"
+              className="bg-cyan-950/80 border-2 border-cyan-500 rounded-lg p-3 text-sm"
             >
-              <div className="font-semibold text-cyan-300 mb-2 flex items-center gap-2">
+              <div className="font-semibold text-cyan-100 mb-2 flex items-center gap-2">
                 📅 Found {count} week{count !== 1 ? 's' : ''}
               </div>
               {weeks.length > 0 && (
                 <div className="space-y-2 text-xs">
                   {weeks.slice(0, 3).map((week, idx) => (
-                    <div key={idx} className="text-cyan-200">
+                    <div key={idx} className="text-cyan-50">
                       <div className="flex items-center gap-2 font-medium mb-1">
                         <span>{week.emoji || '📅'}</span>
                         <span>{week.name}</span>
                         {week.status && (
-                          <span className={`text-xs px-1.5 py-0.5 rounded ${
-                            week.status === 'current' ? 'bg-cyan-500/30 text-cyan-200' :
-                            week.status === 'upcoming' ? 'bg-blue-500/30 text-blue-200' :
-                            'bg-gray-500/30 text-gray-300'
+                          <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${
+                            week.status === 'current' ? 'bg-cyan-500 text-white' :
+                            week.status === 'upcoming' ? 'bg-blue-500 text-white' :
+                            'bg-gray-600 text-gray-100'
                           }`}>
                             {week.status}
                           </span>
                         )}
                       </div>
                       {week.recipes && week.recipes.length > 0 && (
-                        <div className="text-cyan-300/70 text-xs ml-6">
+                        <div className="text-cyan-200 text-xs ml-6">
                           {week.recipes.length} recipe{week.recipes.length !== 1 ? 's' : ''} planned
                         </div>
                       )}
                     </div>
                   ))}
                   {weeks.length > 3 && (
-                    <div className="text-cyan-400/70 italic">
+                    <div className="text-cyan-200 italic">
                       ...and {weeks.length - 3} more
                     </div>
                   )}
@@ -353,18 +353,18 @@ export const Message = ({ message }: { message: MyUIMessage }) => {
           return (
             <div
               key={index}
-              className="bg-orange-900/20 border border-orange-700 rounded p-3 text-sm"
+              className="bg-orange-950/80 border-2 border-orange-500 rounded-lg p-3 text-sm"
             >
-              <div className="font-semibold text-orange-300 mb-1">
+              <div className="font-semibold text-orange-100 mb-1">
                 ✏️ Week updated
               </div>
               {result?.message && (
-                <div className="text-orange-200 text-xs mb-1">
+                <div className="text-orange-50 text-xs mb-1">
                   {result.message}
                 </div>
               )}
               {result?.updates && Object.keys(result.updates).length > 0 && (
-                <div className="text-orange-200/70 text-xs">
+                <div className="text-orange-200 text-xs">
                   Updated: {Object.keys(result.updates).filter(k => k !== 'updatedAt').join(', ')}
                 </div>
               )}
@@ -380,16 +380,16 @@ export const Message = ({ message }: { message: MyUIMessage }) => {
           return (
             <div
               key={index}
-              className="bg-gray-900/20 border border-gray-700 rounded p-3 text-xs"
+              className="bg-gray-900/90 border-2 border-gray-600 rounded-lg p-3 text-xs"
             >
-              <div className="font-semibold text-gray-300 mb-1">
+              <div className="font-semibold text-gray-100 mb-1">
                 🔧 {toolName}
               </div>
-              {result && (
-                <pre className="text-gray-200 text-xs overflow-auto mt-1 max-h-32">
+              {result ? (
+                <pre className="text-gray-50 text-xs overflow-auto mt-1 max-h-32">
                   {JSON.stringify(result, null, 2)}
                 </pre>
-              )}
+              ) : null}
             </div>
           );
         }

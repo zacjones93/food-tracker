@@ -2,7 +2,7 @@ import "server-only";
 import { createServerAction } from "zsa";
 import { z } from "zod";
 import { getSessionFromCookie } from "@/utils/auth";
-import { db } from "@/db";
+import { getDB } from "@/db";
 import { aiChatsTable } from "@/db/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { ZSAError } from "zsa";
@@ -20,6 +20,7 @@ export const getChatHistoryAction = createServerAction().handler(async () => {
     throw new ZSAError("FORBIDDEN", "No active team selected");
   }
 
+  const db = getDB();
   const chats = await db
     .select({
       id: aiChatsTable.id,
@@ -60,6 +61,7 @@ export const createChatAction = createServerAction()
       throw new ZSAError("FORBIDDEN", "No active team selected");
     }
 
+    const db = getDB();
     const chat = await db
       .insert(aiChatsTable)
       .values({
@@ -95,6 +97,7 @@ export const updateChatTitleAction = createServerAction()
       throw new ZSAError("FORBIDDEN", "No active team selected");
     }
 
+    const db = getDB();
     // Verify ownership
     const chat = await db.query.aiChatsTable.findFirst({
       where: and(
@@ -137,6 +140,7 @@ export const deleteChatAction = createServerAction()
       throw new ZSAError("FORBIDDEN", "No active team selected");
     }
 
+    const db = getDB();
     // Verify ownership
     const chat = await db.query.aiChatsTable.findFirst({
       where: and(

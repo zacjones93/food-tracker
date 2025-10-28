@@ -52,7 +52,7 @@ export function UsageStats() {
       try {
         const response = await fetch(`/api/ai-usage/analytics?period=${period}`);
         if (response.ok) {
-          const result = await response.json();
+          const result = (await response.json()) as AnalyticsData;
           setData(result);
         }
       } catch (error) {

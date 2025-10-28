@@ -1,16 +1,16 @@
 import "server-only";
-import type { UIMessage, UIMessagePart } from "ai";
-import { db } from "@/db";
+import type { MyUIMessage } from "@/app/api/chat/route";
+import { getDB } from "@/db";
 import {
   aiChatsTable,
   aiMessagesTable,
   aiMessagePartsTable,
 } from "@/db/schema";
-import { eq, and, desc } from "drizzle-orm";
+import { eq, and, desc, inArray } from "drizzle-orm";
 
 export interface DBChat {
   id: string;
-  messages: UIMessage[];
+  messages: MyUIMessage[];
   createdAt: Date;
   updatedAt: Date;
   title?: string;
@@ -45,8 +45,8 @@ function partsToUIMessage(
     tool_result: string | null;
     tool_state?: string | null;
   }>
-): UIMessage {
-  const uiParts: UIMessagePart[] = parts
+): MyUIMessage {
+  const uiParts = parts
     .sort((a, b) => a.partOrder - b.partOrder)
     .map((part) => {
       if (part.text_content) {
@@ -81,8 +81,8 @@ function partsToUIMessage(
   return {
     id: messageId,
     role: role as "user" | "assistant" | "system",
-    parts: uiParts,
-  };
+    parts: uiParts as unknown as MyUIMessage['parts'],
+  } as MyUIMessage;
 }
 
 /**
@@ -92,8 +92,9 @@ export async function createChat(
   chatId: string,
   teamId: string,
   userId: string,
-  initialMessages: UIMessage[] = []
-): Promise<DB.Chat> {
+  initialMessages: MyUIMessage[] = []
+): Promise<DBChat> {
+  const db = getDB();
   const now = new Date();
 
   // Insert chat
@@ -123,7 +124,8 @@ export async function createChat(
 /**
  * Get a chat by ID with all messages
  */
-export async function getChat(chatId: string): Promise<DB.Chat | null> {
+export async function getChat(chatId: string): Promise<DBChat | null> {
+  const db = getDB();
   const chat = await db.query.aiChatsTable.findFirst({
     where: eq(aiChatsTable.id, chatId),
   });
@@ -141,11 +143,7 @@ export async function getChat(chatId: string): Promise<DB.Chat | null> {
   // Get parts for all messages
   const messageIds = messages.map((m) => m.id);
   const allParts = await db.query.aiMessagePartsTable.findMany({
-    where: eq(
-      aiMessagePartsTable.messageId,
-      // @ts-expect-error - drizzle typing issue with IN clause
-      messageIds
-    ),
+    where: inArray(aiMessagePartsTable.messageId, messageIds),
   });
 
   // Group parts by message
@@ -176,7 +174,7 @@ export async function getChat(chatId: string): Promise<DB.Chat | null> {
   }
 
   // Convert to UIMessages
-  const uiMessages: UIMessage[] = messages.map((msg) => {
+  const uiMessages: MyUIMessage[] = messages.map((msg) => {
     const parts = partsByMessage.get(msg.id) || [];
     return partsToUIMessage(msg.id, msg.role, parts);
   });
@@ -195,8 +193,9 @@ export async function getChat(chatId: string): Promise<DB.Chat | null> {
  */
 export async function appendToChatMessages(
   chatId: string,
-  messages: UIMessage[]
-): Promise<DB.Chat | null> {
+  messages: MyUIMessage[]
+): Promise<DBChat | null> {
+  const db = getDB();
   const chat = await db.query.aiChatsTable.findFirst({
     where: eq(aiChatsTable.id, chatId),
   });
@@ -283,11 +282,12 @@ export async function appendToChatMessages(
  * Delete a chat and all its messages
  */
 export async function deleteChat(chatId: string): Promise<boolean> {
-  const result = await db
+  const db = getDB();
+  await db
     .delete(aiChatsTable)
     .where(eq(aiChatsTable.id, chatId));
 
-  return result.rowsAffected > 0;
+  return true; // D1 doesn't return rowsAffected reliably
 }
 
 /**
@@ -297,6 +297,7 @@ export async function getChatsForTeam(
   teamId: string,
   userId?: string
 ): Promise<Array<{ id: string; title?: string; updatedAt: Date }>> {
+  const db = getDB();
   const chats = await db.query.aiChatsTable.findMany({
     where: userId
       ? and(eq(aiChatsTable.teamId, teamId), eq(aiChatsTable.userId, userId))

@@ -2,7 +2,7 @@ import "server-only";
 import { createServerAction } from "zsa";
 import { z } from "zod";
 import { getSessionFromCookie } from "@/utils/auth";
-import { db } from "@/db";
+import { getDB } from "@/db";
 import { aiUsageTable } from "@/db/schema";
 import { eq, and, gte, desc } from "drizzle-orm";
 import { ZSAError } from "zsa";
@@ -49,6 +49,7 @@ export const getUsageAnalyticsAction = createServerAction()
         break;
     }
 
+    const db = getDB();
     // Fetch usage records
     const usageRecords = await db
       .select()

@@ -1,5 +1,5 @@
 import "server-only";
-import type { UIMessage } from "ai";
+import type { MyUIMessage } from "@/app/api/chat/route";
 import { getDB } from "@/db/index";
 import { aiChatsTable, aiMessagesTable, aiMessagePartsTable } from "@/db/schema";
 import { eq, desc } from "drizzle-orm";
@@ -13,7 +13,7 @@ export async function upsertMessage({
   message,
   chatId,
 }: {
-  message: UIMessage;
+  message: MyUIMessage;
   chatId: string;
 }): Promise<void> {
   const db = getDB();
@@ -42,8 +42,8 @@ export async function upsertMessage({
     await db.insert(aiMessagesTable).values({
       ...messageRow,
       chatId,
-      createdAt: messageRow.createdAt || now,
-      updatedAt: messageRow.updatedAt || now,
+      createdAt: now,
+      updatedAt: now,
       updateCounter: 0,
     });
     console.log("✅ Message inserted:", message.id);
@@ -82,10 +82,10 @@ export async function upsertMessage({
  * - Must start with user message
  * - Must NOT end with user message (to allow new user messages to be appended)
  */
-function validateMessageSequence(messages: UIMessage[]): UIMessage[] {
+function validateMessageSequence(messages: MyUIMessage[]): MyUIMessage[] {
   if (messages.length === 0) return messages;
 
-  const validMessages: UIMessage[] = [];
+  const validMessages: MyUIMessage[] = [];
   let lastRole: string | null = null;
 
   for (const message of messages) {
@@ -107,11 +107,9 @@ function validateMessageSequence(messages: UIMessage[]): UIMessage[] {
   }
 
   // Ensure we start with user message (AI SDK requirement)
-  if (validMessages.length > 0 && validMessages[0].role !== "user") {
-    console.warn("⚠️ First message is not from user, removing assistant messages at start");
-    while (validMessages.length > 0 && validMessages[0].role !== "user") {
-      validMessages.shift();
-    }
+  while (validMessages.length > 0 && validMessages[0]?.role !== "user") {
+    console.warn("⚠️ First message is not from user, removing non-user message at start");
+    validMessages.shift();
   }
 
   // Ensure we DON'T end with user message (to prevent consecutive user messages when appending)
@@ -132,7 +130,7 @@ function validateMessageSequence(messages: UIMessage[]): UIMessage[] {
 export async function loadChat(
   chatId: string,
   options?: { limit?: number; offset?: number }
-): Promise<{ messages: UIMessage[]; hasMore: boolean }> {
+): Promise<{ messages: MyUIMessage[]; hasMore: boolean }> {
   const db = getDB();
   const limit = options?.limit || 1000; // Default to all messages
   const offset = options?.offset || 0;

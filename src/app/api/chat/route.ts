@@ -110,7 +110,7 @@ export async function POST(req: Request): Promise<Response> {
     if (lastMessage && lastMessage.role === "user") {
       console.log("💾 Saving user message before AI call:", lastMessage.id);
       try {
-        await upsertMessage({ message: lastMessage, chatId });
+        await upsertMessage({ message: lastMessage as MyUIMessage, chatId });
         console.log("✅ User message saved");
       } catch (error) {
         console.error("❌ Failed to save user message:", error);
@@ -235,7 +235,7 @@ You can help users:
             console.log(`🎯 Processing NEW message ${message.id} (${message.role}) with ${message.parts?.length || 0} parts`);
 
             try {
-              await upsertMessage({ message, chatId });
+              await upsertMessage({ message: message as MyUIMessage, chatId });
               savedCount++;
               console.log(`✅ Saved message ${message.id}`);
             } catch (err) {

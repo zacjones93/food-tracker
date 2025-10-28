@@ -86,10 +86,10 @@ export function AddRecipeDialog({
 
   const handleSelect = useCallback(
     (recipeId: string) => {
-      // Convert selectedDay to Date or null
+      // Convert selectedDay to Date or undefined
       const scheduledDate = selectedDay === "unscheduled"
-        ? null
-        : weekdays.find(d => format(d, 'yyyy-MM-dd') === selectedDay) || null;
+        ? undefined
+        : weekdays.find(d => format(d, 'yyyy-MM-dd') === selectedDay);
 
       addRecipe({
         weekId,

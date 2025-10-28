@@ -41,7 +41,7 @@ export function CollapsibleContent({
           <div
             className="absolute bottom-0 left-0 right-0 h-8 pointer-events-none"
             style={{
-              background: 'linear-gradient(to top, rgb(30 27 75 / 0.4), transparent)'
+              background: 'linear-gradient(to top, rgb(30 27 75 / 0.95), transparent)'
             }}
           />
         )}
@@ -49,7 +49,7 @@ export function CollapsibleContent({
       {hasOverflow && (
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className="mt-1 flex items-center gap-1 text-xs font-medium text-indigo-300 hover:text-indigo-100 transition-colors"
+          className="mt-1 flex items-center gap-1 text-xs font-medium text-indigo-200 hover:text-indigo-50 transition-colors"
         >
           {isExpanded ? (
             <>

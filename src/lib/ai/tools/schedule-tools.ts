@@ -71,6 +71,12 @@ export async function createScheduleTools(db: DrizzleD1Database<typeof schema>) 
         }
 
         return {
+          searchParameters: {
+            status: status || null,
+            query: query || null,
+            includeRecipes,
+            limit: safeLimit,
+          },
           count: filteredResults.length,
           weeks: filteredResults.map((w: WeekWithRecipes) => ({
             id: w.id,
@@ -136,7 +142,14 @@ export async function createScheduleTools(db: DrizzleD1Database<typeof schema>) 
             };
           }
 
-          const updates: Partial<Week> = {};
+          const updates: {
+            name?: string;
+            emoji?: string | null;
+            status?: string;
+            startDate?: Date;
+            endDate?: Date;
+            updatedAt?: Date;
+          } = {};
           if (name !== undefined) updates.name = name;
           if (emoji !== undefined) updates.emoji = emoji;
           if (status !== undefined) updates.status = status;
