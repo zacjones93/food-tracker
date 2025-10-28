@@ -21,6 +21,7 @@ import {
 import Link from "next/link"
 import type { Route } from "next"
 import type { NavMainItem } from "./app-sidebar"
+import { NavAiChats } from "./nav-ai-chats"
 
 type Props = {
   items: NavMainItem[]
@@ -92,6 +93,11 @@ export function NavMain({
                         </SidebarMenuSubButton>
                       </SidebarMenuSubItem>
                     ))}
+                    {item.title === "AI Assistant" && (
+                      <div className="px-2 py-2">
+                        <NavAiChats />
+                      </div>
+                    )}
                   </SidebarMenuSub>
                 </CollapsibleContent>
               </SidebarMenuItem>

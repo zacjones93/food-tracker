@@ -1,13 +1,23 @@
 import "server-only";
 import * as z4 from "zod/v4";
-import { weeksTable } from "@/db/schema";
+import { tool } from "ai";
+import { weeksTable, type Week, type WeekRecipe } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
+import { getSessionFromCookie } from "@/utils/auth";
+import type { DrizzleD1Database } from "drizzle-orm/d1";
+import type * as schema from "@/db/schema";
 
-export function createScheduleTools(db: any, teamId: string) {
+export async function createScheduleTools(db: DrizzleD1Database<typeof schema>) {
+  const session = await getSessionFromCookie();
+  const teamId = session?.activeTeamId;
+  if (!teamId) {
+    throw new Error("Team ID not found");
+  }
+
   return {
-    search_weeks: {
+    search_weeks: tool({
       description: "Search weeks/meal schedules by status, date range, or name. Returns matching weeks with their assigned recipes.",
-      parameters: z4.object({
+      inputSchema: z4.object({
         status: z4
           .enum(["current", "upcoming", "archived"])
           .optional()
@@ -37,7 +47,7 @@ export function createScheduleTools(db: any, teamId: string) {
         const results = await db.query.weeksTable.findMany({
           where: and(...conditions),
           limit: safeLimit,
-          orderBy: (weeksTable: any, { desc }: any) => [desc(weeksTable.startDate)],
+          orderBy: (table, { desc }) => [desc(table.startDate)],
           with: includeRecipes
             ? {
                 recipes: {
@@ -49,16 +59,20 @@ export function createScheduleTools(db: any, teamId: string) {
             : undefined,
         });
 
-        let filteredResults = results;
+        type WeekWithRecipes = Week & {
+          recipes?: Array<WeekRecipe & { recipe: { id: string; name: string; emoji: string | null; mealType: string | null } }>;
+        };
+
+        let filteredResults = results as WeekWithRecipes[];
         if (query) {
-          filteredResults = results.filter((w: any) =>
+          filteredResults = results.filter((w: WeekWithRecipes) =>
             w.name.toLowerCase().includes(query.toLowerCase())
           );
         }
 
         return {
           count: filteredResults.length,
-          weeks: filteredResults.map((w: any) => ({
+          weeks: filteredResults.map((w: WeekWithRecipes) => ({
             id: w.id,
             name: w.name,
             emoji: w.emoji,
@@ -66,8 +80,8 @@ export function createScheduleTools(db: any, teamId: string) {
             startDate: w.startDate,
             endDate: w.endDate,
             weekNumber: w.weekNumber,
-            recipes: includeRecipes
-              ? w.recipes.map((wr: any) => ({
+            recipes: includeRecipes && w.recipes
+              ? w.recipes.map((wr) => ({
                   recipeId: wr.recipe.id,
                   name: wr.recipe.name,
                   emoji: wr.recipe.emoji,
@@ -80,11 +94,11 @@ export function createScheduleTools(db: any, teamId: string) {
           })),
         };
       },
-    },
+    }),
 
-    update_week: {
+    update_week: tool({
       description: "Update week metadata (name, emoji, status, dates). Does NOT modify assigned recipes.",
-      parameters: z4.object({
+      inputSchema: z4.object({
         weekId: z4.string().describe("Week ID (starts with wk_)"),
         name: z4.string().optional().describe("New week name"),
         emoji: z4.string().optional().describe("New emoji icon"),
@@ -122,7 +136,7 @@ export function createScheduleTools(db: any, teamId: string) {
             };
           }
 
-          const updates: any = {};
+          const updates: Partial<Week> = {};
           if (name !== undefined) updates.name = name;
           if (emoji !== undefined) updates.emoji = emoji;
           if (status !== undefined) updates.status = status;
@@ -153,6 +167,6 @@ export function createScheduleTools(db: any, teamId: string) {
           };
         }
       },
-    },
+    }),
   };
 }

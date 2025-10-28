@@ -7,6 +7,7 @@ import { getSessionFromCookie } from "@/utils/auth";
 import { RecipeVisibilitySettings } from "./_components/recipe-visibility-settings";
 import { DefaultRecipeVisibilitySettings } from "./_components/default-recipe-visibility-settings";
 import { AutoAddIngredientsSettings } from "./_components/auto-add-ingredients-settings";
+import { AiSettings } from "./_components/ai-settings";
 
 interface TeamSettingsPageProps {
   params: Promise<{ teamSlug: string }>;
@@ -50,6 +51,17 @@ async function TeamSettingsContent({ teamSlug }: { teamSlug: string }) {
       <AutoAddIngredientsSettings
         teamId={team.id}
         currentSetting={team.settings?.autoAddIngredientsToGrocery ?? true}
+      />
+
+      <AiSettings
+        teamId={team.id}
+        teamSlug={team.slug}
+        currentSettings={{
+          aiEnabled: team.settings?.aiEnabled ?? false,
+          aiMonthlyBudgetUsd: team.settings?.aiMonthlyBudgetUsd ?? "10.0",
+          aiMaxTokensPerRequest: team.settings?.aiMaxTokensPerRequest ?? 4000,
+          aiMaxRequestsPerDay: team.settings?.aiMaxRequestsPerDay ?? 100,
+        }}
       />
     </div>
   );

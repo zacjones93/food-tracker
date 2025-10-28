@@ -1,14 +1,78 @@
 import "server-only";
 import * as z4 from "zod/v4";
+import { tool } from "ai";
 import { eq, like, and } from "drizzle-orm";
-import { recipesTable } from "@/db/schema";
+import { recipesTable, type Recipe } from "@/db/schema";
 import { createId } from "@paralleldrive/cuid2";
+import { getSessionFromCookie } from "@/utils/auth";
+import type { DrizzleD1Database } from "drizzle-orm/d1";
+import type * as schema from "@/db/schema";
 
-export function createRecipeTools(db: any, teamId: string) {
+export async function createRecipeTools(db: DrizzleD1Database<typeof schema>) {
+  const session = await getSessionFromCookie();
+  const teamId = session?.activeTeamId;
+  if (!teamId) {
+    throw new Error("Team ID not found");
+  }
+
+
+
   return {
-    search_recipes: {
+    get_recipe: tool({
+      description: "Get a complete recipe by ID including all metadata, ingredients, and instructions.",
+      inputSchema: z4.object({
+        recipeId: z4.string().describe("Recipe ID (starts with rcp_)"),
+      }),
+      execute: async ({ recipeId }: { recipeId: string }) => {
+        try {
+          const recipe = await db.query.recipesTable.findFirst({
+            where: and(
+              eq(recipesTable.id, recipeId),
+              eq(recipesTable.teamId, teamId)
+            ),
+          });
+
+          if (!recipe) {
+            return {
+              success: false,
+              error: "Recipe not found or access denied",
+            };
+          }
+
+          return {
+            success: true,
+            recipe: {
+              id: recipe.id,
+              name: recipe.name,
+              emoji: recipe.emoji,
+              mealType: recipe.mealType,
+              difficulty: recipe.difficulty,
+              tags: recipe.tags,
+              ingredients: recipe.ingredients,
+              recipeBody: recipe.recipeBody,
+              recipeLink: recipe.recipeLink,
+              recipeBookId: recipe.recipeBookId,
+              page: recipe.page,
+              visibility: recipe.visibility,
+              lastMadeDate: recipe.lastMadeDate,
+              mealsEatenCount: recipe.mealsEatenCount,
+              createdAt: recipe.createdAt,
+              updatedAt: recipe.updatedAt,
+            },
+          };
+        } catch (error) {
+          console.error("Error fetching recipe:", error);
+          return {
+            success: false,
+            error: "Failed to fetch recipe",
+          };
+        }
+      },
+    }),
+
+    search_recipes: tool({
       description: "Search recipes by name, tags, meal type, or difficulty. Returns a list of matching recipes.",
-      parameters: z4.object({
+      inputSchema: z4.object({
         query: z4.string().optional().describe("Search query to match against recipe name"),
         mealType: z4
           .enum(["breakfast", "lunch", "dinner", "dessert", "snack", "appetizer"])
@@ -54,15 +118,22 @@ export function createRecipeTools(db: any, teamId: string) {
 
         let filteredResults = results;
         if (tags && tags.length > 0) {
-          filteredResults = results.filter((r: any) => {
+          filteredResults = results.filter((r: Recipe) => {
             const recipeTags = r.tags || [];
             return tags.some(tag => recipeTags.includes(tag));
           });
         }
 
         return {
+          searchParameters: {
+            query: query || null,
+            mealType: mealType || null,
+            difficulty: difficulty || null,
+            tags: tags || [],
+            limit: safeLimit,
+          },
           count: filteredResults.length,
-          recipes: filteredResults.map((r: any) => ({
+          recipes: filteredResults.map((r: Recipe) => ({
             id: r.id,
             name: r.name,
             emoji: r.emoji,
@@ -74,11 +145,11 @@ export function createRecipeTools(db: any, teamId: string) {
           })),
         };
       },
-    },
+    }),
 
-    add_recipe: {
+    add_recipe: tool({
       description: "Create a new recipe in the database. Use this when the user wants to add a recipe.",
-      parameters: z4.object({
+      inputSchema: z4.object({
         name: z4.string().min(1).describe("Recipe name"),
         emoji: z4.string().optional().describe("Emoji icon for the recipe (e.g., '🍕')"),
         mealType: z4
@@ -153,11 +224,11 @@ export function createRecipeTools(db: any, teamId: string) {
           };
         }
       },
-    },
+    }),
 
-    update_recipe_metadata: {
+    update_recipe_metadata: tool({
       description: "Update recipe metadata (name, emoji, tags, meal type, difficulty). Does NOT update ingredients or recipe body.",
-      parameters: z4.object({
+      inputSchema: z4.object({
         recipeId: z4.string().describe("Recipe ID (starts with rcp_)"),
         name: z4.string().optional().describe("New recipe name"),
         emoji: z4.string().optional().describe("New emoji icon"),
@@ -201,7 +272,7 @@ export function createRecipeTools(db: any, teamId: string) {
             };
           }
 
-          const updates: any = {};
+          const updates: Partial<Recipe> = {};
           if (name !== undefined) updates.name = name;
           if (emoji !== undefined) updates.emoji = emoji;
           if (mealType !== undefined) updates.mealType = mealType;
@@ -235,6 +306,6 @@ export function createRecipeTools(db: any, teamId: string) {
           };
         }
       },
-    },
+    }),
   };
 }

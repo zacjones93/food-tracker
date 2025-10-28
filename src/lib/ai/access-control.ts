@@ -1,10 +1,9 @@
 import "server-only";
-import { getCloudflareContext } from "@opennextjs/cloudflare";
-import { drizzle } from "drizzle-orm/d1";
 import { eq, and, gte, sql } from "drizzle-orm";
 import { teamTable, teamSettingsTable, aiUsageTable } from "@/db/schema";
+import { getDB } from "@/db/index";
 
-const ALLOWED_TEAM_SLUG = "team_default";
+const ALLOWED_TEAM_SLUGS = ["default", "team_default"];
 
 export async function checkAiAccess(teamId: string): Promise<{
   allowed: boolean;
@@ -15,8 +14,7 @@ export async function checkAiAccess(teamId: string): Promise<{
     maxRequestsPerDay: number;
   };
 }> {
-  const { env } = await getCloudflareContext();
-  const db = drizzle(env.NEXT_TAG_CACHE_D1);
+  const db = getDB();
 
   // Get team details
   const teamData = await db.query.teamTable.findFirst({
@@ -31,7 +29,7 @@ export async function checkAiAccess(teamId: string): Promise<{
   }
 
   // Check if team is allowed (slug-based restriction)
-  if (teamData.slug !== ALLOWED_TEAM_SLUG) {
+  if (!ALLOWED_TEAM_SLUGS.includes(teamData.slug)) {
     return {
       allowed: false,
       reason: "This feature is currently restricted. Please talk to Zac or Mariah about using this feature.",
@@ -61,8 +59,7 @@ export async function checkDailyUsageLimit(
   teamId: string,
   maxRequests: number
 ): Promise<{ withinLimit: boolean; currentCount: number }> {
-  const { env } = await getCloudflareContext();
-  const db = drizzle(env.NEXT_TAG_CACHE_D1);
+  const db = getDB();
 
   // Get today's usage count
   const today = new Date();
@@ -92,8 +89,7 @@ export async function getMonthlyUsage(teamId: string): Promise<{
   budgetUsd: number;
   percentUsed: number;
 }> {
-  const { env } = await getCloudflareContext();
-  const db = drizzle(env.NEXT_TAG_CACHE_D1);
+  const db = getDB();
 
   // Get current month's usage
   const firstDayOfMonth = new Date();
