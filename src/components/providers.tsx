@@ -11,6 +11,7 @@ import type { getConfig } from "@/flags"
 import { useTopLoader } from 'nextjs-toploader'
 import { usePathname, useRouter, useSearchParams, useParams } from "next/navigation"
 import { useEventListener, useDebounceCallback } from 'usehooks-ts';
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 function RouterChecker() {
   const { start, done } = useTopLoader()
@@ -59,6 +60,19 @@ export function ThemeProvider({
   const documentRef = useRef(typeof window === 'undefined' ? null : document)
   const windowRef = useRef(typeof window === 'undefined' ? null : window)
 
+  // Initialize React Query client
+  const [queryClient] = React.useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            staleTime: 60 * 1000, // 1 minute
+            refetchOnWindowFocus: false,
+          },
+        },
+      })
+  )
+
   const doFetchSession = useCallback(async () => {
     try {
       refetchSession() // Set loading state before fetch
@@ -106,13 +120,15 @@ export function ThemeProvider({
   }, [doFetchSession])
 
   return (
-    <HeroUIProvider>
-      <Suspense>
-        <RouterChecker />
-      </Suspense>
-      <NextThemesProvider {...props} attribute="class">
-        {children}
-      </NextThemesProvider>
-    </HeroUIProvider>
+    <QueryClientProvider client={queryClient}>
+      <HeroUIProvider>
+        <Suspense>
+          <RouterChecker />
+        </Suspense>
+        <NextThemesProvider {...props} attribute="class">
+          {children}
+        </NextThemesProvider>
+      </HeroUIProvider>
+    </QueryClientProvider>
   )
 }

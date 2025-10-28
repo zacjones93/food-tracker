@@ -159,3 +159,57 @@ export const updateAutoAddIngredientsAction = createServerAction()
 
     return { settings };
   });
+
+export const updateAiSettingsAction = createServerAction()
+  .input(z.object({
+    teamId: z.string(),
+    aiEnabled: z.boolean().optional(),
+    aiMonthlyBudgetUsd: z.string().optional(),
+    aiMaxTokensPerRequest: z.number().int().positive().optional(),
+    aiMaxRequestsPerDay: z.number().int().positive().optional(),
+  }))
+  .handler(async ({ input }) => {
+    const session = await getSessionFromCookie();
+    if (!session) {
+      throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
+    }
+
+    await requirePermission(session.user.id, input.teamId, TEAM_PERMISSIONS.EDIT_TEAM_SETTINGS);
+
+    const db = getDB();
+
+    // Check if settings exist
+    const existing = await db.query.teamSettingsTable.findFirst({
+      where: eq(teamSettingsTable.teamId, input.teamId),
+    });
+
+    const updates: Partial<{
+      aiEnabled: boolean;
+      aiMonthlyBudgetUsd: string;
+      aiMaxTokensPerRequest: number;
+      aiMaxRequestsPerDay: number;
+    }> = {};
+    if (input.aiEnabled !== undefined) updates.aiEnabled = input.aiEnabled;
+    if (input.aiMonthlyBudgetUsd !== undefined) updates.aiMonthlyBudgetUsd = input.aiMonthlyBudgetUsd;
+    if (input.aiMaxTokensPerRequest !== undefined) updates.aiMaxTokensPerRequest = input.aiMaxTokensPerRequest;
+    if (input.aiMaxRequestsPerDay !== undefined) updates.aiMaxRequestsPerDay = input.aiMaxRequestsPerDay;
+
+    let settings;
+    if (existing) {
+      // Update existing
+      [settings] = await db.update(teamSettingsTable)
+        .set(updates)
+        .where(eq(teamSettingsTable.teamId, input.teamId))
+        .returning();
+    } else {
+      // Create new
+      [settings] = await db.insert(teamSettingsTable)
+        .values({
+          teamId: input.teamId,
+          ...updates,
+        })
+        .returning();
+    }
+
+    return { settings };
+  });

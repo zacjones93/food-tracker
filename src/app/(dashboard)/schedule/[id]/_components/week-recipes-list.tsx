@@ -76,6 +76,11 @@ export function WeekRecipesList({
     setIsMounted(true);
   }, []);
 
+  // Sync local state with prop when parent refreshes
+  useEffect(() => {
+    setRecipes(initialRecipes);
+  }, [initialRecipes]);
+
   // Generate weekdays based on startDate and endDate
   const weekdays = useMemo(() => {
     if (!weekStartDate || !weekEndDate) return [];
@@ -568,6 +573,8 @@ export function WeekRecipesList({
           open={isAddDialogOpen}
           onOpenChange={setIsAddDialogOpen}
           onRecipeAdded={handleRecipeAdded}
+          weekStartDate={weekStartDate}
+          weekEndDate={weekEndDate}
         />
       </>
     );
@@ -598,6 +605,8 @@ export function WeekRecipesList({
         open={isAddDialogOpen}
         onOpenChange={setIsAddDialogOpen}
         onRecipeAdded={handleRecipeAdded}
+        weekStartDate={weekStartDate}
+        weekEndDate={weekEndDate}
       />
     </>
   );

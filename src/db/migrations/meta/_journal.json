@@ -148,6 +148,55 @@
       "when": 1760825000000,
       "tag": "0020_add-made-to-week-recipes",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "6",
+      "when": 1760830000000,
+      "tag": "0021_add-relation-type-to-recipe-relations",
+      "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "6",
+      "when": 1760835000000,
+      "tag": "0022_fix-null-string-values",
+      "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "6",
+      "when": 1760840000000,
+      "tag": "0023_add-auto-add-ingredients-setting",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "6",
+      "when": 1760845000000,
+      "tag": "0024_add-scheduled-date-to-week-recipes",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "6",
+      "when": 1760850000000,
+      "tag": "0025_add-ai-chat-feature",
+      "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "6",
+      "when": 1760855000000,
+      "tag": "0026_add-ai-chat-tables",
+      "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "6",
+      "when": 1760860000000,
+      "tag": "0027_update-ai-usage-tokens",
+      "breakpoints": true
     }
   ]
 }

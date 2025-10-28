@@ -53,6 +53,11 @@ export const TEAM_PERMISSIONS = {
   EDIT_ROLES: 'edit_roles',
   DELETE_ROLES: 'delete_roles',
   ASSIGN_ROLES: 'assign_roles',
+
+  // AI permissions
+  USE_AI_ASSISTANT: 'ai:use_assistant',
+  VIEW_AI_USAGE: 'ai:view_usage',
+  MANAGE_AI_SETTINGS: 'ai:manage_settings',
 } as const;
 
 // Recipe visibility options
@@ -179,6 +184,12 @@ export const teamSettingsTable = sqliteTable("team_settings", {
   autoAddIngredientsToGrocery: integer({ mode: 'boolean' }).notNull().default(true),
   // Controls whether recipe ingredients are automatically added to grocery list
   // when a recipe is added to a schedule
+
+  // AI Features
+  aiEnabled: integer({ mode: 'boolean' }).notNull().default(false),
+  aiMonthlyBudgetUsd: text().default('10.0'), // Stored as text for precise decimal handling
+  aiMaxTokensPerRequest: integer().default(4000),
+  aiMaxRequestsPerDay: integer().default(100),
 }, (table) => ([
   index("tset_team_idx").on(table.teamId),
 ]));
@@ -325,6 +336,88 @@ export const groceryListTemplatesTable = sqliteTable("grocery_list_templates", {
   index("glt_default_idx").on(table.isDefault),
 ]));
 
+// AI Usage tracking table
+export const aiUsageTable = sqliteTable("ai_usage", {
+  ...commonColumns,
+  id: text().primaryKey().$defaultFn(() => `aiu_${createId()}`).notNull(),
+  userId: text().notNull().references(() => userTable.id, { onDelete: 'cascade' }),
+  teamId: text().notNull().references(() => teamTable.id, { onDelete: 'cascade' }),
+  model: text({ length: 100 }).notNull(), // e.g., "gemini-2.5-flash"
+  endpoint: text({ length: 255 }).notNull(), // e.g., "/api/chat"
+  inputTokens: integer().notNull(),
+  outputTokens: integer().notNull(),
+  reasoningTokens: integer().default(0).notNull(),
+  cachedInputTokens: integer().default(0).notNull(),
+  totalTokens: integer().notNull(),
+  estimatedCostUsd: text().notNull(), // Stored as text for precise decimal handling
+  conversationId: text({ length: 255 }), // Optional: track multi-turn conversations
+  finishReason: text({ length: 50 }), // e.g., "stop", "length", "tool_calls"
+}, (table) => ([
+  index("ai_usage_user_idx").on(table.userId),
+  index("ai_usage_team_idx").on(table.teamId),
+  index("ai_usage_created_idx").on(table.createdAt),
+]));
+
+// AI Chat persistence tables (three-table architecture from AI SDK v5 docs)
+export const aiChatsTable = sqliteTable("ai_chats", {
+  ...commonColumns,
+  id: text().primaryKey().notNull(), // Client-provided ID (no auto-generate)
+  teamId: text().notNull().references(() => teamTable.id, { onDelete: 'cascade' }),
+  userId: text().notNull().references(() => userTable.id, { onDelete: 'cascade' }),
+  title: text({ length: 255 }), // Optional chat title
+}, (table) => ([
+  index("ai_chats_team_idx").on(table.teamId),
+  index("ai_chats_user_idx").on(table.userId),
+  index("ai_chats_created_idx").on(table.createdAt),
+]));
+
+export const aiMessagesTable = sqliteTable("ai_messages", {
+  ...commonColumns,
+  id: text().primaryKey(), // Client/server generated IDs (no auto-generate)
+  chatId: text().notNull().references(() => aiChatsTable.id, { onDelete: 'cascade' }),
+  role: text({ length: 20 }).notNull(), // 'user' | 'assistant' | 'system' | 'tool'
+}, (table) => ([
+  index("ai_messages_chat_idx").on(table.chatId),
+  index("ai_messages_created_idx").on(table.createdAt),
+]));
+
+// Prefix-based parts table for type-safe message content storage
+export const aiMessagePartsTable = sqliteTable("ai_message_parts", {
+  ...commonColumns,
+  id: text().primaryKey().$defaultFn(() => `aimp_${createId()}`).notNull(),
+  messageId: text().notNull().references(() => aiMessagesTable.id, { onDelete: 'cascade' }),
+  partOrder: integer().notNull(), // Maintain sequence of parts
+
+  // Text content parts
+  text_content: text(),
+
+  // Tool call parts (dynamic columns per tool)
+  // Format: tool_{toolName}_input, tool_{toolName}_output, tool_{toolName}_state
+  // Example: tool_searchRecipes_input, tool_searchRecipes_output, tool_searchRecipes_state
+  // These will be stored as TEXT (JSON serialized) due to SQLite limitations
+  tool_name: text({ length: 100 }), // Tool name for tool-call parts
+  tool_call_id: text({ length: 100 }), // Tool call ID
+  tool_args: text(), // JSON-serialized tool arguments
+  tool_result: text(), // JSON-serialized tool result
+  tool_state: text({ length: 50 }), // 'input-streaming' | 'input-available' | 'output-available' | 'output-error'
+
+  // Image parts
+  image_url: text(),
+  image_mime_type: text({ length: 50 }),
+
+  // File attachment parts
+  file_url: text(),
+  file_name: text({ length: 255 }),
+  file_type: text({ length: 100 }),
+  file_metadata: text(), // JSON-serialized metadata
+}, (table) => ([
+  index("ai_message_parts_message_idx").on(table.messageId),
+  index("ai_message_parts_order_idx").on(table.messageId, table.partOrder),
+]));
+
+export type MyDBUIMessagePart = typeof aiMessagePartsTable.$inferInsert;
+export type MyDBUIMessagePartSelect = typeof aiMessagePartsTable.$inferSelect;
+
 // Relations
 export const recipeBooksRelations = relations(recipeBooksTable, ({ many }) => ({
   recipes: many(recipesTable),
@@ -338,6 +431,8 @@ export const teamRelations = relations(teamTable, ({ many, one }) => ({
   weeks: many(weeksTable),
   recipes: many(recipesTable),
   groceryTemplates: many(groceryListTemplatesTable),
+  aiUsage: many(aiUsageTable),
+  aiChats: many(aiChatsTable),
   settings: one(teamSettingsTable),
 }));
 
@@ -446,9 +541,49 @@ export const groceryListTemplatesRelations = relations(groceryListTemplatesTable
   }),
 }));
 
+export const aiUsageRelations = relations(aiUsageTable, ({ one }) => ({
+  user: one(userTable, {
+    fields: [aiUsageTable.userId],
+    references: [userTable.id],
+  }),
+  team: one(teamTable, {
+    fields: [aiUsageTable.teamId],
+    references: [teamTable.id],
+  }),
+}));
+
+export const aiChatsRelations = relations(aiChatsTable, ({ one, many }) => ({
+  user: one(userTable, {
+    fields: [aiChatsTable.userId],
+    references: [userTable.id],
+  }),
+  team: one(teamTable, {
+    fields: [aiChatsTable.teamId],
+    references: [teamTable.id],
+  }),
+  messages: many(aiMessagesTable),
+}));
+
+export const aiMessagesRelations = relations(aiMessagesTable, ({ one, many }) => ({
+  chat: one(aiChatsTable, {
+    fields: [aiMessagesTable.chatId],
+    references: [aiChatsTable.id],
+  }),
+  parts: many(aiMessagePartsTable),
+}));
+
+export const aiMessagePartsRelations = relations(aiMessagePartsTable, ({ one }) => ({
+  message: one(aiMessagesTable, {
+    fields: [aiMessagePartsTable.messageId],
+    references: [aiMessagesTable.id],
+  }),
+}));
+
 // User relations
 export const userRelations = relations(userTable, ({ many }) => ({
   teamMemberships: many(teamMembershipTable),
+  aiUsage: many(aiUsageTable),
+  aiChats: many(aiChatsTable),
 }));
 
 // Type exports
@@ -465,3 +600,7 @@ export type WeekRecipe = InferSelectModel<typeof weekRecipesTable>;
 export type RecipeRelation = InferSelectModel<typeof recipeRelationsTable>;
 export type GroceryItem = InferSelectModel<typeof groceryItemsTable>;
 export type GroceryListTemplate = InferSelectModel<typeof groceryListTemplatesTable>;
+export type AiUsage = InferSelectModel<typeof aiUsageTable>;
+export type AiChat = InferSelectModel<typeof aiChatsTable>;
+export type AiMessage = InferSelectModel<typeof aiMessagesTable>;
+export type AiMessagePart = InferSelectModel<typeof aiMessagePartsTable>;

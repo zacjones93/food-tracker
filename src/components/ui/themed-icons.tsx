@@ -355,6 +355,14 @@ export const Crown = (props: ThemedIconProps) => (
   />
 );
 
+export const Sparkles = (props: ThemedIconProps) => (
+  <Sparkle
+    weight={props.weight || "duotone"}
+    color={props.color || "currentColor"}
+    {...props}
+  />
+);
+
 export const Shield = (props: ThemedIconProps) => (
   <ShieldCheck
     weight={props.weight || "regular"}
