@@ -1,7 +1,7 @@
 import "server-only";
 import * as z4 from "zod/v4";
 import { tool } from "ai";
-import { weeksTable, type Week, type WeekRecipe } from "@/db/schema";
+import { weeksTable, weekRecipesTable, recipesTable, type Week, type WeekRecipe } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import { getSessionFromCookie } from "@/utils/auth";
 import type { DrizzleD1Database } from "drizzle-orm/d1";
@@ -177,6 +177,131 @@ export async function createScheduleTools(db: DrizzleD1Database<typeof schema>) 
           return {
             success: false,
             error: "Failed to update week",
+          };
+        }
+      },
+    }),
+
+    add_recipe_to_schedule: tool({
+      description: "Add a recipe to a week's schedule. If the user does not specify a specific day to schedule the recipe, ask them if they want to schedule it for a specific day within the week's date range. The recipe will be added to the week regardless, but scheduling it for a specific day helps with meal planning.",
+      inputSchema: z4.object({
+        weekId: z4.string().describe("Week ID (starts with wk_)"),
+        recipeId: z4.string().describe("Recipe ID (starts with rcp_)"),
+        scheduledDate: z4.string().optional().describe("ISO date string (YYYY-MM-DD) to schedule the recipe for a specific day. If not provided, recipe is added to week without a specific day."),
+        order: z4.number().optional().describe("Display order within the day (default 0)"),
+      }),
+      execute: async ({
+        weekId,
+        recipeId,
+        scheduledDate,
+        order,
+      }: {
+        weekId: string;
+        recipeId: string;
+        scheduledDate?: string;
+        order?: number;
+      }) => {
+        try {
+          // Verify week exists and belongs to team
+          const week = await db.query.weeksTable.findFirst({
+            where: and(eq(weeksTable.id, weekId), eq(weeksTable.teamId, teamId)),
+          });
+
+          if (!week) {
+            return {
+              success: false,
+              error: "Week not found or access denied",
+            };
+          }
+
+          // Verify recipe exists and belongs to team
+          const recipe = await db.query.recipesTable.findFirst({
+            where: and(
+              eq(recipesTable.id, recipeId),
+              eq(recipesTable.teamId, teamId)
+            ),
+          });
+
+          if (!recipe) {
+            return {
+              success: false,
+              error: "Recipe not found or access denied",
+            };
+          }
+
+          // Check if recipe is already in this week
+          const existing = await db.query.weekRecipesTable.findFirst({
+            where: and(
+              eq(weekRecipesTable.weekId, weekId),
+              eq(weekRecipesTable.recipeId, recipeId)
+            ),
+          });
+
+          if (existing) {
+            return {
+              success: false,
+              error: `Recipe "${recipe.name}" is already in week "${week.name}"`,
+            };
+          }
+
+          // Add recipe to week
+          const now = new Date();
+
+          // Parse scheduledDate correctly to avoid timezone issues
+          let parsedScheduledDate: Date | null = null;
+          if (scheduledDate) {
+            const [year, month, day] = scheduledDate.split('-');
+            parsedScheduledDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+          }
+
+          const result = await db.insert(weekRecipesTable).values({
+            weekId,
+            recipeId,
+            scheduledDate: parsedScheduledDate,
+            order: order ?? 0,
+            made: false,
+            createdAt: now,
+          }).returning();
+
+          const weekRecipe = result[0];
+
+          // Format the date correctly by parsing the ISO string components
+          const formatDate = (isoDateString: string) => {
+            const [year, month, day] = isoDateString.split('-');
+            return new Date(parseInt(year), parseInt(month) - 1, parseInt(day)).toLocaleDateString();
+          };
+
+          return {
+            success: true,
+            message: scheduledDate
+              ? `Recipe "${recipe.name}" added to "${week.name}" and scheduled for ${formatDate(scheduledDate)}`
+              : `Recipe "${recipe.name}" added to "${week.name}" (no specific day scheduled)`,
+            weekRecipe: {
+              id: weekRecipe.id,
+              weekId: weekRecipe.weekId,
+              recipeId: weekRecipe.recipeId,
+              scheduledDate: weekRecipe.scheduledDate,
+              order: weekRecipe.order,
+            },
+            recipe: {
+              id: recipe.id,
+              name: recipe.name,
+              emoji: recipe.emoji,
+              mealType: recipe.mealType,
+            },
+            week: {
+              id: week.id,
+              name: week.name,
+              emoji: week.emoji,
+              startDate: week.startDate,
+              endDate: week.endDate,
+            },
+          };
+        } catch (error) {
+          console.error("Error adding recipe to schedule:", error);
+          return {
+            success: false,
+            error: "Failed to add recipe to schedule",
           };
         }
       },

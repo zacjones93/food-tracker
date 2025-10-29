@@ -71,7 +71,7 @@ export async function createRecipeTools(db: DrizzleD1Database<typeof schema>) {
     }),
 
     search_recipes: tool({
-      description: "Search recipes by name, tags, meal type, or difficulty. Returns a list of matching recipes.",
+      description: "Search recipes by name, tags, meal type, or difficulty. Returns a list of matching recipes. Search by name first then if there are too many results start filtering by meal type, difficulty, and tags.",
       inputSchema: z4.object({
         query: z4.string().optional().describe("Search query to match against recipe name"),
         mealType: z4
