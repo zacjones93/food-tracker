@@ -213,17 +213,23 @@ export const transferGroceryItemsAction = createServerAction()
 
     const maxOrder = maxOrderResult[0]?.maxOrder ?? 0;
 
-    // Prepare new items for target week (copy mode)
-    const newItems = input.items.map((item, index) => ({
-      weekId: input.targetWeekId,
-      name: item.name,
-      category: item.category,
-      checked: false, // Always reset checked status
-      order: maxOrder + index + 1,
-    }));
+    // Insert into target week in batches to avoid parameter limits
+    // D1 has strict limits on bulk inserts, use small batches
+    const BATCH_SIZE = 10;
+    for (let i = 0; i < input.items.length; i += BATCH_SIZE) {
+      const batch = input.items.slice(i, i + BATCH_SIZE);
 
-    // Insert into target week
-    await db.insert(groceryItemsTable).values(newItems);
+      // Prepare items for this batch (Drizzle auto-handles id, createdAt, updatedAt)
+      const newItems = batch.map((item, batchIndex) => ({
+        weekId: input.targetWeekId,
+        name: item.name,
+        checked: false, // Always reset checked status
+        order: maxOrder + i + batchIndex + 1,
+        category: item.category || null, // Always include, null if undefined/empty
+      }));
+
+      await db.insert(groceryItemsTable).values(newItems);
+    }
 
     // Revalidate both weeks
     revalidatePath(`/schedule/${input.sourceWeekId}`);
@@ -232,7 +238,7 @@ export const transferGroceryItemsAction = createServerAction()
 
     return {
       success: true,
-      transferredCount: newItems.length,
+      transferredCount: input.items.length,
       targetWeekId: input.targetWeekId,
     };
   });
@@ -258,9 +264,15 @@ export const getAvailableWeeksForTransferAction = createServerAction()
         startDate: true,
         endDate: true,
         name: true,
+        status: true,
       },
       limit: 20, // Only show recent/upcoming weeks
     });
 
-    return { weeks };
+    // Filter to only current and upcoming weeks
+    const filteredWeeks = weeks.filter(week =>
+      week.status === 'current' || week.status === 'upcoming'
+    );
+
+    return { weeks: filteredWeeks };
   });

@@ -22,6 +22,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Loader2 } from "@/components/ui/themed-icons";
 import { formatWeekDisplay, groupItemsByCategory } from "@/lib/grocery-utils";
@@ -137,7 +138,15 @@ export function TransferItemsDialog({
                   ) : (
                     weeks.map((week) => (
                       <SelectItem key={week.id} value={week.id}>
-                        {formatWeekDisplay(week)}
+                        <div className="flex items-center gap-2">
+                          <span>{formatWeekDisplay(week)}</span>
+                          <Badge
+                            variant={week.status === 'current' ? 'default' : 'secondary'}
+                            className="ml-auto text-xs"
+                          >
+                            {week.status === 'current' ? 'Current' : 'Upcoming'}
+                          </Badge>
+                        </div>
                       </SelectItem>
                     ))
                   )}
