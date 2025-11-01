@@ -2,7 +2,7 @@
 
 import { createServerAction, ZSAError } from "zsa";
 import { getDB } from "@/db";
-import { groceryItemsTable } from "@/db/schema";
+import { groceryItemsTable, weeksTable } from "@/db/schema";
 import {
   createGroceryItemSchema,
   updateGroceryItemSchema,
@@ -10,8 +10,10 @@ import {
   toggleGroceryItemSchema,
   reorderGroceryItemsSchema,
   bulkUpdateGroceryItemsSchema,
+  transferGroceryItemsSchema,
+  getAvailableWeeksForTransferSchema,
 } from "@/schemas/grocery-item.schema";
-import { eq, and } from "drizzle-orm";
+import { eq, and, ne, desc, max } from "drizzle-orm";
 import { getSessionFromCookie } from "@/utils/auth";
 import { revalidatePath } from "next/cache";
 
@@ -168,4 +170,97 @@ export const bulkUpdateGroceryItemsAction = createServerAction()
     revalidatePath(`/schedule/${input.weekId}`);
 
     return { success: true };
+  });
+
+export const transferGroceryItemsAction = createServerAction()
+  .input(transferGroceryItemsSchema)
+  .handler(async ({ input }) => {
+    const session = await getSessionFromCookie();
+    if (!session) {
+      throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
+    }
+
+    const db = getDB();
+
+    // Verify user owns both weeks
+    const sourceWeek = await db.query.weeksTable.findFirst({
+      where: and(
+        eq(weeksTable.id, input.sourceWeekId),
+        eq(weeksTable.teamId, session.activeTeamId!),
+      ),
+    });
+
+    const targetWeek = await db.query.weeksTable.findFirst({
+      where: and(
+        eq(weeksTable.id, input.targetWeekId),
+        eq(weeksTable.teamId, session.activeTeamId!),
+      ),
+    });
+
+    if (!sourceWeek) {
+      throw new ZSAError("NOT_FOUND", "Source week not found");
+    }
+
+    if (!targetWeek) {
+      throw new ZSAError("NOT_FOUND", "Target week not found");
+    }
+
+    // Get max order in target week for proper ordering
+    const maxOrderResult = await db
+      .select({ maxOrder: max(groceryItemsTable.order) })
+      .from(groceryItemsTable)
+      .where(eq(groceryItemsTable.weekId, input.targetWeekId));
+
+    const maxOrder = maxOrderResult[0]?.maxOrder ?? 0;
+
+    // Prepare new items for target week (copy mode)
+    const newItems = input.items.map((item, index) => ({
+      weekId: input.targetWeekId,
+      name: item.name,
+      category: item.category,
+      checked: false, // Always reset checked status
+      order: maxOrder + index + 1,
+    }));
+
+    // Insert into target week
+    await db.insert(groceryItemsTable).values(newItems);
+
+    // Revalidate both weeks
+    revalidatePath(`/schedule/${input.sourceWeekId}`);
+    revalidatePath(`/schedule/${input.targetWeekId}`);
+    revalidatePath('/schedule');
+
+    return {
+      success: true,
+      transferredCount: newItems.length,
+      targetWeekId: input.targetWeekId,
+    };
+  });
+
+export const getAvailableWeeksForTransferAction = createServerAction()
+  .input(getAvailableWeeksForTransferSchema)
+  .handler(async ({ input }) => {
+    const session = await getSessionFromCookie();
+    if (!session) {
+      throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
+    }
+
+    const db = getDB();
+
+    const weeks = await db.query.weeksTable.findMany({
+      where: and(
+        eq(weeksTable.teamId, session.activeTeamId!),
+        ne(weeksTable.id, input.excludeWeekId), // Exclude current week
+      ),
+      orderBy: desc(weeksTable.startDate),
+      columns: {
+        id: true,
+        startDate: true,
+        endDate: true,
+        name: true,
+      },
+      limit: 20, // Only show recent/upcoming weeks
+    });
+
+    return { weeks };
   });
