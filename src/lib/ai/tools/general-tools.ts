@@ -69,7 +69,7 @@ export function createGeneralTools() {
           const dayOfWeek = dayFormatter.format(now);
 
           // Get ISO date for comparisons
-          const isoDate = now.toLocaleDateString("en-CA", { timeZone: timezone });
+          const isoDate = now.toLocaleDateString("en-US", { timeZone: timezone });
 
           return {
             success: true,
