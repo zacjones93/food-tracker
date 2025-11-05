@@ -134,7 +134,7 @@ export function AddRecipeDialog({
         onValueChange={setSearch}
         disabled={isAdding}
       />
-      <CommandList className="h-[400px] overflow-y-auto">
+      <CommandList className="h-[500px] overflow-y-auto">
         {isPending ? (
           <div className="flex items-center justify-center py-6">
             <Loader2 className="h-4 w-4 animate-spin dark:text-cream-200" />

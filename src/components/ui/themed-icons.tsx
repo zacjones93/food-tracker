@@ -40,9 +40,11 @@ import {
   Circle as PhosphorCircle,
   MagnifyingGlass,
   DotsThree,
+  DotsThreeVertical,
   DotsSixVertical,
   Sliders,
   CircleNotch,
+  ArrowsLeftRight,
 
   // Actions
   PencilSimple,
@@ -270,6 +272,22 @@ export const Circle = (props: ThemedIconProps) => (
 export const MoreHorizontal = (props: ThemedIconProps) => (
   <DotsThree
     weight={props.weight || "bold"}
+    color={props.color || "currentColor"}
+    {...props}
+  />
+);
+
+export const MoreVertical = (props: ThemedIconProps) => (
+  <DotsThreeVertical
+    weight={props.weight || "bold"}
+    color={props.color || "currentColor"}
+    {...props}
+  />
+);
+
+export const ArrowRightLeft = (props: ThemedIconProps) => (
+  <ArrowsLeftRight
+    weight={props.weight || "regular"}
     color={props.color || "currentColor"}
     {...props}
   />
@@ -595,9 +613,11 @@ export {
   PhosphorCircle,
   MagnifyingGlass,
   DotsThree,
+  DotsThreeVertical,
   DotsSixVertical,
   Sliders,
   CircleNotch,
+  ArrowsLeftRight,
   PencilSimple,
   Trash,
   Eye,
