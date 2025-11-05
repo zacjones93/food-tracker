@@ -20,6 +20,7 @@ import {
   useSensors,
   type DragEndEvent,
   type DragStartEvent,
+  type DragOverEvent,
   pointerWithin,
   useDroppable,
   DragOverlay,
@@ -70,6 +71,7 @@ export function WeekRecipesList({
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [collapsedDates, setCollapsedDates] = useState<Set<string>>(new Set());
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [overId, setOverId] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -191,9 +193,14 @@ export function WeekRecipesList({
     setActiveId(event.active.id as string);
   };
 
+  const handleDragOver = (event: DragOverEvent) => {
+    setOverId(event.over?.id as string | null);
+  };
+
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     setActiveId(null);
+    setOverId(null);
 
     if (!over || active.id === over.id) {
       return;
@@ -202,12 +209,15 @@ export function WeekRecipesList({
     const activeRecipeId = active.id as string;
     const overContainerId = over.id as string;
 
-    // Check if we're dropping on a date container or another recipe
+    // Check if we're dropping on a date container, end zone, or another recipe
     const isDateContainer = overContainerId.startsWith('date-container-');
+    const isEndZone = overContainerId.startsWith('end-zone-');
 
-    if (isDateContainer) {
-      // Dropped into a date section
-      const targetDateKey = overContainerId.replace('date-container-', '');
+    if (isDateContainer || isEndZone) {
+      // Dropped into a date section (container or end zone)
+      const targetDateKey = isEndZone
+        ? overContainerId.replace('end-zone-', '')
+        : overContainerId.replace('date-container-', '');
       const activeRecipe = recipes.find(r => r.recipe.id === activeRecipeId);
 
       if (!activeRecipe) return;
@@ -223,14 +233,36 @@ export function WeekRecipesList({
           ? null
           : weekdays.find(d => format(d, 'yyyy-MM-dd') === targetDateKey);
 
-        // Optimistically update the UI
-        setRecipes((prev) =>
-          prev.map((r) =>
-            r.recipe.id === activeRecipeId
-              ? { ...r, scheduledDate: newDate || null }
-              : r
-          )
-        );
+        // Get all recipes in target date to calculate new order
+        const targetRecipes = recipes.filter(r => {
+          const rDateKey = r.scheduledDate
+            ? format(new Date(r.scheduledDate), 'yyyy-MM-dd')
+            : 'unscheduled';
+          return rDateKey === targetDateKey && r.recipe.id !== activeRecipeId;
+        });
+
+        // Optimistically update the UI - add to end of target date's list
+        setRecipes((prev) => {
+          const filtered = prev.filter(r => r.recipe.id !== activeRecipeId);
+          const updated = { ...activeRecipe, scheduledDate: newDate || null };
+
+          // Insert at the end of the target date group
+          const result = [...filtered];
+          const insertIndex = filtered.findIndex(r => {
+            const rDateKey = r.scheduledDate
+              ? format(new Date(r.scheduledDate), 'yyyy-MM-dd')
+              : 'unscheduled';
+            return rDateKey > targetDateKey || (rDateKey === 'unscheduled' && targetDateKey !== 'unscheduled');
+          });
+
+          if (insertIndex === -1) {
+            result.push(updated);
+          } else {
+            result.splice(insertIndex, 0, updated);
+          }
+
+          return result;
+        });
 
         // Update server
         updateScheduledDate({
@@ -411,6 +443,7 @@ export function WeekRecipesList({
         sensors={sensors}
         collisionDetection={pointerWithin}
         onDragStart={handleDragStart}
+        onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}
       >
           <div className="space-y-6">
@@ -435,9 +468,11 @@ export function WeekRecipesList({
                               onRemove={handleRemoveRecipe}
                               onToggleMade={handleToggleMade}
                               isMade={weekRecipe.made}
+                              isOver={overId === weekRecipe.recipe.id}
                             />
                           ))}
                         </div>
+                        <EndDropZone id="end-zone-unscheduled" />
                       </SortableContext>
                     </DroppableContainer>
                   </div>
@@ -454,7 +489,7 @@ export function WeekRecipesList({
                     <div key={dateKey}>
                       {allMade ? (
                         // Minimized completed day - clickable to expand
-                        <>
+                        <DroppableContainer id={`date-container-${dateKey}`}>
                           <button
                             onClick={() => toggleDateCollapsed(dateKey)}
                             className="w-full flex items-center gap-2 text-sm font-medium px-3 py-2 rounded-lg bg-mystic-50/50 dark:bg-cream-200/5 border border-mystic-200/50 dark:border-cream-200/10 text-mystic-600 dark:text-cream-300 hover:bg-mystic-100 dark:hover:bg-cream-200/10 transition-colors mb-3"
@@ -468,26 +503,26 @@ export function WeekRecipesList({
                             <span className="text-xs opacity-60">{dateRecipes.length} completed ✓</span>
                           </button>
                           {isExpanded && (
-                            <DroppableContainer id={`date-container-${dateKey}`}>
-                              <SortableContext
-                                items={dateRecipes.map((r) => r.recipe.id)}
-                                strategy={verticalListSortingStrategy}
-                              >
-                                <div className="space-y-2 mb-3">
-                                  {dateRecipes.map((weekRecipe) => (
-                                    <SortableRecipeItem
-                                      key={weekRecipe.recipe.id}
-                                      weekRecipe={weekRecipe}
-                                      onRemove={handleRemoveRecipe}
-                                      onToggleMade={handleToggleMade}
-                                      isMade={weekRecipe.made}
-                                    />
-                                  ))}
-                                </div>
-                              </SortableContext>
-                            </DroppableContainer>
+                            <SortableContext
+                              items={dateRecipes.map((r) => r.recipe.id)}
+                              strategy={verticalListSortingStrategy}
+                            >
+                              <div className="space-y-2 mb-3">
+                                {dateRecipes.map((weekRecipe) => (
+                                  <SortableRecipeItem
+                                    key={weekRecipe.recipe.id}
+                                    weekRecipe={weekRecipe}
+                                    onRemove={handleRemoveRecipe}
+                                    onToggleMade={handleToggleMade}
+                                    isMade={weekRecipe.made}
+                                    isOver={overId === weekRecipe.recipe.id}
+                                  />
+                                ))}
+                              </div>
+                              <EndDropZone id={`end-zone-${dateKey}`} />
+                            </SortableContext>
                           )}
-                        </>
+                        </DroppableContainer>
                       ) : (
                         // Regular active day
                         <>
@@ -500,17 +535,21 @@ export function WeekRecipesList({
                               strategy={verticalListSortingStrategy}
                             >
                               {dateRecipes.length > 0 ? (
-                                <div className="space-y-2">
-                                  {dateRecipes.map((weekRecipe) => (
-                                    <SortableRecipeItem
-                                      key={weekRecipe.recipe.id}
-                                      weekRecipe={weekRecipe}
-                                      onRemove={handleRemoveRecipe}
-                                      onToggleMade={handleToggleMade}
-                                      isMade={weekRecipe.made}
-                                    />
-                                  ))}
-                                </div>
+                                <>
+                                  <div className="space-y-2">
+                                    {dateRecipes.map((weekRecipe) => (
+                                      <SortableRecipeItem
+                                        key={weekRecipe.recipe.id}
+                                        weekRecipe={weekRecipe}
+                                        onRemove={handleRemoveRecipe}
+                                        onToggleMade={handleToggleMade}
+                                        isMade={weekRecipe.made}
+                                        isOver={overId === weekRecipe.recipe.id}
+                                      />
+                                    ))}
+                                  </div>
+                                  <EndDropZone id={`end-zone-${dateKey}`} />
+                                </>
                               ) : (
                                 <div className="text-sm text-mystic-600 dark:text-cream-300 italic p-3">
                                   Drop recipes here
@@ -538,9 +577,11 @@ export function WeekRecipesList({
                       onRemove={handleRemoveRecipe}
                       onToggleMade={handleToggleMade}
                       isMade={weekRecipe.made}
+                      isOver={overId === weekRecipe.recipe.id}
                     />
                   ))}
                 </div>
+                <EndDropZone id="end-zone-fallback" />
               </SortableContext>
             )}
           </div>
@@ -619,11 +660,35 @@ function DroppableContainer({ id, children }: { id: string; children: React.Reac
   return (
     <div
       ref={setNodeRef}
-      className={`min-h-[60px] transition-colors rounded-lg ${
-        isOver ? 'bg-mystic-100 dark:bg-cream-200/10 ring-2 ring-mystic-400 dark:ring-cream-300' : ''
+      className={`min-h-[60px] transition-all duration-200 rounded-lg ${
+        isOver
+          ? 'bg-mystic-100/80 dark:bg-cream-200/15 ring-2 ring-mystic-500 dark:ring-cream-400 shadow-lg'
+          : ''
       }`}
     >
       {children}
+    </div>
+  );
+}
+
+// End-of-list drop zone
+function EndDropZone({ id }: { id: string }) {
+  const { setNodeRef, isOver } = useDroppable({ id });
+
+  return (
+    <div
+      ref={setNodeRef}
+      className={`transition-all duration-200 rounded-lg mt-1 ${
+        isOver
+          ? 'h-12 bg-mystic-100/80 dark:bg-cream-200/15 ring-2 ring-mystic-500 dark:ring-cream-400 shadow-lg border-2 border-dashed border-mystic-400 dark:border-cream-300'
+          : 'h-8 hover:h-10 hover:bg-mystic-50/30 dark:hover:bg-cream-200/5 border border-dashed border-transparent hover:border-mystic-300/50 dark:hover:border-cream-300/20'
+      }`}
+    >
+      {isOver && (
+        <div className="flex items-center justify-center h-full text-xs text-mystic-600 dark:text-cream-300 font-medium">
+          Drop to add at end
+        </div>
+      )}
     </div>
   );
 }
@@ -718,11 +783,13 @@ function SortableRecipeItem({
   onRemove,
   onToggleMade,
   isMade = false,
+  isOver = false,
 }: {
   weekRecipe: WeekRecipe & { recipe: RecipeWithRelated };
   onRemove: (recipeId: string) => void;
   onToggleMade: (recipeId: string, currentMade: boolean) => void;
   isMade?: boolean;
+  isOver?: boolean;
 }) {
   const { recipe } = weekRecipe;
   const [showRelated, setShowRelated] = useState(false);
@@ -744,7 +811,11 @@ function SortableRecipeItem({
   const hasRelatedRecipes = recipe.relatedRecipes && recipe.relatedRecipes.length > 0;
 
   return (
-    <div ref={setNodeRef} style={style}>
+    <div ref={setNodeRef} style={style} className="relative">
+      {/* Insertion indicator */}
+      {isOver && (
+        <div className="absolute -top-1 left-0 right-0 h-0.5 bg-mystic-500 dark:bg-cream-400 rounded-full shadow-lg z-10" />
+      )}
       <div className="flex items-center gap-3 p-3 rounded-lg bg-background border hover:bg-mystic-50 dark:hover:bg-cream-200/10 transition-colors group">
         <div
           {...attributes}

@@ -120,7 +120,13 @@ function WeekCard({
           </Link>
         </CardHeader>
         <CardContent className="pt-0">
-          <WeekRecipesList weekId={week.id} recipes={week.recipes} embedded />
+          <WeekRecipesList
+            weekId={week.id}
+            recipes={week.recipes}
+            weekStartDate={week.startDate}
+            weekEndDate={week.endDate}
+            embedded
+          />
         </CardContent>
       </Card>
     );
