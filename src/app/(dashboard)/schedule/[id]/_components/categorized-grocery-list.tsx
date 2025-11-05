@@ -13,6 +13,8 @@ import {
   GripVertical,
   ChevronDown,
   ChevronRight,
+  ArrowRightLeft,
+  MoreVertical,
 } from "@/components/ui/themed-icons";
 import { useServerAction } from "zsa-react";
 import {
@@ -43,6 +45,13 @@ import {
   useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { TransferItemsDialog } from "./transfer-items-dialog";
 
 interface CategorizedGroceryListProps {
   weekId: string;
@@ -54,6 +63,7 @@ interface SortableItemProps {
   onToggle: (id: string, checked: boolean) => void;
   onDelete: (id: string) => void;
   onEdit: (item: GroceryItem) => void;
+  onTransfer: (item: GroceryItem) => void;
   editingId: string | null;
   editValue: string;
   setEditValue: (value: string) => void;
@@ -67,6 +77,7 @@ function SortableItem({
   onToggle,
   onDelete,
   onEdit,
+  onTransfer,
   editingId,
   editValue,
   setEditValue,
@@ -128,6 +139,15 @@ function SortableItem({
         </span>
       )}
 
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => onTransfer(item)}
+        title="Transfer item to another week"
+      >
+        <ArrowRightLeft className="h-4 w-4 dark:text-cream-300" />
+      </Button>
+
       <Button variant="ghost" size="sm" onClick={() => onDelete(item.id)}>
         <Trash2 className="h-4 w-4 dark:text-cream-300" />
       </Button>
@@ -146,6 +166,8 @@ interface SortableCategoryProps {
   onDelete: (id: string) => void;
   onDeleteEmptyCategory: (category: string) => void;
   onEdit: (item: GroceryItem) => void;
+  onTransfer: (item: GroceryItem) => void;
+  onTransferCategory: (category: string, mode: "all" | "unchecked") => void;
   editingId: string | null;
   editValue: string;
   setEditValue: (value: string) => void;
@@ -165,6 +187,8 @@ function SortableCategory({
   onDelete,
   onDeleteEmptyCategory,
   onEdit,
+  onTransfer,
+  onTransferCategory,
   editingId,
   editValue,
   setEditValue,
@@ -226,7 +250,7 @@ function SortableCategory({
             </span>
           )}
         </div>
-        {isEmpty && (
+        {isEmpty ? (
           <Button
             variant="ghost"
             size="sm"
@@ -234,6 +258,27 @@ function SortableCategory({
           >
             <Trash2 className="h-4 w-4 dark:text-cream-300" />
           </Button>
+        ) : (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                <MoreVertical className="h-4 w-4 dark:text-cream-300" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => onTransferCategory(category, "all")}>
+                <ArrowRightLeft className="mr-2 h-4 w-4" />
+                Transfer all items
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => onTransferCategory(category, "unchecked")}
+                disabled={categoryItems.every((item) => item.checked)}
+              >
+                <ArrowRightLeft className="mr-2 h-4 w-4" />
+                Transfer unchecked items
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         )}
       </div>
       {isEmpty ? (
@@ -261,6 +306,7 @@ function SortableCategory({
                 onToggle={onToggle}
                 onDelete={onDelete}
                 onEdit={onEdit}
+                onTransfer={onTransfer}
                 editingId={editingId}
                 editValue={editValue}
                 setEditValue={setEditValue}
@@ -289,6 +335,8 @@ export function CategorizedGroceryList({
   const [activeCategoryId, setActiveCategoryId] = useState<string | null>(null);
   const [emptyCategories, setEmptyCategories] = useState<string[]>([]);
   const [newCategoryName, setNewCategoryName] = useState("");
+  const [transferDialogOpen, setTransferDialogOpen] = useState(false);
+  const [itemsToTransfer, setItemsToTransfer] = useState<GroceryItem[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Load category order from localStorage
@@ -582,6 +630,31 @@ export function CategorizedGroceryList({
     });
   };
 
+  const handleOpenTransferDialog = (items: GroceryItem[]) => {
+    setItemsToTransfer(items);
+    setTransferDialogOpen(true);
+  };
+
+  const handleTransferItem = (item: GroceryItem) => {
+    handleOpenTransferDialog([item]);
+  };
+
+  const handleTransferCategory = (category: string, mode: "all" | "unchecked") => {
+    const categoryItems = items.filter(
+      (item) => (item.category || "Uncategorized") === category
+    );
+    const filteredItems =
+      mode === "unchecked"
+        ? categoryItems.filter((item) => !item.checked)
+        : categoryItems;
+    handleOpenTransferDialog(filteredItems);
+  };
+
+  const handleTransferAllUnchecked = () => {
+    const unchecked = items.filter((item) => !item.checked);
+    handleOpenTransferDialog(unchecked);
+  };
+
   const handleDragStart = (event: DragStartEvent) => {
     const id = event.active.id as string;
 
@@ -720,9 +793,25 @@ export function CategorizedGroceryList({
 
   const activeItem = activeId ? items.find((i) => i.id === activeId) : null;
 
+  const uncheckedItems = items.filter((item) => !item.checked);
+
   return (
     <Card>
       <CardContent className="p-6">
+        {/* Transfer All Unchecked Button */}
+        {uncheckedItems.length > 0 && (
+          <div className="flex justify-end mb-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleTransferAllUnchecked}
+            >
+              <ArrowRightLeft className="mr-2 h-4 w-4" />
+              Transfer All Unchecked ({uncheckedItems.length})
+            </Button>
+          </div>
+        )}
+
         <div className="space-y-6 mb-6">
           <form onSubmit={handleAddCategory} className="space-y-3">
             <div className="space-y-2">
@@ -822,6 +911,8 @@ export function CategorizedGroceryList({
                       onDelete={handleDelete}
                       onDeleteEmptyCategory={handleDeleteEmptyCategory}
                       onEdit={startEdit}
+                      onTransfer={handleTransferItem}
+                      onTransferCategory={handleTransferCategory}
                       editingId={editingId}
                       editValue={editValue}
                       setEditValue={setEditValue}
@@ -853,6 +944,18 @@ export function CategorizedGroceryList({
             </DragOverlay>
           </DndContext>
         )}
+
+        {/* Transfer Items Dialog */}
+        <TransferItemsDialog
+          sourceWeekId={weekId}
+          items={itemsToTransfer}
+          open={transferDialogOpen}
+          onOpenChange={setTransferDialogOpen}
+          onSuccess={() => {
+            setTransferDialogOpen(false);
+            setItemsToTransfer([]);
+          }}
+        />
       </CardContent>
     </Card>
   );

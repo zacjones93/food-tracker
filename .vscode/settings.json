@@ -1,5 +1,25 @@
 {
-  "files.associations": {
-    "wrangler.json": "jsonc"
-  }
+	"files.associations": {
+		"wrangler.json": "jsonc"
+	},
+	"workbench.colorCustomizations": {
+		"activityBar.background": "#09178F",
+		"activityBar.activeBackground": "#09178F",
+		"activityBar.activeBorder": "#8F8109",
+		"activityBar.foreground": "#FCFCFF",
+		"activityBar.inactiveForeground": "#FCFCFF99",
+		"activityBarBadge.background": "#8F8109",
+		"activityBarBadge.foreground": "#FCFCFF",
+		"titleBar.activeBackground": "#0D21C8",
+		"titleBar.activeForeground": "#FCFCFF",
+		"titleBar.inactiveBackground": "#0D21C899",
+		"titleBar.inactiveForeground": "#FCFCFF99",
+		"sash.hoverBorder": "#09178F",
+		"commandCenter.border": "#FCFCFF99",
+		"statusBar.background": "#0D21C8",
+		"statusBar.foreground": "#FCFCFF",
+		"statusBarItem.hoverBackground": "#0C1DB4",
+		"statusBarItem.remoteBackground": "#0D21C8",
+		"statusBarItem.remoteForeground": "#FCFCFF"
+	}
 }
