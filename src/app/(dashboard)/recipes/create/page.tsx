@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -13,6 +13,7 @@ import {
   getRecipeMetadataAction,
   createRecipeBookAction,
 } from "../recipes.actions";
+import { addRecipeToWeekAction } from "../../schedule/weeks.actions";
 import { useServerAction } from "zsa-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -67,8 +68,19 @@ import {
 } from "@/components/related-recipes-selector";
 import { getRecipesAction } from "../recipes.actions";
 
-export default function CreateRecipePage() {
+export default function CreateRecipePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ callback?: string }>;
+}) {
   const router = useRouter();
+  const params = use(searchParams);
+  const callbackUrl = params.callback ? decodeURIComponent(params.callback) : '/recipes';
+
+  // Extract week ID from callback URL if it's a schedule page (e.g., /schedule/wk_...)
+  const weekIdMatch = callbackUrl.match(/\/schedule\/([^/?]+)/);
+  const weekId = weekIdMatch ? weekIdMatch[1] : null;
+
   const [ingredientSections, setIngredientSections] = useState<
     IngredientSection[]
   >([
@@ -101,6 +113,7 @@ export default function CreateRecipePage() {
   const { execute: fetchMetadata } = useServerAction(getRecipeMetadataAction);
   const { execute: createRecipeBook } = useServerAction(createRecipeBookAction);
   const { execute: fetchRecipes } = useServerAction(getRecipesAction);
+  const { execute: addRecipeToWeek } = useServerAction(addRecipeToWeekAction);
 
   const form = useForm<CreateRecipeSchema>({
     resolver: zodResolver(createRecipeSchema),
@@ -253,7 +266,26 @@ export default function CreateRecipePage() {
     }
 
     toast.success("Recipe created successfully!");
-    router.push(`/recipes/${data.recipe.id}`);
+
+    // If we came from a schedule page, add the recipe to that week
+    if (weekId) {
+      const [, addErr] = await addRecipeToWeek({
+        weekId,
+        recipeId: data.recipe.id,
+      });
+
+      if (addErr) {
+        toast.error("Recipe created but failed to add to week");
+      } else {
+        toast.success("Recipe added to week!");
+      }
+
+      // Navigate back to the schedule page
+      router.push(callbackUrl);
+    } else {
+      // Otherwise go to the recipe detail page
+      router.push(`/recipes/${data.recipe.id}`);
+    }
   }
 
   return (
@@ -266,9 +298,9 @@ export default function CreateRecipePage() {
           </p>
         </div>
         <Button variant="outline" asChild>
-          <Link href="/recipes">
+          <Link href={callbackUrl}>
             <ArrowLeft className="h-4 w-4 mr-2 text-cream-100" />
-            Back to Recipes
+            Back
           </Link>
         </Button>
       </div>
@@ -772,7 +804,7 @@ export default function CreateRecipePage() {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => router.push("/recipes")}
+                onClick={() => router.push(callbackUrl)}
                 disabled={isPending}
               >
                 Cancel

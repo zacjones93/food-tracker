@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import { useServerAction } from "zsa-react";
 import { getRecipesAction } from "@/app/(dashboard)/recipes/recipes.actions";
 import { addRecipeToWeekAction } from "../../weeks.actions";
@@ -13,8 +14,9 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Loader2 } from "@/components/ui/themed-icons";
+import { Loader2, Plus } from "@/components/ui/themed-icons";
 import { format, eachDayOfInterval, parseISO } from "date-fns";
 import {
   Select,
@@ -41,6 +43,8 @@ export function AddRecipeDialog({
   weekStartDate,
   weekEndDate,
 }: AddRecipeDialogProps) {
+  const router = useRouter();
+  const pathname = usePathname();
   const [search, setSearch] = useState("");
   const [selectedDay, setSelectedDay] = useState<string>("unscheduled");
 
@@ -100,7 +104,14 @@ export function AddRecipeDialog({
     [weekId, addRecipe, selectedDay, weekdays]
   );
 
+  const handleCreateRecipe = useCallback(() => {
+    const callbackUrl = encodeURIComponent(pathname);
+    router.push(`/recipes/create?callback=${callbackUrl}`);
+    onOpenChange(false);
+  }, [router, pathname, onOpenChange]);
+
   const recipes = data?.recipes || [];
+  const hasNoResults = !isPending && recipes.length === 0;
 
   return (
     <CommandDialog open={open} onOpenChange={onOpenChange} title="Add Recipe to Week">
@@ -141,39 +152,64 @@ export function AddRecipeDialog({
           </div>
         ) : (
           <>
-            <CommandEmpty>No recipes found.</CommandEmpty>
-            <CommandGroup heading="Recipes">
-              {recipes.map((recipe) => (
-                <CommandItem
-                  key={recipe.id}
-                  value={recipe.name}
-                  onSelect={() => handleSelect(recipe.id)}
-                  disabled={isAdding}
-                >
-                  <div className="flex items-center gap-3 flex-1">
-                    <div className="text-xl">{recipe.emoji || '🍽️'}</div>
-                    <div className="flex-1 min-w-0">
-                      <div className="font-medium truncate">{recipe.name}</div>
+            {hasNoResults ? (
+              <div className="p-4 text-sm text-muted-foreground">
+                <CommandEmpty>No recipes found.</CommandEmpty>
+                <CommandGroup>
+                  <CommandItem
+                    onSelect={handleCreateRecipe}
+                    className="cursor-pointer"
+                  >
+                    <Plus className="mr-2 h-4 w-4 text-cream-100" />
+                    <span>Create new recipe</span>
+                  </CommandItem>
+                </CommandGroup>
+              </div>
+            ) : (
+              <CommandGroup heading="Recipes">
+                {recipes.map((recipe) => (
+                  <CommandItem
+                    key={recipe.id}
+                    value={recipe.name}
+                    onSelect={() => handleSelect(recipe.id)}
+                    disabled={isAdding}
+                  >
+                    <div className="flex items-center gap-3 flex-1">
+                      <div className="text-xl">{recipe.emoji || '🍽️'}</div>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium truncate">{recipe.name}</div>
+                      </div>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        {recipe.mealType && (
+                          <Badge variant="secondary" className="text-xs">
+                            {recipe.mealType}
+                          </Badge>
+                        )}
+                        {recipe.difficulty && (
+                          <Badge variant="outline" className="text-xs">
+                            {recipe.difficulty}
+                          </Badge>
+                        )}
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2 flex-shrink-0">
-                      {recipe.mealType && (
-                        <Badge variant="secondary" className="text-xs">
-                          {recipe.mealType}
-                        </Badge>
-                      )}
-                      {recipe.difficulty && (
-                        <Badge variant="outline" className="text-xs">
-                          {recipe.difficulty}
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-                </CommandItem>
-              ))}
-            </CommandGroup>
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            )}
           </>
         )}
       </CommandList>
+      <div className="border-t p-3 flex justify-end">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleCreateRecipe}
+          disabled={isAdding}
+        >
+          <Plus className="mr-2 h-4 w-4 text-cream-100" />
+          Create Recipe
+        </Button>
+      </div>
     </CommandDialog>
   );
 }
