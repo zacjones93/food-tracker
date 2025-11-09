@@ -12,7 +12,7 @@ import {
   incrementMealsEatenSchema,
   getRecipesSchema,
 } from "@/schemas/recipe.schema";
-import { eq, and, like, sql, or, inArray } from "drizzle-orm";
+import { eq, and, sql, or, inArray } from "drizzle-orm";
 import { getSessionFromCookie } from "@/utils/auth";
 import { requirePermission } from "@/utils/team-auth";
 import { getRecipeVisibilityConditions } from "@/utils/recipe-visibility";
@@ -296,7 +296,30 @@ export const getRecipesAction = createServerAction()
     const conditions = [visibilityConditions];
 
     if (search) {
-      conditions.push(like(recipesTable.name, `%${search}%`));
+      // Create fuzzy search: case-insensitive, searches name and tags
+      // Split search into words for multi-word matching
+      const searchTerms = search.toLowerCase().trim().split(/\s+/).filter(Boolean);
+
+      if (searchTerms.length > 0) {
+        // For each search term, match if it appears in name OR tags
+        const searchConditions = searchTerms.map(term =>
+          or(
+            // Case-insensitive search in name using LOWER()
+            sql`LOWER(${recipesTable.name}) LIKE ${`%${term}%`}`,
+            // Search in tags JSON array (convert to lowercase for comparison)
+            sql`LOWER(json_extract(${recipesTable.tags}, '$')) LIKE ${`%${term}%`}`
+          )
+        );
+
+        // All search terms must match (AND logic across terms)
+        const validSearchConditions = searchConditions.filter((c): c is NonNullable<typeof c> => c !== undefined);
+        if (validSearchConditions.length > 0) {
+          const searchCondition = and(...validSearchConditions);
+          if (searchCondition) {
+            conditions.push(searchCondition);
+          }
+        }
+      }
     }
 
     if (mealType) {
