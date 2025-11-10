@@ -2,6 +2,7 @@
 
 import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
+import type { Route } from "next";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -75,7 +76,12 @@ export default function CreateRecipePage({
 }) {
   const router = useRouter();
   const params = use(searchParams);
-  const callbackUrl = params.callback ? decodeURIComponent(params.callback) : '/recipes';
+  const decodedCallback = params.callback
+    ? decodeURIComponent(params.callback)
+    : "/recipes";
+  const callbackUrl: Route = decodedCallback.startsWith("/")
+    ? (decodedCallback as Route)
+    : "/recipes";
 
   // Extract week ID from callback URL if it's a schedule page (e.g., /schedule/wk_...)
   const weekIdMatch = callbackUrl.match(/\/schedule\/([^/?]+)/);

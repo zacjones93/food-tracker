@@ -174,6 +174,13 @@ interface SortableCategoryProps {
   saveEdit: () => void;
   handleKeyDown: (e: React.KeyboardEvent) => void;
   inputRef: React.RefObject<HTMLInputElement | null>;
+  addingToCategory: string | null;
+  addItemValue: string;
+  setAddItemValue: (value: string) => void;
+  startAddingToCategory: (category: string) => void;
+  saveAddItem: (category: string) => void;
+  handleAddKeyDown: (e: React.KeyboardEvent, category: string) => void;
+  addItemInputRef: React.RefObject<HTMLInputElement | null>;
 }
 
 function SortableCategory({
@@ -195,6 +202,13 @@ function SortableCategory({
   saveEdit,
   handleKeyDown,
   inputRef,
+  addingToCategory,
+  addItemValue,
+  setAddItemValue,
+  startAddingToCategory,
+  saveAddItem,
+  handleAddKeyDown,
+  addItemInputRef,
 }: SortableCategoryProps) {
   const {
     attributes,
@@ -250,37 +264,60 @@ function SortableCategory({
             </span>
           )}
         </div>
-        {isEmpty ? (
+        <div className="flex items-center gap-2">
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => onDeleteEmptyCategory(category)}
+            onClick={() => startAddingToCategory(category)}
+            className="h-6 w-6 p-0"
           >
-            <Trash2 className="h-4 w-4 dark:text-cream-300" />
+            <Plus className="h-4 w-4 dark:text-cream-300" />
           </Button>
-        ) : (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                <MoreVertical className="h-4 w-4 dark:text-cream-300" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => onTransferCategory(category, "all")}>
-                <ArrowRightLeft className="mr-2 h-4 w-4" />
-                Transfer all items
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => onTransferCategory(category, "unchecked")}
-                disabled={categoryItems.every((item) => item.checked)}
-              >
-                <ArrowRightLeft className="mr-2 h-4 w-4" />
-                Transfer unchecked items
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )}
+          {isEmpty ? (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onDeleteEmptyCategory(category)}
+            >
+              <Trash2 className="h-4 w-4 dark:text-cream-300" />
+            </Button>
+          ) : (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                  <MoreVertical className="h-4 w-4 dark:text-cream-300" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => onTransferCategory(category, "all")}>
+                  <ArrowRightLeft className="mr-2 h-4 w-4" />
+                  Transfer all items
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => onTransferCategory(category, "unchecked")}
+                  disabled={categoryItems.every((item) => item.checked)}
+                >
+                  <ArrowRightLeft className="mr-2 h-4 w-4" />
+                  Transfer unchecked items
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        </div>
       </div>
+      {addingToCategory === category && (
+        <div className="flex gap-2 mb-2 mt-2">
+          <Input
+            ref={addItemInputRef}
+            value={addItemValue}
+            onChange={(e) => setAddItemValue(e.target.value)}
+            onBlur={() => saveAddItem(category)}
+            onKeyDown={(e) => handleAddKeyDown(e, category)}
+            placeholder="Add item to category..."
+            className="h-8"
+          />
+        </div>
+      )}
       {isEmpty ? (
         <div className="text-sm text-muted-foreground italic py-2 px-3 border border-dashed rounded-lg">
           Empty category - add items above
@@ -337,7 +374,10 @@ export function CategorizedGroceryList({
   const [newCategoryName, setNewCategoryName] = useState("");
   const [transferDialogOpen, setTransferDialogOpen] = useState(false);
   const [itemsToTransfer, setItemsToTransfer] = useState<GroceryItem[]>([]);
+  const [addingToCategory, setAddingToCategory] = useState<string | null>(null);
+  const [addItemValue, setAddItemValue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+  const addItemInputRef = useRef<HTMLInputElement>(null);
 
   // Load category order from localStorage
   const [categoryOrder, setCategoryOrder] = useState<string[]>(() => {
@@ -374,6 +414,12 @@ export function CategorizedGroceryList({
       inputRef.current.select();
     }
   }, [editingId]);
+
+  useEffect(() => {
+    if (addingToCategory && addItemInputRef.current) {
+      addItemInputRef.current.focus();
+    }
+  }, [addingToCategory]);
 
   // Save category order to localStorage
   useEffect(() => {
@@ -615,6 +661,40 @@ export function CategorizedGroceryList({
       saveEdit();
     } else if (e.key === "Escape") {
       cancelEdit();
+    }
+  };
+
+  const startAddingToCategory = (category: string) => {
+    setAddingToCategory(category);
+    setAddItemValue("");
+  };
+
+  const cancelAddToCategory = () => {
+    setAddingToCategory(null);
+    setAddItemValue("");
+  };
+
+  const saveAddItem = async (category: string) => {
+    if (!addItemValue.trim()) {
+      cancelAddToCategory();
+      return;
+    }
+
+    await createItem({
+      weekId,
+      name: addItemValue.trim(),
+      category: category
+    });
+
+    cancelAddToCategory();
+  };
+
+  const handleAddKeyDown = (e: React.KeyboardEvent, category: string) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      saveAddItem(category);
+    } else if (e.key === "Escape") {
+      cancelAddToCategory();
     }
   };
 
@@ -919,6 +999,13 @@ export function CategorizedGroceryList({
                       saveEdit={saveEdit}
                       handleKeyDown={handleKeyDown}
                       inputRef={inputRef}
+                      addingToCategory={addingToCategory}
+                      addItemValue={addItemValue}
+                      setAddItemValue={setAddItemValue}
+                      startAddingToCategory={startAddingToCategory}
+                      saveAddItem={saveAddItem}
+                      handleAddKeyDown={handleAddKeyDown}
+                      addItemInputRef={addItemInputRef}
                     />
                   );
                 })}

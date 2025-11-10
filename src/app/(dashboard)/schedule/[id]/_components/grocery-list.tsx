@@ -50,6 +50,13 @@ interface SortableCategoryProps {
   handleKeyDown: (e: React.KeyboardEvent) => void;
   startEdit: (item: GroceryItem) => void;
   inputRef: React.RefObject<HTMLInputElement | null>;
+  addingToCategory: string | null;
+  addItemValue: string;
+  setAddItemValue: (value: string) => void;
+  startAddingToCategory: (category: string) => void;
+  saveAddItem: (category: string) => void;
+  handleAddKeyDown: (e: React.KeyboardEvent, category: string) => void;
+  addItemInputRef: React.RefObject<HTMLInputElement | null>;
 }
 
 function SortableCategory({
@@ -64,6 +71,13 @@ function SortableCategory({
   handleKeyDown,
   startEdit,
   inputRef,
+  addingToCategory,
+  addItemValue,
+  setAddItemValue,
+  startAddingToCategory,
+  saveAddItem,
+  handleAddKeyDown,
+  addItemInputRef,
 }: SortableCategoryProps) {
   const {
     attributes,
@@ -96,11 +110,32 @@ function SortableCategory({
         >
           <GripVertical className="h-4 w-4 text-muted-foreground dark:text-cream-300" />
         </div>
-        <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
+        <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide flex-1">
           {category}
         </h3>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => startAddingToCategory(category)}
+          className="h-7 px-2"
+        >
+          <Plus className="h-4 w-4" />
+        </Button>
       </div>
       <div className="space-y-2">
+        {addingToCategory === category && (
+          <div className="flex gap-2 mb-2">
+            <Input
+              ref={addItemInputRef}
+              value={addItemValue}
+              onChange={(e) => setAddItemValue(e.target.value)}
+              onBlur={() => saveAddItem(category)}
+              onKeyDown={(e) => handleAddKeyDown(e, category)}
+              placeholder="Add item to category..."
+              className="h-8"
+            />
+          </div>
+        )}
         {sortedItems.map((item) => (
           <div
             key={item.id}
@@ -146,7 +181,10 @@ export function GroceryList({ weekId, items: initialItems }: GroceryListProps) {
   const [items, setItems] = useState(initialItems);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
+  const [addingToCategory, setAddingToCategory] = useState<string | null>(null);
+  const [addItemValue, setAddItemValue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+  const addItemInputRef = useRef<HTMLInputElement>(null);
 
   // Load category order from localStorage
   const [categoryOrder, setCategoryOrder] = useState<string[]>(() => {
@@ -172,6 +210,12 @@ export function GroceryList({ weekId, items: initialItems }: GroceryListProps) {
       inputRef.current.select();
     }
   }, [editingId]);
+
+  useEffect(() => {
+    if (addingToCategory && addItemInputRef.current) {
+      addItemInputRef.current.focus();
+    }
+  }, [addingToCategory]);
 
   // Save category order to localStorage
   useEffect(() => {
@@ -283,6 +327,40 @@ export function GroceryList({ weekId, items: initialItems }: GroceryListProps) {
       saveEdit();
     } else if (e.key === "Escape") {
       cancelEdit();
+    }
+  };
+
+  const startAddingToCategory = (category: string) => {
+    setAddingToCategory(category);
+    setAddItemValue("");
+  };
+
+  const cancelAddToCategory = () => {
+    setAddingToCategory(null);
+    setAddItemValue("");
+  };
+
+  const saveAddItem = async (category: string) => {
+    if (!addItemValue.trim()) {
+      cancelAddToCategory();
+      return;
+    }
+
+    await createItem({
+      weekId,
+      name: addItemValue.trim(),
+      category: category
+    });
+
+    cancelAddToCategory();
+  };
+
+  const handleAddKeyDown = (e: React.KeyboardEvent, category: string) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      saveAddItem(category);
+    } else if (e.key === "Escape") {
+      cancelAddToCategory();
     }
   };
 
@@ -403,6 +481,13 @@ export function GroceryList({ weekId, items: initialItems }: GroceryListProps) {
                       handleKeyDown={handleKeyDown}
                       startEdit={startEdit}
                       inputRef={inputRef}
+                      addingToCategory={addingToCategory}
+                      addItemValue={addItemValue}
+                      setAddItemValue={setAddItemValue}
+                      startAddingToCategory={startAddingToCategory}
+                      saveAddItem={saveAddItem}
+                      handleAddKeyDown={handleAddKeyDown}
+                      addItemInputRef={addItemInputRef}
                     />
                   );
                 })}
