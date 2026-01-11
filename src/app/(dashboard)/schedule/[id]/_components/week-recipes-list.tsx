@@ -49,6 +49,7 @@ import {
 } from "../../weeks.actions";
 import { toast } from "sonner";
 import { AddRecipeDialog } from "./add-recipe-dialog";
+import { BrowseRecipesByTag } from "./browse-recipes-by-tag";
 import { useRouter } from "next/navigation";
 
 interface WeekRecipesListProps {
@@ -414,7 +415,7 @@ export function WeekRecipesList({
                           })}
                         </div>
                       ) : (
-                        <div className="text-sm text-mystic-600 dark:text-cream-300 italic">No recipes scheduled</div>
+                        <div className="text-sm text-mystic-600 dark:text-cream-300 italic p-3">No recipes</div>
                       )}
                     </>
                   )}
@@ -551,8 +552,15 @@ export function WeekRecipesList({
                                   <EndDropZone id={`end-zone-${dateKey}`} />
                                 </>
                               ) : (
-                                <div className="text-sm text-mystic-600 dark:text-cream-300 italic p-3">
-                                  Drop recipes here
+                                <div className="flex items-center justify-between p-3">
+                                  <span className="text-sm text-mystic-600 dark:text-cream-300 italic">
+                                    No recipes
+                                  </span>
+                                  <BrowseRecipesByTag
+                                    weekId={weekId}
+                                    scheduledDate={date}
+                                    onRecipeAdded={handleRecipeAdded}
+                                  />
                                 </div>
                               )}
                             </SortableContext>
