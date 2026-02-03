@@ -14,7 +14,7 @@ import {
   toggleWeekRecipeMadeSchema,
   updateWeekRecipeScheduledDateSchema,
 } from "@/schemas/week.schema";
-import { eq, and, inArray } from "drizzle-orm";
+import { eq, and, inArray, max } from "drizzle-orm";
 import { getSessionFromCookie } from "@/utils/auth";
 import { requirePermission } from "@/utils/team-auth";
 import { z } from "zod";
@@ -386,12 +386,13 @@ export const addRecipeToWeekAction = createServerAction()
 
       // Add ingredients to grocery list if recipe has ingredients
       if (recipe?.ingredients && Array.isArray(recipe.ingredients) && recipe.ingredients.length > 0) {
-        // Get current grocery items to calculate max order
-        const existingGroceryItems = await db.query.groceryItemsTable.findMany({
-          where: eq(groceryItemsTable.weekId, input.weekId),
-        });
+        // Get max order using SQL aggregate (much faster than fetching all items)
+        const maxOrderResult = await db
+          .select({ maxOrder: max(groceryItemsTable.order) })
+          .from(groceryItemsTable)
+          .where(eq(groceryItemsTable.weekId, input.weekId));
 
-        const maxGroceryOrder = existingGroceryItems.reduce((max, item) => Math.max(max, item.order ?? 0), -1);
+        const maxGroceryOrder = maxOrderResult[0]?.maxOrder ?? -1;
 
         let allIngredients: string[] = [];
 
@@ -407,14 +408,19 @@ export const addRecipeToWeekAction = createServerAction()
           }
         }
 
-        // Insert each ingredient as a grocery item
-        for (let i = 0; i < allIngredients.length; i++) {
-          await db.insert(groceryItemsTable).values({
+        // Insert ingredients in batches to avoid D1 parameter limits
+        const BATCH_SIZE = 10;
+        for (let i = 0; i < allIngredients.length; i += BATCH_SIZE) {
+          const batch = allIngredients.slice(i, i + BATCH_SIZE);
+
+          const newItems = batch.map((name, batchIndex) => ({
             weekId: input.weekId,
-            name: allIngredients[i],
+            name,
             checked: false,
-            order: maxGroceryOrder + i + 1,
-          });
+            order: maxGroceryOrder + i + batchIndex + 1,
+          }));
+
+          await db.insert(groceryItemsTable).values(newItems);
         }
       }
     }

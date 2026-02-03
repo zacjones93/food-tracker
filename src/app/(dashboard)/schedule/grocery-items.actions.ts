@@ -12,6 +12,7 @@ import {
   bulkUpdateGroceryItemsSchema,
   transferGroceryItemsSchema,
   getAvailableWeeksForTransferSchema,
+  bulkCreateGroceryItemsSchema,
 } from "@/schemas/grocery-item.schema";
 import { eq, and, ne, desc, max } from "drizzle-orm";
 import { getSessionFromCookie } from "@/utils/auth";
@@ -27,12 +28,13 @@ export const createGroceryItemAction = createServerAction()
 
     const db = getDB();
 
-    // Get the max order for this week
-    const items = await db.query.groceryItemsTable.findMany({
-      where: eq(groceryItemsTable.weekId, input.weekId),
-    });
+    // Get the max order using SQL aggregate (much faster than fetching all items)
+    const maxOrderResult = await db
+      .select({ maxOrder: max(groceryItemsTable.order) })
+      .from(groceryItemsTable)
+      .where(eq(groceryItemsTable.weekId, input.weekId));
 
-    const maxOrder = items.reduce((max, item) => Math.max(max, item.order ?? 0), -1);
+    const maxOrder = maxOrderResult[0]?.maxOrder ?? -1;
 
     const [groceryItem] = await db.insert(groceryItemsTable)
       .values({
@@ -46,6 +48,51 @@ export const createGroceryItemAction = createServerAction()
     revalidatePath(`/schedule/${input.weekId}`);
 
     return { groceryItem };
+  });
+
+export const bulkCreateGroceryItemsAction = createServerAction()
+  .input(bulkCreateGroceryItemsSchema)
+  .handler(async ({ input }) => {
+    const session = await getSessionFromCookie();
+    if (!session) {
+      throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
+    }
+
+    const db = getDB();
+
+    // Get the max order using SQL aggregate
+    const maxOrderResult = await db
+      .select({ maxOrder: max(groceryItemsTable.order) })
+      .from(groceryItemsTable)
+      .where(eq(groceryItemsTable.weekId, input.weekId));
+
+    const maxOrder = maxOrderResult[0]?.maxOrder ?? -1;
+
+    // Insert in batches to avoid D1 parameter limits
+    const BATCH_SIZE = 10;
+    const createdItems = [];
+
+    for (let i = 0; i < input.items.length; i += BATCH_SIZE) {
+      const batch = input.items.slice(i, i + BATCH_SIZE);
+
+      const newItems = batch.map((item, batchIndex) => ({
+        weekId: input.weekId,
+        name: item.name,
+        checked: false,
+        order: maxOrder + i + batchIndex + 1,
+        category: item.category || null,
+      }));
+
+      const insertedBatch = await db.insert(groceryItemsTable)
+        .values(newItems)
+        .returning();
+
+      createdItems.push(...insertedBatch);
+    }
+
+    revalidatePath(`/schedule/${input.weekId}`);
+
+    return { groceryItems: createdItems, count: createdItems.length };
   });
 
 export const updateGroceryItemAction = createServerAction()

@@ -58,6 +58,14 @@ export const getAvailableWeeksForTransferSchema = z.object({
   excludeWeekId: z.string(),
 });
 
+export const bulkCreateGroceryItemsSchema = z.object({
+  weekId: z.string(),
+  items: z.array(z.object({
+    name: z.string().min(1).max(500),
+    category: z.string().max(100).optional(),
+  })).min(1).max(100),
+});
+
 export type CreateGroceryItemSchema = z.infer<typeof createGroceryItemSchema>;
 export type UpdateGroceryItemSchema = z.infer<typeof updateGroceryItemSchema>;
 export type DeleteGroceryItemSchema = z.infer<typeof deleteGroceryItemSchema>;
@@ -67,3 +75,4 @@ export type MoveGroceryItemSchema = z.infer<typeof moveGroceryItemSchema>;
 export type BulkUpdateGroceryItemsSchema = z.infer<typeof bulkUpdateGroceryItemsSchema>;
 export type TransferGroceryItemsSchema = z.infer<typeof transferGroceryItemsSchema>;
 export type GetAvailableWeeksForTransferSchema = z.infer<typeof getAvailableWeeksForTransferSchema>;
+export type BulkCreateGroceryItemsSchema = z.infer<typeof bulkCreateGroceryItemsSchema>;

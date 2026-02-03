@@ -13,7 +13,7 @@ import {
 import { Plus, Loader2 } from "@/components/ui/themed-icons";
 import { useServerAction } from "zsa-react";
 import { getCurrentAndUpcomingWeeksAction } from "@/app/(dashboard)/schedule/weeks.actions";
-import { createGroceryItemAction } from "@/app/(dashboard)/schedule/grocery-items.actions";
+import { bulkCreateGroceryItemsAction } from "@/app/(dashboard)/schedule/grocery-items.actions";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -26,7 +26,7 @@ export function AddAllIngredientsToWeek({ ingredients }: AddAllIngredientsToWeek
   const [open, setOpen] = useState(false);
 
   const { execute: getWeeks, data: weeksData, isPending: isLoadingWeeks } = useServerAction(getCurrentAndUpcomingWeeksAction);
-  const { execute: addIngredient, isPending: isAdding } = useServerAction(createGroceryItemAction);
+  const { execute: bulkAddIngredients, isPending: isAdding } = useServerAction(bulkCreateGroceryItemsAction);
 
   useEffect(() => {
     if (open) {
@@ -35,25 +35,14 @@ export function AddAllIngredientsToWeek({ ingredients }: AddAllIngredientsToWeek
   }, [open, getWeeks]);
 
   const handleAddAllToWeek = async (weekId: string, weekName: string) => {
-    let successCount = 0;
-    let errorCount = 0;
+    const items = ingredients.map(name => ({ name }));
 
-    for (const ingredient of ingredients) {
-      const [, error] = await addIngredient({ weekId, name: ingredient });
+    const [result, error] = await bulkAddIngredients({ weekId, items });
 
-      if (error) {
-        errorCount++;
-      } else {
-        successCount++;
-      }
-    }
-
-    if (errorCount > 0) {
-      toast.error(`Failed to add ${errorCount} ingredient${errorCount > 1 ? 's' : ''}`);
-    }
-
-    if (successCount > 0) {
-      toast.success(`Added ${successCount} ingredient${successCount > 1 ? 's' : ''} to ${weekName}`);
+    if (error) {
+      toast.error("Failed to add ingredients to grocery list");
+    } else if (result) {
+      toast.success(`Added ${result.count} ingredient${result.count > 1 ? 's' : ''} to ${weekName}`);
     }
 
     setOpen(false);
