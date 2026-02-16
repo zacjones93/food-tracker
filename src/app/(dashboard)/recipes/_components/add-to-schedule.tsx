@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { CalendarPlus, Loader2, Check } from "@/components/ui/themed-icons";
+import { CalendarPlus, Loader2 } from "@/components/ui/themed-icons";
 import { useServerAction } from "zsa-react";
 import { getWeeksForRecipeAction, addRecipeToWeekAction } from "@/app/(dashboard)/schedule/weeks.actions";
 import { useRouter } from "next/navigation";
@@ -45,11 +45,7 @@ export function AddToSchedule({
     const [, error] = await addRecipe({ weekId, recipeId });
 
     if (error) {
-      if (error.code === "CONFLICT") {
-        toast.error("Recipe is already in this week");
-      } else {
-        toast.error("Failed to add recipe to week");
-      }
+      toast.error("Failed to add recipe to week");
     } else {
       toast.success(`Added to ${weekName}`);
       setOpen(false);
@@ -87,19 +83,19 @@ export function AddToSchedule({
           weeks.map((week) => (
             <DropdownMenuItem
               key={week.id}
-              onClick={() => !week.hasRecipe && handleAddToWeek(week.id, week.name)}
-              disabled={isAdding || week.hasRecipe}
+              onClick={() => handleAddToWeek(week.id, week.name)}
+              disabled={isAdding}
               className="cursor-pointer"
             >
               <div className="flex items-center gap-2 w-full">
                 {week.emoji && <span>{week.emoji}</span>}
-                <span className={week.hasRecipe ? "text-muted-foreground" : ""}>{week.name}</span>
+                <span>{week.name}</span>
                 <div className="ml-auto flex items-center gap-2">
                   {week.status === 'current' && (
                     <span className="text-xs text-mystic-600 dark:text-cream-200">Current</span>
                   )}
-                  {week.hasRecipe && (
-                    <Check className="h-4 w-4 text-cream-100" />
+                  {week.recipeCount > 0 && (
+                    <span className="text-xs text-muted-foreground">x{week.recipeCount}</span>
                   )}
                 </div>
               </div>

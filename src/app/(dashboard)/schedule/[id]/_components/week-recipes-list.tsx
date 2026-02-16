@@ -174,20 +174,20 @@ export function WeekRecipesList({
     },
   });
 
-  const handleRemoveRecipe = async (recipeId: string) => {
+  const handleRemoveRecipe = async (weekRecipeId: string) => {
     // Optimistically update UI
-    setRecipes((prev) => prev.filter((r) => r.recipe.id !== recipeId));
-    await removeRecipe({ weekId, recipeId });
+    setRecipes((prev) => prev.filter((r) => r.id !== weekRecipeId));
+    await removeRecipe({ weekRecipeId });
   };
 
-  const handleToggleMade = async (recipeId: string, currentMade: boolean) => {
+  const handleToggleMade = async (weekRecipeId: string, currentMade: boolean) => {
     // Optimistically update UI
     setRecipes((prev) =>
       prev.map((r) =>
-        r.recipe.id === recipeId ? { ...r, made: !currentMade } : r
+        r.id === weekRecipeId ? { ...r, made: !currentMade } : r
       )
     );
-    await toggleMade({ weekId, recipeId, made: !currentMade });
+    await toggleMade({ weekRecipeId, made: !currentMade });
   };
 
   const handleDragStart = (event: DragStartEvent) => {
@@ -207,7 +207,7 @@ export function WeekRecipesList({
       return;
     }
 
-    const activeRecipeId = active.id as string;
+    const activeWrId = active.id as string;
     const overContainerId = over.id as string;
 
     // Check if we're dropping on a date container, end zone, or another recipe
@@ -219,7 +219,7 @@ export function WeekRecipesList({
       const targetDateKey = isEndZone
         ? overContainerId.replace('end-zone-', '')
         : overContainerId.replace('date-container-', '');
-      const activeRecipe = recipes.find(r => r.recipe.id === activeRecipeId);
+      const activeRecipe = recipes.find(r => r.id === activeWrId);
 
       if (!activeRecipe) return;
 
@@ -234,17 +234,9 @@ export function WeekRecipesList({
           ? null
           : weekdays.find(d => format(d, 'yyyy-MM-dd') === targetDateKey);
 
-        // Get all recipes in target date to calculate new order
-        const targetRecipes = recipes.filter(r => {
-          const rDateKey = r.scheduledDate
-            ? format(new Date(r.scheduledDate), 'yyyy-MM-dd')
-            : 'unscheduled';
-          return rDateKey === targetDateKey && r.recipe.id !== activeRecipeId;
-        });
-
         // Optimistically update the UI - add to end of target date's list
         setRecipes((prev) => {
-          const filtered = prev.filter(r => r.recipe.id !== activeRecipeId);
+          const filtered = prev.filter(r => r.id !== activeWrId);
           const updated = { ...activeRecipe, scheduledDate: newDate || null };
 
           // Insert at the end of the target date group
@@ -267,15 +259,14 @@ export function WeekRecipesList({
 
         // Update server
         updateScheduledDate({
-          weekId,
-          recipeId: activeRecipeId,
+          weekRecipeId: activeWrId,
           scheduledDate: newDate || null,
         });
       }
     } else {
       // Dropped on another recipe - check if same date section
-      const activeRecipe = recipes.find(r => r.recipe.id === activeRecipeId);
-      const overRecipe = recipes.find(r => r.recipe.id === overContainerId);
+      const activeRecipe = recipes.find(r => r.id === activeWrId);
+      const overRecipe = recipes.find(r => r.id === overContainerId);
 
       if (!activeRecipe || !overRecipe) return;
 
@@ -288,15 +279,15 @@ export function WeekRecipesList({
 
       if (activeDateKey === overDateKey) {
         // Same section - reorder
-        const oldIndex = recipes.findIndex((item) => item.recipe.id === active.id);
-        const newIndex = recipes.findIndex((item) => item.recipe.id === over.id);
+        const oldIndex = recipes.findIndex((item) => item.id === active.id);
+        const newIndex = recipes.findIndex((item) => item.id === over.id);
 
         const newOrder = arrayMove(recipes, oldIndex, newIndex);
         setRecipes(newOrder);
 
         reorderRecipes({
           weekId,
-          recipeIds: newOrder.map((item) => item.recipe.id),
+          weekRecipeIds: newOrder.map((item) => item.id),
         });
       } else {
         // Different section - move to that date
@@ -305,7 +296,7 @@ export function WeekRecipesList({
         // Optimistically update the UI
         setRecipes((prev) =>
           prev.map((r) =>
-            r.recipe.id === activeRecipeId
+            r.id === activeWrId
               ? { ...r, scheduledDate: newDate }
               : r
           )
@@ -313,8 +304,7 @@ export function WeekRecipesList({
 
         // Update server
         updateScheduledDate({
-          weekId,
-          recipeId: activeRecipeId,
+          weekRecipeId: activeWrId,
           scheduledDate: newDate,
         });
       }
@@ -346,7 +336,7 @@ export function WeekRecipesList({
 
   // Get the active recipe being dragged
   const activeRecipe = activeId
-    ? recipes.find((r) => r.recipe.id === activeId)
+    ? recipes.find((r) => r.id === activeId)
     : null;
 
   const content =
@@ -366,12 +356,12 @@ export function WeekRecipesList({
                   Unscheduled ({recipesByDate.get('unscheduled')!.length})
                 </h4>
                 <div className="space-y-2">
-                  {recipesByDate.get('unscheduled')!.map(({ recipe }) => {
-                    const hasRelated = !!(recipe.relatedRecipes && recipe.relatedRecipes.length > 0);
+                  {recipesByDate.get('unscheduled')!.map((wr) => {
+                    const hasRelated = !!(wr.recipe.relatedRecipes && wr.recipe.relatedRecipes.length > 0);
                     return (
                       <StaticRecipeItem
-                        key={recipe.id}
-                        recipe={recipe}
+                        key={wr.id}
+                        recipe={wr.recipe}
                         hasRelated={hasRelated}
                       />
                     );
@@ -403,12 +393,12 @@ export function WeekRecipesList({
                       </h4>
                       {dateRecipes.length > 0 ? (
                         <div className="space-y-2">
-                          {dateRecipes.map(({ recipe }) => {
-                            const hasRelated = !!(recipe.relatedRecipes && recipe.relatedRecipes.length > 0);
+                          {dateRecipes.map((wr) => {
+                            const hasRelated = !!(wr.recipe.relatedRecipes && wr.recipe.relatedRecipes.length > 0);
                             return (
                               <StaticRecipeItem
-                                key={recipe.id}
-                                recipe={recipe}
+                                key={wr.id}
+                                recipe={wr.recipe}
                                 hasRelated={hasRelated}
                               />
                             );
@@ -426,12 +416,12 @@ export function WeekRecipesList({
         ) : (
           // Fallback to flat list if no date range
           <div className="space-y-2">
-            {recipes.map(({ recipe }) => {
-              const hasRelated = !!(recipe.relatedRecipes && recipe.relatedRecipes.length > 0);
+            {recipes.map((wr) => {
+              const hasRelated = !!(wr.recipe.relatedRecipes && wr.recipe.relatedRecipes.length > 0);
               return (
                 <StaticRecipeItem
-                  key={recipe.id}
-                  recipe={recipe}
+                  key={wr.id}
+                  recipe={wr.recipe}
                   hasRelated={hasRelated}
                 />
               );
@@ -458,18 +448,18 @@ export function WeekRecipesList({
                     </h4>
                     <DroppableContainer id="date-container-unscheduled">
                       <SortableContext
-                        items={recipesByDate.get('unscheduled')!.map((r) => r.recipe.id)}
+                        items={recipesByDate.get('unscheduled')!.map((r) => r.id)}
                         strategy={verticalListSortingStrategy}
                       >
                         <div className="space-y-2">
                           {recipesByDate.get('unscheduled')!.map((weekRecipe) => (
                             <SortableRecipeItem
-                              key={weekRecipe.recipe.id}
+                              key={weekRecipe.id}
                               weekRecipe={weekRecipe}
                               onRemove={handleRemoveRecipe}
                               onToggleMade={handleToggleMade}
                               isMade={weekRecipe.made}
-                              isOver={overId === weekRecipe.recipe.id}
+                              isOver={overId === weekRecipe.id}
                             />
                           ))}
                         </div>
@@ -505,18 +495,18 @@ export function WeekRecipesList({
                           </button>
                           {isExpanded && (
                             <SortableContext
-                              items={dateRecipes.map((r) => r.recipe.id)}
+                              items={dateRecipes.map((r) => r.id)}
                               strategy={verticalListSortingStrategy}
                             >
                               <div className="space-y-2 mb-3">
                                 {dateRecipes.map((weekRecipe) => (
                                   <SortableRecipeItem
-                                    key={weekRecipe.recipe.id}
+                                    key={weekRecipe.id}
                                     weekRecipe={weekRecipe}
                                     onRemove={handleRemoveRecipe}
                                     onToggleMade={handleToggleMade}
                                     isMade={weekRecipe.made}
-                                    isOver={overId === weekRecipe.recipe.id}
+                                    isOver={overId === weekRecipe.id}
                                   />
                                 ))}
                               </div>
@@ -532,7 +522,7 @@ export function WeekRecipesList({
                           </h4>
                           <DroppableContainer id={`date-container-${dateKey}`}>
                             <SortableContext
-                              items={dateRecipes.map((r) => r.recipe.id)}
+                              items={dateRecipes.map((r) => r.id)}
                               strategy={verticalListSortingStrategy}
                             >
                               {dateRecipes.length > 0 ? (
@@ -540,12 +530,12 @@ export function WeekRecipesList({
                                   <div className="space-y-2">
                                     {dateRecipes.map((weekRecipe) => (
                                       <SortableRecipeItem
-                                        key={weekRecipe.recipe.id}
+                                        key={weekRecipe.id}
                                         weekRecipe={weekRecipe}
                                         onRemove={handleRemoveRecipe}
                                         onToggleMade={handleToggleMade}
                                         isMade={weekRecipe.made}
-                                        isOver={overId === weekRecipe.recipe.id}
+                                        isOver={overId === weekRecipe.id}
                                       />
                                     ))}
                                   </div>
@@ -574,18 +564,18 @@ export function WeekRecipesList({
             ) : (
               // Fallback to flat list if no date range
               <SortableContext
-                items={recipes.map((r) => r.recipe.id)}
+                items={recipes.map((r) => r.id)}
                 strategy={verticalListSortingStrategy}
               >
                 <div className="space-y-2">
                   {recipes.map((weekRecipe) => (
                     <SortableRecipeItem
-                      key={weekRecipe.recipe.id}
+                      key={weekRecipe.id}
                       weekRecipe={weekRecipe}
                       onRemove={handleRemoveRecipe}
                       onToggleMade={handleToggleMade}
                       isMade={weekRecipe.made}
-                      isOver={overId === weekRecipe.recipe.id}
+                      isOver={overId === weekRecipe.id}
                     />
                   ))}
                 </div>
@@ -794,8 +784,8 @@ function SortableRecipeItem({
   isOver = false,
 }: {
   weekRecipe: WeekRecipe & { recipe: RecipeWithRelated };
-  onRemove: (recipeId: string) => void;
-  onToggleMade: (recipeId: string, currentMade: boolean) => void;
+  onRemove: (weekRecipeId: string) => void;
+  onToggleMade: (weekRecipeId: string, currentMade: boolean) => void;
   isMade?: boolean;
   isOver?: boolean;
 }) {
@@ -808,7 +798,7 @@ function SortableRecipeItem({
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: recipe.id });
+  } = useSortable({ id: weekRecipe.id });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -834,7 +824,7 @@ function SortableRecipeItem({
         </div>
         <Checkbox
           checked={weekRecipe.made}
-          onCheckedChange={() => onToggleMade(recipe.id, weekRecipe.made)}
+          onCheckedChange={() => onToggleMade(weekRecipe.id, weekRecipe.made)}
           className="flex-shrink-0"
         />
         <div className="text-xl">{recipe.emoji || "🍽️"}</div>
@@ -885,7 +875,7 @@ function SortableRecipeItem({
           size="sm"
           onClick={(e) => {
             e.preventDefault();
-            onRemove(recipe.id);
+            onRemove(weekRecipe.id);
           }}
           className="md:opacity-0 md:group-hover:opacity-100 transition-opacity"
         >

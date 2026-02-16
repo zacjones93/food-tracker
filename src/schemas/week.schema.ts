@@ -35,24 +35,21 @@ export const addRecipeToWeekSchema = z.object({
 });
 
 export const removeRecipeFromWeekSchema = z.object({
-  weekId: z.string(),
-  recipeId: z.string(),
+  weekRecipeId: z.string(),
 });
 
 export const reorderWeekRecipesSchema = z.object({
   weekId: z.string(),
-  recipeIds: z.array(z.string()),
+  weekRecipeIds: z.array(z.string()),
 });
 
 export const toggleWeekRecipeMadeSchema = z.object({
-  weekId: z.string(),
-  recipeId: z.string(),
+  weekRecipeId: z.string(),
   made: z.boolean(),
 });
 
 export const updateWeekRecipeScheduledDateSchema = z.object({
-  weekId: z.string(),
-  recipeId: z.string(),
+  weekRecipeId: z.string(),
   scheduledDate: z.date().nullable(),
 });
 

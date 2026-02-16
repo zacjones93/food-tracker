@@ -14,7 +14,7 @@ import {
   toggleWeekRecipeMadeSchema,
   updateWeekRecipeScheduledDateSchema,
 } from "@/schemas/week.schema";
-import { eq, and, inArray } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { getSessionFromCookie } from "@/utils/auth";
 import { requirePermission } from "@/utils/team-auth";
 import { z } from "zod";
@@ -311,10 +311,10 @@ export const getWeeksForRecipeAction = createServerAction()
       },
     });
 
-    // Transform to include hasRecipe flag
+    // Transform to include recipe count
     const weeksWithFlag = weeks.map(week => ({
       ...week,
-      hasRecipe: week.recipes.length > 0,
+      recipeCount: week.recipes.length,
     }));
 
     return { weeks: weeksWithFlag };
@@ -341,18 +341,6 @@ export const addRecipeToWeekAction = createServerAction()
     }
 
     await requirePermission(user.id, week.teamId, TEAM_PERMISSIONS.EDIT_SCHEDULES);
-
-    // Check if recipe is already in week
-    const existing = await db.query.weekRecipesTable.findFirst({
-      where: and(
-        eq(weekRecipesTable.weekId, input.weekId),
-        eq(weekRecipesTable.recipeId, input.recipeId)
-      ),
-    });
-
-    if (existing) {
-      throw new ZSAError("CONFLICT", "Recipe is already in this week");
-    }
 
     // Get max order for this week to add at bottom
     const weekRecipes = await db.query.weekRecipesTable.findMany({
@@ -436,27 +424,23 @@ export const removeRecipeFromWeekAction = createServerAction()
 
     const db = getDB();
 
-    // Get week to verify permission
-    const week = await db.query.weeksTable.findFirst({
-      where: eq(weeksTable.id, input.weekId),
+    // Get week recipe to verify permission
+    const weekRecipe = await db.query.weekRecipesTable.findFirst({
+      where: eq(weekRecipesTable.id, input.weekRecipeId),
+      with: { week: true },
     });
 
-    if (!week) {
-      throw new ZSAError("NOT_FOUND", "Week not found");
+    if (!weekRecipe) {
+      throw new ZSAError("NOT_FOUND", "Week recipe not found");
     }
 
-    await requirePermission(user.id, week.teamId, TEAM_PERMISSIONS.EDIT_SCHEDULES);
+    await requirePermission(user.id, weekRecipe.week.teamId, TEAM_PERMISSIONS.EDIT_SCHEDULES);
 
     await db.delete(weekRecipesTable)
-      .where(
-        and(
-          eq(weekRecipesTable.weekId, input.weekId),
-          eq(weekRecipesTable.recipeId, input.recipeId)
-        )
-      );
+      .where(eq(weekRecipesTable.id, input.weekRecipeId));
 
     revalidatePath("/schedule");
-    revalidatePath(`/schedule/${input.weekId}`);
+    revalidatePath(`/schedule/${weekRecipe.weekId}`);
 
     return { success: true };
   });
@@ -483,16 +467,11 @@ export const reorderWeekRecipesAction = createServerAction()
 
     await requirePermission(user.id, week.teamId, TEAM_PERMISSIONS.EDIT_SCHEDULES);
 
-    // Update order for each recipe
-    for (let i = 0; i < input.recipeIds.length; i++) {
+    // Update order for each week recipe
+    for (let i = 0; i < input.weekRecipeIds.length; i++) {
       await db.update(weekRecipesTable)
         .set({ order: i })
-        .where(
-          and(
-            eq(weekRecipesTable.weekId, input.weekId),
-            eq(weekRecipesTable.recipeId, input.recipeIds[i])
-          )
-        );
+        .where(eq(weekRecipesTable.id, input.weekRecipeIds[i]));
     }
 
     revalidatePath("/schedule");
@@ -512,34 +491,25 @@ export const toggleWeekRecipeMadeAction = createServerAction()
 
     const db = getDB();
 
-    // Get week to verify permission
-    const week = await db.query.weeksTable.findFirst({
-      where: eq(weeksTable.id, input.weekId),
+    // Get week recipe to verify permission
+    const existing = await db.query.weekRecipesTable.findFirst({
+      where: eq(weekRecipesTable.id, input.weekRecipeId),
+      with: { week: true },
     });
 
-    if (!week) {
-      throw new ZSAError("NOT_FOUND", "Week not found");
+    if (!existing) {
+      throw new ZSAError("NOT_FOUND", "Week recipe not found");
     }
 
-    await requirePermission(user.id, week.teamId, TEAM_PERMISSIONS.EDIT_SCHEDULES);
+    await requirePermission(user.id, existing.week.teamId, TEAM_PERMISSIONS.EDIT_SCHEDULES);
 
-    // Update the made status
     const [weekRecipe] = await db.update(weekRecipesTable)
       .set({ made: input.made })
-      .where(
-        and(
-          eq(weekRecipesTable.weekId, input.weekId),
-          eq(weekRecipesTable.recipeId, input.recipeId)
-        )
-      )
+      .where(eq(weekRecipesTable.id, input.weekRecipeId))
       .returning();
 
-    if (!weekRecipe) {
-      throw new ZSAError("NOT_FOUND", "Recipe not found in this week");
-    }
-
     revalidatePath("/schedule");
-    revalidatePath(`/schedule/${input.weekId}`);
+    revalidatePath(`/schedule/${existing.weekId}`);
 
     return { weekRecipe };
   });
@@ -555,34 +525,25 @@ export const updateWeekRecipeScheduledDateAction = createServerAction()
 
     const db = getDB();
 
-    // Get week to verify permission
-    const week = await db.query.weeksTable.findFirst({
-      where: eq(weeksTable.id, input.weekId),
+    // Get week recipe to verify permission
+    const existing = await db.query.weekRecipesTable.findFirst({
+      where: eq(weekRecipesTable.id, input.weekRecipeId),
+      with: { week: true },
     });
 
-    if (!week) {
-      throw new ZSAError("NOT_FOUND", "Week not found");
+    if (!existing) {
+      throw new ZSAError("NOT_FOUND", "Week recipe not found");
     }
 
-    await requirePermission(user.id, week.teamId, TEAM_PERMISSIONS.EDIT_SCHEDULES);
+    await requirePermission(user.id, existing.week.teamId, TEAM_PERMISSIONS.EDIT_SCHEDULES);
 
-    // Update the scheduled date
     const [weekRecipe] = await db.update(weekRecipesTable)
       .set({ scheduledDate: input.scheduledDate })
-      .where(
-        and(
-          eq(weekRecipesTable.weekId, input.weekId),
-          eq(weekRecipesTable.recipeId, input.recipeId)
-        )
-      )
+      .where(eq(weekRecipesTable.id, input.weekRecipeId))
       .returning();
 
-    if (!weekRecipe) {
-      throw new ZSAError("NOT_FOUND", "Recipe not found in this week");
-    }
-
     revalidatePath("/schedule");
-    revalidatePath(`/schedule/${input.weekId}`);
+    revalidatePath(`/schedule/${existing.weekId}`);
 
     return { weekRecipe };
   });
