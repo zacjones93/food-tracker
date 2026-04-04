@@ -104,6 +104,7 @@
     "nuqs": "^2.7.2",
     "phosphor-react": "^1.4.1",
     "react": "^19.1.0",
+    "react-d3-cloud": "^1.0.6",
     "react-dom": "^19.1.0",
     "react-hook-form": "^7.56.4",
     "react-markdown": "^10.1.0",

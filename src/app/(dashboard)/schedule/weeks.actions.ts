@@ -14,7 +14,7 @@ import {
   toggleWeekRecipeMadeSchema,
   updateWeekRecipeScheduledDateSchema,
 } from "@/schemas/week.schema";
-import { eq, inArray } from "drizzle-orm";
+import { eq, inArray, sql } from "drizzle-orm";
 import { getSessionFromCookie } from "@/utils/auth";
 import { requirePermission } from "@/utils/team-auth";
 import { z } from "zod";
@@ -507,6 +507,49 @@ export const toggleWeekRecipeMadeAction = createServerAction()
       .set({ made: input.made })
       .where(eq(weekRecipesTable.id, input.weekRecipeId))
       .returning();
+
+    // Update recipe mealsEatenCount and lastMadeDate
+    // Use the actual meal date (scheduledDate or week startDate), not checkbox click time
+    const mealDate = existing.scheduledDate ?? existing.week.startDate ?? new Date();
+
+    if (input.made) {
+      await db.update(recipesTable)
+        .set({
+          mealsEatenCount: sql`max(0, ${recipesTable.mealsEatenCount} + 1)`,
+          lastMadeDate: mealDate,
+        })
+        .where(eq(recipesTable.id, existing.recipeId));
+    } else {
+      // Decrement count
+      await db.update(recipesTable)
+        .set({
+          mealsEatenCount: sql`max(0, ${recipesTable.mealsEatenCount} - 1)`,
+        })
+        .where(eq(recipesTable.id, existing.recipeId));
+
+      // Recompute lastMadeDate from remaining made rows
+      const remainingMade = await db.select({
+        scheduledDate: weekRecipesTable.scheduledDate,
+        weekStartDate: weeksTable.startDate,
+      })
+        .from(weekRecipesTable)
+        .innerJoin(weeksTable, eq(weekRecipesTable.weekId, weeksTable.id))
+        .where(
+          sql`${weekRecipesTable.recipeId} = ${existing.recipeId} AND ${weekRecipesTable.made} = 1 AND ${weekRecipesTable.id} != ${input.weekRecipeId}`
+        );
+
+      let latestDate: Date | null = null;
+      for (const row of remainingMade) {
+        const d = row.scheduledDate ?? row.weekStartDate;
+        if (d && (!latestDate || d > latestDate)) {
+          latestDate = d;
+        }
+      }
+
+      await db.update(recipesTable)
+        .set({ lastMadeDate: latestDate })
+        .where(eq(recipesTable.id, existing.recipeId));
+    }
 
     revalidatePath("/schedule");
     revalidatePath(`/schedule/${existing.weekId}`);

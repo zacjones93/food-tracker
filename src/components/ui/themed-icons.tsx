@@ -65,6 +65,7 @@ import {
   Star,
   Crown as PhosphorCrown,
   ShieldCheck,
+  ChartBar as PhosphorChartBar,
 
   // User & Auth
   User,
@@ -373,6 +374,14 @@ export const Crown = (props: ThemedIconProps) => (
   />
 );
 
+export const ChartBar = (props: ThemedIconProps) => (
+  <PhosphorChartBar
+    weight={props.weight || "duotone"}
+    color={props.color || "currentColor"}
+    {...props}
+  />
+);
+
 export const Sparkles = (props: ThemedIconProps) => (
   <Sparkle
     weight={props.weight || "duotone"}
@@ -629,6 +638,7 @@ export {
   Star,
   PhosphorCrown,
   ShieldCheck,
+  PhosphorChartBar,
   User,
   Users,
   PhosphorUserPlus,

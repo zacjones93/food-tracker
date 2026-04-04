@@ -49,6 +49,7 @@ export function RecipeFilters() {
     },
     {
       history: "push",
+      shallow: false,
     }
   );
 
