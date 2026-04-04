@@ -592,11 +592,6 @@ export function WeekRecipesList({
                   {activeRecipe.recipe.name}
                 </div>
               </div>
-              {activeRecipe.recipe.mealType && (
-                <Badge variant="secondary" className="text-xs">
-                  {activeRecipe.recipe.mealType}
-                </Badge>
-              )}
             </div>
           ) : null}
         </DragOverlay>
@@ -738,24 +733,12 @@ function StaticRecipeItem({
             </button>
           )}
         </div>
-        <div className="flex items-center gap-2 flex-shrink-0">
-          {recipe.mealType && (
-            <Badge variant="secondary" className="text-xs">
-              {recipe.mealType}
-            </Badge>
-          )}
-          {recipe.difficulty && (
-            <Badge variant="outline" className="text-xs">
-              {recipe.difficulty}
-            </Badge>
-          )}
-        </div>
       </div>
       {hasRelated && showRelated && (
         <div className="ml-12 mt-1 space-y-1">
-          {recipe.relatedRecipes!.map((relatedRecipe) => (
+          {recipe.relatedRecipes!.map((relatedRecipe, idx) => (
             <Link
-              key={relatedRecipe.id}
+              key={`${relatedRecipe.id}-${relatedRecipe.relationType}-${idx}`}
               href={`/recipes/${relatedRecipe.id}`}
               className="flex items-center gap-2 p-2 rounded-md bg-mystic-50/50 dark:bg-cream-200/5 border border-mystic-200/50 dark:border-cream-200/10 hover:bg-mystic-100 dark:hover:bg-cream-200/10 transition-colors"
             >
@@ -814,7 +797,7 @@ function SortableRecipeItem({
       {isOver && (
         <div className="absolute -top-1 left-0 right-0 h-0.5 bg-mystic-500 dark:bg-cream-400 rounded-full shadow-lg z-10" />
       )}
-      <div className="flex items-center gap-3 p-3 rounded-lg bg-background border hover:bg-mystic-50 dark:hover:bg-cream-200/10 transition-colors group">
+      <div className="flex items-center gap-3 p-3 pr-10 rounded-lg bg-background border hover:bg-mystic-50 dark:hover:bg-cream-200/10 transition-colors group relative">
         <div
           {...attributes}
           {...listeners}
@@ -858,18 +841,6 @@ function SortableRecipeItem({
             </button>
           )}
         </div>
-        <div className="flex items-center gap-2 flex-shrink-0">
-          {recipe.mealType && (
-            <Badge variant="secondary" className="text-xs">
-              {recipe.mealType}
-            </Badge>
-          )}
-          {recipe.difficulty && (
-            <Badge variant="outline" className="text-xs">
-              {recipe.difficulty}
-            </Badge>
-          )}
-        </div>
         <Button
           variant="ghost"
           size="sm"
@@ -877,7 +848,7 @@ function SortableRecipeItem({
             e.preventDefault();
             onRemove(weekRecipe.id);
           }}
-          className="md:opacity-0 md:group-hover:opacity-100 transition-opacity"
+          className="absolute right-1 top-1/2 -translate-y-1/2 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
         >
           <Trash2 className="h-4 w-4 dark:text-cream-300" />
         </Button>
@@ -886,9 +857,9 @@ function SortableRecipeItem({
       {/* Related Recipes - collapsible nested below main recipe */}
       {hasRelatedRecipes && showRelated && (
         <div className="ml-12 mt-1 space-y-1">
-          {recipe.relatedRecipes!.map((relatedRecipe) => (
+          {recipe.relatedRecipes!.map((relatedRecipe, idx) => (
             <Link
-              key={relatedRecipe.id}
+              key={`${relatedRecipe.id}-${relatedRecipe.relationType}-${idx}`}
               href={`/recipes/${relatedRecipe.id}`}
               className="flex items-center gap-2 p-2 rounded-md bg-mystic-50/50 dark:bg-cream-200/5 border border-mystic-200/50 dark:border-cream-200/10 hover:bg-mystic-100 dark:hover:bg-cream-200/10 transition-colors group/related"
             >
