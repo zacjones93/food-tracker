@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { getWeekByIdAction } from "../weeks.actions";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "@/components/ui/themed-icons";
+import { ArrowLeft, Pencil } from "@/components/ui/themed-icons";
 import Link from "next/link";
 import { WeekRecipesList } from "./_components/week-recipes-list";
 import { CategorizedGroceryList } from "./_components/categorized-grocery-list";
@@ -39,6 +39,12 @@ export default async function ScheduleDetailPage({ params }: ScheduleDetailPageP
             <Link href="/schedule">
               <ArrowLeft className="h-4 w-4 mr-2 dark:text-cream-200" />
               Back to Schedule
+            </Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link href={`/schedule/${week.id}/edit`}>
+              <Pencil className="h-4 w-4 mr-2 dark:text-cream-200" />
+              Edit
             </Link>
           </Button>
           <WeekStatusSelector weekId={week.id} currentStatus={week.status as "current" | "upcoming" | "archived"} />
