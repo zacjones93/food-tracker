@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef, useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -61,6 +62,53 @@ function RecipeLink({ id, name, emoji }: { id: string; name: string; emoji: stri
     <Link href={`/recipes/${id}`} className="hover:text-mystic-600 dark:hover:text-cream-200 transition-colors">
       {emoji && <span className="mr-1">{emoji}</span>}{name}
     </Link>
+  );
+}
+
+function TagCloudResponsive({ tags }: { tags: Array<{ tag: string; count: number }> }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [width, setWidth] = useState(0);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        setWidth(entry.contentRect.width);
+      }
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  const height = Math.max(200, width * 0.5);
+
+  return (
+    <div ref={containerRef}>
+      {/* Mobile: simple tag list */}
+      <div className="flex flex-wrap gap-2 sm:hidden">
+        {tags.map((t) => (
+          <Badge key={t.tag} variant="secondary" className="text-xs">
+            {t.tag} ({t.count})
+          </Badge>
+        ))}
+      </div>
+      {/* Desktop: word cloud */}
+      <div className="hidden sm:block">
+        {width > 0 && (
+          <WordCloud
+            data={tags.map(t => ({ text: t.tag, value: t.count }))}
+            width={width}
+            height={height}
+            font="inherit"
+            fontSize={(word) => 10 + Math.sqrt(word.value) * 8}
+            rotate={() => 0}
+            padding={8}
+            fill={() => "currentColor"}
+          />
+        )}
+      </div>
+    </div>
   );
 }
 
@@ -327,16 +375,7 @@ export function StatsDashboard({ stats }: { stats: MealStats }) {
             <CardTitle className="text-lg">Tag Cloud</CardTitle>
           </CardHeader>
           <CardContent>
-            <WordCloud
-              data={stats.topTags.map(t => ({ text: t.tag, value: t.count }))}
-              width={800}
-              height={400}
-              font="inherit"
-              fontSize={(word) => 10 + Math.sqrt(word.value) * 8}
-              rotate={() => 0}
-              padding={8}
-              fill={() => "currentColor"}
-            />
+            <TagCloudResponsive tags={stats.topTags} />
           </CardContent>
         </Card>
       )}

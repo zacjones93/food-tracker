@@ -258,13 +258,25 @@ export const getMealStatsAction = createServerAction()
       : 0;
 
     // ── 11. New recipes tried ────────────────────────────────────────────────
+    // Derive first-made date per recipe from week_recipes (not recipe.createdAt)
 
-    const newRecipesTriedThisYear = allRecipes.filter(
-      r => r.createdAt >= startOfYear && r.mealsEatenCount > 0
+    const firstMadeByRecipe = new Map<string, Date>();
+    for (const wr of allWeekRecipes) {
+      if (!wr.made) continue;
+      const date = wr.scheduledDate ? new Date(wr.scheduledDate) : (wr.weekStartDate ? new Date(wr.weekStartDate) : null);
+      if (!date) continue;
+      const existing = firstMadeByRecipe.get(wr.recipeId);
+      if (!existing || date < existing) {
+        firstMadeByRecipe.set(wr.recipeId, date);
+      }
+    }
+
+    const newRecipesTriedThisYear = [...firstMadeByRecipe.values()].filter(
+      d => d >= startOfYear
     ).length;
 
-    const newRecipesTriedThisMonth = allRecipes.filter(
-      r => r.createdAt >= startOfMonth && r.mealsEatenCount > 0
+    const newRecipesTriedThisMonth = [...firstMadeByRecipe.values()].filter(
+      d => d >= startOfMonth
     ).length;
 
     // ── 12. Cookbook leaderboard ──────────────────────────────────────────────
