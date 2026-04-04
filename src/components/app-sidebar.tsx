@@ -11,6 +11,7 @@ import {
   ClipboardList,
   Settings2,
   Sparkles,
+  ChartBar,
 } from "@/components/ui/themed-icons"
 
 import { NavMain } from "@/components/nav-main"
@@ -79,6 +80,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             url: "/ai-assistant",
           },
         ],
+      },
+      {
+        title: "Meal Stats",
+        url: "/meal-stats",
+        icon: ChartBar,
       },
       {
         title: "Recipe Books",
