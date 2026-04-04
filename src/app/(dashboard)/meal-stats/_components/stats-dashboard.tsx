@@ -1,8 +1,11 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
+
+const WordCloud = dynamic(() => import("react-d3-cloud"), { ssr: false });
 
 // Infer the return type from the action
 type MealStats = {
@@ -11,25 +14,15 @@ type MealStats = {
   topRecipesThisMonth: Array<{ id: string; name: string; emoji: string | null; mealType: string | null; timesScheduled: number }>;
   topDinners: Array<{ id: string; name: string; emoji: string | null; mealType: string | null; mealsEatenCount: number }>;
   mostRepeatedInMonth: { recipe: { id: string; name: string; emoji: string | null; mealType: string | null; timesScheduled: number }; month: string } | null;
-  mostUsedIngredients: Array<{ name: string; count: number }>;
-  mostPurchasedGroceryItems: Array<{ name: string; count: number; category: string | null }>;
-  topGroceryByCategory: Record<string, Array<{ name: string; count: number; category: string | null }>>;
-  alwaysOnTheList: Array<{ name: string; count: number; category: string | null }>;
-  busiestCookingDay: { day: string; count: number } | null;
   avgMealsPerWeek: number;
   newRecipesTriedThisYear: number;
   newRecipesTriedThisMonth: number;
   cookbookLeaderboard: Array<{ id: string; name: string; recipeCount: number; totalMealsEaten: number }>;
-  mealTypeBreakdown: Array<{ mealType: string; count: number }>;
-  difficultyBreakdown: Array<{ difficulty: string; count: number }>;
   topTags: Array<{ tag: string; count: number }>;
-  mostPopularSides: Array<{ id: string; name: string; emoji: string | null; mealType: string | null; mealsEatenCount: number }>;
-  favoritePairings: Array<{ mainId: string; mainName: string; mainEmoji: string | null; sideId: string; sideName: string; sideEmoji: string | null; relationType: string }>;
   recipesAddedByMonth: Array<{ monthLabel: string; weeksCreated: number }>;
   forgottenFavorites: Array<{ id: string; name: string; emoji: string | null; mealsEatenCount: number; lastMadeDate: Date | null; daysSinceLastMade: number | null }>;
   weeklyPlanningByMonth: Array<{ monthLabel: string; weeksCreated: number }>;
   emojiLeaderboard: Array<{ emoji: string; count: number }>;
-  avgGroceryListLength: number;
   totalRecipes: number;
   totalWeeksPlanned: number;
   totalMealsEaten: number;
@@ -73,10 +66,6 @@ function RecipeLink({ id, name, emoji }: { id: string; name: string; emoji: stri
 
 export function StatsDashboard({ stats }: { stats: MealStats }) {
   const maxAllTime = stats.topRecipesAllTime[0]?.mealsEatenCount || 1;
-  const maxIngredient = stats.mostUsedIngredients[0]?.count || 1;
-  const maxGrocery = stats.mostPurchasedGroceryItems[0]?.count || 1;
-  const maxTag = stats.topTags[0]?.count || 1;
-  const maxMealType = stats.mealTypeBreakdown[0]?.count || 1;
 
   return (
     <div className="flex flex-col gap-8">
@@ -88,7 +77,7 @@ export function StatsDashboard({ stats }: { stats: MealStats }) {
         <StatNumber label="Avg Meals / Week" value={stats.avgMealsPerWeek} />
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 gap-4">
         <StatNumber
           label="New Recipes This Year"
           value={stats.newRecipesTriedThisYear}
@@ -97,16 +86,27 @@ export function StatsDashboard({ stats }: { stats: MealStats }) {
           label="New Recipes This Month"
           value={stats.newRecipesTriedThisMonth}
         />
-        <StatNumber
-          label="Busiest Day"
-          value={stats.busiestCookingDay?.day || "N/A"}
-          sub={stats.busiestCookingDay ? `${stats.busiestCookingDay.count} meals scheduled` : undefined}
-        />
-        <StatNumber
-          label="Avg Grocery List"
-          value={`${stats.avgGroceryListLength} items`}
-        />
       </div>
+
+      {/* ── Emoji Leaderboard ───────────────────────────────────────── */}
+      {stats.emojiLeaderboard.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Emoji Leaderboard</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap gap-4">
+              {stats.emojiLeaderboard.map((e, i) => (
+                <div key={e.emoji} className="flex flex-col items-center gap-1">
+                  <span className="text-3xl">{e.emoji}</span>
+                  <span className="text-xs font-mono text-mystic-500">{e.count}</span>
+                  {i === 0 && <Badge className="text-[0.6rem]">1st</Badge>}
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* ── Most Eaten Recipes (All Time / Year / Month) ────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -222,148 +222,6 @@ export function StatsDashboard({ stats }: { stats: MealStats }) {
         )}
       </div>
 
-      {/* ── Ingredient & Grocery Stats ───────────────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Most Used Ingredients (Across Recipes)</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            {stats.mostUsedIngredients.length === 0 && <p className="text-sm text-mystic-500">No ingredient data</p>}
-            {stats.mostUsedIngredients.map((ing) => (
-              <div key={ing.name} className="flex items-center gap-3">
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm capitalize truncate">{ing.name}</p>
-                  <BarSegment value={ing.count} max={maxIngredient} color="bg-emerald-500" />
-                </div>
-                <span className="text-xs font-mono text-mystic-500">{ing.count}</span>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Most Purchased Grocery Items</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            {stats.mostPurchasedGroceryItems.length === 0 && <p className="text-sm text-mystic-500">No grocery data</p>}
-            {stats.mostPurchasedGroceryItems.map((item) => (
-              <div key={item.name} className="flex items-center gap-3">
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm capitalize truncate">{item.name}</p>
-                  <BarSegment value={item.count} max={maxGrocery} color="bg-amber-500" />
-                </div>
-                {item.category && <Badge variant="outline" className="text-xs shrink-0">{item.category}</Badge>}
-                <span className="text-xs font-mono text-mystic-500">{item.count}</span>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* ── Always On The List & Top Grocery by Category ──────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Always on the List</CardTitle>
-            <p className="text-xs text-mystic-500">Items appearing in 50%+ of grocery weeks</p>
-          </CardHeader>
-          <CardContent>
-            {stats.alwaysOnTheList.length === 0 && <p className="text-sm text-mystic-500">Not enough data yet</p>}
-            <div className="flex flex-wrap gap-2">
-              {stats.alwaysOnTheList.map((item) => (
-                <Badge key={item.name} variant="secondary" className="capitalize">
-                  {item.name} ({item.count}w)
-                </Badge>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Top Grocery Items by Category</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {Object.keys(stats.topGroceryByCategory).length === 0 && <p className="text-sm text-mystic-500">No categorized items</p>}
-            {Object.entries(stats.topGroceryByCategory).map(([cat, items]) => (
-              <div key={cat}>
-                <p className="text-xs font-semibold text-mystic-600 dark:text-cream-300 uppercase tracking-wide mb-1">{cat}</p>
-                <div className="flex flex-wrap gap-1">
-                  {items.map((item) => (
-                    <Badge key={item.name} variant="outline" className="text-xs capitalize">
-                      {item.name} ({item.count})
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* ── Meal Type & Difficulty & Tags ────────────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Meal Type Breakdown</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            {stats.mealTypeBreakdown.map((mt) => (
-              <div key={mt.mealType} className="flex items-center gap-3">
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm">{mt.mealType}</p>
-                  <BarSegment value={mt.count} max={maxMealType} color="bg-violet-500" />
-                </div>
-                <span className="text-xs font-mono text-mystic-500">{mt.count}</span>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Difficulty Distribution</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            {stats.difficultyBreakdown.map((d) => (
-              <div key={d.difficulty} className="flex items-center gap-3">
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm">{d.difficulty}</p>
-                  <BarSegment value={d.count} max={stats.difficultyBreakdown[0]?.count || 1} color="bg-rose-400" />
-                </div>
-                <span className="text-xs font-mono text-mystic-500">{d.count}</span>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Tag Cloud</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {stats.topTags.length === 0 && <p className="text-sm text-mystic-500">No tags used yet</p>}
-            <div className="flex flex-wrap gap-2">
-              {stats.topTags.map((t) => {
-                // Scale font size based on count
-                const scale = maxTag > 0 ? 0.75 + (t.count / maxTag) * 0.75 : 1;
-                return (
-                  <span
-                    key={t.tag}
-                    className="text-mystic-700 dark:text-cream-200 hover:text-mystic-900 dark:hover:text-cream-100 transition-colors cursor-default"
-                    style={{ fontSize: `${scale}rem` }}
-                  >
-                    {t.tag} <sup className="text-mystic-400 text-[0.6em]">{t.count}</sup>
-                  </span>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
       {/* ── Cookbook Leaderboard ──────────────────────────────────────── */}
       {stats.cookbookLeaderboard.length > 0 && (
         <Card>
@@ -385,49 +243,6 @@ export function StatsDashboard({ stats }: { stats: MealStats }) {
           </CardContent>
         </Card>
       )}
-
-      {/* ── Sides & Pairings ────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {stats.mostPopularSides.length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Most Popular Side Dishes</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              {stats.mostPopularSides.map((r, i) => (
-                <div key={r.id} className="flex items-center gap-3">
-                  <span className="text-xs font-mono text-mystic-500 w-5 text-right">{i + 1}.</span>
-                  <p className="text-sm font-medium flex-1 truncate">
-                    <RecipeLink id={r.id} name={r.name} emoji={r.emoji} />
-                  </p>
-                  <Badge variant="secondary">{r.mealsEatenCount} pairings</Badge>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        )}
-
-        {stats.favoritePairings.length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Favorite Pairings</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {stats.favoritePairings.map((p, i) => (
-                <div key={i} className="flex items-center gap-2 text-sm">
-                  <span className="truncate">
-                    <RecipeLink id={p.mainId} name={p.mainName} emoji={p.mainEmoji} />
-                  </span>
-                  <Badge variant="outline" className="text-xs shrink-0">{p.relationType}</Badge>
-                  <span className="truncate">
-                    <RecipeLink id={p.sideId} name={p.sideName} emoji={p.sideEmoji} />
-                  </span>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        )}
-      </div>
 
       {/* ── Forgotten Favorites ──────────────────────────────────────── */}
       {stats.forgottenFavorites.length > 0 && (
@@ -505,25 +320,27 @@ export function StatsDashboard({ stats }: { stats: MealStats }) {
         </Card>
       </div>
 
-      {/* ── Emoji Leaderboard ───────────────────────────────────────── */}
-      {stats.emojiLeaderboard.length > 0 && (
+      {/* ── Tag Cloud ──────────────────────────────────────────────── */}
+      {stats.topTags.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Emoji Leaderboard</CardTitle>
+            <CardTitle className="text-lg">Tag Cloud</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-wrap gap-4">
-              {stats.emojiLeaderboard.map((e, i) => (
-                <div key={e.emoji} className="flex flex-col items-center gap-1">
-                  <span className="text-3xl">{e.emoji}</span>
-                  <span className="text-xs font-mono text-mystic-500">{e.count}</span>
-                  {i === 0 && <Badge className="text-[0.6rem]">1st</Badge>}
-                </div>
-              ))}
-            </div>
+            <WordCloud
+              data={stats.topTags.map(t => ({ text: t.tag, value: t.count }))}
+              width={800}
+              height={400}
+              font="inherit"
+              fontSize={(word) => 10 + Math.sqrt(word.value) * 8}
+              rotate={() => 0}
+              padding={8}
+              fill={() => "currentColor"}
+            />
           </CardContent>
         </Card>
       )}
+
     </div>
   );
 }

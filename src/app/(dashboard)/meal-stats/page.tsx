@@ -1,12 +1,24 @@
 import { Suspense } from "react";
+import { redirect } from "next/navigation";
+import { getSessionFromCookie } from "@/utils/auth";
 import { getMealStatsAction } from "./meal-stats.actions";
 import { StatsDashboard } from "./_components/stats-dashboard";
 
 async function StatsContent() {
-  const [data] = await getMealStatsAction();
+  const session = await getSessionFromCookie();
+
+  if (!session) {
+    return redirect("/sign-in");
+  }
+
+  if (!session.activeTeamId) {
+    return <p className="text-mystic-500 text-center py-12">No active team selected. Please select a team first.</p>;
+  }
+
+  const [data, error] = await getMealStatsAction();
 
   if (!data) {
-    return <p className="text-mystic-500 text-center py-12">Unable to load stats. Make sure you have a team selected.</p>;
+    return <p className="text-mystic-500 text-center py-12">Unable to load stats: {error?.message || "Unknown error"}</p>;
   }
 
   return <StatsDashboard stats={data} />;
