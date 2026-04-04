@@ -149,7 +149,7 @@ function WeekCard({
           {week.recipes.length > 0 && (
             <div className="flex flex-wrap gap-1">
               {week.recipes.slice(0, 6).map((wr) => (
-                <span key={wr.recipe.id} className="text-lg">
+                <span key={wr.id} className="text-lg">
                   {wr.recipe.emoji}
                 </span>
               ))}
