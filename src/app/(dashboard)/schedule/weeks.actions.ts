@@ -14,7 +14,7 @@ import {
   toggleWeekRecipeMadeSchema,
   updateWeekRecipeScheduledDateSchema,
 } from "@/schemas/week.schema";
-import { eq, inArray } from "drizzle-orm";
+import { eq, inArray, sql } from "drizzle-orm";
 import { getSessionFromCookie } from "@/utils/auth";
 import { requirePermission } from "@/utils/team-auth";
 import { z } from "zod";
@@ -507,6 +507,14 @@ export const toggleWeekRecipeMadeAction = createServerAction()
       .set({ made: input.made })
       .where(eq(weekRecipesTable.id, input.weekRecipeId))
       .returning();
+
+    // Update recipe mealsEatenCount
+    await db.update(recipesTable)
+      .set({
+        mealsEatenCount: sql`max(0, ${recipesTable.mealsEatenCount} + ${input.made ? 1 : -1})`,
+        lastMadeDate: input.made ? new Date() : recipesTable.lastMadeDate,
+      })
+      .where(eq(recipesTable.id, existing.recipeId));
 
     revalidatePath("/schedule");
     revalidatePath(`/schedule/${existing.weekId}`);
