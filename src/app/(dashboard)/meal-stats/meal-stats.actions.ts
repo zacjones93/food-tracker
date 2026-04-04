@@ -225,8 +225,12 @@ export const getMealStatsAction = createServerAction()
       db.select().from(recipeBooksTable),
     ]);
 
-    // Build recipe lookup
+    // Build recipe lookup — only team recipes are in this map
     const recipeMap = new Map(allRecipes.map(r => [r.id, r]));
+
+    // Filter recipe books to only those referenced by team recipes
+    const teamBookIds = new Set(allRecipes.map(r => r.recipeBookId).filter(Boolean));
+    const teamRecipeBooks = allRecipeBooks.filter(b => teamBookIds.has(b.id));
 
     // ── 1. Top recipes all time ──────────────────────────────────────────────
 
@@ -439,7 +443,7 @@ export const getMealStatsAction = createServerAction()
       bookStats.set(recipe.recipeBookId, existing);
     }
 
-    const bookMap = new Map(allRecipeBooks.map(b => [b.id, b.name]));
+    const bookMap = new Map(teamRecipeBooks.map(b => [b.id, b.name]));
     const cookbookLeaderboard = [...bookStats.entries()]
       .sort((a, b) => b[1].totalMealsEaten - a[1].totalMealsEaten)
       .map(([bookId, stats]) => ({
