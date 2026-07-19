@@ -1,0 +1,40 @@
+{
+  "$schema": "https://turborepo.com/schema.json",
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", ".env", ".env.*", ".dev.vars", ".dev.vars.*"],
+      "outputs": [".next/**", "!.next/cache/**"]
+    },
+    "@food-tracker/mobile#build": {
+      "cache": false,
+      "outputs": []
+    },
+    "build:prod": {
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", ".env", ".env.*", ".dev.vars", ".dev.vars.*"],
+      "outputs": [".open-next/**", "dist/**"]
+    },
+    "opennext:build": {
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", ".env", ".env.*", ".dev.vars", ".dev.vars.*"],
+      "outputs": [".open-next/**"]
+    },
+    "typecheck": {
+      "dependsOn": ["^typecheck"],
+      "outputs": []
+    },
+    "lint": {
+      "dependsOn": ["^lint"],
+      "outputs": []
+    },
+    "test": {
+      "dependsOn": ["^test"],
+      "outputs": []
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    }
+  }
+}

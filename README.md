@@ -1,11 +1,23 @@
-# Cloudflare Workers SaaS Template
+# Food Tracker
 
 [![.github/workflows/deploy.yml](https://github.com/LubomirGeorgiev/cloudflare-workers-nextjs-saas-template/actions/workflows/deploy.yml/badge.svg)](https://github.com/LubomirGeorgiev/cloudflare-workers-nextjs-saas-template/actions/workflows/deploy.yml)
 
 # [Live Demo](https://nextjs-saas-template.lubomirgeorgiev.com/sign-up)
 # [Github Repo](https://github.com/LubomirGeorgiev/cloudflare-workers-nextjs-saas-template)
 
-This is a SaaS template for Cloudflare Workers. It uses the [OpenNext](https://opennext.js.org/cloudflare) framework to build a SaaS application.
+Food Tracker is a pnpm/Turborepo monorepo. The existing Next.js application lives in `apps/web` and deploys to Cloudflare Workers through [OpenNext](https://opennext.js.org/cloudflare).
+
+See [`apps/mobile/README.md`](apps/mobile/README.md) for the Swift app and [`docs/mobile-sync.md`](docs/mobile-sync.md) for the authenticated offline-sync contract.
+
+## Workspace layout
+
+```text
+apps/
+  web/       Next.js, OpenNext, Wrangler, D1 migrations, and web assets
+  mobile/    Native Apple application
+```
+
+Run `pnpm install` once at the repository root. Existing root commands such as `pnpm dev`, `pnpm build`, `pnpm deploy`, and the `pnpm db:*` scripts continue to target the web application. To run a web-only command directly, use `pnpm --filter @food-tracker/web <command>`.
 
 Have a look at the [project plan](./cursor-docs/project-plan.md) to get an overview of the project.
 
@@ -128,22 +140,22 @@ Have a look at the [project plan](./cursor-docs/project-plan.md) to get an overv
 # Running it locally
 
 1. `pnpm install`
-2.  Copy `.dev.vars.example` to `.dev.vars` and fill in the values.
-3.  Copy `.env.example` to `.env` and fill in the values.
-4. `pnpm db:migrate:dev` - Creates a local SQLite database and applies migrations
+2. Copy `apps/web/.dev.vars.example` to `apps/web/.dev.vars` and fill in the values.
+3. Copy `apps/web/.env.example` to `apps/web/.env` and fill in the values.
+4. `pnpm db:migrate:local` - Creates a local SQLite database and applies migrations
 5. `pnpm dev`
 6.  Open http://localhost:3000
 
 ## Changes to wrangler.jsonc
 
-After making a change to wrangler.jsonc, you need to run `pnpm cf-typegen` to generate the new types.
+After making a change to `apps/web/wrangler.jsonc`, run `pnpm cf-typegen` to generate the new types.
 
 ## Things to change and customize before deploying to production
-1. Go to `src/constants.ts` and update it with your project details
+1. Go to `apps/web/src/constants.ts` and update it with your project details
 2. Update `.cursor/rules/001-main-project-context.mdc` with your project specification so that Cursor AI can give you better suggestions
-3. Update the footer in `src/components/footer.tsx` with your project details and links
-4. Optional: Update the color palette in `src/app/globals.css`
-5. Update the metadata in `src/app/layout.tsx` with your project details
+3. Update the footer in `apps/web/src/components/footer.tsx` with your project details and links
+4. Optional: Update the color palette in `apps/web/src/app/globals.css`
+5. Update the metadata in `apps/web/src/app/layout.tsx` with your project details
 
 ## Deploying to Cloudflare with Github Actions
 
@@ -151,7 +163,7 @@ After making a change to wrangler.jsonc, you need to run `pnpm cf-typegen` to ge
 2. Set either `RESEND_API_KEY` or `BREVO_API_KEY` as a secret in your Cloudflare Worker depending on which email service you want to use.
 3. Create a Turnstile catcha in your Cloudflare account, and set the `NEXT_PUBLIC_TURNSTILE_SITE_KEY` as a Github Actions variable.
 4. Set `TURNSTILE_SECRET_KEY` as a secret in your Cloudflare Worker.
-5. Update the `wrangler.jsonc` file with the new database and KV namespaces, env variables and account id. Search for "cloudflare-workers-nextjs-saas-template" recursively in the whole repository and change that to the name of your project. Don't forget that the name you choose at the top of the wrangler.jsonc should be the same as `services->[0]->service` in the same file.
+5. Update `apps/web/wrangler.jsonc` with the new database and KV namespaces, environment variables, and account ID. The Worker name must match `services->[0]->service` in the same file.
 6. Go to https://dash.cloudflare.com/profile/api-tokens and click on "Use template" next to "Edit Cloudflare Workers". On the next, page add the following permissions in addition to the ones from the template:
     - Account:AI Gateway:Edit
     - Account:Workers AI:Edit
@@ -171,5 +183,5 @@ After making a change to wrangler.jsonc, you need to run `pnpm cf-typegen` to ge
 If you want to preview and edit the email templates you can:
 1. `pnpm email:dev`
 2. Open http://localhost:3001
-3. Edit the email templates in the `src/react-email` folder
+3. Edit the email templates in `apps/web/src/react-email`
 4. For inspiration you can checkout https://react.email/templates

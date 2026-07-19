@@ -2,6 +2,7 @@
 
 # dependencies
 node_modules
+.turbo
 .pnp
 .pnp.js
 .yarn/install-state.gz
@@ -37,7 +38,7 @@ yarn-error.log*
 next-env.d.ts
 
 # OpenNext
-/.open-next
+.open-next
 dist
 
 # wrangler files
@@ -57,6 +58,6 @@ user-data.sql
 remaining-users.sql
 recipes-batch-*
 *.sql.bak*
-scripts/extract-book-updates.js
+apps/web/scripts/extract-book-updates.js
 .claude/
 .playwright-mcp/

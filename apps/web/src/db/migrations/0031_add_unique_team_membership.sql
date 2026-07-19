@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX `tm_team_user_unique` ON `team_membership` (`teamId`,`userId`);

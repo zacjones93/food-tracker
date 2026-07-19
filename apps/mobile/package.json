@@ -1,0 +1,10 @@
+{
+  "name": "@food-tracker/mobile",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "xcodebuild -quiet -project FoodTracker.xcodeproj -scheme FoodTracker -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath /tmp/FoodTrackerTurboBuild CODE_SIGNING_ALLOWED=NO ONLY_ACTIVE_ARCH=YES build",
+    "typecheck": "xcodebuild -quiet -project FoodTracker.xcodeproj -scheme FoodTracker -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath /tmp/FoodTrackerTurboTypecheck CODE_SIGNING_ALLOWED=NO ONLY_ACTIVE_ARCH=YES build-for-testing",
+    "test": "xcodebuild -quiet -project FoodTracker.xcodeproj -scheme FoodTracker -destination 'platform=iOS Simulator,name=iPhone 17 Pro' -derivedDataPath /tmp/FoodTrackerTurboTest CODE_SIGNING_ALLOWED=NO test"
+  }
+}

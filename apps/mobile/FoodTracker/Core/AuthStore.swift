@@ -1,0 +1,523 @@
+import Foundation
+import Network
+import Observation
+
+protocol FoodTrackerAPI: Sendable {
+    func restoreSession() async throws -> MobileSession
+    func signIn(email: String, password: String) async throws -> MobileSession
+    func signUp(firstName: String, lastName: String, email: String, password: String) async throws -> MobileSession
+    func switchTeam(to teamID: String) async throws -> MobileSession
+    func signOut() async throws
+    func loadWorkspace(cursor: String?) async throws -> FoodWorkspace
+    func sync(_ envelope: SyncEnvelope) async throws -> SyncResponse
+    func askAssistant(chatID: String, messages: [AssistantMessage]) async throws -> String
+}
+
+enum APIError: LocalizedError {
+    case invalidResponse
+    case unauthorized
+    case server(String)
+
+    var errorDescription: String? {
+        switch self {
+        case .invalidResponse: "List To Ladle sent an unreadable response. Please try again."
+        case .unauthorized: "Your session has expired. Sign in again to continue syncing."
+        case .server(let message): message
+        }
+    }
+}
+
+struct FoodTrackerAPIClient: FoodTrackerAPI {
+    let baseURL: URL
+    let session: URLSession
+
+    init(baseURL: URL = FoodTrackerAPIClient.defaultBaseURL, session: URLSession = .shared) {
+        self.baseURL = baseURL
+        self.session = session
+    }
+
+    static var defaultBaseURL: URL {
+        if let configured = Bundle.main.object(forInfoDictionaryKey: "FoodTrackerAPIBaseURL") as? String,
+           let URL = URL(string: configured), !configured.isEmpty {
+            return URL
+        }
+        return URL(string: "http://localhost:3000")!
+    }
+
+    func restoreSession() async throws -> MobileSession {
+        try await send(path: "/api/mobile/session", method: "GET")
+    }
+
+    func signIn(email: String, password: String) async throws -> MobileSession {
+        let _: SuccessResponse = try await send(
+            path: "/api/mobile/auth/sign-in",
+            method: "POST",
+            body: AuthRequest(email: email, password: password, name: nil)
+        )
+        return try await restoreSession()
+    }
+
+    func signUp(firstName: String, lastName: String, email: String, password: String) async throws -> MobileSession {
+        let _: SuccessResponse = try await send(
+            path: "/api/mobile/auth/sign-up",
+            method: "POST",
+            body: SignUpRequest(firstName: firstName, lastName: lastName, email: email, password: password)
+        )
+        return try await restoreSession()
+    }
+
+    func switchTeam(to teamID: String) async throws -> MobileSession {
+        let _: SuccessResponse = try await send(
+            path: "/api/mobile/session",
+            method: "PATCH",
+            body: TeamSelectionRequest(teamId: teamID)
+        )
+        return try await restoreSession()
+    }
+
+    func signOut() async throws {
+        let _: SuccessResponse = try await send(path: "/api/mobile/auth/sign-out", method: "POST", body: EmptyRequest())
+    }
+
+    func loadWorkspace(cursor: String?) async throws -> FoodWorkspace {
+        var components = URLComponents(
+            url: baseURL.appending(path: "/api/mobile/workspace"),
+            resolvingAgainstBaseURL: false
+        )!
+        if let cursor { components.queryItems = [URLQueryItem(name: "cursor", value: cursor)] }
+        let response: ServerWorkspaceDTO = try await send(URL: components.url!, method: "GET")
+        return response.workspace
+    }
+
+    func sync(_ envelope: SyncEnvelope) async throws -> SyncResponse {
+        let response: ServerSyncResponse = try await send(path: "/api/mobile/sync", method: "POST", body: envelope)
+        return response.response
+    }
+
+    func askAssistant(chatID: String, messages: [AssistantMessage]) async throws -> String {
+        let requestMessages = messages.map { message in
+            AssistantRequest.Message(
+                id: message.id,
+                role: message.role,
+                parts: [.init(type: "text", text: message.text)]
+            )
+        }
+        var request = URLRequest(url: baseURL.appending(path: "/api/mobile/assistant"))
+        request.httpMethod = "POST"
+        request.setValue("text/event-stream", forHTTPHeaderField: "Accept")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue(baseURL.origin, forHTTPHeaderField: "Origin")
+        request.httpBody = try FoodTrackerCoding.encoder.encode(AssistantRequest(chatId: chatID, messages: requestMessages))
+        let (data, response) = try await session.data(for: request)
+        guard let HTTPResponse = response as? HTTPURLResponse else { throw APIError.invalidResponse }
+        guard (200..<300).contains(HTTPResponse.statusCode) else {
+            let error = try? FoodTrackerCoding.decoder.decode(ServerError.self, from: data)
+            throw APIError.server(error?.error ?? "The assistant could not respond.")
+        }
+        let stream = String(decoding: data, as: UTF8.self)
+        let text = stream
+            .split(whereSeparator: \.isNewline)
+            .compactMap { line -> String? in
+                let raw = line.hasPrefix("data: ") ? String(line.dropFirst(6)) : String(line)
+                guard raw != "[DONE]", let data = raw.data(using: .utf8),
+                      let event = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                      event["type"] as? String == "text-delta"
+                else { return nil }
+                return event["delta"] as? String
+            }
+            .joined()
+        guard !text.isEmpty else { throw APIError.server("The assistant finished without a text response.") }
+        return text
+    }
+
+    private func send<Response: Decodable>(path: String, method: String) async throws -> Response {
+        try await send(URL: baseURL.appending(path: path), method: method)
+    }
+
+    private func send<Request: Encodable, Response: Decodable>(
+        path: String,
+        method: String,
+        body: Request
+    ) async throws -> Response {
+        try await send(URL: baseURL.appending(path: path), method: method, body: body)
+    }
+
+    private func send<Response: Decodable>(URL: URL, method: String) async throws -> Response {
+        var request = URLRequest(url: URL)
+        request.httpMethod = method
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
+        return try await perform(request)
+    }
+
+    private func send<Request: Encodable, Response: Decodable>(
+        URL: URL,
+        method: String,
+        body: Request
+    ) async throws -> Response {
+        var request = URLRequest(url: URL)
+        request.httpMethod = method
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue(baseURL.origin, forHTTPHeaderField: "Origin")
+        request.httpBody = try FoodTrackerCoding.encoder.encode(body)
+        return try await perform(request)
+    }
+
+    private func perform<Response: Decodable>(_ request: URLRequest) async throws -> Response {
+        let (data, response) = try await session.data(for: request)
+        guard let HTTPResponse = response as? HTTPURLResponse else { throw APIError.invalidResponse }
+        if HTTPResponse.statusCode == 401 { throw APIError.unauthorized }
+        guard (200..<300).contains(HTTPResponse.statusCode) else {
+            let error = try? FoodTrackerCoding.decoder.decode(ServerError.self, from: data)
+            throw APIError.server(error?.error ?? "List To Ladle could not complete that request.")
+        }
+        return try FoodTrackerCoding.decoder.decode(Response.self, from: data)
+    }
+}
+
+private struct AuthRequest: Codable {
+    var email: String
+    var password: String
+    var name: String?
+}
+
+private struct SignUpRequest: Codable {
+    var firstName: String
+    var lastName: String
+    var email: String
+    var password: String
+}
+
+private struct AssistantRequest: Codable {
+    struct Message: Codable {
+        struct Part: Codable { var type: String; var text: String }
+        var id: String
+        var role: String
+        var parts: [Part]
+    }
+
+    var chatId: String
+    var messages: [Message]
+}
+
+private struct EmptyRequest: Codable {}
+private struct TeamSelectionRequest: Codable { var teamId: String }
+private struct SuccessResponse: Codable { var success: Bool }
+private struct ServerError: Codable { var error: String }
+
+private extension URL {
+    var origin: String {
+        var components = URLComponents()
+        components.scheme = scheme
+        components.host = host
+        components.port = port
+        return components.string ?? absoluteString
+    }
+}
+
+private struct ServerWorkspaceDTO: Decodable {
+    struct RecipeDTO: Decodable {
+        var id: String
+        var clientId: String?
+        var name: String
+        var emoji: String?
+        var tags: [String]?
+        var mealType: String?
+        var difficulty: String?
+        var visibility: String
+        var recipeLink: String?
+        var recipeBookId: String?
+        var page: String?
+        var lastMadeDate: Date?
+        var mealsEatenCount: Int
+        var ingredients: [IngredientSection]?
+        var recipeBody: String?
+        var updatedAt: Date?
+    }
+
+    struct WeekDTO: Decodable {
+        var id: String
+        var clientId: String?
+        var name: String
+        var emoji: String?
+        var status: WeekPlan.Status
+        var startDate: Date?
+        var endDate: Date?
+        var weekNumber: Int?
+        var updatedAt: Date?
+    }
+
+    struct WeekRecipeDTO: Decodable {
+        var id: String
+        var clientId: String?
+        var weekId: String
+        var recipeId: String
+        var scheduledDate: Date?
+        var order: Int?
+        var made: Bool
+        var updatedAt: Date?
+        var createdAt: Date?
+    }
+
+    struct GroceryItemDTO: Decodable {
+        var id: String
+        var clientId: String?
+        var weekId: String
+        var name: String
+        var checked: Bool
+        var order: Int?
+        var category: String?
+        var updatedAt: Date?
+    }
+
+    struct RecipeBookDTO: Decodable {
+        var id: String
+        var clientId: String?
+        var name: String
+        var updatedAt: Date?
+        var createdAt: Date?
+
+        private enum CodingKeys: String, CodingKey {
+            case id
+            case clientId
+            case name
+            case updatedAt
+            case createdAt
+        }
+
+        init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            id = try container.decode(String.self, forKey: .id)
+            clientId = try container.decodeIfPresent(String.self, forKey: .clientId)
+            name = try container.decode(String.self, forKey: .name)
+            updatedAt = try container.decodeIfPresent(Date.self, forKey: .updatedAt)
+            createdAt = try? container.decodeIfPresent(Date.self, forKey: .createdAt)
+        }
+    }
+
+    struct GroceryTemplateDTO: Decodable {
+        var id: String
+        var clientId: String?
+        var name: String
+        var template: [GroceryTemplateCategory]
+        var isDefault: Bool
+        var updatedAt: Date?
+    }
+
+    var cursor: String
+    var recipes: [RecipeDTO]
+    var weeks: [WeekDTO]
+    var weekRecipes: [WeekRecipeDTO]
+    var groceryItems: [GroceryItemDTO]
+    var recipeBooks: [RecipeBookDTO]
+    var groceryTemplates: [GroceryTemplateDTO]
+    var versions: [EntityVersion]?
+
+    var workspace: FoodWorkspace {
+        let recipeIDs = Dictionary(uniqueKeysWithValues: recipes.map { ($0.id, $0.clientId ?? $0.id) })
+        let weekIDs = Dictionary(uniqueKeysWithValues: weeks.map { ($0.id, $0.clientId ?? $0.id) })
+        let bookIDs = Dictionary(uniqueKeysWithValues: recipeBooks.map { ($0.id, $0.clientId ?? $0.id) })
+
+        return FoodWorkspace(
+            cursor: cursor,
+            recipes: recipes.map { value in
+                Recipe(
+                    id: value.clientId ?? value.id,
+                    serverID: value.id,
+                    name: value.name,
+                    emoji: value.emoji ?? "🍽️",
+                    tags: value.tags ?? [],
+                    mealType: value.mealType ?? "",
+                    difficulty: value.difficulty ?? "",
+                    visibility: value.visibility,
+                    recipeLink: value.recipeLink ?? "",
+                    recipeBookID: value.recipeBookId.flatMap { bookIDs[$0] },
+                    page: value.page ?? "",
+                    lastMadeDate: value.lastMadeDate,
+                    mealsEatenCount: value.mealsEatenCount,
+                    ingredients: value.ingredients ?? [],
+                    instructions: value.recipeBody ?? "",
+                    updatedAt: value.updatedAt ?? .distantPast
+                )
+            },
+            weeks: weeks.map { value in
+                WeekPlan(
+                    id: value.clientId ?? value.id,
+                    serverID: value.id,
+                    name: value.name,
+                    emoji: value.emoji ?? "🗓️",
+                    status: value.status,
+                    startDate: value.startDate,
+                    endDate: value.endDate,
+                    weekNumber: value.weekNumber,
+                    updatedAt: value.updatedAt ?? .distantPast
+                )
+            },
+            scheduledRecipes: weekRecipes.compactMap { value in
+                guard let weekID = weekIDs[value.weekId], let recipeID = recipeIDs[value.recipeId] else { return nil }
+                return ScheduledRecipe(
+                    id: value.clientId ?? value.id,
+                    serverID: value.id,
+                    weekID: weekID,
+                    recipeID: recipeID,
+                    scheduledDate: value.scheduledDate,
+                    order: value.order ?? 0,
+                    made: value.made,
+                    updatedAt: value.updatedAt ?? value.createdAt ?? .distantPast
+                )
+            },
+            groceryItems: groceryItems.compactMap { value in
+                guard let weekID = weekIDs[value.weekId] else { return nil }
+                return GroceryItem(
+                    id: value.clientId ?? value.id,
+                    serverID: value.id,
+                    weekID: weekID,
+                    name: value.name,
+                    isChecked: value.checked,
+                    order: value.order ?? 0,
+                    category: value.category ?? "Other",
+                    updatedAt: value.updatedAt ?? .distantPast
+                )
+            },
+            recipeBooks: recipeBooks.map { value in
+                RecipeBook(
+                    id: value.clientId ?? value.id,
+                    serverID: value.id,
+                    name: value.name,
+                    updatedAt: value.updatedAt ?? value.createdAt ?? .distantPast
+                )
+            },
+            groceryTemplates: groceryTemplates.map { value in
+                GroceryTemplate(
+                    id: value.clientId ?? value.id,
+                    serverID: value.id,
+                    name: value.name,
+                    categories: value.template,
+                    isDefault: value.isDefault,
+                    updatedAt: value.updatedAt ?? .distantPast
+                )
+            },
+            versions: versions,
+            outbox: []
+        )
+    }
+}
+
+private struct ServerSyncResponse: Decodable {
+    var acknowledged: [SyncResponse.Acknowledgement]
+    var conflicts: [SyncResponse.Conflict]
+    var cursor: String
+    var workspace: ServerWorkspaceDTO
+
+    var response: SyncResponse {
+        SyncResponse(
+            acknowledged: acknowledged,
+            conflicts: conflicts,
+            cursor: cursor,
+            workspace: workspace.workspace
+        )
+    }
+}
+
+@MainActor
+@Observable
+final class AuthStore {
+    enum Phase {
+        case loading
+        case signedOut
+        case signedIn
+    }
+
+    private(set) var phase: Phase = .loading
+    private(set) var session: MobileSession?
+    private(set) var isWorking = false
+    private(set) var errorMessage: String?
+    @ObservationIgnored let client: any FoodTrackerAPI
+
+    init(client: any FoodTrackerAPI = FoodTrackerAPIClient()) {
+        self.client = client
+    }
+
+    func restoreSession() async {
+        do {
+            session = try await client.restoreSession()
+            phase = .signedIn
+        } catch APIError.unauthorized {
+            phase = .signedOut
+        } catch {
+            phase = .signedOut
+            errorMessage = "Sign in to open your kitchen. Your offline data remains on this iPhone."
+        }
+    }
+
+    func signIn(email: String, password: String) async -> Bool {
+        await authenticate { try await client.signIn(email: email, password: password) }
+    }
+
+    func signUp(firstName: String, lastName: String, email: String, password: String) async -> Bool {
+        await authenticate {
+            try await client.signUp(firstName: firstName, lastName: lastName, email: email, password: password)
+        }
+    }
+
+    func switchTeam(to teamID: String) async -> Bool {
+        guard session?.teams.contains(where: { $0.id == teamID }) == true else {
+            errorMessage = "That team is not available to this account."
+            return false
+        }
+        guard session?.teamID != teamID else { return true }
+
+        isWorking = true
+        errorMessage = nil
+        defer { isWorking = false }
+        do {
+            session = try await client.switchTeam(to: teamID)
+            return true
+        } catch {
+            errorMessage = error.localizedDescription
+            return false
+        }
+    }
+
+    func signOut() async {
+        isWorking = true
+        defer { isWorking = false }
+        do { try await client.signOut() }
+        catch { errorMessage = error.localizedDescription }
+        session = nil
+        phase = .signedOut
+    }
+
+    func clearError() { errorMessage = nil }
+
+    private func authenticate(_ action: () async throws -> MobileSession) async -> Bool {
+        isWorking = true
+        errorMessage = nil
+        defer { isWorking = false }
+        do {
+            session = try await action()
+            phase = .signedIn
+            return true
+        } catch {
+            errorMessage = error.localizedDescription
+            return false
+        }
+    }
+}
+
+@MainActor
+@Observable
+final class ConnectivityMonitor {
+    private(set) var isOnline = true
+    @ObservationIgnored private let monitor = NWPathMonitor()
+    @ObservationIgnored private let queue = DispatchQueue(label: "FoodTracker.Connectivity")
+
+    init() {
+        monitor.pathUpdateHandler = { [weak self] path in
+            Task { @MainActor in self?.isOnline = path.status == .satisfied }
+        }
+        monitor.start(queue: queue)
+    }
+
+    deinit { monitor.cancel() }
+}
