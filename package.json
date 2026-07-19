@@ -13,7 +13,7 @@
     "typecheck": "turbo run typecheck --filter=@food-tracker/web",
     "test": "turbo run test",
     "opennext:build": "turbo run opennext:build --filter=@food-tracker/web",
-    "deploy": "pnpm --filter @food-tracker/web deploy",
+    "deploy": "pnpm --filter @food-tracker/web run deploy",
     "preview": "pnpm --filter @food-tracker/web preview",
     "cf-typegen": "pnpm --filter @food-tracker/web cf-typegen",
     "db:studio": "pnpm --filter @food-tracker/web db:studio",
