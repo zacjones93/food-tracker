@@ -49,6 +49,12 @@ final class FoodTrackerStore {
         case more
     }
 
+    struct PreparationSchedule: Hashable, Sendable {
+        var recipeRelationID: String
+        var recipeID: String
+        var scheduledDate: Date?
+    }
+
     var selectedTab: Tab = .schedule
     private(set) var workspace: FoodWorkspace
     private(set) var activePrincipalID: String?
@@ -81,6 +87,7 @@ final class FoodTrackerStore {
     }
 
     var recipes: [Recipe] { workspace.recipes }
+    var recipeRelations: [RecipeRelation] { workspace.recipeRelations }
     var weeks: [WeekPlan] { workspace.weeks }
     var groceryItems: [GroceryItem] { workspace.groceryItems }
     var recipeBooks: [RecipeBook] { workspace.recipeBooks }
@@ -143,6 +150,14 @@ final class FoodTrackerStore {
 
     func recipe(id: String) -> Recipe? { workspace.recipes.first { $0.id == id } }
     func week(id: String) -> WeekPlan? { workspace.weeks.first { $0.id == id } }
+    func scheduledRecipe(id: String) -> ScheduledRecipe? {
+        workspace.scheduledRecipes.first { $0.id == id }
+    }
+    func preparationRelations(for recipeID: String) -> [RecipeRelation] {
+        workspace.recipeRelations
+            .filter { $0.mainRecipeID == recipeID && $0.scheduleLeadDays != nil }
+            .sorted { $0.order < $1.order }
+    }
 
     func saveRecipe(_ recipe: Recipe) {
         var value = recipe
@@ -156,6 +171,7 @@ final class FoodTrackerStore {
         let serverID = workspace.recipes.first { $0.id == id }?.serverID
         let removedRelationIDs = Set(workspace.scheduledRecipes.filter { $0.recipeID == id }.map(\.id))
         workspace.recipes.removeAll { $0.id == id }
+        workspace.recipeRelations.removeAll { $0.mainRecipeID == id || $0.sideRecipeID == id }
         workspace.scheduledRecipes.removeAll { $0.recipeID == id }
         workspace.outbox.removeAll { $0.entity == .scheduledRecipe && removedRelationIDs.contains($0.entityID) }
         queueDelete(.recipe, id: id, serverID: serverID)
@@ -185,21 +201,54 @@ final class FoodTrackerStore {
         persist()
     }
 
-    func scheduleRecipe(recipeID: String, weekID: String, date: Date? = nil) {
+    func scheduleRecipe(
+        recipeID: String,
+        weekID: String,
+        date: Date? = nil,
+        preparations: [PreparationSchedule] = []
+    ) {
         guard !workspace.scheduledRecipes.contains(where: { $0.recipeID == recipeID && $0.weekID == weekID }) else { return }
+        let currentCount = scheduledRecipes(for: weekID).count
         let scheduled = ScheduledRecipe(
             weekID: weekID,
             recipeID: recipeID,
             scheduledDate: date,
-            order: scheduledRecipes(for: weekID).count
+            order: currentCount
         )
         workspace.scheduledRecipes.append(scheduled)
         queue(.scheduledRecipe, value: scheduled)
+
+        let relationsByID = Dictionary(uniqueKeysWithValues: workspace.recipeRelations.map { ($0.id, $0) })
+        for (index, preparation) in preparations.enumerated() {
+            guard let relation = relationsByID[preparation.recipeRelationID],
+                  relation.mainRecipeID == recipeID,
+                  relation.sideRecipeID == preparation.recipeID,
+                  relation.scheduleLeadDays != nil
+            else { continue }
+
+            let preparationRecipe = ScheduledRecipe(
+                weekID: weekID,
+                recipeID: preparation.recipeID,
+                scheduledForWeekRecipeID: scheduled.id,
+                sourceRecipeRelationID: relation.id,
+                scheduledDate: preparation.scheduledDate,
+                order: currentCount + index + 1
+            )
+            workspace.scheduledRecipes.append(preparationRecipe)
+            queue(.scheduledRecipe, value: preparationRecipe)
+        }
         persist()
     }
 
     func removeScheduledRecipe(id: String) {
         let serverID = workspace.scheduledRecipes.first { $0.id == id }?.serverID
+        for index in workspace.scheduledRecipes.indices
+        where workspace.scheduledRecipes[index].scheduledForWeekRecipeID == id {
+            workspace.scheduledRecipes[index].scheduledForWeekRecipeID = nil
+            workspace.scheduledRecipes[index].sourceRecipeRelationID = nil
+            workspace.scheduledRecipes[index].updatedAt = .now
+            queue(.scheduledRecipe, value: workspace.scheduledRecipes[index])
+        }
         workspace.scheduledRecipes.removeAll { $0.id == id }
         queueDelete(.scheduledRecipe, id: id, serverID: serverID)
         persist()
@@ -475,6 +524,7 @@ final class FoodTrackerStore {
         case .recipe: setServerID(acknowledgement.serverID, id: acknowledgement.entityID, in: &workspace.recipes)
         case .week: setServerID(acknowledgement.serverID, id: acknowledgement.entityID, in: &workspace.weeks)
         case .scheduledRecipe: setServerID(acknowledgement.serverID, id: acknowledgement.entityID, in: &workspace.scheduledRecipes)
+        case .recipeRelation: setServerID(acknowledgement.serverID, id: acknowledgement.entityID, in: &workspace.recipeRelations)
         case .groceryItem: setServerID(acknowledgement.serverID, id: acknowledgement.entityID, in: &workspace.groceryItems)
         case .recipeBook: setServerID(acknowledgement.serverID, id: acknowledgement.entityID, in: &workspace.recipeBooks)
         case .groceryTemplate: setServerID(acknowledgement.serverID, id: acknowledgement.entityID, in: &workspace.groceryTemplates)
@@ -491,6 +541,7 @@ final class FoodTrackerStore {
         workspace.recipes = merged(remote.recipes, local: workspace.recipes, pending: pending[.recipe] ?? [])
         workspace.weeks = merged(remote.weeks, local: workspace.weeks, pending: pending[.week] ?? [])
         workspace.scheduledRecipes = merged(remote.scheduledRecipes, local: workspace.scheduledRecipes, pending: pending[.scheduledRecipe] ?? [])
+        workspace.recipeRelations = merged(remote.recipeRelations, local: workspace.recipeRelations, pending: pending[.recipeRelation] ?? [])
         workspace.groceryItems = merged(remote.groceryItems, local: workspace.groceryItems, pending: pending[.groceryItem] ?? [])
         workspace.recipeBooks = merged(remote.recipeBooks, local: workspace.recipeBooks, pending: pending[.recipeBook] ?? [])
         workspace.groceryTemplates = merged(remote.groceryTemplates, local: workspace.groceryTemplates, pending: pending[.groceryTemplate] ?? [])

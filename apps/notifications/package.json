@@ -1,0 +1,19 @@
+{
+  "name": "@food-tracker/notifications",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "cf-typegen": "WRANGLER_LOG_PATH=/tmp/list-to-ladle-notifications-wrangler.log wrangler types --env-interface Env ./worker-configuration.d.ts",
+    "check": "pnpm run cf-typegen && pnpm run typecheck && pnpm run test",
+    "deploy:dry-run": "WRANGLER_LOG_PATH=/tmp/list-to-ladle-notifications-wrangler.log wrangler deploy --dry-run --outdir=dist",
+    "dev": "WRANGLER_LOG_PATH=/tmp/list-to-ladle-notifications-wrangler.log wrangler dev --test-scheduled",
+    "test": "tsx --test src/**/*.test.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.21",
+    "tsx": "^4.20.6",
+    "typescript": "^5",
+    "wrangler": "^4.43.0"
+  }
+}

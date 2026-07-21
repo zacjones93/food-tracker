@@ -12,15 +12,15 @@ struct ScheduleView: View {
     var body: some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: FoodSpacing.extraLarge) {
-                HStack(alignment: .bottom) {
-                    ScreenHeader("Meal plan", eyebrow: "Your kitchen", detail: "Decide once, then cook from a clear plan.")
-                    SyncStatusView(
-                        pendingCount: store.pendingCount,
-                        isOnline: connectivity.isOnline,
-                        isSyncing: store.isSyncing,
-                        isLoading: store.isInitialLoading || store.isRefreshing
-                    )
-                }
+                ScreenHeaderWithStatus(
+                    eyebrow: "Your kitchen",
+                    title: "Meal plan",
+                    detail: "Decide once, then cook from a clear plan.",
+                    pendingCount: store.pendingCount,
+                    isOnline: connectivity.isOnline,
+                    isSyncing: store.isSyncing,
+                    isLoading: store.isInitialLoading || store.isRefreshing
+                )
 
                 if store.isInitialLoading {
                     ScheduleLoadingState()
@@ -296,6 +296,7 @@ struct WeekEditor: View {
                 }
             }
             .foodListBackground()
+            .foodFormBehavior()
             .navigationTitle(week == nil ? "New week" : "Edit week")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

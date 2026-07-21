@@ -275,6 +275,12 @@ async function assertReferencesOwned({
   if (entityType === "groceryItem") references.push({ field: "weekId", type: "week" });
   if (entityType === "weekRecipe") {
     references.push({ field: "weekId", type: "week" }, { field: "recipeId", type: "recipe" });
+    if (typeof payload.scheduledForWeekRecipeId === "string") {
+      references.push({ field: "scheduledForWeekRecipeId", type: "weekRecipe" });
+    }
+    if (typeof payload.sourceRecipeRelationId === "string") {
+      references.push({ field: "sourceRecipeRelationId", type: "recipeRelation" });
+    }
   }
   if (entityType === "recipeRelation") {
     references.push(

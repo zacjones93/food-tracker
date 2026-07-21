@@ -19,6 +19,7 @@ export const relatedRecipeSchema = z.object({
     RELATION_TYPES.DESSERT,
     RELATION_TYPES.CUSTOM,
   ]),
+  scheduleLeadDays: z.number().int().min(0).max(365).nullable().optional(),
 });
 
 export const createRecipeSchema = z.object({

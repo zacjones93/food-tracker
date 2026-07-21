@@ -10,7 +10,13 @@ protocol FoodTrackerAPI: Sendable {
     func signOut() async throws
     func loadWorkspace(cursor: String?) async throws -> FoodWorkspace
     func sync(_ envelope: SyncEnvelope) async throws -> SyncResponse
-    func askAssistant(chatID: String, messages: [AssistantMessage]) async throws -> String
+    func loadAssistantChats() async throws -> [AssistantChatSummary]
+    func loadAssistantConversation(chatID: String) async throws -> AssistantConversation
+    func updateAssistantChatTitle(chatID: String, title: String) async throws
+    func streamAssistant(
+        chatID: String,
+        messages: [AssistantMessage]
+    ) -> AsyncThrowingStream<AssistantStreamEvent, Error>
 }
 
 enum APIError: LocalizedError {
@@ -27,6 +33,28 @@ enum APIError: LocalizedError {
     }
 }
 
+struct AssistantChatSummary: Codable, Hashable, Identifiable, Sendable {
+    var id: String
+    var title: String?
+    var createdAt: Date
+    var updatedAt: Date
+
+    var displayTitle: String {
+        let trimmedTitle = title?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        return trimmedTitle.isEmpty ? "New conversation" : trimmedTitle
+    }
+}
+
+struct AssistantConversation: Codable, Hashable, Sendable {
+    var chat: AssistantChatSummary
+    var messages: [AssistantMessage]
+}
+
+enum AssistantStreamEvent: Hashable, Sendable {
+    case status(String)
+    case textDelta(String)
+}
+
 struct FoodTrackerAPIClient: FoodTrackerAPI {
     let baseURL: URL
     let session: URLSession
@@ -41,7 +69,11 @@ struct FoodTrackerAPIClient: FoodTrackerAPI {
            let URL = URL(string: configured), !configured.isEmpty {
             return URL
         }
+#if DEBUG
         return URL(string: "http://localhost:3000")!
+#else
+        return URL(string: "https://listtoladle.com")!
+#endif
     }
 
     func restoreSession() async throws -> MobileSession {
@@ -94,7 +126,53 @@ struct FoodTrackerAPIClient: FoodTrackerAPI {
         return response.response
     }
 
-    func askAssistant(chatID: String, messages: [AssistantMessage]) async throws -> String {
+    func loadAssistantChats() async throws -> [AssistantChatSummary] {
+        let response: AssistantChatsResponse = try await send(
+            path: "/api/mobile/assistant/chats",
+            method: "GET"
+        )
+        return response.chats
+    }
+
+    func loadAssistantConversation(chatID: String) async throws -> AssistantConversation {
+        try await send(
+            path: "/api/mobile/assistant/chats/\(chatID)",
+            method: "GET"
+        )
+    }
+
+    func updateAssistantChatTitle(chatID: String, title: String) async throws {
+        let _: SuccessResponse = try await send(
+            path: "/api/mobile/assistant/chats/\(chatID)",
+            method: "PATCH",
+            body: AssistantTitleRequest(title: title)
+        )
+    }
+
+    func streamAssistant(
+        chatID: String,
+        messages: [AssistantMessage]
+    ) -> AsyncThrowingStream<AssistantStreamEvent, Error> {
+        AsyncThrowingStream { continuation in
+            let task = Task {
+                do {
+                    let request = try assistantRequest(chatID: chatID, messages: messages)
+                    try await streamAssistantResponse(
+                        request: request,
+                        continuation: continuation
+                    )
+                    continuation.finish()
+                } catch is CancellationError {
+                    continuation.finish()
+                } catch {
+                    continuation.finish(throwing: error)
+                }
+            }
+            continuation.onTermination = { _ in task.cancel() }
+        }
+    }
+
+    private func assistantRequest(chatID: String, messages: [AssistantMessage]) throws -> URLRequest {
         let requestMessages = messages.map { message in
             AssistantRequest.Message(
                 id: message.id,
@@ -102,32 +180,80 @@ struct FoodTrackerAPIClient: FoodTrackerAPI {
                 parts: [.init(type: "text", text: message.text)]
             )
         }
-        var request = URLRequest(url: baseURL.appending(path: "/api/mobile/assistant"))
+        return try assistantRequest(
+            path: "/api/mobile/assistant",
+            body: AssistantRequest(chatId: chatID, messages: requestMessages)
+        )
+    }
+
+    private func assistantRequest<Request: Encodable>(path: String, body: Request) throws -> URLRequest {
+        var request = URLRequest(url: baseURL.appending(path: path))
         request.httpMethod = "POST"
         request.setValue("text/event-stream", forHTTPHeaderField: "Accept")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue(baseURL.origin, forHTTPHeaderField: "Origin")
-        request.httpBody = try FoodTrackerCoding.encoder.encode(AssistantRequest(chatId: chatID, messages: requestMessages))
-        let (data, response) = try await session.data(for: request)
+        request.httpBody = try FoodTrackerCoding.encoder.encode(body)
+        return request
+    }
+
+    private func streamAssistantResponse(
+        request: URLRequest,
+        continuation: AsyncThrowingStream<AssistantStreamEvent, Error>.Continuation
+    ) async throws {
+        let (bytes, response) = try await session.bytes(for: request)
         guard let HTTPResponse = response as? HTTPURLResponse else { throw APIError.invalidResponse }
-        guard (200..<300).contains(HTTPResponse.statusCode) else {
+        try await streamAssistantResponse(
+            bytes: bytes,
+            response: HTTPResponse,
+            continuation: continuation
+        )
+    }
+
+    private func streamAssistantResponse(
+        bytes: URLSession.AsyncBytes,
+        response: HTTPURLResponse,
+        continuation: AsyncThrowingStream<AssistantStreamEvent, Error>.Continuation
+    ) async throws {
+        if response.statusCode == 401 { throw APIError.unauthorized }
+        guard (200..<300).contains(response.statusCode) else {
+            var data = Data()
+            for try await byte in bytes { data.append(byte) }
             let error = try? FoodTrackerCoding.decoder.decode(ServerError.self, from: data)
             throw APIError.server(error?.error ?? "The assistant could not respond.")
         }
-        let stream = String(decoding: data, as: UTF8.self)
-        let text = stream
-            .split(whereSeparator: \.isNewline)
-            .compactMap { line -> String? in
-                let raw = line.hasPrefix("data: ") ? String(line.dropFirst(6)) : String(line)
-                guard raw != "[DONE]", let data = raw.data(using: .utf8),
-                      let event = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-                      event["type"] as? String == "text-delta"
-                else { return nil }
-                return event["delta"] as? String
-            }
-            .joined()
-        guard !text.isEmpty else { throw APIError.server("The assistant finished without a text response.") }
-        return text
+
+        for try await line in bytes.lines {
+            try Task.checkCancellation()
+            guard let event = try assistantEvent(from: line) else { continue }
+            continuation.yield(event)
+        }
+    }
+
+    private func assistantEvent(from line: String) throws -> AssistantStreamEvent? {
+        guard line.hasPrefix("data:") else { return nil }
+        let payload = line.dropFirst(5).trimmingCharacters(in: .whitespaces)
+        guard payload != "[DONE]", let data = payload.data(using: .utf8) else { return nil }
+        let event = try FoodTrackerCoding.decoder.decode(AssistantWireEvent.self, from: data)
+
+        switch event.type {
+        case "text-delta", "TEXT_MESSAGE_CONTENT":
+            guard let delta = event.delta, !delta.isEmpty else { return nil }
+            return .textDelta(delta)
+        case "start", "RUN_STARTED":
+            return .status("Thinking through your kitchen…")
+        case "tool-input-start", "TOOL_CALL_START":
+            return .status(
+                (event.toolName ?? event.toolCallName) == "codemode_execute"
+                    ? "Searching your recipes and meal plans…"
+                    : "Checking your kitchen…"
+            )
+        case "tool-output-available", "TOOL_CALL_END", "TOOL_CALL_RESULT":
+            return .status("Putting it together…")
+        case "error", "RUN_ERROR":
+            throw APIError.server(event.errorText ?? event.message ?? "The assistant could not finish that response.")
+        default:
+            return nil
+        }
     }
 
     private func send<Response: Decodable>(path: String, method: String) async throws -> Response {
@@ -200,6 +326,18 @@ private struct AssistantRequest: Codable {
     var messages: [Message]
 }
 
+private struct AssistantWireEvent: Codable {
+    var type: String
+    var delta: String?
+    var message: String?
+    var toolCallName: String?
+    var toolName: String?
+    var errorText: String?
+}
+
+private struct AssistantChatsResponse: Codable { var chats: [AssistantChatSummary] }
+private struct AssistantTitleRequest: Codable { var title: String }
+
 private struct EmptyRequest: Codable {}
 private struct TeamSelectionRequest: Codable { var teamId: String }
 private struct SuccessResponse: Codable { var success: Bool }
@@ -252,9 +390,23 @@ private struct ServerWorkspaceDTO: Decodable {
         var clientId: String?
         var weekId: String
         var recipeId: String
+        var scheduledForWeekRecipeId: String?
+        var sourceRecipeRelationId: String?
         var scheduledDate: Date?
         var order: Int?
         var made: Bool
+        var updatedAt: Date?
+        var createdAt: Date?
+    }
+
+    struct RecipeRelationDTO: Decodable {
+        var id: String
+        var clientId: String?
+        var mainRecipeId: String
+        var sideRecipeId: String
+        var relationType: String?
+        var order: Int?
+        var scheduleLeadDays: Int?
         var updatedAt: Date?
         var createdAt: Date?
     }
@@ -308,6 +460,7 @@ private struct ServerWorkspaceDTO: Decodable {
     var recipes: [RecipeDTO]
     var weeks: [WeekDTO]
     var weekRecipes: [WeekRecipeDTO]
+    var recipeRelations: [RecipeRelationDTO]?
     var groceryItems: [GroceryItemDTO]
     var recipeBooks: [RecipeBookDTO]
     var groceryTemplates: [GroceryTemplateDTO]
@@ -317,6 +470,10 @@ private struct ServerWorkspaceDTO: Decodable {
         let recipeIDs = Dictionary(uniqueKeysWithValues: recipes.map { ($0.id, $0.clientId ?? $0.id) })
         let weekIDs = Dictionary(uniqueKeysWithValues: weeks.map { ($0.id, $0.clientId ?? $0.id) })
         let bookIDs = Dictionary(uniqueKeysWithValues: recipeBooks.map { ($0.id, $0.clientId ?? $0.id) })
+        let weekRecipeIDs = Dictionary(uniqueKeysWithValues: weekRecipes.map { ($0.id, $0.clientId ?? $0.id) })
+        let relationIDs = Dictionary(
+            uniqueKeysWithValues: (recipeRelations ?? []).map { ($0.id, $0.clientId ?? $0.id) }
+        )
 
         return FoodWorkspace(
             cursor: cursor,
@@ -360,9 +517,26 @@ private struct ServerWorkspaceDTO: Decodable {
                     serverID: value.id,
                     weekID: weekID,
                     recipeID: recipeID,
+                    scheduledForWeekRecipeID: value.scheduledForWeekRecipeId.flatMap { weekRecipeIDs[$0] },
+                    sourceRecipeRelationID: value.sourceRecipeRelationId.flatMap { relationIDs[$0] },
                     scheduledDate: value.scheduledDate,
                     order: value.order ?? 0,
                     made: value.made,
+                    updatedAt: value.updatedAt ?? value.createdAt ?? .distantPast
+                )
+            },
+            recipeRelations: (recipeRelations ?? []).compactMap { value in
+                guard let mainRecipeID = recipeIDs[value.mainRecipeId],
+                      let sideRecipeID = recipeIDs[value.sideRecipeId]
+                else { return nil }
+                return RecipeRelation(
+                    id: value.clientId ?? value.id,
+                    serverID: value.id,
+                    mainRecipeID: mainRecipeID,
+                    sideRecipeID: sideRecipeID,
+                    relationType: value.relationType ?? "side",
+                    order: value.order ?? 0,
+                    scheduleLeadDays: value.scheduleLeadDays,
                     updatedAt: value.updatedAt ?? value.createdAt ?? .distantPast
                 )
             },

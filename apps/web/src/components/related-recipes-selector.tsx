@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import {
   Command,
   CommandEmpty,
@@ -49,6 +51,7 @@ export type RelatedRecipeItem = {
   recipeTitle: string;
   recipeEmoji?: string | null;
   relationType: RelationType;
+  scheduleLeadDays?: number | null;
 };
 
 type RelatedRecipesSelectorProps = {
@@ -71,10 +74,12 @@ function SortableRelatedRecipe({
   item,
   onRemove,
   onTypeChange,
+  onScheduleChange,
 }: {
   item: RelatedRecipeItem;
   onRemove: () => void;
   onTypeChange: (type: RelationType) => void;
+  onScheduleChange: (scheduleLeadDays: number | null) => void;
 }) {
   const {
     attributes,
@@ -95,7 +100,7 @@ function SortableRelatedRecipe({
       ref={setNodeRef}
       style={style}
       className={cn(
-        "flex items-center gap-2 p-2 border rounded-md bg-background",
+        "flex items-start gap-2 rounded-md border bg-background p-3",
         isDragging && "opacity-50"
       )}
     >
@@ -108,32 +113,63 @@ function SortableRelatedRecipe({
         <GripVertical className="h-4 w-4 text-muted-foreground" />
       </button>
 
-      <div className="flex-1 flex items-center gap-2">
-        <span className="text-lg">{item.recipeEmoji || "🍽️"}</span>
-        <span className="text-sm font-medium">{item.recipeTitle}</span>
+      <div className="min-w-0 flex-1 space-y-3">
+        <div className="flex items-center gap-2">
+          <span className="text-lg">{item.recipeEmoji || "🍽️"}</span>
+          <span className="min-w-0 flex-1 truncate text-sm font-medium">
+            {item.recipeTitle}
+          </span>
+          <Select value={item.relationType} onValueChange={onTypeChange}>
+            <SelectTrigger className="w-[120px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {Object.entries(relationTypeLabels).map(([value, label]) => (
+                <SelectItem key={value} value={value}>
+                  {label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={onRemove}
+            aria-label={`Remove ${item.recipeTitle}`}
+          >
+            <X className="h-4 w-4 text-cream-100" />
+          </Button>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3 rounded-md bg-muted/50 px-3 py-2">
+          <Switch
+            checked={item.scheduleLeadDays != null}
+            onCheckedChange={(checked) => onScheduleChange(checked ? 1 : null)}
+            aria-label={`Suggest scheduling ${item.recipeTitle} separately`}
+          />
+          <span className="text-sm text-muted-foreground">
+            Suggest scheduling separately
+          </span>
+          {item.scheduleLeadDays != null ? (
+            <label className="ml-auto flex items-center gap-2 text-sm">
+              <Input
+                type="number"
+                min={0}
+                max={365}
+                value={item.scheduleLeadDays}
+                onChange={(event) => {
+                  const value = Number.parseInt(event.target.value, 10);
+                  onScheduleChange(Number.isNaN(value) ? 0 : Math.min(365, Math.max(0, value)));
+                }}
+                className="h-8 w-20"
+                aria-label={`Days before ${item.recipeTitle}`}
+              />
+              day{item.scheduleLeadDays === 1 ? "" : "s"} before
+            </label>
+          ) : null}
+        </div>
       </div>
-
-      <Select value={item.relationType} onValueChange={onTypeChange}>
-        <SelectTrigger className="w-[120px]">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {Object.entries(relationTypeLabels).map(([value, label]) => (
-            <SelectItem key={value} value={value}>
-              {label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-
-      <Button
-        type="button"
-        variant="ghost"
-        size="sm"
-        onClick={onRemove}
-      >
-        <X className="h-4 w-4 text-cream-100" />
-      </Button>
     </div>
   );
 }
@@ -166,6 +202,7 @@ export function RelatedRecipesSelector({
       recipeTitle: recipe.name,
       recipeEmoji: recipe.emoji,
       relationType: RELATION_TYPES.SIDE,
+      scheduleLeadDays: null,
     };
     onChange([...selectedRecipes, newItem]);
     setOpen(false);
@@ -179,6 +216,14 @@ export function RelatedRecipesSelector({
     onChange(
       selectedRecipes.map((r) =>
         r.recipeId === recipeId ? { ...r, relationType: type } : r
+      )
+    );
+  };
+
+  const handleScheduleChange = (recipeId: string, scheduleLeadDays: number | null) => {
+    onChange(
+      selectedRecipes.map((recipe) =>
+        recipe.recipeId === recipeId ? { ...recipe, scheduleLeadDays } : recipe
       )
     );
   };
@@ -212,6 +257,9 @@ export function RelatedRecipesSelector({
                   item={item}
                   onRemove={() => handleRemoveRecipe(item.recipeId)}
                   onTypeChange={(type) => handleTypeChange(item.recipeId, type)}
+                  onScheduleChange={(scheduleLeadDays) =>
+                    handleScheduleChange(item.recipeId, scheduleLeadDays)
+                  }
                 />
               ))}
             </div>

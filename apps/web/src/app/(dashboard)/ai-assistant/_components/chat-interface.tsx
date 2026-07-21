@@ -12,17 +12,26 @@ import { useState, useRef, useEffect, useMemo } from "react";
 import type { MyUIMessage } from "@/app/api/chat/route";
 import { Message } from "./message";
 import { Pencil } from "lucide-react";
+import { cn } from "@/lib/utils";
+import {
+  getAssistantContextSuggestions,
+  type AssistantPageContext,
+  type AssistantSettings,
+} from "@/lib/ai/assistant-context";
 
 interface ChatInterfaceProps {
-  settings: {
-    monthlyBudgetUsd: number;
-    maxTokensPerRequest: number;
-    maxRequestsPerDay: number;
-  };
+  settings: AssistantSettings;
   chatId?: string; // Optional chatId from route params
+  pageContext?: AssistantPageContext | null;
+  variant?: "page" | "panel";
 }
 
-export function ChatInterface({ settings, chatId: propChatId }: ChatInterfaceProps) {
+export function ChatInterface({
+  settings,
+  chatId: propChatId,
+  pageContext = null,
+  variant = "page",
+}: ChatInterfaceProps) {
   // This provides a stable chatId for when we're creating a new chat
   const [backupChatId] = useState(() => crypto.randomUUID());
   const [chatIdFromSearchParams, setChatIdInSearchParams] = useQueryState("chatId");
@@ -240,65 +249,84 @@ export function ChatInterface({ settings, chatId: propChatId }: ChatInterfacePro
 
   const hasMessages = messages.length > 0;
   const displayTitle = chatTitle || "Untitled Chat";
+  const suggestions = getAssistantContextSuggestions(pageContext);
+  const isPanel = variant === "panel";
 
   return (
-    <div className="container mx-auto max-w-4xl h-[calc(100vh-4rem)] p-4 flex flex-col gap-4">
-      <Card className="flex-shrink-0">
-        <CardHeader>
-          {hasMessages ? (
-            // Show editable title when chat has started
-            <div className="flex items-center gap-2">
-              {isEditingTitle ? (
-                <div className="flex-1 flex items-center gap-2">
-                  <Input
-                    ref={titleInputRef}
-                    value={titleInput}
-                    onChange={(e) => setTitleInput(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") saveTitle();
-                      if (e.key === "Escape") cancelEditTitle();
-                    }}
-                    onBlur={saveTitle}
-                    className="text-lg font-semibold"
-                    placeholder="Enter chat title..."
-                  />
-                </div>
-              ) : (
-                <>
-                  <CardTitle
-                    className="flex-1 cursor-pointer hover:text-primary transition-colors flex items-center gap-2"
-                    onClick={startEditingTitle}
-                  >
-                    {displayTitle}
-                  </CardTitle>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={startEditingTitle}
-                    className="h-8 w-8"
-                  >
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                </>
-              )}
-            </div>
-          ) : (
-            // Show welcome banner for new chats
-            <>
-              <CardTitle className="flex items-center gap-2">
-                <Bot className="h-5 w-5" />
-                AI Cooking Assistant
-              </CardTitle>
-              <p className="text-sm text-muted-foreground">
-                Ask about recipes, meal planning, or get cooking suggestions
-              </p>
-            </>
-          )}
-        </CardHeader>
-      </Card>
+    <div
+      className={cn(
+        "flex min-h-0 flex-1 flex-col",
+        isPanel
+          ? "w-full gap-0"
+          : "container mx-auto h-[calc(100vh-4rem)] max-w-4xl gap-4 p-4",
+      )}
+    >
+      {!isPanel && (
+        <Card className="flex-shrink-0">
+          <CardHeader>
+            {hasMessages ? (
+              // Show editable title when chat has started
+              <div className="flex items-center gap-2">
+                {isEditingTitle ? (
+                  <div className="flex-1 flex items-center gap-2">
+                    <Input
+                      ref={titleInputRef}
+                      value={titleInput}
+                      onChange={(e) => setTitleInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") saveTitle();
+                        if (e.key === "Escape") cancelEditTitle();
+                      }}
+                      onBlur={saveTitle}
+                      className="text-lg font-semibold"
+                      placeholder="Enter chat title..."
+                    />
+                  </div>
+                ) : (
+                  <>
+                    <CardTitle
+                      className="flex-1 cursor-pointer hover:text-primary transition-colors flex items-center gap-2"
+                      onClick={startEditingTitle}
+                    >
+                      {displayTitle}
+                    </CardTitle>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={startEditingTitle}
+                      className="h-8 w-8"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                  </>
+                )}
+              </div>
+            ) : (
+              // Show welcome banner for new chats
+              <>
+                <CardTitle className="flex items-center gap-2">
+                  <Bot className="h-5 w-5" />
+                  AI Cooking Assistant
+                </CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Ask about recipes, meal planning, or get cooking suggestions
+                </p>
+              </>
+            )}
+          </CardHeader>
+        </Card>
+      )}
 
-      <Card className="flex-1 flex flex-col min-h-0">
-        <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
+      <Card
+        className={cn(
+          "flex min-h-0 flex-1 flex-col",
+          isPanel && "rounded-none border-0 bg-transparent shadow-none",
+        )}
+      >
+        <ScrollArea
+          className={cn("flex-1", isPanel ? "px-4 py-3" : "p-4")}
+          ref={scrollAreaRef}
+        >
           <div className="space-y-4">
             {/* Loading spinner at top when fetching more messages */}
             {isFetchingNextPage && (
@@ -320,9 +348,34 @@ export function ChatInterface({ settings, chatId: propChatId }: ChatInterfacePro
 
             {/* Empty state */}
             {!isLoadingMessages && messages.length === 0 && (
-              <div className="text-center text-muted-foreground py-12">
-                <Bot className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>Start a conversation by asking about recipes or meal planning</p>
+              <div
+                className={cn(
+                  "text-muted-foreground",
+                  isPanel ? "py-5" : "py-12 text-center",
+                )}
+              >
+                {!isPanel && (
+                  <Bot className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                )}
+                <p className={cn("text-sm", isPanel && "mb-3 text-foreground")}>
+                  {pageContext
+                    ? `What would you like to do with ${pageContext.label}?`
+                    : "Start a conversation by asking about recipes or meal planning"}
+                </p>
+                {isPanel && (
+                  <div className="flex flex-col gap-2">
+                    {suggestions.map((suggestion) => (
+                      <button
+                        key={suggestion}
+                        type="button"
+                        onClick={() => setInput(suggestion)}
+                        className="min-h-11 rounded-lg border border-cream-300 bg-cream-100 px-3 py-2 text-left text-sm text-mystic-800 transition-colors hover:bg-cream-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring dark:border-mystic-700 dark:bg-mystic-900 dark:text-cream-100 dark:hover:bg-mystic-800"
+                      >
+                        {suggestion}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 
@@ -341,7 +394,7 @@ export function ChatInterface({ settings, chatId: propChatId }: ChatInterfacePro
                 )}
 
                 <div
-                  className={`rounded-lg px-4 py-2 max-w-[80%] ${
+                  className={`rounded-lg px-4 py-2 ${isPanel ? "max-w-[90%]" : "max-w-[80%]"} ${
                     message.role === "user"
                       ? "bg-blue-600 text-white"
                       : "bg-muted"
@@ -373,15 +426,18 @@ export function ChatInterface({ settings, chatId: propChatId }: ChatInterfacePro
           <form
             onSubmit={(e) => {
               e.preventDefault();
+              const message = input.trim();
+              if (!message || status !== "ready") return;
               sendMessage(
                 {
-                  text: input,
+                  text: message,
                 },
                 {
                   body: {
                     chatId, // Send chatId in request body
+                    pageContext,
                   },
-                }
+                },
               );
               setInput('');
             }}
@@ -390,12 +446,21 @@ export function ChatInterface({ settings, chatId: propChatId }: ChatInterfacePro
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask about recipes, meal planning, or cooking tips..."
+              placeholder={
+                pageContext
+                  ? `Ask about ${pageContext.label}…`
+                  : "Ask about recipes or meal planning…"
+              }
               disabled={status !== 'ready'}
               className="flex-1"
-              autoFocus
+              autoFocus={!isPanel}
             />
-            <Button type="submit" disabled={status !== 'ready'}>
+            <Button
+              type="submit"
+              size="icon"
+              aria-label="Send message"
+              disabled={status !== 'ready' || !input.trim()}
+            >
               {status === 'streaming' ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
@@ -403,10 +468,12 @@ export function ChatInterface({ settings, chatId: propChatId }: ChatInterfacePro
               )}
             </Button>
           </form>
-          <p className="text-xs text-muted-foreground mt-2">
-            Max tokens: {settings.maxTokensPerRequest.toLocaleString()} | Daily
-            limit: {settings.maxRequestsPerDay} requests
-          </p>
+          {!isPanel && (
+            <p className="text-xs text-muted-foreground mt-2">
+              Max tokens: {settings.maxTokensPerRequest.toLocaleString()} |
+              Daily limit: {settings.maxRequestsPerDay} requests
+            </p>
+          )}
         </div>
       </Card>
     </div>

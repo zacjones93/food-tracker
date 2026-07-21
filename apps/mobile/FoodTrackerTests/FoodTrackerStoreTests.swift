@@ -144,6 +144,74 @@ final class FoodTrackerStoreTests: XCTestCase {
         XCTAssertEqual(store.pendingCount, 2)
     }
 
+    func testPreparationRecipeKeepsItsOccurrenceLinkAndSyncPayload() throws {
+        let storage = TestStorage()
+        let calendar = Calendar(identifier: .gregorian)
+        let friday = try XCTUnwrap(calendar.date(from: DateComponents(year: 2026, month: 7, day: 24)))
+        let thursday = try XCTUnwrap(calendar.date(byAdding: .day, value: -1, to: friday))
+        let pizza = Recipe(id: "recipe-pizza", name: "Pizza")
+        let dough = Recipe(id: "recipe-dough", name: "Pizza dough")
+        let relation = RecipeRelation(
+            id: "relation-dough",
+            mainRecipeID: pizza.id,
+            sideRecipeID: dough.id,
+            relationType: "base",
+            scheduleLeadDays: 1
+        )
+        storage.workspace = FoodWorkspace(
+            recipes: [pizza, dough],
+            weeks: [WeekPlan(id: "week-1", name: "Plan")],
+            scheduledRecipes: [],
+            recipeRelations: [relation],
+            groceryItems: [],
+            recipeBooks: [],
+            groceryTemplates: [],
+            outbox: []
+        )
+        let store = FoodTrackerStore(storage: storage)
+
+        store.scheduleRecipe(
+            recipeID: pizza.id,
+            weekID: "week-1",
+            date: friday,
+            preparations: [
+                .init(
+                    recipeRelationID: relation.id,
+                    recipeID: dough.id,
+                    scheduledDate: thursday
+                )
+            ]
+        )
+
+        let pizzaOccurrence = try XCTUnwrap(store.scheduledRecipes(for: "week-1").first { $0.recipeID == pizza.id })
+        let doughOccurrence = try XCTUnwrap(store.scheduledRecipes(for: "week-1").first { $0.recipeID == dough.id })
+        XCTAssertEqual(doughOccurrence.scheduledForWeekRecipeID, pizzaOccurrence.id)
+        XCTAssertEqual(doughOccurrence.sourceRecipeRelationID, relation.id)
+        XCTAssertEqual(doughOccurrence.scheduledDate, thursday)
+        XCTAssertEqual(store.pendingCount, 2)
+
+        let data = try FoodTrackerCoding.encoder.encode(SyncEnvelope(mutations: store.workspace.outbox))
+        let JSON = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        let mutations = try XCTUnwrap(JSON["mutations"] as? [[String: Any]])
+        let prepMutation = try XCTUnwrap(mutations.first {
+            ($0["clientEntityId"] as? String) == doughOccurrence.id
+        })
+        let payload = try XCTUnwrap(prepMutation["payload"] as? [String: Any])
+        XCTAssertEqual(payload["scheduledForWeekRecipeId"] as? String, pizzaOccurrence.id)
+        XCTAssertEqual(payload["sourceRecipeRelationId"] as? String, relation.id)
+    }
+
+    func testLegacyWorkspaceWithoutRecipeRelationsStillDecodes() throws {
+        let encoded = try FoodTrackerCoding.encoder.encode(FoodWorkspace.empty)
+        var JSON = try XCTUnwrap(JSONSerialization.jsonObject(with: encoded) as? [String: Any])
+        JSON.removeValue(forKey: "recipeRelations")
+        let legacyData = try JSONSerialization.data(withJSONObject: JSON)
+
+        let workspace = try FoodTrackerCoding.decoder.decode(FoodWorkspace.self, from: legacyData)
+
+        XCTAssertTrue(workspace.recipeRelations.isEmpty)
+    }
+
     func testGroceryItemCanMoveCategoriesAndReorderOffline() {
         let storage = TestStorage()
         storage.workspace = FoodWorkspace(
@@ -278,6 +346,98 @@ final class FoodTrackerStoreTests: XCTestCase {
         XCTAssertEqual(response.acknowledged.first?.mutationID, create.id)
         XCTAssertEqual(response.acknowledged.first?.entityID, create.entityID)
         XCTAssertEqual(response.acknowledged.first?.serverID, "rcp-created")
+    }
+
+    func testAssistantHistoryAndConversationUseMobileRoutes() async throws {
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [URLProtocolStub.self]
+        let URLSession = URLSession(configuration: configuration)
+        let client = FoodTrackerAPIClient(
+            baseURL: URL(string: "https://food.example.test")!,
+            session: URLSession
+        )
+        let summary = #"{"id":"ios_chat-1","title":"Quick chicken dinners","createdAt":"2026-07-20T12:00:00Z","updatedAt":"2026-07-21T12:00:00Z"}"#
+
+        URLProtocolStub.handler = { request in
+            let URL = try XCTUnwrap(request.url)
+            let data: Data
+            if URL.path == "/api/mobile/assistant/chats" {
+                data = Data(#"{"chats":[\#(summary)]}"#.utf8)
+            } else {
+                XCTAssertEqual(URL.path, "/api/mobile/assistant/chats/ios_chat-1")
+                data = Data(#"{"chat":\#(summary),"messages":[{"id":"message-1","role":"user","text":"What should I cook?"},{"id":"message-2","role":"assistant","text":"Try the lemon chicken."}]}"#.utf8)
+            }
+            return (
+                HTTPURLResponse(url: URL, statusCode: 200, httpVersion: nil, headerFields: nil)!,
+                data
+            )
+        }
+
+        let chats = try await client.loadAssistantChats()
+        let conversation = try await client.loadAssistantConversation(chatID: "ios_chat-1")
+
+        XCTAssertEqual(chats.map(\.displayTitle), ["Quick chicken dinners"])
+        XCTAssertEqual(conversation.chat.id, "ios_chat-1")
+        XCTAssertEqual(conversation.messages.map(\.text), ["What should I cook?", "Try the lemon chicken."])
+    }
+
+    func testAssistantUsesMobileChatStreamAndPersistsConversation() async throws {
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [URLProtocolStub.self]
+        let URLSession = URLSession(configuration: configuration)
+        let client = FoodTrackerAPIClient(
+            baseURL: URL(string: "https://food.example.test")!,
+            session: URLSession
+        )
+
+        URLProtocolStub.handler = { request in
+            let URL = try XCTUnwrap(request.url)
+            XCTAssertEqual(URL.path, "/api/mobile/assistant")
+            XCTAssertEqual(request.value(forHTTPHeaderField: "Origin"), "https://food.example.test")
+            let object = try XCTUnwrap(
+                JSONSerialization.jsonObject(with: request.bodyData()) as? [String: Any]
+            )
+            XCTAssertEqual(object["chatId"] as? String, "ios_chat-1")
+            let message = try XCTUnwrap((object["messages"] as? [[String: Any]])?.first)
+            let part = try XCTUnwrap((message["parts"] as? [[String: Any]])?.first)
+            XCTAssertEqual(part["text"] as? String, "Find dinner")
+            let stream = """
+            data: {"type":"start","messageId":"assistant-1"}
+
+            data: {"type":"tool-input-start","toolCallId":"tool-1","toolName":"search_recipes"}
+
+            data: {"type":"text-delta","id":"text-1","delta":"Try "}
+
+            data: {"type":"text-delta","id":"text-1","delta":"soup."}
+
+            data: {"type":"finish"}
+
+            """
+            return (
+                HTTPURLResponse(
+                    url: URL,
+                    statusCode: 200,
+                    httpVersion: nil,
+                    headerFields: ["Content-Type": "text/event-stream"]
+                )!,
+                Data(stream.utf8)
+            )
+        }
+
+        var events: [AssistantStreamEvent] = []
+        for try await event in client.streamAssistant(
+            chatID: "ios_chat-1",
+            messages: [AssistantMessage(role: "user", text: "Find dinner")]
+        ) {
+            events.append(event)
+        }
+
+        XCTAssertEqual(events, [
+            .status("Thinking through your kitchen…"),
+            .status("Checking your kitchen…"),
+            .textDelta("Try "),
+            .textDelta("soup."),
+        ])
     }
 
     func testTeamSwitchUsesMembershipEndpointAndReloadsTeamScopedSession() async throws {
@@ -452,5 +612,18 @@ private struct StubAPI: FoodTrackerAPI {
     func signOut() async throws {}
     func loadWorkspace(cursor: String?) async throws -> FoodWorkspace { workspace }
     func sync(_ envelope: SyncEnvelope) async throws -> SyncResponse { syncResult }
-    func askAssistant(chatID: String, messages: [AssistantMessage]) async throws -> String { "Try soup." }
+    func loadAssistantChats() async throws -> [AssistantChatSummary] { [] }
+    func loadAssistantConversation(chatID: String) async throws -> AssistantConversation {
+        throw APIError.server("No assistant conversation in this test")
+    }
+    func updateAssistantChatTitle(chatID: String, title: String) async throws {}
+    func streamAssistant(
+        chatID: String,
+        messages: [AssistantMessage]
+    ) -> AsyncThrowingStream<AssistantStreamEvent, Error> {
+        AsyncThrowingStream { continuation in
+            continuation.yield(.textDelta("Try soup."))
+            continuation.finish()
+        }
+    }
 }

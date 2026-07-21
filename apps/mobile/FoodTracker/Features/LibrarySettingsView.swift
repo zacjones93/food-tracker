@@ -184,6 +184,7 @@ private struct GroceryTemplateEditor: View {
             }
         }
         .foodListBackground()
+        .foodFormBehavior()
         .navigationTitle(template == nil ? "New template" : "Edit template")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -212,6 +213,7 @@ private struct AccountView: View {
     @Environment(AuthStore.self) private var auth
     @Environment(FoodTrackerStore.self) private var store
     @Environment(ConnectivityMonitor.self) private var connectivity
+    @State private var isConfirmingSignOut = false
 
     var body: some View {
         List {
@@ -240,12 +242,20 @@ private struct AccountView: View {
             }
             Section {
                 Button("Sign out", role: .destructive) {
-                    store.deactivateWorkspace()
-                    Task { await auth.signOut() }
+                    isConfirmingSignOut = true
                 }
             }
         }
         .foodListBackground()
         .navigationTitle("Account")
+        .confirmationDialog("Sign out of this device?", isPresented: $isConfirmingSignOut, titleVisibility: .visible) {
+            Button("Sign out", role: .destructive) {
+                store.deactivateWorkspace()
+                Task { await auth.signOut() }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Your queued changes stay protected on this device for your next sign-in.")
+        }
     }
 }

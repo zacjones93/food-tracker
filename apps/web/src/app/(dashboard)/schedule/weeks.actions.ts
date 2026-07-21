@@ -14,9 +14,10 @@ import {
   toggleWeekRecipeMadeSchema,
   updateWeekRecipeScheduledDateSchema,
 } from "@/schemas/week.schema";
-import { eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, isNotNull } from "drizzle-orm";
 import { getSessionFromCookie } from "@/utils/auth";
 import { requirePermission } from "@/utils/team-auth";
+import { hasAccessToRecipe } from "@/utils/recipe-visibility";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 
@@ -167,8 +168,10 @@ export const getWeekByIdAction = createServerAction()
               .filter((rel) => rel.mainRecipeId === wr.recipe.id)
               .map((rel) => ({
                 ...rel.sideRecipe,
+                relationId: rel.id,
                 relationType: rel.relationType,
                 relationOrder: rel.order,
+                scheduleLeadDays: rel.scheduleLeadDays,
               })),
           },
         })),
@@ -235,8 +238,10 @@ export const getWeeksAction = createServerAction()
               .filter((rel) => rel.mainRecipeId === wr.recipe.id)
               .map((rel) => ({
                 ...rel.sideRecipe,
+                relationId: rel.id,
                 relationType: rel.relationType,
                 relationOrder: rel.order,
+                scheduleLeadDays: rel.scheduleLeadDays,
               })),
           },
         })),
@@ -320,6 +325,63 @@ export const getWeeksForRecipeAction = createServerAction()
     return { weeks: weeksWithFlag };
   });
 
+export const getSchedulePreparationOptionsAction = createServerAction()
+  .input(z.object({ recipeId: z.string() }))
+  .handler(async ({ input }) => {
+    const session = await getSessionFromCookie();
+    if (!session) {
+      throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
+    }
+
+    if (!session.activeTeamId) {
+      throw new ZSAError("FORBIDDEN", "No active team selected");
+    }
+
+    await requirePermission(
+      session.user.id,
+      session.activeTeamId,
+      TEAM_PERMISSIONS.ACCESS_SCHEDULES,
+    );
+
+    const db = getDB();
+    const recipe = await db.query.recipesTable.findFirst({
+      where: eq(recipesTable.id, input.recipeId),
+    });
+
+    if (!recipe) {
+      throw new ZSAError("NOT_FOUND", "Recipe not found");
+    }
+
+    const canAccessRecipe = await hasAccessToRecipe(
+      recipe,
+      session.user.id,
+      session.activeTeamId,
+    );
+    if (!canAccessRecipe) {
+      throw new ZSAError("FORBIDDEN", "You don't have access to this recipe");
+    }
+
+    const relations = await db.query.recipeRelationsTable.findMany({
+      where: and(
+        eq(recipeRelationsTable.mainRecipeId, input.recipeId),
+        isNotNull(recipeRelationsTable.scheduleLeadDays),
+      ),
+      with: { sideRecipe: true },
+      orderBy: (table, { asc }) => [asc(table.order)],
+    });
+
+    return {
+      preparations: relations.map((relation) => ({
+        recipeRelationId: relation.id,
+        recipeId: relation.sideRecipeId,
+        name: relation.sideRecipe.name,
+        emoji: relation.sideRecipe.emoji,
+        relationType: relation.relationType,
+        scheduleLeadDays: relation.scheduleLeadDays ?? 0,
+      })),
+    };
+  });
+
 export const addRecipeToWeekAction = createServerAction()
   .input(addRecipeToWeekSchema)
   .handler(async ({ input }) => {
@@ -342,6 +404,46 @@ export const addRecipeToWeekAction = createServerAction()
 
     await requirePermission(user.id, week.teamId, TEAM_PERMISSIONS.EDIT_SCHEDULES);
 
+    const preparationInputs = input.preparations ?? [];
+    const preparationRelationIds = preparationInputs.map(
+      (preparation) => preparation.recipeRelationId,
+    );
+    const preparationRelations = preparationRelationIds.length > 0
+      ? await db.query.recipeRelationsTable.findMany({
+          where: inArray(recipeRelationsTable.id, preparationRelationIds),
+        })
+      : [];
+    const preparationRelationsById = new Map(
+      preparationRelations.map((relation) => [relation.id, relation]),
+    );
+
+    for (const preparation of preparationInputs) {
+      const relation = preparationRelationsById.get(preparation.recipeRelationId);
+      if (
+        !relation ||
+        relation.mainRecipeId !== input.recipeId ||
+        relation.sideRecipeId !== preparation.recipeId ||
+        relation.scheduleLeadDays == null
+      ) {
+        throw new ZSAError("INPUT_PARSE_ERROR", "Invalid preparation recipe selection");
+      }
+    }
+
+    const recipeIds = [input.recipeId, ...preparationInputs.map((preparation) => preparation.recipeId)];
+    const recipes = await db.query.recipesTable.findMany({
+      where: inArray(recipesTable.id, recipeIds),
+    });
+    if (recipes.length !== new Set(recipeIds).size) {
+      throw new ZSAError("NOT_FOUND", "One or more recipes were not found");
+    }
+
+    const canAccessRecipes = await Promise.all(
+      recipes.map((recipe) => hasAccessToRecipe(recipe, user.id, week.teamId)),
+    );
+    if (canAccessRecipes.some((hasAccess) => !hasAccess)) {
+      throw new ZSAError("FORBIDDEN", "You don't have access to one or more recipes");
+    }
+
     // Get max order for this week to add at bottom
     const weekRecipes = await db.query.weekRecipesTable.findMany({
       where: eq(weekRecipesTable.weekId, input.weekId),
@@ -358,6 +460,22 @@ export const addRecipeToWeekAction = createServerAction()
       })
       .returning();
 
+    const preparationWeekRecipes: Array<typeof weekRecipe> = [];
+    for (let index = 0; index < preparationInputs.length; index++) {
+      const preparation = preparationInputs[index];
+      const [preparationWeekRecipe] = await db.insert(weekRecipesTable)
+        .values({
+          weekId: input.weekId,
+          recipeId: preparation.recipeId,
+          scheduledForWeekRecipeId: weekRecipe.id,
+          sourceRecipeRelationId: preparation.recipeRelationId,
+          order: maxOrder + index + 2,
+          scheduledDate: preparation.scheduledDate,
+        })
+        .returning();
+      preparationWeekRecipes.push(preparationWeekRecipe);
+    }
+
     // Check team settings to see if we should auto-add ingredients
     const teamSettings = await db.query.teamSettingsTable.findFirst({
       where: eq(teamSettingsTable.teamId, week.teamId),
@@ -367,42 +485,33 @@ export const addRecipeToWeekAction = createServerAction()
     const shouldAutoAddIngredients = teamSettings?.autoAddIngredientsToGrocery ?? true;
 
     if (shouldAutoAddIngredients) {
-      // Get recipe with ingredients
-      const recipe = await db.query.recipesTable.findFirst({
-        where: eq(recipesTable.id, input.recipeId),
+      const existingGroceryItems = await db.query.groceryItemsTable.findMany({
+        where: eq(groceryItemsTable.weekId, input.weekId),
       });
+      let nextGroceryOrder = existingGroceryItems.reduce(
+        (max, item) => Math.max(max, item.order ?? 0),
+        -1,
+      ) + 1;
 
-      // Add ingredients to grocery list if recipe has ingredients
-      if (recipe?.ingredients && Array.isArray(recipe.ingredients) && recipe.ingredients.length > 0) {
-        // Get current grocery items to calculate max order
-        const existingGroceryItems = await db.query.groceryItemsTable.findMany({
-          where: eq(groceryItemsTable.weekId, input.weekId),
-        });
+      for (const recipe of recipes) {
+        if (!recipe.ingredients || !Array.isArray(recipe.ingredients)) continue;
 
-        const maxGroceryOrder = existingGroceryItems.reduce((max, item) => Math.max(max, item.order ?? 0), -1);
-
-        let allIngredients: string[] = [];
-
-        // Handle both old format (string[]) and new format (sections with items)
-        if (recipe.ingredients.length > 0) {
-          const firstItem = recipe.ingredients[0];
-          if (typeof firstItem === "string") {
-            // Old format: array of strings
-            allIngredients = recipe.ingredients as unknown as string[];
-          } else if (typeof firstItem === "object" && "items" in firstItem) {
-            // New format: array of sections
-            allIngredients = recipe.ingredients.flatMap((section: { items: string[] }) => section.items);
-          }
+        let ingredients: string[] = [];
+        const firstIngredient = recipe.ingredients[0];
+        if (typeof firstIngredient === "string") {
+          ingredients = recipe.ingredients as unknown as string[];
+        } else if (typeof firstIngredient === "object" && firstIngredient && "items" in firstIngredient) {
+          ingredients = recipe.ingredients.flatMap((section: { items: string[] }) => section.items);
         }
 
-        // Insert each ingredient as a grocery item
-        for (let i = 0; i < allIngredients.length; i++) {
+        for (const ingredient of ingredients) {
           await db.insert(groceryItemsTable).values({
             weekId: input.weekId,
-            name: allIngredients[i],
+            name: ingredient,
             checked: false,
-            order: maxGroceryOrder + i + 1,
+            order: nextGroceryOrder,
           });
+          nextGroceryOrder += 1;
         }
       }
     }
@@ -410,7 +519,7 @@ export const addRecipeToWeekAction = createServerAction()
     revalidatePath("/schedule");
     revalidatePath(`/schedule/${input.weekId}`);
 
-    return { weekRecipe };
+    return { weekRecipe, preparationWeekRecipes };
   });
 
 export const removeRecipeFromWeekAction = createServerAction()

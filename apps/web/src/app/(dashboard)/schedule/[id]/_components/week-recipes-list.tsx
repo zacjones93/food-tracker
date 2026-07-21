@@ -5,8 +5,13 @@ import { type Recipe, type WeekRecipe } from "@/db/schema";
 import { Card, CardContent } from "@/components/ui/card";
 import { format, eachDayOfInterval, parseISO } from "date-fns";
 
-type RelatedRecipe = Pick<Recipe, 'id' | 'name' | 'emoji'> & { relationType: string };
+type RelatedRecipe = Pick<Recipe, 'id' | 'name' | 'emoji'> & {
+  relationId: string;
+  relationType: string;
+  scheduleLeadDays: number | null;
+};
 type RecipeWithRelated = Recipe & { relatedRecipes?: RelatedRecipe[] };
+type ScheduledRecipeWithDetails = WeekRecipe & { recipe: RecipeWithRelated };
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -54,7 +59,7 @@ import { useRouter } from "next/navigation";
 
 interface WeekRecipesListProps {
   weekId: string;
-  recipes: (WeekRecipe & { recipe: RecipeWithRelated })[];
+  recipes: ScheduledRecipeWithDetails[];
   embedded?: boolean;
   weekStartDate?: Date | null;
   weekEndDate?: Date | null;
@@ -84,26 +89,58 @@ export function WeekRecipesList({
     setRecipes(initialRecipes);
   }, [initialRecipes]);
 
-  // Generate weekdays based on startDate and endDate
-  const weekdays = useMemo(() => {
+  const scheduleRangeDays = useMemo(() => {
     if (!weekStartDate || !weekEndDate) return [];
 
     try {
       const start = weekStartDate instanceof Date ? weekStartDate : parseISO(weekStartDate as unknown as string);
       const end = weekEndDate instanceof Date ? weekEndDate : parseISO(weekEndDate as unknown as string);
-
       return eachDayOfInterval({ start, end });
     } catch {
       return [];
     }
   }, [weekStartDate, weekEndDate]);
 
+  const scheduleRangeDateKeys = useMemo(
+    () => new Set(scheduleRangeDays.map((date) => format(date, "yyyy-MM-dd"))),
+    [scheduleRangeDays],
+  );
+
+  // Keep explicitly scheduled preparation dates visible even when they fall
+  // just outside the nominal schedule range.
+  const scheduleDays = useMemo(() => {
+    const datesByKey = new Map(
+      scheduleRangeDays.map((date) => [format(date, "yyyy-MM-dd"), date]),
+    );
+    recipes.forEach((weekRecipe) => {
+      if (!weekRecipe.scheduledDate) return;
+      const date = new Date(weekRecipe.scheduledDate);
+      datesByKey.set(format(date, "yyyy-MM-dd"), date);
+    });
+    return [...datesByKey.values()].sort((left, right) => left.getTime() - right.getTime());
+  }, [recipes, scheduleRangeDays]);
+
+  const weekRecipesById = useMemo(
+    () => new Map(recipes.map((weekRecipe) => [weekRecipe.id, weekRecipe])),
+    [recipes],
+  );
+
+  const preparationsByParentId = useMemo(() => {
+    const grouped = new Map<string, ScheduledRecipeWithDetails[]>();
+    recipes.forEach((weekRecipe) => {
+      if (!weekRecipe.scheduledForWeekRecipeId) return;
+      const existing = grouped.get(weekRecipe.scheduledForWeekRecipeId) ?? [];
+      grouped.set(weekRecipe.scheduledForWeekRecipeId, [...existing, weekRecipe]);
+    });
+    return grouped;
+  }, [recipes]);
+
   // Group recipes by scheduled date
   const recipesByDate = useMemo(() => {
-    const grouped = new Map<string, (WeekRecipe & { recipe: RecipeWithRelated })[]>();
+    const grouped = new Map<string, ScheduledRecipeWithDetails[]>();
 
     // Initialize all weekdays with empty arrays
-    weekdays.forEach((date) => {
+    scheduleDays.forEach((date) => {
       grouped.set(format(date, 'yyyy-MM-dd'), []);
     });
 
@@ -123,7 +160,7 @@ export function WeekRecipesList({
     });
 
     return grouped;
-  }, [recipes, weekdays]);
+  }, [recipes, scheduleDays]);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -232,7 +269,7 @@ export function WeekRecipesList({
       if (currentDateKey !== targetDateKey) {
         const newDate = targetDateKey === 'unscheduled'
           ? null
-          : weekdays.find(d => format(d, 'yyyy-MM-dd') === targetDateKey);
+          : scheduleDays.find(d => format(d, 'yyyy-MM-dd') === targetDateKey);
 
         // Optimistically update the UI - add to end of target date's list
         setRecipes((prev) => {
@@ -347,7 +384,7 @@ export function WeekRecipesList({
     ) : !isMounted ? (
       // Show non-interactive list during SSR
       <div className="space-y-6">
-        {weekdays.length > 0 ? (
+        {scheduleDays.length > 0 ? (
           <>
             {/* Unscheduled recipes - at top */}
             {(recipesByDate.get('unscheduled') || []).length > 0 && (
@@ -363,6 +400,10 @@ export function WeekRecipesList({
                         key={wr.id}
                         recipe={wr.recipe}
                         hasRelated={hasRelated}
+                        preparationFor={wr.scheduledForWeekRecipeId
+                          ? weekRecipesById.get(wr.scheduledForWeekRecipeId)
+                          : undefined}
+                        scheduledPreparations={preparationsByParentId.get(wr.id) ?? []}
                       />
                     );
                   })}
@@ -371,7 +412,7 @@ export function WeekRecipesList({
             )}
 
             {/* Weekday sections */}
-            {weekdays.map((date) => {
+            {scheduleDays.map((date) => {
               const dateKey = format(date, 'yyyy-MM-dd');
               const dateRecipes = recipesByDate.get(dateKey) || [];
               const allMade = areAllRecipesMadeForDate(dateKey);
@@ -383,6 +424,11 @@ export function WeekRecipesList({
                     <div className="w-full flex items-center gap-2 text-sm font-medium px-3 py-2 rounded-lg bg-mystic-50/50 dark:bg-cream-200/5 border border-mystic-200/50 dark:border-cream-200/10 text-mystic-600 dark:text-cream-300 mb-3">
                       <ChevronDown className="h-4 w-4" />
                       <span className="flex-1 text-left">{format(date, 'EEEE, MMM d')}</span>
+                      {!scheduleRangeDateKeys.has(dateKey) ? (
+                        <Badge variant="outline" className="text-[10px]">
+                          Outside schedule range
+                        </Badge>
+                      ) : null}
                       <span className="text-xs opacity-60">{dateRecipes.length} completed ✓</span>
                     </div>
                   ) : (
@@ -390,6 +436,11 @@ export function WeekRecipesList({
                     <>
                       <h4 className="text-sm font-semibold mb-3 text-mystic-800 dark:text-cream-100">
                         {format(date, 'EEEE, MMM d')} {dateRecipes.length > 0 && `(${dateRecipes.length})`}
+                        {!scheduleRangeDateKeys.has(dateKey) ? (
+                          <Badge variant="outline" className="ml-2 text-[10px]">
+                            Outside schedule range
+                          </Badge>
+                        ) : null}
                       </h4>
                       {dateRecipes.length > 0 ? (
                         <div className="space-y-2">
@@ -400,6 +451,10 @@ export function WeekRecipesList({
                                 key={wr.id}
                                 recipe={wr.recipe}
                                 hasRelated={hasRelated}
+                                preparationFor={wr.scheduledForWeekRecipeId
+                                  ? weekRecipesById.get(wr.scheduledForWeekRecipeId)
+                                  : undefined}
+                                scheduledPreparations={preparationsByParentId.get(wr.id) ?? []}
                               />
                             );
                           })}
@@ -423,6 +478,10 @@ export function WeekRecipesList({
                   key={wr.id}
                   recipe={wr.recipe}
                   hasRelated={hasRelated}
+                  preparationFor={wr.scheduledForWeekRecipeId
+                    ? weekRecipesById.get(wr.scheduledForWeekRecipeId)
+                    : undefined}
+                  scheduledPreparations={preparationsByParentId.get(wr.id) ?? []}
                 />
               );
             })}
@@ -438,7 +497,7 @@ export function WeekRecipesList({
         onDragEnd={handleDragEnd}
       >
           <div className="space-y-6">
-            {weekdays.length > 0 ? (
+            {scheduleDays.length > 0 ? (
               <>
                 {/* Unscheduled recipes - at top */}
                 {(recipesByDate.get('unscheduled') || []).length > 0 && (
@@ -460,6 +519,10 @@ export function WeekRecipesList({
                               onToggleMade={handleToggleMade}
                               isMade={weekRecipe.made}
                               isOver={overId === weekRecipe.id}
+                              preparationFor={weekRecipe.scheduledForWeekRecipeId
+                                ? weekRecipesById.get(weekRecipe.scheduledForWeekRecipeId)
+                                : undefined}
+                              scheduledPreparations={preparationsByParentId.get(weekRecipe.id) ?? []}
                             />
                           ))}
                         </div>
@@ -470,7 +533,7 @@ export function WeekRecipesList({
                 )}
 
                 {/* Weekday sections */}
-                {weekdays.map((date) => {
+                {scheduleDays.map((date) => {
                   const dateKey = format(date, 'yyyy-MM-dd');
                   const dateRecipes = recipesByDate.get(dateKey) || [];
                   const allMade = areAllRecipesMadeForDate(dateKey);
@@ -491,6 +554,11 @@ export function WeekRecipesList({
                               <ChevronDown className="h-4 w-4" />
                             )}
                             <span className="flex-1 text-left">{format(date, 'EEEE, MMM d')}</span>
+                            {!scheduleRangeDateKeys.has(dateKey) ? (
+                              <Badge variant="outline" className="text-[10px]">
+                                Outside schedule range
+                              </Badge>
+                            ) : null}
                             <span className="text-xs opacity-60">{dateRecipes.length} completed ✓</span>
                           </button>
                           {isExpanded && (
@@ -507,6 +575,10 @@ export function WeekRecipesList({
                                     onToggleMade={handleToggleMade}
                                     isMade={weekRecipe.made}
                                     isOver={overId === weekRecipe.id}
+                                    preparationFor={weekRecipe.scheduledForWeekRecipeId
+                                      ? weekRecipesById.get(weekRecipe.scheduledForWeekRecipeId)
+                                      : undefined}
+                                    scheduledPreparations={preparationsByParentId.get(weekRecipe.id) ?? []}
                                   />
                                 ))}
                               </div>
@@ -519,6 +591,11 @@ export function WeekRecipesList({
                         <>
                           <h4 className="text-sm font-semibold mb-3 text-mystic-800 dark:text-cream-100">
                             {format(date, 'EEEE, MMM d')} {dateRecipes.length > 0 && `(${dateRecipes.length})`}
+                            {!scheduleRangeDateKeys.has(dateKey) ? (
+                              <Badge variant="outline" className="ml-2 text-[10px]">
+                                Outside schedule range
+                              </Badge>
+                            ) : null}
                           </h4>
                           <DroppableContainer id={`date-container-${dateKey}`}>
                             <SortableContext
@@ -536,6 +613,10 @@ export function WeekRecipesList({
                                         onToggleMade={handleToggleMade}
                                         isMade={weekRecipe.made}
                                         isOver={overId === weekRecipe.id}
+                                        preparationFor={weekRecipe.scheduledForWeekRecipeId
+                                          ? weekRecipesById.get(weekRecipe.scheduledForWeekRecipeId)
+                                          : undefined}
+                                        scheduledPreparations={preparationsByParentId.get(weekRecipe.id) ?? []}
                                       />
                                     ))}
                                   </div>
@@ -576,6 +657,10 @@ export function WeekRecipesList({
                       onToggleMade={handleToggleMade}
                       isMade={weekRecipe.made}
                       isOver={overId === weekRecipe.id}
+                      preparationFor={weekRecipe.scheduledForWeekRecipeId
+                        ? weekRecipesById.get(weekRecipe.scheduledForWeekRecipeId)
+                        : undefined}
+                      scheduledPreparations={preparationsByParentId.get(weekRecipe.id) ?? []}
                     />
                   ))}
                 </div>
@@ -703,10 +788,14 @@ const relationTypeLabels: Record<string, string> = {
 function StaticRecipeItem({
   recipe,
   hasRelated,
+  preparationFor,
+  scheduledPreparations,
   isMade = false,
 }: {
   recipe: RecipeWithRelated;
   hasRelated: boolean;
+  preparationFor?: ScheduledRecipeWithDetails;
+  scheduledPreparations: ScheduledRecipeWithDetails[];
   isMade?: boolean;
 }) {
   const [showRelated, setShowRelated] = useState(false);
@@ -721,6 +810,17 @@ function StaticRecipeItem({
               {recipe.name}
             </div>
           </Link>
+          {preparationFor ? (
+            <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
+              <Badge variant="outline" className="text-[10px]">Prep</Badge>
+              <span>
+                For {preparationFor.recipe.name}
+                {preparationFor.scheduledDate
+                  ? ` · ${format(new Date(preparationFor.scheduledDate), "EEE, MMM d")}`
+                  : ""}
+              </span>
+            </div>
+          ) : null}
           {hasRelated && (
             <button
               onClick={(e) => {
@@ -753,23 +853,35 @@ function StaticRecipeItem({
       </div>
       {hasRelated && showRelated && (
         <div className="ml-12 mt-1 space-y-1">
-          {recipe.relatedRecipes!.map((relatedRecipe) => (
-            <Link
-              key={relatedRecipe.id}
-              href={`/recipes/${relatedRecipe.id}`}
-              className="flex items-center gap-2 p-2 rounded-md bg-mystic-50/50 dark:bg-cream-200/5 border border-mystic-200/50 dark:border-cream-200/10 hover:bg-mystic-100 dark:hover:bg-cream-200/10 transition-colors"
-            >
-              <Badge variant="outline" className="text-[10px] px-1.5 py-0 flex-shrink-0">
-                {relationTypeLabels[relatedRecipe.relationType] || "Related"}
-              </Badge>
-              <div className="text-sm opacity-60">{relatedRecipe.emoji || "🍽️"}</div>
-              <div className="flex-1 min-w-0">
-                <div className="text-xs font-medium truncate text-mystic-800 dark:text-cream-100">
-                  {relatedRecipe.name}
+          {recipe.relatedRecipes!.map((relatedRecipe) => {
+            const scheduledPreparation = scheduledPreparations.find(
+              (preparation) => preparation.sourceRecipeRelationId === relatedRecipe.relationId,
+            );
+            return (
+              <Link
+                key={relatedRecipe.relationId}
+                href={`/recipes/${relatedRecipe.id}`}
+                className="flex items-center gap-2 p-2 rounded-md bg-mystic-50/50 dark:bg-cream-200/5 border border-mystic-200/50 dark:border-cream-200/10 hover:bg-mystic-100 dark:hover:bg-cream-200/10 transition-colors"
+              >
+                <Badge variant="outline" className="text-[10px] px-1.5 py-0 flex-shrink-0">
+                  {relationTypeLabels[relatedRecipe.relationType] || "Related"}
+                </Badge>
+                <div className="text-sm opacity-60">{relatedRecipe.emoji || "🍽️"}</div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-xs font-medium truncate text-mystic-800 dark:text-cream-100">
+                    {relatedRecipe.name}
+                  </div>
                 </div>
-              </div>
-            </Link>
-          ))}
+                {scheduledPreparation ? (
+                  <Badge variant="secondary" className="text-[10px]">
+                    {scheduledPreparation.scheduledDate
+                      ? `Scheduled ${format(new Date(scheduledPreparation.scheduledDate), "EEE")}`
+                      : "Scheduled"}
+                  </Badge>
+                ) : null}
+              </Link>
+            );
+          })}
         </div>
       )}
     </div>
@@ -780,12 +892,16 @@ function SortableRecipeItem({
   weekRecipe,
   onRemove,
   onToggleMade,
+  preparationFor,
+  scheduledPreparations,
   isMade = false,
   isOver = false,
 }: {
-  weekRecipe: WeekRecipe & { recipe: RecipeWithRelated };
+  weekRecipe: ScheduledRecipeWithDetails;
   onRemove: (weekRecipeId: string) => void;
   onToggleMade: (weekRecipeId: string, currentMade: boolean) => void;
+  preparationFor?: ScheduledRecipeWithDetails;
+  scheduledPreparations: ScheduledRecipeWithDetails[];
   isMade?: boolean;
   isOver?: boolean;
 }) {
@@ -841,6 +957,17 @@ function SortableRecipeItem({
               {recipe.name}
             </div>
           </Link>
+          {preparationFor ? (
+            <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
+              <Badge variant="outline" className="text-[10px]">Prep</Badge>
+              <span>
+                For {preparationFor.recipe.name}
+                {preparationFor.scheduledDate
+                  ? ` · ${format(new Date(preparationFor.scheduledDate), "EEE, MMM d")}`
+                  : ""}
+              </span>
+            </div>
+          ) : null}
           {hasRelatedRecipes && (
             <button
               onClick={(e) => {
@@ -886,23 +1013,35 @@ function SortableRecipeItem({
       {/* Related Recipes - collapsible nested below main recipe */}
       {hasRelatedRecipes && showRelated && (
         <div className="ml-12 mt-1 space-y-1">
-          {recipe.relatedRecipes!.map((relatedRecipe) => (
-            <Link
-              key={relatedRecipe.id}
-              href={`/recipes/${relatedRecipe.id}`}
-              className="flex items-center gap-2 p-2 rounded-md bg-mystic-50/50 dark:bg-cream-200/5 border border-mystic-200/50 dark:border-cream-200/10 hover:bg-mystic-100 dark:hover:bg-cream-200/10 transition-colors group/related"
-            >
-              <Badge variant="outline" className="text-[10px] px-1.5 py-0 flex-shrink-0">
-                {relationTypeLabels[relatedRecipe.relationType] || "Related"}
-              </Badge>
-              <div className="text-sm opacity-60">{relatedRecipe.emoji || "🍽️"}</div>
-              <div className="flex-1 min-w-0">
-                <div className="text-xs font-medium truncate text-mystic-800 dark:text-cream-100">
-                  {relatedRecipe.name}
+          {recipe.relatedRecipes!.map((relatedRecipe) => {
+            const scheduledPreparation = scheduledPreparations.find(
+              (preparation) => preparation.sourceRecipeRelationId === relatedRecipe.relationId,
+            );
+            return (
+              <Link
+                key={relatedRecipe.relationId}
+                href={`/recipes/${relatedRecipe.id}`}
+                className="flex items-center gap-2 p-2 rounded-md bg-mystic-50/50 dark:bg-cream-200/5 border border-mystic-200/50 dark:border-cream-200/10 hover:bg-mystic-100 dark:hover:bg-cream-200/10 transition-colors group/related"
+              >
+                <Badge variant="outline" className="text-[10px] px-1.5 py-0 flex-shrink-0">
+                  {relationTypeLabels[relatedRecipe.relationType] || "Related"}
+                </Badge>
+                <div className="text-sm opacity-60">{relatedRecipe.emoji || "🍽️"}</div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-xs font-medium truncate text-mystic-800 dark:text-cream-100">
+                    {relatedRecipe.name}
+                  </div>
                 </div>
-              </div>
-            </Link>
-          ))}
+                {scheduledPreparation ? (
+                  <Badge variant="secondary" className="text-[10px]">
+                    {scheduledPreparation.scheduledDate
+                      ? `Scheduled ${format(new Date(scheduledPreparation.scheduledDate), "EEE")}`
+                      : "Scheduled"}
+                  </Badge>
+                ) : null}
+              </Link>
+            );
+          })}
         </div>
       )}
     </div>

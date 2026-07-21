@@ -239,6 +239,7 @@ export default function CreateRecipePage({
           ? relatedRecipes.map((r) => ({
               recipeId: r.recipeId,
               relationType: r.relationType,
+              scheduleLeadDays: r.scheduleLeadDays,
             }))
           : undefined,
     };

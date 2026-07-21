@@ -1,0 +1,48 @@
+{
+  "$schema": "../web/node_modules/wrangler/config-schema.json",
+  "account_id": "317fb84f366ea1ab038ca90000953697",
+  "name": "list-to-ladle-notifications",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-07-21",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
+  "observability": {
+    "enabled": true
+  },
+  "vars": {
+    "NOTIFICATIONS_ENABLED": "false",
+    "SMS_ENABLED": "false",
+    "PUBLIC_APP_URL": "https://listtoladle.com",
+    "TELNYX_FROM_NUMBER": "+12082180252",
+    "TELNYX_MESSAGING_PROFILE_ID": "40019f84-a527-4bb9-815c-630c5444df0d"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "food-tracker-db",
+      "database_id": "715b9c2b-d8db-43ae-b094-b80d83d81c39",
+      "migrations_dir": "../web/src/db/migrations"
+    }
+  ],
+  "queues": {
+    "producers": [
+      {
+        "binding": "DELIVERY_QUEUE",
+        "queue": "list-to-ladle-notification-delivery"
+      }
+    ],
+    "consumers": [
+      {
+        "queue": "list-to-ladle-notification-delivery",
+        "max_batch_size": 10,
+        "max_batch_timeout": 5,
+        "max_retries": 5,
+        "retry_delay": 60,
+        "dead_letter_queue": "list-to-ladle-notification-dlq"
+      }
+    ]
+  },
+  "triggers": {
+    "crons": ["*/15 * * * *"]
+  }
+}

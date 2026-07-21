@@ -1,4 +1,4 @@
-import { sqliteTable, integer, text, index, primaryKey, uniqueIndex } from "drizzle-orm/sqlite-core";
+import { sqliteTable, integer, text, index, primaryKey, uniqueIndex, type AnySQLiteColumn } from "drizzle-orm/sqlite-core";
 import { relations, sql } from "drizzle-orm";
 import { type InferSelectModel } from "drizzle-orm";
 
@@ -274,12 +274,35 @@ export const weeksTable = sqliteTable("weeks", {
   uniqueIndex("weeks_team_client_id_idx").on(table.teamId, table.clientId),
 ]));
 
+// Self-referencing: Recipe ↔ Recipe (sides/accompaniments)
+export const recipeRelationsTable = sqliteTable("recipe_relations", {
+  id: text().primaryKey().$defaultFn(() => `rr_${createId()}`).notNull(),
+  clientId: text({ length: 255 }),
+  mainRecipeId: text().notNull().references(() => recipesTable.id, { onDelete: 'cascade' }),
+  sideRecipeId: text().notNull().references(() => recipesTable.id, { onDelete: 'cascade' }),
+  relationType: text({ length: 50 }).notNull().default('side'),
+  order: integer().default(0).notNull(),
+  scheduleLeadDays: integer(),
+
+  createdAt: integer({ mode: 'timestamp' }).$defaultFn(() => new Date()).notNull(),
+  updatedAt: integer({ mode: 'timestamp' }).default(sql`0`).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
+}, (table) => ([
+  index("rr_main_idx").on(table.mainRecipeId),
+  index("rr_side_idx").on(table.sideRecipeId),
+  uniqueIndex("rr_client_id_idx").on(table.clientId),
+]));
+
 // Many-to-many: Weeks ↔ Recipes
 export const weekRecipesTable = sqliteTable("week_recipes", {
   id: text().primaryKey().$defaultFn(() => `wr_${createId()}`).notNull(),
   clientId: text({ length: 255 }),
   weekId: text().notNull().references(() => weeksTable.id, { onDelete: 'cascade' }),
   recipeId: text().notNull().references(() => recipesTable.id, { onDelete: 'cascade' }),
+  scheduledForWeekRecipeId: text().references(
+    (): AnySQLiteColumn => weekRecipesTable.id,
+    { onDelete: 'set null' },
+  ),
+  sourceRecipeRelationId: text().references(() => recipeRelationsTable.id, { onDelete: 'set null' }),
 
   scheduledDate: integer({ mode: 'timestamp' }),  // Specific date this recipe is scheduled for
   order: integer().default(0),  // Display order within the day
@@ -291,24 +314,9 @@ export const weekRecipesTable = sqliteTable("week_recipes", {
   index("wr_recipe_idx").on(table.recipeId),
   index("wr_unique_idx").on(table.weekId, table.recipeId),
   index("wr_scheduled_date_idx").on(table.scheduledDate),
+  index("wr_scheduled_for_idx").on(table.scheduledForWeekRecipeId),
+  index("wr_source_relation_idx").on(table.sourceRecipeRelationId),
   uniqueIndex("wr_client_id_idx").on(table.clientId),
-]));
-
-// Self-referencing: Recipe ↔ Recipe (sides/accompaniments)
-export const recipeRelationsTable = sqliteTable("recipe_relations", {
-  id: text().primaryKey().$defaultFn(() => `rr_${createId()}`).notNull(),
-  clientId: text({ length: 255 }),
-  mainRecipeId: text().notNull().references(() => recipesTable.id, { onDelete: 'cascade' }),
-  sideRecipeId: text().notNull().references(() => recipesTable.id, { onDelete: 'cascade' }),
-  relationType: text({ length: 50 }).notNull().default('side'),
-  order: integer().default(0).notNull(),
-
-  createdAt: integer({ mode: 'timestamp' }).$defaultFn(() => new Date()).notNull(),
-  updatedAt: integer({ mode: 'timestamp' }).default(sql`0`).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
-}, (table) => ([
-  index("rr_main_idx").on(table.mainRecipeId),
-  index("rr_side_idx").on(table.sideRecipeId),
-  uniqueIndex("rr_client_id_idx").on(table.clientId),
 ]));
 
 // Grocery items for weeks

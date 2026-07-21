@@ -5,7 +5,9 @@ import {
   mobileChangesQuerySchema,
   mobileMutationSchema,
   mobileSyncRequestSchema,
+  recipeRelationPayloadSchema,
   recipePayloadSchema,
+  weekRecipePayloadSchema,
 } from "./mobile-sync-contract";
 
 test("normalizes the compact native mutation aliases", () => {
@@ -99,4 +101,23 @@ test("caps mutation batches and change pages", () => {
     false,
   );
   assert.equal(mobileChangesQuerySchema.safeParse({ cursor: 0, limit: 501 }).success, false);
+});
+
+test("accepts preparation suggestions and linked schedule occurrences", () => {
+  const relation = recipeRelationPayloadSchema.parse({
+    mainRecipeId: "recipe-pizza",
+    sideRecipeId: "recipe-dough",
+    relationType: "base",
+    scheduleLeadDays: 1,
+  });
+  const occurrence = weekRecipePayloadSchema.parse({
+    weekId: "week-1",
+    recipeId: "recipe-dough",
+    scheduledForWeekRecipeId: "week-recipe-pizza",
+    sourceRecipeRelationId: "relation-dough",
+  });
+
+  assert.equal(relation.scheduleLeadDays, 1);
+  assert.equal(occurrence.scheduledForWeekRecipeId, "week-recipe-pizza");
+  assert.equal(occurrence.sourceRecipeRelationId, "relation-dough");
 });

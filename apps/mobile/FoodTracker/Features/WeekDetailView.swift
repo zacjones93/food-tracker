@@ -147,13 +147,19 @@ struct WeekDetailView: View {
                 mealSection(
                     day,
                     items: scheduled.filter { day.contains($0.scheduledDate) },
-                    days: days
+                    days: days,
+                    isOutsideScheduleRange: isOutsideScheduleRange(day.date, week: week)
                 )
             }
         }
     }
 
-    private func mealSection(_ day: ScheduleDay, items: [ScheduledRecipe], days: [ScheduleDay]) -> some View {
+    private func mealSection(
+        _ day: ScheduleDay,
+        items: [ScheduledRecipe],
+        days: [ScheduleDay],
+        isOutsideScheduleRange: Bool
+    ) -> some View {
         VStack(alignment: .leading, spacing: FoodSpacing.small) {
             HStack(spacing: FoodSpacing.small) {
                 Text(day.title.uppercased())
@@ -165,6 +171,14 @@ struct WeekDetailView: View {
                         .font(.caption.monospacedDigit())
                         .foregroundStyle(Color.foodSecondaryInk)
                         .accessibilityLabel("\(items.count) meal\(items.count == 1 ? "" : "s")")
+                }
+                if isOutsideScheduleRange {
+                    Text("OUTSIDE RANGE")
+                        .font(.caption2.weight(.semibold))
+                        .foregroundStyle(Color.foodSecondaryInk)
+                        .padding(.horizontal, FoodSpacing.small)
+                        .padding(.vertical, FoodSpacing.extraSmall)
+                        .background(Color.foodSecondaryInk.opacity(0.1), in: Capsule())
                 }
                 Spacer()
                 Button("Add meal to \(day.title)", systemImage: "plus") {
@@ -239,37 +253,44 @@ struct WeekDetailView: View {
             }
             .frame(width: 44, height: 44)
             .accessibilityLabel(item.made ? "Mark not made" : "Mark made")
+            .sensoryFeedback(.selection, trigger: item.made)
 
             NavigationLink {
                 RecipeDetailView(recipeID: recipe.id)
             } label: {
-                RecipeRow(recipe: recipe)
+                VStack(alignment: .leading, spacing: FoodSpacing.extraSmall) {
+                    RecipeRow(recipe: recipe)
+                    if let parentID = item.scheduledForWeekRecipeID,
+                       let parent = store.scheduledRecipe(id: parentID),
+                       let parentRecipe = store.recipe(id: parent.recipeID) {
+                        Label("Prep for \(parentRecipe.name)", systemImage: "clock.badge.checkmark")
+                            .font(.caption)
+                            .foregroundStyle(Color.foodSecondaryInk)
+                    }
+                }
             }
             .buttonStyle(.plain)
 
-            Image(systemName: "line.3.horizontal")
-                .font(.body.weight(.semibold))
-                .foregroundStyle(Color.foodSecondaryInk)
-                .frame(width: 44, height: 44)
-                .contentShape(Rectangle())
-                .onTapGesture {
-                    mealActionContext = actionContext
-                }
-                .accessibilityElement()
-                .accessibilityAddTraits(.isButton)
-                .accessibilityLabel("Move \(recipe.name)")
-                .accessibilityHint("Tap or touch and hold for move options. Drag to reorder.")
-                .accessibilityAction {
-                    mealActionContext = actionContext
-                }
-                .contextMenu {
-                    mealMoveActions(actionContext)
-                } preview: {
-                    MealDragPreview(recipe: recipe, day: day)
-                }
-                .draggable(item.id) {
-                    MealDragPreview(recipe: recipe, day: day)
-                }
+            Button {
+                mealActionContext = actionContext
+            } label: {
+                Image(systemName: "line.3.horizontal")
+                    .font(.body.weight(.semibold))
+                    .foregroundStyle(Color.foodSecondaryInk)
+                    .frame(width: 44, height: 44)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Move \(recipe.name)")
+            .accessibilityHint("Tap for move options, or touch and hold to drag.")
+            .contextMenu {
+                mealMoveActions(actionContext)
+            } preview: {
+                MealDragPreview(recipe: recipe, day: day)
+            }
+            .draggable(item.id) {
+                MealDragPreview(recipe: recipe, day: day)
+            }
         }
         .padding(.horizontal, FoodSpacing.small)
         .contentShape(Rectangle())
@@ -479,6 +500,7 @@ struct WeekDetailView: View {
             }
             .frame(width: 44, height: 44)
             .accessibilityLabel(item.isChecked ? "Mark \(item.name) unchecked" : "Mark \(item.name) checked")
+            .sensoryFeedback(.selection, trigger: item.isChecked)
 
             Text(item.name)
                 .strikethrough(item.isChecked)
@@ -527,18 +549,36 @@ struct WeekDetailView: View {
 
     private func mealDays(for week: WeekPlan) -> [ScheduleDay] {
         let calendar = Calendar.autoupdatingCurrent
-        var days: [ScheduleDay] = []
+        var datesByDay = [Date: Date]()
         if let startDate = week.startDate ?? week.endDate,
            let endDate = week.endDate ?? week.startDate {
             var date = calendar.startOfDay(for: min(startDate, endDate))
             let end = calendar.startOfDay(for: max(startDate, endDate))
-            while date <= end, days.count < 366 {
-                days.append(ScheduleDay(date: date))
+            while date <= end, datesByDay.count < 366 {
+                datesByDay[date] = date
                 guard let next = calendar.date(byAdding: .day, value: 1, to: date) else { break }
                 date = next
             }
         }
+        for scheduled in store.scheduledRecipes(for: week.id) {
+            guard let date = scheduled.scheduledDate else { continue }
+            let day = calendar.startOfDay(for: date)
+            datesByDay[day] = day
+        }
+        let days = datesByDay.values.sorted().map { ScheduleDay(date: $0) }
         return [ScheduleDay(date: nil)] + days
+    }
+
+    private func isOutsideScheduleRange(_ date: Date?, week: WeekPlan) -> Bool {
+        guard let date,
+              let startDate = week.startDate ?? week.endDate,
+              let endDate = week.endDate ?? week.startDate
+        else { return false }
+        let calendar = Calendar.autoupdatingCurrent
+        let day = calendar.startOfDay(for: date)
+        let start = calendar.startOfDay(for: min(startDate, endDate))
+        let end = calendar.startOfDay(for: max(startDate, endDate))
+        return day < start || day > end
     }
 
     private func groceryCategories(for week: WeekPlan) -> [String] {
@@ -705,11 +745,15 @@ private struct RecipePicker: View {
     let scheduledDate: Date?
     let destinationName: String
     @State private var search = ""
+    @State private var selectedRecipeID: String?
+    @State private var preparations: [PreparationPickerItem] = []
 
     var body: some View {
         NavigationStack {
             Group {
-                if filteredRecipes.isEmpty {
+                if let selectedRecipe {
+                    preparationForm(for: selectedRecipe)
+                } else if filteredRecipes.isEmpty {
                     FoodEmptyState(
                         symbol: search.isEmpty ? "checkmark.circle" : "magnifyingglass",
                         title: search.isEmpty ? "All recipes added" : "No recipes found",
@@ -721,7 +765,7 @@ private struct RecipePicker: View {
                 } else {
                     List(filteredRecipes) { recipe in
                         Button {
-                            store.scheduleRecipe(recipeID: recipe.id, weekID: weekID, date: scheduledDate)
+                            select(recipe)
                         } label: {
                             HStack(spacing: FoodSpacing.small) {
                                 RecipeRow(recipe: recipe)
@@ -737,9 +781,19 @@ private struct RecipePicker: View {
                 }
             }
             .searchable(text: $search, prompt: "Find recipes")
-            .navigationTitle("Add to \(destinationName)")
+            .navigationTitle(selectedRecipe.map { "Schedule \($0.name)" } ?? "Add to \(destinationName)")
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } } }
+            .toolbar {
+                if selectedRecipe != nil {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Back") {
+                            selectedRecipeID = nil
+                            preparations = []
+                        }
+                    }
+                }
+                ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } }
+            }
         }
         .presentationDetents([.large])
     }
@@ -750,6 +804,115 @@ private struct RecipePicker: View {
             !existing.contains($0.id) && (search.isEmpty || $0.name.localizedCaseInsensitiveContains(search))
         }
     }
+
+    private var selectedRecipe: Recipe? {
+        selectedRecipeID.flatMap(store.recipe(id:))
+    }
+
+    private func select(_ recipe: Recipe) {
+        let relations = store.preparationRelations(for: recipe.id)
+        guard let scheduledDate, !relations.isEmpty else {
+            store.scheduleRecipe(recipeID: recipe.id, weekID: weekID, date: scheduledDate)
+            return
+        }
+
+        selectedRecipeID = recipe.id
+        preparations = relations.compactMap { relation in
+            guard let prepRecipe = store.recipe(id: relation.sideRecipeID),
+                  let leadDays = relation.scheduleLeadDays,
+                  let date = Calendar.autoupdatingCurrent.date(
+                    byAdding: .day,
+                    value: -leadDays,
+                    to: scheduledDate
+                  )
+            else { return nil }
+            return PreparationPickerItem(
+                relationID: relation.id,
+                recipeID: prepRecipe.id,
+                recipeName: prepRecipe.name,
+                emoji: prepRecipe.emoji,
+                leadDays: leadDays,
+                isIncluded: true,
+                scheduledDate: date
+            )
+        }
+        if preparations.isEmpty {
+            store.scheduleRecipe(recipeID: recipe.id, weekID: weekID, date: scheduledDate)
+            selectedRecipeID = nil
+        }
+    }
+
+    private func addSelectedRecipe(_ recipe: Recipe) {
+        store.scheduleRecipe(
+            recipeID: recipe.id,
+            weekID: weekID,
+            date: scheduledDate,
+            preparations: preparations
+                .filter(\.isIncluded)
+                .map {
+                    FoodTrackerStore.PreparationSchedule(
+                        recipeRelationID: $0.relationID,
+                        recipeID: $0.recipeID,
+                        scheduledDate: $0.scheduledDate
+                    )
+                }
+        )
+        selectedRecipeID = nil
+        preparations = []
+    }
+
+    private func preparationForm(for recipe: Recipe) -> some View {
+        Form {
+            Section {
+                Text("Choose which preparation recipes to add before \(recipe.name).")
+                    .font(.subheadline)
+                    .foregroundStyle(Color.foodSecondaryInk)
+            }
+            Section("Preparation") {
+                ForEach($preparations) { $preparation in
+                    VStack(alignment: .leading, spacing: FoodSpacing.small) {
+                        Toggle(isOn: $preparation.isIncluded) {
+                            VStack(alignment: .leading, spacing: FoodSpacing.extraSmall) {
+                                Text("\(preparation.emoji) \(preparation.recipeName)")
+                                    .font(.body.weight(.semibold))
+                                Text("Suggested \(preparation.leadDays) day\(preparation.leadDays == 1 ? "" : "s") before")
+                                    .font(.caption)
+                                    .foregroundStyle(Color.foodSecondaryInk)
+                            }
+                        }
+                        if preparation.isIncluded {
+                            DatePicker(
+                                "Prepare on",
+                                selection: $preparation.scheduledDate,
+                                displayedComponents: .date
+                            )
+                        }
+                    }
+                    .padding(.vertical, FoodSpacing.extraSmall)
+                }
+            }
+            Section {
+                Button("Add to schedule", systemImage: "calendar.badge.plus") {
+                    addSelectedRecipe(recipe)
+                }
+                .frame(maxWidth: .infinity)
+            }
+        }
+        .foodListBackground()
+        .foodFormBehavior()
+    }
+}
+
+private struct PreparationPickerItem: Identifiable {
+    let relationID: String
+    let recipeID: String
+    let recipeName: String
+    let emoji: String
+    let leadDays: Int
+    var isIncluded: Bool
+    var scheduledDate: Date
+
+    var id: String { relationID }
 }
 
 private struct GroceryItemEditor: View {
@@ -803,7 +966,9 @@ private struct GroceryItemEditor: View {
                 }
             }
             .foodListBackground()
+            .foodFormBehavior()
             .navigationTitle(item == nil ? "Add grocery item" : "Edit grocery item")
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
                 ToolbarItem(placement: .confirmationAction) {
@@ -832,6 +997,7 @@ private struct GroceryItemEditor: View {
                 }
             }
         }
+        .presentationDetents([.medium, .large])
     }
 }
 
@@ -852,6 +1018,7 @@ private struct GroceryCategoryEditor: View {
                 }
             }
             .foodListBackground()
+            .foodFormBehavior()
             .navigationTitle("New category")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
@@ -880,25 +1047,45 @@ private struct GroceryTransferView: View {
 
     var body: some View {
         NavigationStack {
-            List(store.weeks.filter { $0.id != sourceWeekID && $0.status != .archived }) { week in
-                Button {
-                    let sourceItems = store.groceryItems(for: sourceWeekID).filter { !$0.isChecked }
-                    for (offset, item) in sourceItems.enumerated() {
-                        store.saveGroceryItem(GroceryItem(
-                            weekID: week.id,
-                            name: item.name,
-                            order: store.groceryItems(for: week.id).count + offset,
-                            category: item.category
-                        ))
+            Group {
+                if destinationWeeks.isEmpty {
+                    FoodEmptyState(
+                        symbol: "calendar.badge.exclamationmark",
+                        title: "No destination weeks",
+                        detail: "Create another current or upcoming week before copying grocery items."
+                    )
+                } else {
+                    List(destinationWeeks) { week in
+                        Button {
+                            copyItems(to: week)
+                            dismiss()
+                        } label: {
+                            Label(week.name, systemImage: "calendar")
+                                .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+                        }
                     }
-                    dismiss()
-                } label: {
-                    Label(week.name, systemImage: "calendar")
+                    .foodListBackground()
                 }
             }
-            .foodListBackground()
+            .background(Color.foodPaper)
             .navigationTitle("Copy items to")
             .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } } }
+        }
+    }
+
+    private var destinationWeeks: [WeekPlan] {
+        store.weeks.filter { $0.id != sourceWeekID && $0.status != .archived }
+    }
+
+    private func copyItems(to week: WeekPlan) {
+        let sourceItems = store.groceryItems(for: sourceWeekID).filter { !$0.isChecked }
+        for (offset, item) in sourceItems.enumerated() {
+            store.saveGroceryItem(GroceryItem(
+                weekID: week.id,
+                name: item.name,
+                order: store.groceryItems(for: week.id).count + offset,
+                category: item.category
+            ))
         }
     }
 }

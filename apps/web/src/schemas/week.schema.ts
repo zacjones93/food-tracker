@@ -32,6 +32,11 @@ export const addRecipeToWeekSchema = z.object({
   recipeId: z.string(),
   order: z.number().optional(),
   scheduledDate: z.date().optional(),
+  preparations: z.array(z.object({
+    recipeRelationId: z.string(),
+    recipeId: z.string(),
+    scheduledDate: z.date().nullable(),
+  })).optional(),
 });
 
 export const removeRecipeFromWeekSchema = z.object({

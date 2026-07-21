@@ -85,6 +85,7 @@ export const addRecipeRelationAction = createServerAction()
         sideRecipeId: input.sideRecipeId,
         relationType: input.relationType,
         order: input.order ?? 0,
+        scheduleLeadDays: input.scheduleLeadDays,
       })
       .returning();
 

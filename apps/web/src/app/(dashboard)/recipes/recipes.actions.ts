@@ -74,6 +74,7 @@ export const createRecipeAction = createServerAction()
             sideRecipeId: relatedRecipe.recipeId,
             relationType: relatedRecipe.relationType,
             order: i,
+            scheduleLeadDays: relatedRecipe.scheduleLeadDays,
           });
         } catch {
           // Continue with other relations even if one fails
@@ -141,6 +142,7 @@ export const updateRecipeAction = createServerAction()
               sideRecipeId: relatedRecipe.recipeId,
               relationType: relatedRecipe.relationType,
               order: i,
+              scheduleLeadDays: relatedRecipe.scheduleLeadDays,
             });
           } catch {
             // Continue with other relations even if one fails

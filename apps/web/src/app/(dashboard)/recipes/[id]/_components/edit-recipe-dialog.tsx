@@ -165,6 +165,7 @@ export function EditRecipeDialog({ recipe }: EditRecipeDialogProps) {
               recipeEmoji: rel.sideRecipe.emoji,
               relationType:
                 rel.relationType as RelatedRecipeItem["relationType"],
+              scheduleLeadDays: rel.scheduleLeadDays,
             }));
           setRelatedRecipes(existingRelations);
         }
@@ -265,6 +266,7 @@ export function EditRecipeDialog({ recipe }: EditRecipeDialogProps) {
           ? relatedRecipes.map((r) => ({
               recipeId: r.recipeId,
               relationType: r.relationType,
+              scheduleLeadDays: r.scheduleLeadDays,
             }))
           : null,
     };

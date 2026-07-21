@@ -18,6 +18,7 @@ import { getDB } from "@/db/index";
 import { createRecipeTools } from "@/lib/ai/tools/recipe-tools";
 import { createScheduleTools } from "@/lib/ai/tools/schedule-tools";
 import { generateChatTitle } from "@/lib/ai/title-generation";
+import { resolveAssistantPageContext } from "@/lib/ai/resolve-assistant-context";
 
 export const runtime = "nodejs"; // OpenNext uses Node runtime
 
@@ -70,7 +71,11 @@ export async function POST(req: Request): Promise<Response> {
     const db = getDB();
 
     // Parse and validate request
-    const body = (await req.json()) as { chatId?: string; messages: UIMessage[] };
+    const body = (await req.json()) as {
+      chatId?: string;
+      messages: UIMessage[];
+      pageContext?: unknown;
+    };
     console.log("📥 Request body:", {
       chatId: body.chatId,
       messageCount: body.messages?.length || 0,
@@ -127,6 +132,12 @@ export async function POST(req: Request): Promise<Response> {
       ...recipeTools,
       ...scheduleTools,
     };
+    const resolvedPageContext = await resolveAssistantPageContext({
+      context: body.pageContext,
+      db,
+      teamId: session.activeTeamId!,
+      userId: session.user.id,
+    });
 
     // Server-side ID generator for messages
     const generateMessageId = createIdGenerator({
@@ -179,7 +190,11 @@ You can help users:
 - Friendly and conversational
 - Concise responses (don't over-explain)
 - Use food emojis when relevant
-- Focus on actionable suggestions`,
+- Focus on actionable suggestions${
+        resolvedPageContext
+          ? `\n\n## Attached Page Context\n\n${resolvedPageContext}`
+          : ""
+      }`,
       tools: tools,
       stopWhen: stepCountIs(10),// Limit tool call iterations
       onFinish: async ({ usage, finishReason }) => {

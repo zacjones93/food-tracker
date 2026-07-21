@@ -1,6 +1,7 @@
 import { getPublicRecipeByIdAction } from "../recipes.actions";
 import { RecipeDetail } from "./_components/recipe-detail";
 import { notFound } from "next/navigation";
+import { AssistantPageContext } from "@/components/assistant/assistant-provider";
 
 interface RecipePageProps {
   params: Promise<{
@@ -18,10 +19,20 @@ export default async function RecipePage({ params }: RecipePageProps) {
   }
 
   return (
-    <RecipeDetail
-      recipe={data.recipe}
-      relationsAsMain={data.relationsAsMain}
-      relationsAsSide={data.relationsAsSide}
-    />
+    <>
+      <AssistantPageContext
+        context={{
+          kind: "recipe",
+          entityId: data.recipe.id,
+          label: data.recipe.name,
+          href: `/recipes/${data.recipe.id}`,
+        }}
+      />
+      <RecipeDetail
+        recipe={data.recipe}
+        relationsAsMain={data.relationsAsMain}
+        relationsAsSide={data.relationsAsSide}
+      />
+    </>
   );
 }

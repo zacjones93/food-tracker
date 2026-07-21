@@ -130,6 +130,8 @@ struct ScheduledRecipe: SyncEntity {
     var serverID: String?
     var weekID: String
     var recipeID: String
+    var scheduledForWeekRecipeID: String?
+    var sourceRecipeRelationID: String?
     var scheduledDate: Date?
     var order: Int
     var made: Bool
@@ -140,6 +142,8 @@ struct ScheduledRecipe: SyncEntity {
         serverID: String? = nil,
         weekID: String,
         recipeID: String,
+        scheduledForWeekRecipeID: String? = nil,
+        sourceRecipeRelationID: String? = nil,
         scheduledDate: Date? = nil,
         order: Int = 0,
         made: Bool = false,
@@ -149,9 +153,42 @@ struct ScheduledRecipe: SyncEntity {
         self.serverID = serverID
         self.weekID = weekID
         self.recipeID = recipeID
+        self.scheduledForWeekRecipeID = scheduledForWeekRecipeID
+        self.sourceRecipeRelationID = sourceRecipeRelationID
         self.scheduledDate = scheduledDate
         self.order = order
         self.made = made
+        self.updatedAt = updatedAt
+    }
+}
+
+struct RecipeRelation: SyncEntity {
+    var id: String
+    var serverID: String?
+    var mainRecipeID: String
+    var sideRecipeID: String
+    var relationType: String
+    var order: Int
+    var scheduleLeadDays: Int?
+    var updatedAt: Date
+
+    init(
+        id: String = "local_recipe_relation_\(UUID().uuidString.lowercased())",
+        serverID: String? = nil,
+        mainRecipeID: String,
+        sideRecipeID: String,
+        relationType: String = "side",
+        order: Int = 0,
+        scheduleLeadDays: Int? = nil,
+        updatedAt: Date = .now
+    ) {
+        self.id = id
+        self.serverID = serverID
+        self.mainRecipeID = mainRecipeID
+        self.sideRecipeID = sideRecipeID
+        self.relationType = relationType
+        self.order = order
+        self.scheduleLeadDays = scheduleLeadDays
         self.updatedAt = updatedAt
     }
 }
@@ -330,6 +367,7 @@ enum SyncEntityKind: String, Codable, Sendable {
     case recipe
     case week
     case scheduledRecipe = "weekRecipe"
+    case recipeRelation
     case groceryItem
     case recipeBook
     case groceryTemplate
@@ -442,9 +480,20 @@ private enum SyncPayload {
             return .object([
                 "weekId": .string(scheduled.weekID),
                 "recipeId": .string(scheduled.recipeID),
+                "scheduledForWeekRecipeId": scheduled.scheduledForWeekRecipeID.map(JSONValue.string) ?? .null,
+                "sourceRecipeRelationId": scheduled.sourceRecipeRelationID.map(JSONValue.string) ?? .null,
                 "scheduledDate": date(scheduled.scheduledDate),
                 "order": .number(Double(scheduled.order)),
                 "made": .bool(scheduled.made)
+            ])
+        }
+        if let relation = value as? RecipeRelation {
+            return .object([
+                "mainRecipeId": .string(relation.mainRecipeID),
+                "sideRecipeId": .string(relation.sideRecipeID),
+                "relationType": .string(relation.relationType),
+                "order": .number(Double(relation.order)),
+                "scheduleLeadDays": relation.scheduleLeadDays.map { .number(Double($0)) } ?? .null
             ])
         }
         if let item = value as? GroceryItem {
@@ -534,11 +583,58 @@ struct FoodWorkspace: Codable, Sendable {
     var recipes: [Recipe]
     var weeks: [WeekPlan]
     var scheduledRecipes: [ScheduledRecipe]
+    var recipeRelations: [RecipeRelation]
     var groceryItems: [GroceryItem]
     var recipeBooks: [RecipeBook]
     var groceryTemplates: [GroceryTemplate]
     var versions: [EntityVersion]? = nil
     var outbox: [PendingMutation]
+
+    init(
+        version: Int = 1,
+        cursor: String? = nil,
+        recipes: [Recipe],
+        weeks: [WeekPlan],
+        scheduledRecipes: [ScheduledRecipe],
+        recipeRelations: [RecipeRelation] = [],
+        groceryItems: [GroceryItem],
+        recipeBooks: [RecipeBook],
+        groceryTemplates: [GroceryTemplate],
+        versions: [EntityVersion]? = nil,
+        outbox: [PendingMutation]
+    ) {
+        self.version = version
+        self.cursor = cursor
+        self.recipes = recipes
+        self.weeks = weeks
+        self.scheduledRecipes = scheduledRecipes
+        self.recipeRelations = recipeRelations
+        self.groceryItems = groceryItems
+        self.recipeBooks = recipeBooks
+        self.groceryTemplates = groceryTemplates
+        self.versions = versions
+        self.outbox = outbox
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case version, cursor, recipes, weeks, scheduledRecipes, recipeRelations
+        case groceryItems, recipeBooks, groceryTemplates, versions, outbox
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        version = try container.decodeIfPresent(Int.self, forKey: .version) ?? 1
+        cursor = try container.decodeIfPresent(String.self, forKey: .cursor)
+        recipes = try container.decodeIfPresent([Recipe].self, forKey: .recipes) ?? []
+        weeks = try container.decodeIfPresent([WeekPlan].self, forKey: .weeks) ?? []
+        scheduledRecipes = try container.decodeIfPresent([ScheduledRecipe].self, forKey: .scheduledRecipes) ?? []
+        recipeRelations = try container.decodeIfPresent([RecipeRelation].self, forKey: .recipeRelations) ?? []
+        groceryItems = try container.decodeIfPresent([GroceryItem].self, forKey: .groceryItems) ?? []
+        recipeBooks = try container.decodeIfPresent([RecipeBook].self, forKey: .recipeBooks) ?? []
+        groceryTemplates = try container.decodeIfPresent([GroceryTemplate].self, forKey: .groceryTemplates) ?? []
+        versions = try container.decodeIfPresent([EntityVersion].self, forKey: .versions)
+        outbox = try container.decodeIfPresent([PendingMutation].self, forKey: .outbox) ?? []
+    }
 
     static let empty = FoodWorkspace(
         recipes: [],

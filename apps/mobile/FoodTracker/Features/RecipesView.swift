@@ -10,15 +10,15 @@ struct RecipesView: View {
     var body: some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: FoodSpacing.large) {
-                HStack(alignment: .bottom) {
-                    ScreenHeader("Recipes", eyebrow: "Cook from what you know", detail: "Your shared cookbook, available even without a signal.")
-                    SyncStatusView(
-                        pendingCount: store.pendingCount,
-                        isOnline: connectivity.isOnline,
-                        isSyncing: store.isSyncing,
-                        isLoading: store.isInitialLoading || store.isRefreshing
-                    )
-                }
+                ScreenHeaderWithStatus(
+                    eyebrow: "Cook from what you know",
+                    title: "Recipes",
+                    detail: "Your shared cookbook, available even without a signal.",
+                    pendingCount: store.pendingCount,
+                    isOnline: connectivity.isOnline,
+                    isSyncing: store.isSyncing,
+                    isLoading: store.isInitialLoading || store.isRefreshing
+                )
 
                 if store.isInitialLoading {
                     VStack(alignment: .leading, spacing: FoodSpacing.large) {
@@ -144,11 +144,16 @@ struct RecipeEditor: View {
                 Section("Instructions") {
                     TextEditor(text: $instructions)
                         .frame(minHeight: 180)
+                    Text("Markdown formatting is supported.")
+                        .font(.caption)
+                        .foregroundStyle(Color.foodSecondaryInk)
                 }
                 Section("Source") {
                     TextField("Recipe link", text: $recipeLink)
+                        .textContentType(.URL)
                         .textInputAutocapitalization(.never)
                         .keyboardType(.URL)
+                        .autocorrectionDisabled()
                     Picker("Recipe book", selection: $recipeBookID) {
                         Text("None").tag(nil as String?)
                         ForEach(store.recipeBooks) { Text($0.name).tag($0.id as String?) }
@@ -164,6 +169,7 @@ struct RecipeEditor: View {
                 }
             }
             .foodListBackground()
+            .foodFormBehavior()
             .navigationTitle(recipe == nil ? "New recipe" : "Edit recipe")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

@@ -1,7 +1,7 @@
 import "server-only";
 import * as z4 from "zod/v4";
 import { tool } from "ai";
-import { eq, like, and } from "drizzle-orm";
+import { eq, like, and, sql } from "drizzle-orm";
 import { recipesTable, type Recipe } from "@/db/schema";
 import { createId } from "@paralleldrive/cuid2";
 import { getSessionFromCookie } from "@/utils/auth";
@@ -71,7 +71,7 @@ export async function createRecipeTools(db: DrizzleD1Database<typeof schema>) {
     }),
 
     search_recipes: tool({
-      description: "Search recipes by name, tags, meal type, or difficulty. Returns a list of matching recipes.",
+      description: "Search recipes by name, tags, meal type, or difficulty. Filters are case-insensitive. If a narrow search has no matches, retry once with fewer filters before concluding that the recipe library has no options.",
       inputSchema: z4.object({
         query: z4.string().optional().describe("Search query to match against recipe name"),
         mealType: z4
@@ -105,24 +105,27 @@ export async function createRecipeTools(db: DrizzleD1Database<typeof schema>) {
           conditions.push(like(recipesTable.name, `%${query}%`));
         }
         if (mealType) {
-          conditions.push(eq(recipesTable.mealType, mealType));
+          conditions.push(
+            sql`lower(${recipesTable.mealType}) = ${mealType.toLowerCase()}`,
+          );
         }
         if (difficulty) {
-          conditions.push(eq(recipesTable.difficulty, difficulty));
+          conditions.push(
+            sql`lower(${recipesTable.difficulty}) = ${difficulty.toLowerCase()}`,
+          );
+        }
+        if (tags && tags.length > 0) {
+          const tagConditions = tags.map((tag) => {
+            const normalizedTag = JSON.stringify(tag.trim().toLowerCase());
+            return sql`lower(${recipesTable.tags}) like ${`%${normalizedTag}%`}`;
+          });
+          conditions.push(sql`(${sql.join(tagConditions, sql` or `)})`);
         }
 
         const results = await db.query.recipesTable.findMany({
           where: and(...conditions),
           limit: safeLimit,
         });
-
-        let filteredResults = results;
-        if (tags && tags.length > 0) {
-          filteredResults = results.filter((r: Recipe) => {
-            const recipeTags = r.tags || [];
-            return tags.some(tag => recipeTags.includes(tag));
-          });
-        }
 
         return {
           searchParameters: {
@@ -132,8 +135,8 @@ export async function createRecipeTools(db: DrizzleD1Database<typeof schema>) {
             tags: tags || [],
             limit: safeLimit,
           },
-          count: filteredResults.length,
-          recipes: filteredResults.map((r: Recipe) => ({
+          count: results.length,
+          recipes: results.map((r: Recipe) => ({
             id: r.id,
             name: r.name,
             emoji: r.emoji,

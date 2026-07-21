@@ -23,6 +23,7 @@ export const createRecipeRelationSchema = z.object({
     RELATION_TYPES.CUSTOM,
   ]),
   order: z.number().int().min(0).optional(),
+  scheduleLeadDays: z.number().int().min(0).max(365).nullable().optional(),
 });
 
 export const deleteRecipeRelationSchema = z.object({

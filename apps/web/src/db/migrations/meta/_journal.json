@@ -225,6 +225,13 @@
       "when": 1784179647145,
       "tag": "0031_add_unique_team_membership",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "6",
+      "when": 1784636806226,
+      "tag": "0032_schedule-related-recipes",
+      "breakpoints": true
     }
   ]
 }

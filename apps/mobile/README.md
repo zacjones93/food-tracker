@@ -22,11 +22,14 @@ The app expects authenticated, JSON endpoints on the web app origin:
 - `POST /api/mobile/auth/sign-out`
 - `GET /api/mobile/workspace?cursor=<opaque>`
 - `POST /api/mobile/sync`
+- `GET /api/mobile/assistant/chats`
+- `GET /api/mobile/assistant/chats/:chatId`
+- `PATCH /api/mobile/assistant/chats/:chatId`
 - `POST /api/mobile/assistant`
 
 `POST /api/mobile/sync` receives an opaque cursor and mutations shaped as `{ mutationId, entityType, operation, clientEntityId?, serverEntityId?, baseVersion?, baseUpdatedAt?, clientUpdatedAt, changedFields, payload }`. The mutation UUID is the idempotency key. The response supplies `{ acknowledged, conflicts, cursor, workspace }`; each acknowledgement maps the client entity to its canonical D1 string ID.
 
-The assistant consumes the server's AI SDK UI message stream and remains online-only; the rest of the planning and shopping workflow stays available offline.
+The assistant uses stable conversation IDs, loads team- and user-scoped history from D1, and consumes the AI SDK UI message stream through the mobile assistant bridge. The native client renders text and tool progress as events arrive and can cancel an in-flight run. The assistant remains online-only; the rest of the planning and shopping workflow stays available offline.
 
 The debug configuration targets `http://localhost:3000`. Set `FoodTrackerAPIBaseURL` in the app target's generated Info.plist settings for another environment.
 

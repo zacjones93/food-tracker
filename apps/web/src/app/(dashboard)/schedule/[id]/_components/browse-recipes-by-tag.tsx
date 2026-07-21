@@ -6,7 +6,10 @@ import {
   getRecipesAction,
   getRecipeMetadataAction,
 } from "@/app/(dashboard)/recipes/recipes.actions";
-import { addRecipeToWeekAction } from "../../weeks.actions";
+import {
+  addRecipeToWeekAction,
+  getSchedulePreparationOptionsAction,
+} from "../../weeks.actions";
 import {
   Dialog,
   DialogContent,
@@ -19,11 +22,29 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { Loader2, ChevronLeft, Search, ChevronRight } from "@/components/ui/themed-icons";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Checkbox } from "@/components/ui/checkbox";
+import { format, subDays } from "date-fns";
 
 interface BrowseRecipesByTagProps {
   weekId: string;
   scheduledDate: Date;
   onRecipeAdded?: () => void;
+}
+
+interface SelectedRecipe {
+  id: string;
+  name: string;
+  emoji: string | null;
+}
+
+interface PreparationSelection {
+  recipeRelationId: string;
+  recipeId: string;
+  name: string;
+  emoji: string | null;
+  scheduleLeadDays: number;
+  included: boolean;
+  scheduledDay: string;
 }
 
 export function BrowseRecipesByTag({
@@ -34,6 +55,8 @@ export function BrowseRecipesByTag({
   const [open, setOpen] = useState(false);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [tagSearch, setTagSearch] = useState("");
+  const [selectedRecipe, setSelectedRecipe] = useState<SelectedRecipe | null>(null);
+  const [preparations, setPreparations] = useState<PreparationSelection[]>([]);
 
   const {
     execute: fetchMetadata,
@@ -45,6 +68,8 @@ export function BrowseRecipesByTag({
     data: recipesData,
     isPending: isLoadingRecipes,
   } = useServerAction(getRecipesAction);
+  const { execute: fetchPreparationOptions, isPending: isLoadingPreparations } =
+    useServerAction(getSchedulePreparationOptionsAction);
   const { execute: addRecipe, isPending: isAdding } = useServerAction(
     addRecipeToWeekAction,
     {
@@ -53,6 +78,8 @@ export function BrowseRecipesByTag({
         setOpen(false);
         setSelectedTag(null);
         setTagSearch("");
+        setSelectedRecipe(null);
+        setPreparations([]);
         onRecipeAdded?.();
       },
       onError: ({ err }) => {
@@ -81,29 +108,70 @@ export function BrowseRecipesByTag({
   }, [selectedTag, fetchRecipes]);
 
   const handleSelectRecipe = useCallback(
-    (recipeId: string) => {
-      addRecipe({
-        weekId,
-        recipeId,
-        scheduledDate,
+    async (recipe: SelectedRecipe) => {
+      const [preparationData, preparationError] = await fetchPreparationOptions({
+        recipeId: recipe.id,
       });
+      if (preparationError) {
+        toast.error(preparationError.message || "Failed to load preparation recipes");
+        return;
+      }
+
+      const preparationOptions = preparationData?.preparations ?? [];
+      if (preparationOptions.length === 0) {
+        await addRecipe({ weekId, recipeId: recipe.id, scheduledDate });
+        return;
+      }
+
+      setSelectedRecipe(recipe);
+      setPreparations(
+        preparationOptions.map((preparation) => ({
+          ...preparation,
+          included: true,
+          scheduledDay: format(
+            subDays(scheduledDate, preparation.scheduleLeadDays),
+            "yyyy-MM-dd",
+          ),
+        })),
+      );
     },
-    [weekId, addRecipe, scheduledDate]
+    [addRecipe, fetchPreparationOptions, scheduledDate, weekId],
   );
 
+  const handleConfirmSchedule = useCallback(async () => {
+    if (!selectedRecipe) return;
+    await addRecipe({
+      weekId,
+      recipeId: selectedRecipe.id,
+      scheduledDate,
+      preparations: preparations
+        .filter((preparation) => preparation.included)
+        .map((preparation) => ({
+          recipeRelationId: preparation.recipeRelationId,
+          recipeId: preparation.recipeId,
+          scheduledDate: new Date(`${preparation.scheduledDay}T12:00:00`),
+        })),
+    });
+  }, [addRecipe, preparations, scheduledDate, selectedRecipe, weekId]);
+
   const handleBack = () => {
+    if (selectedRecipe) {
+      setSelectedRecipe(null);
+      setPreparations([]);
+      return;
+    }
     setSelectedTag(null);
   };
 
-  const tags = metadataData?.tags || [];
   const recipes = recipesData?.recipes || [];
 
   // Filter tags by search
   const filteredTags = useMemo(() => {
+    const tags = metadataData?.tags ?? [];
     if (!tagSearch.trim()) return tags;
     const search = tagSearch.toLowerCase();
     return tags.filter((tag) => tag.toLowerCase().includes(search));
-  }, [tags, tagSearch]);
+  }, [metadataData?.tags, tagSearch]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -116,7 +184,7 @@ export function BrowseRecipesByTag({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            {selectedTag && (
+            {(selectedTag || selectedRecipe) && (
               <Button
                 variant="ghost"
                 size="sm"
@@ -127,12 +195,12 @@ export function BrowseRecipesByTag({
                 <ChevronLeft className="h-4 w-4" />
               </Button>
             )}
-            {selectedTag ? `${selectedTag}` : "Browse by Tag"}
+            {selectedRecipe ? `Schedule ${selectedRecipe.name}` : selectedTag ? `${selectedTag}` : "Browse by Tag"}
           </DialogTitle>
         </DialogHeader>
 
         {/* Search input for tags */}
-        {!selectedTag && (
+        {!selectedTag && !selectedRecipe && (
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -145,7 +213,56 @@ export function BrowseRecipesByTag({
         )}
 
         <ScrollArea className="h-[350px]">
-          {!selectedTag ? (
+          {selectedRecipe ? (
+            <div className="space-y-3 pr-3">
+              <p className="text-sm text-muted-foreground">
+                Choose which preparation recipes to schedule before {selectedRecipe.name}.
+              </p>
+              {preparations.map((preparation) => (
+                <div key={preparation.recipeRelationId} className="space-y-3 rounded-lg border p-3">
+                  <label className="flex items-start gap-3">
+                    <Checkbox
+                      checked={preparation.included}
+                      onCheckedChange={(checked) => {
+                        setPreparations((current) => current.map((item) =>
+                          item.recipeRelationId === preparation.recipeRelationId
+                            ? { ...item, included: checked === true }
+                            : item,
+                        ));
+                      }}
+                      className="mt-1"
+                    />
+                    <span className="min-w-0 flex-1">
+                      <span className="block font-medium">
+                        {preparation.emoji || "🍽️"} {preparation.name}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        Suggested {preparation.scheduleLeadDays} day{preparation.scheduleLeadDays === 1 ? "" : "s"} before
+                      </span>
+                    </span>
+                  </label>
+                  {preparation.included ? (
+                    <Input
+                      type="date"
+                      value={preparation.scheduledDay}
+                      onChange={(event) => {
+                        setPreparations((current) => current.map((item) =>
+                          item.recipeRelationId === preparation.recipeRelationId
+                            ? { ...item, scheduledDay: event.target.value }
+                            : item,
+                        ));
+                      }}
+                      className="ml-7 w-[calc(100%-1.75rem)]"
+                    />
+                  ) : null}
+                </div>
+              ))}
+              <Button className="w-full" onClick={handleConfirmSchedule} disabled={isAdding}>
+                {isAdding ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                Add to schedule
+              </Button>
+            </div>
+          ) : !selectedTag ? (
             // Tag selection view - rows with search
             isLoadingTags ? (
               <div className="flex items-center justify-center py-8">
@@ -186,8 +303,12 @@ export function BrowseRecipesByTag({
                 {recipes.map((recipe) => (
                   <button
                     key={recipe.id}
-                    onClick={() => handleSelectRecipe(recipe.id)}
-                    disabled={isAdding}
+                    onClick={() => handleSelectRecipe({
+                      id: recipe.id,
+                      name: recipe.name,
+                      emoji: recipe.emoji,
+                    })}
+                    disabled={isAdding || isLoadingPreparations}
                     className="w-full flex items-center gap-3 p-3 rounded-lg bg-background border hover:bg-mystic-50 dark:hover:bg-cream-200/10 transition-colors text-left disabled:opacity-50"
                   >
                     <div className="text-xl">{recipe.emoji || "🍽️"}</div>
@@ -201,7 +322,7 @@ export function BrowseRecipesByTag({
                         </div>
                       )}
                     </div>
-                    {isAdding && (
+                    {(isAdding || isLoadingPreparations) && (
                       <Loader2 className="h-4 w-4 animate-spin flex-shrink-0" />
                     )}
                   </button>

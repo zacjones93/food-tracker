@@ -51,6 +51,8 @@ export const weekPayloadSchema = z.object({
 export const weekRecipePayloadSchema = z.object({
   weekId: z.string(),
   recipeId: z.string(),
+  scheduledForWeekRecipeId: z.string().nullable().optional(),
+  sourceRecipeRelationId: z.string().nullable().optional(),
   scheduledDate: optionalNullableDate,
   order: z.number().int().min(0).optional(),
   made: z.boolean().optional(),
@@ -90,6 +92,7 @@ export const recipeRelationPayloadSchema = z.object({
   sideRecipeId: z.string(),
   relationType: z.string().trim().min(1).max(50).optional(),
   order: z.number().int().min(0).optional(),
+  scheduleLeadDays: z.number().int().min(0).max(365).nullable().optional(),
 });
 
 const rawMutationSchema = z.object({

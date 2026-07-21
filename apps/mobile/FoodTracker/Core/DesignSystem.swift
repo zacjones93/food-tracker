@@ -56,6 +56,10 @@ extension View {
         scrollContentBackground(.hidden)
             .background(Color.foodPaper)
     }
+
+    func foodFormBehavior() -> some View {
+        scrollDismissesKeyboard(.interactively)
+    }
 }
 
 struct ScreenHeader: View {
@@ -106,6 +110,7 @@ struct SyncStatusView: View {
         .padding(.horizontal, FoodSpacing.small)
         .padding(.vertical, FoodSpacing.extraSmall)
         .background(tint.opacity(0.11), in: Capsule())
+        .fixedSize(horizontal: true, vertical: false)
         .accessibilityLabel(accessibilityText)
     }
 
@@ -127,7 +132,7 @@ struct SyncStatusView: View {
 
     private var tint: Color {
         if isLoading { return .foodAccent }
-        if !isOnline || pendingCount > 0 { return .orange }
+        if !isOnline || pendingCount > 0 { return .foodWarning }
         return .foodSuccess
     }
 
@@ -137,6 +142,46 @@ struct SyncStatusView: View {
         if !isOnline { return "Offline. Changes save on this device." }
         if pendingCount > 0 { return "\(pendingCount) changes waiting to sync." }
         return "All changes synced."
+    }
+}
+
+struct ScreenHeaderWithStatus: View {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+
+    let eyebrow: String
+    let title: String
+    let detail: String
+    let pendingCount: Int
+    let isOnline: Bool
+    let isSyncing: Bool
+    let isLoading: Bool
+
+    var body: some View {
+        if horizontalSizeClass == .compact || dynamicTypeSize.isAccessibilitySize {
+            VStack(alignment: .leading, spacing: FoodSpacing.medium) {
+                header
+                status
+            }
+        } else {
+            HStack(alignment: .bottom, spacing: FoodSpacing.large) {
+                header
+                status
+            }
+        }
+    }
+
+    private var header: some View {
+        ScreenHeader(title, eyebrow: eyebrow, detail: detail)
+    }
+
+    private var status: some View {
+        SyncStatusView(
+            pendingCount: pendingCount,
+            isOnline: isOnline,
+            isSyncing: isSyncing,
+            isLoading: isLoading
+        )
     }
 }
 
