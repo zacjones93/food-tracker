@@ -69,6 +69,11 @@ declare const recipes: {
     ids: string[];
     include: Array<"ingredients" | "instructions" | "history">;
   }): Promise<RetrievalResult<{ items: RecipeDetail[]; missingIds: string[] }>>;
+  facets(input: {}): Promise<{
+    mealTypes: string[];
+    difficulties: string[];
+    tags: string[];
+  }>;
 };`;
 
 export const WEEK_NAMESPACE_TYPES = `
@@ -140,6 +145,112 @@ declare const weeks: {
   }>>;
 };`;
 
+export const RECIPE_BOOK_NAMESPACE_TYPES = `
+declare const recipeBooks: {
+  search(input: {
+    text?: string;
+    ids?: string[];
+    limit?: number;
+  }): Promise<{ items: Array<{
+    id: string;
+    name: string;
+    teamId: string | null;
+    ownershipScope: "team" | "global";
+  }>; count: number }>;
+};`;
+
+export const GROCERY_TEMPLATE_NAMESPACE_TYPES = `
+declare const groceryTemplates: {
+  search(input: {
+    text?: string;
+    ids?: string[];
+    includeItems?: boolean;
+    limit?: number;
+  }): Promise<{ items: Array<{
+    id: string;
+    name: string;
+    teamId: string | null;
+    isDefault: boolean;
+    template: Array<{
+      category: string;
+      order: number;
+      items: Array<{ name: string; order: number }>;
+    }> | null;
+  }>; count: number }>;
+};`;
+
+export const GROCERY_ITEM_NAMESPACE_TYPES = `
+declare const groceryItems: {
+  search(input: {
+    weekIds: string[];
+    text?: string;
+    checked?: boolean;
+    categories?: string[];
+    limit?: number;
+  }): Promise<{ items: Array<{
+    id: string;
+    weekId: string;
+    name: string;
+    checked: boolean;
+    order: number;
+    category: string | null;
+  }>; count: number }>;
+};`;
+
+export const WEEK_RECIPE_NAMESPACE_TYPES = `
+declare const weekRecipes: {
+  search(input: {
+    weekIds?: string[];
+    recipeIds?: string[];
+    made?: boolean;
+    limit?: number;
+  }): Promise<{ items: Array<{
+    id: string;
+    weekId: string;
+    recipeId: string;
+    recipeName: string;
+    scheduledDate: string | null;
+    order: number;
+    made: boolean;
+  }>; count: number }>;
+};`;
+
+export const RECIPE_RELATION_NAMESPACE_TYPES = `
+declare const recipeRelations: {
+  search(input: {
+    recipeIds: string[];
+    limit?: number;
+  }): Promise<{ items: Array<{
+    id: string;
+    mainRecipeId: string;
+    mainRecipeName: string;
+    sideRecipeId: string;
+    sideRecipeName: string;
+    relationType: string;
+    order: number;
+  }>; count: number }>;
+};`;
+
+export const SETTINGS_NAMESPACE_TYPES = `
+declare const settings: {
+  getFoodPlanning(input: {}): Promise<{
+    recipeVisibilityMode: "all" | "team_only";
+    defaultRecipeVisibility: "public" | "private" | "unlisted";
+    autoAddIngredientsToGrocery: boolean;
+  }>;
+};`;
+
+export const CODE_MODE_NAMESPACE_TYPES = {
+  recipes: RECIPE_NAMESPACE_TYPES,
+  weeks: WEEK_NAMESPACE_TYPES,
+  recipeBooks: RECIPE_BOOK_NAMESPACE_TYPES,
+  groceryTemplates: GROCERY_TEMPLATE_NAMESPACE_TYPES,
+  groceryItems: GROCERY_ITEM_NAMESPACE_TYPES,
+  weekRecipes: WEEK_RECIPE_NAMESPACE_TYPES,
+  recipeRelations: RECIPE_RELATION_NAMESPACE_TYPES,
+  settings: SETTINGS_NAMESPACE_TYPES,
+} as const;
+
 export const CHICKEN_RECIPE_SEARCH_EXAMPLE = `async () => {
   const recipeSearchResponse = await recipes.search({
     text: "chicken",
@@ -190,14 +301,15 @@ Available globals and their exact contracts:
 {{types}}
 
 Rules:
-- The only callable namespaces are recipes and weeks. There is no codemode namespace.
-- Never name a local variable recipes or weeks; those names are reserved globals.
+- The callable namespaces are recipes, weeks, recipeBooks, groceryTemplates, groceryItems, weekRecipes, recipeRelations, and settings. There is no codemode namespace.
+- Never shadow a callable namespace with a local variable; those names are reserved globals.
 - Every retrieval call returns a RetrievalResult envelope. Check response.ok, then read response.data.items or response.data.matches.
+- The additional food-planning namespaces return {items,count}; settings.getFoodPlanning returns the settings object directly.
 - Search results are never bare arrays and never use .results or .weeks.
 - recipes.getMany accepts ids, not names. Search exact titles first, select IDs, then call getMany.
 - Use mealTypes as an array. Matching is normalized, so "Dinner" is the canonical example.
 - Write one async JavaScript arrow function and return JSON-serializable data.
-- Do not use TypeScript syntax, fetch, secrets, database APIs, mutation APIs, or imports.
+- Do not use TypeScript syntax, fetch, secrets, database APIs, mutation APIs, or imports. Mutations are handled outside Code Mode by the approval-required apply_team_changes tool.
 
 Chicken dinner search:
 ${CHICKEN_RECIPE_SEARCH_EXAMPLE}

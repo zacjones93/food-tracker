@@ -1,8 +1,14 @@
 import type { Tool } from "@tanstack/ai";
 
 export const READ_ONLY_TOOL_MANIFEST = {
-  recipes: ["search", "getMany"],
+  recipes: ["search", "getMany", "facets"],
   weeks: ["search", "getMany", "findForRecipes"],
+  recipeBooks: ["search"],
+  groceryTemplates: ["search"],
+  groceryItems: ["search"],
+  weekRecipes: ["search"],
+  recipeRelations: ["search"],
+  settings: ["getFoodPlanning"],
 } as const;
 
 export interface ReadOnlyToolNamespace {

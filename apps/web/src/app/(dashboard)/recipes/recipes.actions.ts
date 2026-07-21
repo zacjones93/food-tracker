@@ -444,11 +444,23 @@ export const incrementMealsEatenAction = createServerAction()
     if (!session) {
       throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
     }
+    if (!session.activeTeamId) {
+      throw new ZSAError("FORBIDDEN", "No active team selected");
+    }
+
+    await requirePermission(
+      session.user.id,
+      session.activeTeamId,
+      TEAM_PERMISSIONS.EDIT_RECIPES,
+    );
 
     const db = getDB();
 
     const recipe = await db.query.recipesTable.findFirst({
-      where: eq(recipesTable.id, input.id),
+      where: and(
+        eq(recipesTable.id, input.id),
+        eq(recipesTable.teamId, session.activeTeamId),
+      ),
     });
 
     if (!recipe) {
@@ -460,7 +472,10 @@ export const incrementMealsEatenAction = createServerAction()
         mealsEatenCount: (recipe.mealsEatenCount || 0) + 1,
         lastMadeDate: new Date(),
       })
-      .where(eq(recipesTable.id, input.id))
+      .where(and(
+        eq(recipesTable.id, input.id),
+        eq(recipesTable.teamId, session.activeTeamId),
+      ))
       .returning();
 
     return { recipe: updatedRecipe };

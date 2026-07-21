@@ -2,7 +2,7 @@
 
 import { createServerAction, ZSAError } from "zsa";
 import { getDB } from "@/db";
-import { groceryItemsTable, weeksTable } from "@/db/schema";
+import { groceryItemsTable, weeksTable, TEAM_PERMISSIONS } from "@/db/schema";
 import {
   createGroceryItemSchema,
   updateGroceryItemSchema,
@@ -13,9 +13,10 @@ import {
   transferGroceryItemsSchema,
   getAvailableWeeksForTransferSchema,
 } from "@/schemas/grocery-item.schema";
-import { eq, and, ne, desc, max } from "drizzle-orm";
+import { eq, and, ne, desc, max, inArray } from "drizzle-orm";
 import { getSessionFromCookie } from "@/utils/auth";
 import { revalidatePath } from "next/cache";
+import { requirePermission } from "@/utils/team-auth";
 
 export const createGroceryItemAction = createServerAction()
   .input(createGroceryItemSchema)
@@ -24,8 +25,23 @@ export const createGroceryItemAction = createServerAction()
     if (!session) {
       throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
     }
+    if (!session.activeTeamId) throw new ZSAError("FORBIDDEN", "No active team selected");
+
+    await requirePermission(
+      session.user.id,
+      session.activeTeamId,
+      TEAM_PERMISSIONS.EDIT_SCHEDULES,
+    );
 
     const db = getDB();
+
+    const week = await db.query.weeksTable.findFirst({
+      where: and(
+        eq(weeksTable.id, input.weekId),
+        eq(weeksTable.teamId, session.activeTeamId),
+      ),
+    });
+    if (!week) throw new ZSAError("NOT_FOUND", "Week not found in the active team");
 
     // Get the max order for this week
     const items = await db.query.groceryItemsTable.findMany({
@@ -55,13 +71,28 @@ export const updateGroceryItemAction = createServerAction()
     if (!session) {
       throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
     }
+    if (!session.activeTeamId) throw new ZSAError("FORBIDDEN", "No active team selected");
+
+    await requirePermission(
+      session.user.id,
+      session.activeTeamId,
+      TEAM_PERMISSIONS.EDIT_SCHEDULES,
+    );
 
     const db = getDB();
     const { id, ...updateData } = input;
 
+    const existing = await db.query.groceryItemsTable.findFirst({
+      where: eq(groceryItemsTable.id, id),
+      with: { week: true },
+    });
+    if (!existing || existing.week.teamId !== session.activeTeamId) {
+      throw new ZSAError("NOT_FOUND", "Grocery item not found in the active team");
+    }
+
     const [groceryItem] = await db.update(groceryItemsTable)
       .set(updateData)
-      .where(eq(groceryItemsTable.id, id))
+      .where(and(eq(groceryItemsTable.id, id), eq(groceryItemsTable.weekId, existing.weekId)))
       .returning();
 
     if (!groceryItem) {
@@ -80,16 +111,28 @@ export const deleteGroceryItemAction = createServerAction()
     if (!session) {
       throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
     }
+    if (!session.activeTeamId) throw new ZSAError("FORBIDDEN", "No active team selected");
+
+    await requirePermission(
+      session.user.id,
+      session.activeTeamId,
+      TEAM_PERMISSIONS.EDIT_SCHEDULES,
+    );
 
     const db = getDB();
 
     // Get item to find weekId for revalidation
     const item = await db.query.groceryItemsTable.findFirst({
       where: eq(groceryItemsTable.id, input.id),
+      with: { week: true },
     });
 
+    if (!item || item.week.teamId !== session.activeTeamId) {
+      throw new ZSAError("NOT_FOUND", "Grocery item not found in the active team");
+    }
+
     await db.delete(groceryItemsTable)
-      .where(eq(groceryItemsTable.id, input.id));
+      .where(and(eq(groceryItemsTable.id, input.id), eq(groceryItemsTable.weekId, item.weekId)));
 
     if (item) {
       revalidatePath(`/schedule/${item.weekId}`);
@@ -105,12 +148,27 @@ export const toggleGroceryItemAction = createServerAction()
     if (!session) {
       throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
     }
+    if (!session.activeTeamId) throw new ZSAError("FORBIDDEN", "No active team selected");
+
+    await requirePermission(
+      session.user.id,
+      session.activeTeamId,
+      TEAM_PERMISSIONS.EDIT_SCHEDULES,
+    );
 
     const db = getDB();
 
+    const existing = await db.query.groceryItemsTable.findFirst({
+      where: eq(groceryItemsTable.id, input.id),
+      with: { week: true },
+    });
+    if (!existing || existing.week.teamId !== session.activeTeamId) {
+      throw new ZSAError("NOT_FOUND", "Grocery item not found in the active team");
+    }
+
     const [groceryItem] = await db.update(groceryItemsTable)
       .set({ checked: input.checked })
-      .where(eq(groceryItemsTable.id, input.id))
+      .where(and(eq(groceryItemsTable.id, input.id), eq(groceryItemsTable.weekId, existing.weekId)))
       .returning();
 
     if (!groceryItem) {
@@ -129,8 +187,34 @@ export const reorderGroceryItemsAction = createServerAction()
     if (!session) {
       throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
     }
+    if (!session.activeTeamId) throw new ZSAError("FORBIDDEN", "No active team selected");
+
+    await requirePermission(
+      session.user.id,
+      session.activeTeamId,
+      TEAM_PERMISSIONS.EDIT_SCHEDULES,
+    );
 
     const db = getDB();
+
+    const week = await db.query.weeksTable.findFirst({
+      where: and(
+        eq(weeksTable.id, input.weekId),
+        eq(weeksTable.teamId, session.activeTeamId),
+      ),
+    });
+    if (!week) throw new ZSAError("NOT_FOUND", "Week not found in the active team");
+
+    const ownedItems = await db.query.groceryItemsTable.findMany({
+      where: and(
+        eq(groceryItemsTable.weekId, input.weekId),
+        inArray(groceryItemsTable.id, input.itemIds),
+      ),
+      columns: { id: true },
+    });
+    if (ownedItems.length !== input.itemIds.length) {
+      throw new ZSAError("FORBIDDEN", "Every grocery item must belong to the active team's week");
+    }
 
     // Update order for each item
     for (let i = 0; i < input.itemIds.length; i++) {
@@ -154,8 +238,35 @@ export const bulkUpdateGroceryItemsAction = createServerAction()
     if (!session) {
       throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
     }
+    if (!session.activeTeamId) throw new ZSAError("FORBIDDEN", "No active team selected");
+
+    await requirePermission(
+      session.user.id,
+      session.activeTeamId,
+      TEAM_PERMISSIONS.EDIT_SCHEDULES,
+    );
 
     const db = getDB();
+
+    const week = await db.query.weeksTable.findFirst({
+      where: and(
+        eq(weeksTable.id, input.weekId),
+        eq(weeksTable.teamId, session.activeTeamId),
+      ),
+    });
+    if (!week) throw new ZSAError("NOT_FOUND", "Week not found in the active team");
+
+    const updateIds = input.updates.map((update) => update.id);
+    const ownedItems = await db.query.groceryItemsTable.findMany({
+      where: and(
+        eq(groceryItemsTable.weekId, input.weekId),
+        inArray(groceryItemsTable.id, updateIds),
+      ),
+      columns: { id: true },
+    });
+    if (ownedItems.length !== updateIds.length) {
+      throw new ZSAError("FORBIDDEN", "Every grocery item must belong to the active team's week");
+    }
 
     // Update each item with its new category and order
     for (const update of input.updates) {
@@ -164,7 +275,10 @@ export const bulkUpdateGroceryItemsAction = createServerAction()
           category: update.category,
           order: update.order,
         })
-        .where(eq(groceryItemsTable.id, update.id));
+        .where(and(
+          eq(groceryItemsTable.id, update.id),
+          eq(groceryItemsTable.weekId, input.weekId),
+        ));
     }
 
     revalidatePath(`/schedule/${input.weekId}`);
@@ -179,6 +293,13 @@ export const transferGroceryItemsAction = createServerAction()
     if (!session) {
       throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
     }
+    if (!session.activeTeamId) throw new ZSAError("FORBIDDEN", "No active team selected");
+
+    await requirePermission(
+      session.user.id,
+      session.activeTeamId,
+      TEAM_PERMISSIONS.EDIT_SCHEDULES,
+    );
 
     const db = getDB();
 
@@ -250,6 +371,13 @@ export const getAvailableWeeksForTransferAction = createServerAction()
     if (!session) {
       throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
     }
+    if (!session.activeTeamId) throw new ZSAError("FORBIDDEN", "No active team selected");
+
+    await requirePermission(
+      session.user.id,
+      session.activeTeamId,
+      TEAM_PERMISSIONS.ACCESS_SCHEDULES,
+    );
 
     const db = getDB();
 

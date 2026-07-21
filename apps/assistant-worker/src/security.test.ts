@@ -6,8 +6,14 @@ import { READ_ONLY_TOOL_MANIFEST } from "./tool-policy";
 
 test("Code Mode exposes only the vetted read-only retrieval manifest", () => {
   assert.deepEqual(READ_ONLY_TOOL_MANIFEST, {
-    recipes: ["search", "getMany"],
+    recipes: ["search", "getMany", "facets"],
     weeks: ["search", "getMany", "findForRecipes"],
+    recipeBooks: ["search"],
+    groceryTemplates: ["search"],
+    groceryItems: ["search"],
+    weekRecipes: ["search"],
+    recipeRelations: ["search"],
+    settings: ["getFoodPlanning"],
   });
   const serialized = JSON.stringify(READ_ONLY_TOOL_MANIFEST);
   assert.doesNotMatch(serialized, /create|update|delete|write|mutation/i);

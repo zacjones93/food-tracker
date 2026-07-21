@@ -14,7 +14,7 @@ import {
   toggleWeekRecipeMadeSchema,
   updateWeekRecipeScheduledDateSchema,
 } from "@/schemas/week.schema";
-import { eq, inArray } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { getSessionFromCookie } from "@/utils/auth";
 import { requirePermission } from "@/utils/team-auth";
 import { z } from "zod";
@@ -467,11 +467,28 @@ export const reorderWeekRecipesAction = createServerAction()
 
     await requirePermission(user.id, week.teamId, TEAM_PERMISSIONS.EDIT_SCHEDULES);
 
+    const ownedWeekRecipes = await db.query.weekRecipesTable.findMany({
+      where: and(
+        eq(weekRecipesTable.weekId, input.weekId),
+        inArray(weekRecipesTable.id, input.weekRecipeIds),
+      ),
+      columns: { id: true },
+    });
+    if (ownedWeekRecipes.length !== input.weekRecipeIds.length) {
+      throw new ZSAError(
+        "FORBIDDEN",
+        "Every scheduled recipe must belong to the selected week",
+      );
+    }
+
     // Update order for each week recipe
     for (let i = 0; i < input.weekRecipeIds.length; i++) {
       await db.update(weekRecipesTable)
         .set({ order: i })
-        .where(eq(weekRecipesTable.id, input.weekRecipeIds[i]));
+        .where(and(
+          eq(weekRecipesTable.id, input.weekRecipeIds[i]),
+          eq(weekRecipesTable.weekId, input.weekId),
+        ));
     }
 
     revalidatePath("/schedule");

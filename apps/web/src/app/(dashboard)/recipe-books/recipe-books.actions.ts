@@ -87,6 +87,11 @@ export const getRecipeBookByIdAction = createServerAction()
       throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
     }
     if (!session.activeTeamId) throw new ZSAError("FORBIDDEN", "No active team selected");
+    await requirePermission(
+      session.user.id,
+      session.activeTeamId,
+      TEAM_PERMISSIONS.ACCESS_RECIPES,
+    );
 
     const db = getDB();
 
@@ -132,6 +137,11 @@ export const getRecipeBooksAction = createServerAction()
       throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
     }
     if (!session.activeTeamId) throw new ZSAError("FORBIDDEN", "No active team selected");
+    await requirePermission(
+      session.user.id,
+      session.activeTeamId,
+      TEAM_PERMISSIONS.ACCESS_RECIPES,
+    );
 
     const db = getDB();
     const { search, page, limit } = input;

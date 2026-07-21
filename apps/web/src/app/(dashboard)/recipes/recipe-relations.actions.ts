@@ -37,10 +37,16 @@ export const addRecipeRelationAction = createServerAction()
     // Validate both recipes exist and user has access to them
     const [mainRecipe, sideRecipe] = await Promise.all([
       db.query.recipesTable.findFirst({
-        where: eq(recipesTable.id, input.mainRecipeId),
+        where: and(
+          eq(recipesTable.id, input.mainRecipeId),
+          eq(recipesTable.teamId, session.activeTeamId),
+        ),
       }),
       db.query.recipesTable.findFirst({
-        where: eq(recipesTable.id, input.sideRecipeId),
+        where: and(
+          eq(recipesTable.id, input.sideRecipeId),
+          eq(recipesTable.teamId, session.activeTeamId),
+        ),
       }),
     ]);
 
@@ -114,10 +120,16 @@ export const removeRecipeRelationAction = createServerAction()
     // Validate both recipes exist and user has access
     const [mainRecipe, sideRecipe] = await Promise.all([
       db.query.recipesTable.findFirst({
-        where: eq(recipesTable.id, input.mainRecipeId),
+        where: and(
+          eq(recipesTable.id, input.mainRecipeId),
+          eq(recipesTable.teamId, session.activeTeamId),
+        ),
       }),
       db.query.recipesTable.findFirst({
-        where: eq(recipesTable.id, input.sideRecipeId),
+        where: and(
+          eq(recipesTable.id, input.sideRecipeId),
+          eq(recipesTable.teamId, session.activeTeamId),
+        ),
       }),
     ]);
 
@@ -217,7 +229,10 @@ export const reorderRecipeRelationsAction = createServerAction()
 
     // Validate recipe exists and user has access
     const recipe = await db.query.recipesTable.findFirst({
-      where: eq(recipesTable.id, input.mainRecipeId),
+      where: and(
+        eq(recipesTable.id, input.mainRecipeId),
+        eq(recipesTable.teamId, session.activeTeamId),
+      ),
     });
 
     if (!recipe) {
