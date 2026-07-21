@@ -19,7 +19,7 @@ export function BlockedAccess() {
             <AlertTitle>Access Restricted</AlertTitle>
             <AlertDescription className="mt-2 space-y-2">
               <p>
-                This feature is currently restricted to specific teams.
+                This feature must be enabled for your team before it can be used.
               </p>
               <p className="font-medium">
                 Please talk to Zac or Mariah about using this feature.

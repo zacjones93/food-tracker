@@ -1,0 +1,34 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "account_id": "317fb84f366ea1ab038ca90000953697",
+  "name": "food-tracker-assistant",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-07-21",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": false,
+  "preview_urls": false,
+  "minify": true,
+  "observability": {
+    "enabled": true
+  },
+  "vars": {
+    "AI_MODEL": "@cf/meta/llama-4-scout-17b-16e-instruct",
+    "PROMPT_VERSION": "assistant-code-mode-v3"
+  },
+  "ai": {
+    "binding": "AI"
+  },
+  "worker_loaders": [
+    {
+      "binding": "LOADER"
+    }
+  ],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "food-tracker-db",
+      "database_id": "715b9c2b-d8db-43ae-b094-b80d83d81c39",
+      "migrations_dir": "../web/src/db/migrations"
+    }
+  ]
+}

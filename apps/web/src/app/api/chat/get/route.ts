@@ -1,6 +1,7 @@
 import "server-only";
 import { getSessionFromCookie } from "@/utils/auth";
 import { getChat } from "@/lib/ai/chat-actions";
+import { getAuthorizedChat } from "@/lib/ai/access-control";
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
@@ -21,15 +22,20 @@ export async function GET(req: Request) {
       return NextResponse.json(null);
     }
 
-    // Load chat metadata
-    const chat = await getChat(chatId);
-
-    if (!chat) {
-      return NextResponse.json(null);
+    if (!session.activeTeamId) {
+      return NextResponse.json({ error: "No active team" }, { status: 403 });
     }
 
-    // Verify ownership
-    if (chat.userId !== session.user.id && chat.teamId !== session.activeTeamId) {
+    // Chats are private to their creator inside the active team.
+    const chat = await getAuthorizedChat({
+      chatId,
+      userId: session.user.id,
+      teamId: session.activeTeamId,
+    });
+
+    if (!chat) {
+      const existingChat = await getChat(chatId);
+      if (!existingChat) return NextResponse.json(null);
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 

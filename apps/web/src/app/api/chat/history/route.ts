@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { getSessionFromCookie } from "@/utils/auth";
 import { getDB } from "@/db/index";
 import { aiChatsTable } from "@/db/schema";
-import { eq, desc } from "drizzle-orm";
+import { and, eq, desc } from "drizzle-orm";
 
 export const runtime = "nodejs";
 
@@ -27,7 +27,12 @@ export async function GET() {
         updatedAt: aiChatsTable.updatedAt,
       })
       .from(aiChatsTable)
-      .where(eq(aiChatsTable.teamId, session.activeTeamId))
+      .where(
+        and(
+          eq(aiChatsTable.userId, session.user.id),
+          eq(aiChatsTable.teamId, session.activeTeamId),
+        ),
+      )
       .orderBy(desc(aiChatsTable.updatedAt))
       .limit(50);
 

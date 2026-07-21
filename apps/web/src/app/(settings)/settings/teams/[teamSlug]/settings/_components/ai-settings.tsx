@@ -9,13 +9,10 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, Loader2, Sparkles } from "@/components/ui/themed-icons";
-import { AlertCircle } from "lucide-react";
 import { toast } from "sonner";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface AiSettingsProps {
   teamId: string;
-  teamSlug: string;
   currentSettings: {
     aiEnabled: boolean;
     aiMonthlyBudgetUsd: string;
@@ -24,15 +21,12 @@ interface AiSettingsProps {
   };
 }
 
-export function AiSettings({ teamId, teamSlug, currentSettings }: AiSettingsProps) {
+export function AiSettings({ teamId, currentSettings }: AiSettingsProps) {
   const [aiEnabled, setAiEnabled] = useState(currentSettings.aiEnabled);
   const [monthlyBudget, setMonthlyBudget] = useState(currentSettings.aiMonthlyBudgetUsd);
   const [maxTokens, setMaxTokens] = useState(currentSettings.aiMaxTokensPerRequest.toString());
   const [maxRequests, setMaxRequests] = useState(currentSettings.aiMaxRequestsPerDay.toString());
   const [hasChanges, setHasChanges] = useState(false);
-
-  const allowedTeams = ["default", "team_default"];
-  const isAllowedTeam = allowedTeams.includes(teamSlug);
 
   const { execute, isPending, isSuccess } = useServerAction(updateAiSettingsAction, {
     onSuccess: () => {
@@ -78,30 +72,6 @@ export function AiSettings({ teamId, teamSlug, currentSettings }: AiSettingsProp
     setMaxRequests(value);
     setHasChanges(true);
   };
-
-  if (!isAllowedTeam) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5" />
-            AI Assistant Settings
-          </CardTitle>
-          <CardDescription>
-            Configure AI-powered features for your team
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Alert>
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              AI features are currently restricted to specific teams. Please contact Zac or Mariah to enable this feature for your team.
-            </AlertDescription>
-          </Alert>
-        </CardContent>
-      </Card>
-    );
-  }
 
   return (
     <Card>

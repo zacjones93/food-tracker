@@ -10,7 +10,7 @@ import {
   getGroceryListTemplateByIdSchema,
   applyTemplateToWeekSchema,
 } from "@/schemas/grocery-template.schema";
-import { eq, or } from "drizzle-orm";
+import { and, eq, or } from "drizzle-orm";
 import { getSessionFromCookie } from "@/utils/auth";
 import { requirePermission } from "@/utils/team-auth";
 import { revalidatePath } from "next/cache";
@@ -189,7 +189,13 @@ export const applyTemplateToWeekAction = createServerAction()
 
     // Get the template
     const template = await db.query.groceryListTemplatesTable.findFirst({
-      where: eq(groceryListTemplatesTable.id, input.templateId),
+      where: and(
+        eq(groceryListTemplatesTable.id, input.templateId),
+        or(
+          eq(groceryListTemplatesTable.teamId, week.teamId),
+          eq(groceryListTemplatesTable.isDefault, true),
+        ),
+      ),
     });
 
     if (!template) {

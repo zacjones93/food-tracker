@@ -23,7 +23,10 @@ export default async function DashboardLayout({ children }: { children: React.Re
   }
 
   const assistantAccess = session.activeTeamId
-    ? await checkAiAccess(session.activeTeamId)
+    ? await checkAiAccess({
+        teamId: session.activeTeamId,
+        userId: session.user.id,
+      })
     : null
   const assistantSettings = assistantAccess?.allowed
     ? assistantAccess.settings

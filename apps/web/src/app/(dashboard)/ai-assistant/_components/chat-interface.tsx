@@ -1,30 +1,46 @@
 "use client";
 
-import { useChat } from "@ai-sdk/react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardHeader, CardTitle } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Bot, User, Loader2, Send } from "lucide-react";
-import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { fetchServerSentEvents, useChat } from "@tanstack/ai-react";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
+import {
+  Bot,
+  Loader2,
+  Pencil,
+  RefreshCw,
+  Send,
+  Square,
+  User,
+} from "lucide-react";
 import { useQueryState } from "nuqs";
-import { useState, useRef, useEffect, useMemo } from "react";
-import type { MyUIMessage } from "@/app/api/chat/route";
-import { Message } from "./message";
-import { Pencil } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { useEffect, useMemo, useRef, useState } from "react";
+
+import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   getAssistantContextSuggestions,
   type AssistantPageContext,
   type AssistantSettings,
 } from "@/lib/ai/assistant-context";
+import { getPublicAssistantError } from "@/lib/assistant/errors";
+import type { AssistantMessage } from "@/lib/assistant/types";
+import { cn } from "@/lib/utils";
+
+import { Message } from "./message";
 
 interface ChatInterfaceProps {
   settings: AssistantSettings;
-  chatId?: string; // Optional chatId from route params
+  chatId?: string;
   pageContext?: AssistantPageContext | null;
   variant?: "page" | "panel";
 }
+
+const PAGE_SIZE = 10;
 
 export function ChatInterface({
   settings,
@@ -32,225 +48,111 @@ export function ChatInterface({
   pageContext = null,
   variant = "page",
 }: ChatInterfaceProps) {
-  // This provides a stable chatId for when we're creating a new chat
-  const [backupChatId] = useState(() => crypto.randomUUID());
-  const [chatIdFromSearchParams, setChatIdInSearchParams] = useQueryState("chatId");
-  const [input, setInput] = useState('');
+  const isPanel = variant === "panel";
+  const [newChatId] = useState(() => crypto.randomUUID());
+  const [queryChatId, setQueryChatId] = useQueryState("chatId");
+  const chatId = propChatId || (!isPanel ? queryChatId : null) || newChatId;
+  const [input, setInput] = useState("");
+  const [titleInput, setTitleInput] = useState("");
   const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [titleInput, setTitleInput] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const messagesStartRef = useRef<HTMLDivElement>(null);
-  const titleInputRef = useRef<HTMLInputElement>(null);
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
-  const [shouldScrollToBottom, setShouldScrollToBottom] = useState(true);
+  const connection = useMemo(
+    () => fetchServerSentEvents("/api/assistant"),
+    [],
+  );
 
-  // Use chatId from prop (route param), search params, or backup
-  const chatId = propChatId || chatIdFromSearchParams || backupChatId;
-
-  // Load messages with infinite scroll support
-  const PAGE_SIZE = 10;
-  const {
-    data: chatData,
-    isLoading: isLoadingMessages,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-  } = useInfiniteQuery({
+  const chatQuery = useInfiniteQuery({
     queryKey: ["chat-messages", chatId],
     queryFn: async ({ pageParam = 0 }) => {
-      // Only load messages if we have a real chatId (not the backup)
-      if (chatId === backupChatId) {
+      if (chatId === newChatId) {
         return { messages: [], title: null, hasMore: false };
       }
-
       const response = await fetch(
-        `/api/chat/messages?chatId=${chatId}&limit=${PAGE_SIZE}&offset=${pageParam}`
+        `/api/chat/messages?chatId=${encodeURIComponent(chatId)}&limit=${PAGE_SIZE}&offset=${pageParam}`,
       );
-      const data = await response.json() as {
-        messages: MyUIMessage[];
+      if (!response.ok) throw new Error("Unable to load chat history");
+      return (await response.json()) as {
+        messages: AssistantMessage[];
         title: string | null;
-        hasMore: boolean
+        hasMore: boolean;
       };
-
-      return {
-        messages: data.messages || [],
-        title: data.title || null,
-        hasMore: data.hasMore || false,
-      };
-    },
-    getNextPageParam: (lastPage, allPages) => {
-      if (!lastPage.hasMore) return undefined;
-      return allPages.length * PAGE_SIZE;
     },
     initialPageParam: 0,
+    getNextPageParam: (lastPage, pages) =>
+      lastPage.hasMore ? pages.length * PAGE_SIZE : undefined,
   });
-
-  // Flatten all messages from all pages
-  // Backend returns pages in chronological order (oldest→newest)
-  // Page 0 = oldest messages, Page 1 = newer messages, etc.
-  const loadedMessages = useMemo(() =>
-    chatData?.pages.flatMap((page) => page.messages) || [],
-    [chatData?.pages]
+  const loadedMessages = useMemo(
+    () => chatQuery.data?.pages.flatMap((page) => page.messages) ?? [],
+    [chatQuery.data?.pages],
   );
-  const chatTitle = chatData?.pages[0]?.title;
+  const chatTitle = chatQuery.data?.pages[0]?.title;
 
-  const { messages, setMessages, sendMessage, status, error } =
-    useChat<MyUIMessage>({
-      id: chatId,
-      onFinish: () => {
-        // After first message, add chatId to search params if not already there
-        if (!chatIdFromSearchParams) {
-          setChatIdInSearchParams(chatId);
-        }
-      },
-      onError: (error) => {
-        console.error("❌ Chat error:", error);
-      },
-    });
-
-  // Track last loaded count to detect pagination
-  const lastLoadedCountRef = useRef(0);
-  const isStreamingRef = useRef(false);
-
-  // Track streaming status
-  useEffect(() => {
-    isStreamingRef.current = status === 'streaming' || status === 'submitted';
-  }, [status]);
-
-  // Update messages when loaded messages change (from query or pagination)
-  // But don't update while streaming to avoid overwriting new messages
-  useEffect(() => {
-    if (loadedMessages.length > 0 &&
-        loadedMessages.length !== lastLoadedCountRef.current &&
-        !isStreamingRef.current) {
-      console.log("📥 Updating messages from query:", {
-        loaded: loadedMessages.length,
-        previous: lastLoadedCountRef.current,
-        status
-      });
-      lastLoadedCountRef.current = loadedMessages.length;
-      setMessages(loadedMessages);
-    }
-  }, [loadedMessages, setMessages, status]);
-
-  // Mutation to update chat title
-  const updateTitleMutation = useMutation({
-    mutationFn: async (newTitle: string) => {
-      const response = await fetch(`/api/chat/update-title`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ chatId, title: newTitle }),
-      });
-      if (!response.ok) throw new Error("Failed to update title");
-      return response.json();
-    },
-    onSuccess: () => {
-      // Invalidate both the chat messages and the sidebar history
-      queryClient.invalidateQueries({ queryKey: ["chat-messages", chatId] });
-      queryClient.invalidateQueries({ queryKey: ["chat-history"] });
+  const {
+    messages,
+    setMessages,
+    sendMessage,
+    status,
+    isLoading,
+    error,
+    stop,
+    reload,
+    addToolApprovalResponse,
+  } = useChat({
+    id: chatId,
+    threadId: chatId,
+    forwardedProps: { chatId, pageContext },
+    connection,
+    onFinish: () => {
+      if (!isPanel && !queryChatId && !propChatId) {
+        void setQueryChatId(chatId);
+      }
+      void queryClient.invalidateQueries({ queryKey: ["chat-history"] });
     },
   });
 
-  // Auto-scroll to bottom when messages change or streaming (but not when loading more)
   useEffect(() => {
-    if (shouldScrollToBottom && !isFetchingNextPage) {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [messages, status, shouldScrollToBottom, isFetchingNextPage]);
+    if (!isLoading && loadedMessages.length > 0) setMessages(loadedMessages);
+  }, [isLoading, loadedMessages, setMessages]);
 
-  // Detect scroll to top to load more messages
   useEffect(() => {
-    const scrollContainer = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement;
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, status]);
 
-    if (!scrollContainer || messages.length === 0) {
-      if (!scrollContainer) console.warn("⚠️ Scroll container not found");
-      return;
-    }
-
-    console.log("✅ Scroll listener attached. hasNextPage:", hasNextPage, "messages:", messages.length);
-
-    let isLoadingMore = false;
-
-    const handleScroll = () => {
-      const { scrollTop, scrollHeight, clientHeight } = scrollContainer;
-
-      console.log("📜 Scroll:", {
-        scrollTop: Math.round(scrollTop),
-        hasNextPage,
-        isFetchingNextPage,
-        isLoadingMore
+  const updateTitle = useMutation({
+    mutationFn: async (title: string) => {
+      const response = await fetch("/api/chat/update-title", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ chatId, title }),
       });
+      if (!response.ok) throw new Error("Unable to update chat title");
+    },
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ["chat-messages", chatId],
+        }),
+        queryClient.invalidateQueries({ queryKey: ["chat-history"] }),
+      ]);
+    },
+  });
 
-      // If scrolled near top (within 200px) and have scrollable content, load more messages
-      if (scrollTop < 200 &&
-          scrollHeight > clientHeight && // Has scrollable content
-          hasNextPage &&
-          !isFetchingNextPage &&
-          !isLoadingMore) {
-
-        isLoadingMore = true;
-        console.log("🔄 Triggering load more messages...");
-        const previousScrollHeight = scrollContainer.scrollHeight;
-        const previousScrollTop = scrollContainer.scrollTop;
-
-        fetchNextPage().then(() => {
-          // Maintain scroll position after loading more messages
-          setTimeout(() => {
-            const newScrollHeight = scrollContainer.scrollHeight;
-            const scrollDiff = newScrollHeight - previousScrollHeight;
-            scrollContainer.scrollTop = previousScrollTop + scrollDiff;
-            console.log("✅ Loaded more messages. Scroll adjusted by", scrollDiff);
-            isLoadingMore = false;
-          }, 100);
-        });
-      }
-
-      // Disable auto-scroll if user manually scrolls up
-      const isNearBottom = scrollHeight - scrollTop - clientHeight < 200;
-      setShouldScrollToBottom(isNearBottom);
-    };
-
-    scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
-
-    return () => {
-      console.log("🧹 Cleaning up scroll listener");
-      scrollContainer.removeEventListener('scroll', handleScroll);
-    };
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage, messages.length]);
-
-  // Focus title input when editing starts
-  useEffect(() => {
-    if (isEditingTitle && titleInputRef.current) {
-      titleInputRef.current.focus();
-      titleInputRef.current.select();
-    }
-  }, [isEditingTitle]);
-
-  // Handle starting edit mode
-  const startEditingTitle = () => {
-    setTitleInput(chatTitle || '');
-    setIsEditingTitle(true);
-  };
-
-  // Handle saving title
-  const saveTitle = () => {
-    if (titleInput.trim() && titleInput !== chatTitle) {
-      updateTitleMutation.mutate(titleInput.trim());
-    }
+  function saveTitle(): void {
+    const title = titleInput.trim();
+    if (title && title !== chatTitle) updateTitle.mutate(title);
     setIsEditingTitle(false);
-  };
+  }
 
-  // Handle cancel editing
-  const cancelEditTitle = () => {
-    setIsEditingTitle(false);
-    setTitleInput('');
-  };
+  async function submitMessage(event: React.FormEvent): Promise<void> {
+    event.preventDefault();
+    const content = input.trim();
+    if (!content || isLoading) return;
+    setInput("");
+    await sendMessage(content);
+  }
 
-  const hasMessages = messages.length > 0;
-  const displayTitle = chatTitle || "Untitled Chat";
   const suggestions = getAssistantContextSuggestions(pageContext);
-  const isPanel = variant === "panel";
 
   return (
     <div
@@ -262,39 +164,37 @@ export function ChatInterface({
       )}
     >
       {!isPanel && (
-        <Card className="flex-shrink-0">
+        <Card className="shrink-0">
           <CardHeader>
-            {hasMessages ? (
-              // Show editable title when chat has started
+            {messages.length > 0 ? (
               <div className="flex items-center gap-2">
                 {isEditingTitle ? (
-                  <div className="flex-1 flex items-center gap-2">
-                    <Input
-                      ref={titleInputRef}
-                      value={titleInput}
-                      onChange={(e) => setTitleInput(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") saveTitle();
-                        if (e.key === "Escape") cancelEditTitle();
-                      }}
-                      onBlur={saveTitle}
-                      className="text-lg font-semibold"
-                      placeholder="Enter chat title..."
-                    />
-                  </div>
+                  <Input
+                    value={titleInput}
+                    onChange={(event) => setTitleInput(event.target.value)}
+                    onBlur={saveTitle}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter") saveTitle();
+                      if (event.key === "Escape") {
+                        setIsEditingTitle(false);
+                      }
+                    }}
+                    autoFocus
+                  />
                 ) : (
                   <>
-                    <CardTitle
-                      className="flex-1 cursor-pointer hover:text-primary transition-colors flex items-center gap-2"
-                      onClick={startEditingTitle}
-                    >
-                      {displayTitle}
+                    <CardTitle className="flex-1">
+                      {chatTitle || "Untitled Chat"}
                     </CardTitle>
                     <Button
+                      type="button"
                       variant="ghost"
                       size="icon"
-                      onClick={startEditingTitle}
-                      className="h-8 w-8"
+                      aria-label="Edit chat title"
+                      onClick={() => {
+                        setTitleInput(chatTitle || "");
+                        setIsEditingTitle(true);
+                      }}
                     >
                       <Pencil className="h-4 w-4" />
                     </Button>
@@ -302,14 +202,12 @@ export function ChatInterface({
                 )}
               </div>
             ) : (
-              // Show welcome banner for new chats
               <>
                 <CardTitle className="flex items-center gap-2">
-                  <Bot className="h-5 w-5" />
-                  AI Cooking Assistant
+                  <Bot className="h-5 w-5" /> AI Cooking Assistant
                 </CardTitle>
                 <p className="text-sm text-muted-foreground">
-                  Ask about recipes, meal planning, or get cooking suggestions
+                  Ask about your recipes and meal-plan weeks.
                 </p>
               </>
             )}
@@ -323,31 +221,26 @@ export function ChatInterface({
           isPanel && "rounded-none border-0 bg-transparent shadow-none",
         )}
       >
-        <ScrollArea
-          className={cn("flex-1", isPanel ? "px-4 py-3" : "p-4")}
-          ref={scrollAreaRef}
-        >
+        <ScrollArea className={cn("flex-1", isPanel ? "px-4 py-3" : "p-4")}>
           <div className="space-y-4">
-            {/* Loading spinner at top when fetching more messages */}
-            {isFetchingNextPage && (
-              <div className="text-center py-4">
-                <Loader2 className="h-6 w-6 mx-auto animate-spin text-muted-foreground" />
+            {chatQuery.hasNextPage && (
+              <div className="text-center">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  disabled={chatQuery.isFetchingNextPage}
+                  onClick={() => void chatQuery.fetchNextPage()}
+                >
+                  {chatQuery.isFetchingNextPage
+                    ? "Loading…"
+                    : "Load older messages"}
+                </Button>
               </div>
             )}
-
-            {/* Invisible marker for scroll position tracking */}
-            <div ref={messagesStartRef} />
-
-            {/* Initial loading state */}
-            {isLoadingMessages && (
-              <div className="text-center text-muted-foreground py-12">
-                <Loader2 className="h-12 w-12 mx-auto mb-4 animate-spin opacity-50" />
-                <p>Loading messages...</p>
-              </div>
+            {chatQuery.isLoading && (
+              <Loader2 className="mx-auto h-8 w-8 animate-spin" />
             )}
-
-            {/* Empty state */}
-            {!isLoadingMessages && messages.length === 0 && (
+            {!chatQuery.isLoading && messages.length === 0 && (
               <div
                 className={cn(
                   "text-muted-foreground",
@@ -355,12 +248,12 @@ export function ChatInterface({
                 )}
               >
                 {!isPanel && (
-                  <Bot className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <Bot className="mx-auto mb-4 h-12 w-12 opacity-50" />
                 )}
                 <p className={cn("text-sm", isPanel && "mb-3 text-foreground")}>
                   {pageContext
                     ? `What would you like to do with ${pageContext.label}?`
-                    : "Start a conversation by asking about recipes or meal planning"}
+                    : "Start by asking about a recipe or a week in your plan."}
                 </p>
                 {isPanel && (
                   <div className="flex flex-col gap-2">
@@ -378,8 +271,6 @@ export function ChatInterface({
                 )}
               </div>
             )}
-
-            {/* Messages */}
             {messages.map((message) => (
               <div
                 key={message.id}
@@ -388,90 +279,91 @@ export function ChatInterface({
                 }`}
               >
                 {message.role === "assistant" && (
-                  <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary">
                     <Bot className="h-4 w-4 text-primary-foreground" />
                   </div>
                 )}
-
                 <div
-                  className={`rounded-lg px-4 py-2 ${isPanel ? "max-w-[90%]" : "max-w-[80%]"} ${
+                  className={cn(
+                    "rounded-lg px-4 py-2",
+                    isPanel ? "max-w-[90%]" : "max-w-[85%]",
                     message.role === "user"
                       ? "bg-blue-600 text-white"
-                      : "bg-muted"
-                  }`}
+                      : "bg-muted",
+                  )}
                 >
-                  <Message message={message} />
+                  <Message
+                    message={message}
+                    onApproval={(id, approved) =>
+                      void addToolApprovalResponse({ id, approved })
+                    }
+                  />
                 </div>
-
                 {message.role === "user" && (
-                  <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted">
                     <User className="h-4 w-4" />
                   </div>
                 )}
               </div>
             ))}
-
             {error && (
-              <div className="bg-destructive/10 border border-destructive rounded-lg p-4 text-sm text-destructive">
-                Error: {error.message}
+              <div className="flex items-center justify-between gap-3 rounded-lg border border-destructive bg-destructive/10 p-4 text-sm text-destructive">
+                <span>{getPublicAssistantError()}</span>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => void reload()}
+                >
+                  <RefreshCw className="mr-2 h-4 w-4" /> Retry
+                </Button>
               </div>
             )}
-
-            {/* Invisible div for auto-scroll target */}
             <div ref={messagesEndRef} />
           </div>
         </ScrollArea>
 
         <div className="border-t p-4">
           <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              const message = input.trim();
-              if (!message || status !== "ready") return;
-              sendMessage(
-                {
-                  text: message,
-                },
-                {
-                  body: {
-                    chatId, // Send chatId in request body
-                    pageContext,
-                  },
-                },
-              );
-              setInput('');
-            }}
+            onSubmit={(event) => void submitMessage(event)}
             className="flex gap-2"
           >
             <Input
               value={input}
-              onChange={(e) => setInput(e.target.value)}
+              onChange={(event) => setInput(event.target.value)}
               placeholder={
                 pageContext
                   ? `Ask about ${pageContext.label}…`
                   : "Ask about recipes or meal planning…"
               }
-              disabled={status !== 'ready'}
-              className="flex-1"
+              disabled={isLoading}
               autoFocus={!isPanel}
             />
-            <Button
-              type="submit"
-              size="icon"
-              aria-label="Send message"
-              disabled={status !== 'ready' || !input.trim()}
-            >
-              {status === 'streaming' ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
+            {isLoading ? (
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={stop}
+                aria-label="Stop response"
+              >
+                <Square className="h-4 w-4" />
+              </Button>
+            ) : (
+              <Button
+                type="submit"
+                size="icon"
+                disabled={!input.trim()}
+                aria-label="Send message"
+              >
                 <Send className="h-4 w-4" />
-              )}
-            </Button>
+              </Button>
+            )}
           </form>
           {!isPanel && (
-            <p className="text-xs text-muted-foreground mt-2">
-              Max tokens: {settings.maxTokensPerRequest.toLocaleString()} |
-              Daily limit: {settings.maxRequestsPerDay} requests
+            <p className="mt-2 text-xs text-muted-foreground">
+              Max tokens: {settings.maxTokensPerRequest.toLocaleString()} ·
+              Daily limit: {settings.maxRequestsPerDay}
             </p>
           )}
         </div>

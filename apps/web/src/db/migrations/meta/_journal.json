@@ -229,8 +229,15 @@
     {
       "idx": 32,
       "version": "6",
-      "when": 1784636806226,
-      "tag": "0032_schedule-related-recipes",
+      "when": 1784645044455,
+      "tag": "0032_assistant_protocol_v2",
+      "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "6",
+      "when": 1784666692789,
+      "tag": "0033_schedule-related-recipes",
       "breakpoints": true
     }
   ]

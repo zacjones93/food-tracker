@@ -4,6 +4,7 @@ import { getDB } from "@/db";
 import {
   SYSTEM_ROLES_ENUM,
   teamMembershipTable,
+  teamSettingsTable,
   teamTable,
   userTable,
 } from "@/db/schema";
@@ -11,6 +12,7 @@ import type { SignUpSchema } from "@/schemas/signup.schema";
 import { hashPassword } from "@/utils/password-hasher";
 import { eq, sql } from "drizzle-orm";
 import slugify from "slugify";
+import { DEFAULT_TEAM_SETTINGS } from "@/lib/team-settings-policy";
 
 export class AccountProvisioningError extends Error {
   constructor(
@@ -75,6 +77,11 @@ export async function createPasswordAccountWithPersonalTeam({
       throw new AccountProvisioningError("PROVISIONING_FAILED", "Failed to create team");
     }
     createdTeamId = team.id;
+
+    await db.insert(teamSettingsTable).values({
+      teamId: team.id,
+      ...DEFAULT_TEAM_SETTINGS,
+    });
 
     await db.insert(teamMembershipTable).values({
       teamId: team.id,

@@ -56,6 +56,10 @@
       {
         "binding": "WORKER_SELF_REFERENCE",
         "service": "food-tracker"
+      },
+      {
+        "binding": "ASSISTANT",
+        "service": "food-tracker-assistant"
       }
     ],
 

@@ -22,7 +22,10 @@ export default async function AIUsagePage() {
   }
 
   // Check AI access
-  const accessCheck = await checkAiAccess(session.activeTeamId);
+  const accessCheck = await checkAiAccess({
+    teamId: session.activeTeamId,
+    userId: session.user.id,
+  });
 
   if (!accessCheck.allowed) {
     return <BlockedAccess />;

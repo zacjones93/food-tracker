@@ -431,7 +431,7 @@ export const aiUsageTable = sqliteTable("ai_usage", {
   index("ai_usage_created_idx").on(table.createdAt),
 ]));
 
-// AI Chat persistence tables (three-table architecture from AI SDK v5 docs)
+// Protocol-neutral AI chat persistence tables.
 export const aiChatsTable = sqliteTable("ai_chats", {
   ...commonColumns,
   id: text().primaryKey().notNull(), // Client-provided ID (no auto-generate)
@@ -460,6 +460,8 @@ export const aiMessagePartsTable = sqliteTable("ai_message_parts", {
   id: text().primaryKey().$defaultFn(() => `aimp_${createId()}`).notNull(),
   messageId: text().notNull().references(() => aiMessagesTable.id, { onDelete: 'cascade' }),
   partOrder: integer().notNull(), // Maintain sequence of parts
+  partType: text({ length: 100 }),
+  payloadJson: text(),
 
   // Text content parts
   text_content: text(),
@@ -499,6 +501,40 @@ export const recipeBooksRelations = relations(recipeBooksTable, ({ many, one }) 
     references: [teamTable.id],
   }),
 }));
+
+export const aiRunsTable = sqliteTable("ai_runs", {
+  ...commonColumns,
+  id: text().primaryKey().notNull(),
+  chatId: text().notNull().references(() => aiChatsTable.id, { onDelete: 'cascade' }),
+  userId: text().notNull().references(() => userTable.id, { onDelete: 'cascade' }),
+  teamId: text().notNull().references(() => teamTable.id, { onDelete: 'cascade' }),
+  model: text({ length: 150 }).notNull(),
+  promptVersion: text({ length: 100 }).notNull(),
+  status: text({ length: 30 }).notNull(),
+  finishReason: text({ length: 50 }),
+  errorCode: text({ length: 100 }),
+  usageJson: text(),
+}, (table) => ([
+  index("ai_runs_chat_idx").on(table.chatId, table.createdAt),
+  index("ai_runs_team_idx").on(table.teamId, table.createdAt),
+]));
+
+export const aiToolExecutionsTable = sqliteTable("ai_tool_executions", {
+  ...commonColumns,
+  id: text().primaryKey().$defaultFn(() => `aitx_${createId()}`).notNull(),
+  runId: text().notNull().references(() => aiRunsTable.id, { onDelete: 'cascade' }),
+  namespace: text({ length: 100 }).notNull(),
+  toolName: text({ length: 150 }).notNull(),
+  status: text({ length: 30 }).notNull(),
+  inputSummaryJson: text(),
+  outputSummaryJson: text(),
+  durationMs: integer().notNull(),
+  approvalState: text({ length: 30 }).notNull().default('not-required'),
+  writeOccurred: integer({ mode: 'boolean' }).notNull().default(false),
+}, (table) => ([
+  index("ai_tool_executions_run_idx").on(table.runId),
+  index("ai_tool_executions_tool_idx").on(table.namespace, table.toolName),
+]));
 
 // Team relations
 export const teamRelations = relations(teamTable, ({ many, one }) => ({
@@ -640,6 +676,7 @@ export const aiChatsRelations = relations(aiChatsTable, ({ one, many }) => ({
     references: [teamTable.id],
   }),
   messages: many(aiMessagesTable),
+  runs: many(aiRunsTable),
 }));
 
 export const aiMessagesRelations = relations(aiMessagesTable, ({ one, many }) => ({
@@ -654,6 +691,29 @@ export const aiMessagePartsRelations = relations(aiMessagePartsTable, ({ one }) 
   message: one(aiMessagesTable, {
     fields: [aiMessagePartsTable.messageId],
     references: [aiMessagesTable.id],
+  }),
+}));
+
+export const aiRunsRelations = relations(aiRunsTable, ({ one, many }) => ({
+  chat: one(aiChatsTable, {
+    fields: [aiRunsTable.chatId],
+    references: [aiChatsTable.id],
+  }),
+  user: one(userTable, {
+    fields: [aiRunsTable.userId],
+    references: [userTable.id],
+  }),
+  team: one(teamTable, {
+    fields: [aiRunsTable.teamId],
+    references: [teamTable.id],
+  }),
+  toolExecutions: many(aiToolExecutionsTable),
+}));
+
+export const aiToolExecutionsRelations = relations(aiToolExecutionsTable, ({ one }) => ({
+  run: one(aiRunsTable, {
+    fields: [aiToolExecutionsTable.runId],
+    references: [aiRunsTable.id],
   }),
 }));
 
@@ -685,3 +745,5 @@ export type AiUsage = InferSelectModel<typeof aiUsageTable>;
 export type AiChat = InferSelectModel<typeof aiChatsTable>;
 export type AiMessage = InferSelectModel<typeof aiMessagesTable>;
 export type AiMessagePart = InferSelectModel<typeof aiMessagePartsTable>;
+export type AiRun = InferSelectModel<typeof aiRunsTable>;
+export type AiToolExecution = InferSelectModel<typeof aiToolExecutionsTable>;

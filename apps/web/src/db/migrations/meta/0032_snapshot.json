@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "c188dde1-addd-42f9-af0a-e1b29dad63ea",
+  "id": "6d3b4296-3692-4a71-8ce3-3283a4020c2f",
   "prevId": "755a9b54-0368-4232-8558-b5dd57c1bd8a",
   "tables": {
     "ai_chats": {
@@ -157,6 +157,20 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false
+        },
+        "partType": {
+          "name": "partType",
+          "type": "text(100)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "payloadJson": {
+          "name": "payloadJson",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
           "autoincrement": false
         },
         "text_content": {
@@ -350,6 +364,299 @@
           "tableTo": "ai_chats",
           "columnsFrom": [
             "chatId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "ai_runs": {
+      "name": "ai_runs",
+      "columns": {
+        "createdAt": {
+          "name": "createdAt",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updateCounter": {
+          "name": "updateCounter",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": 0
+        },
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "chatId": {
+          "name": "chatId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "userId": {
+          "name": "userId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "teamId": {
+          "name": "teamId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "model": {
+          "name": "model",
+          "type": "text(150)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "promptVersion": {
+          "name": "promptVersion",
+          "type": "text(100)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "status": {
+          "name": "status",
+          "type": "text(30)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "finishReason": {
+          "name": "finishReason",
+          "type": "text(50)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "errorCode": {
+          "name": "errorCode",
+          "type": "text(100)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "usageJson": {
+          "name": "usageJson",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "ai_runs_chat_idx": {
+          "name": "ai_runs_chat_idx",
+          "columns": [
+            "chatId",
+            "createdAt"
+          ],
+          "isUnique": false
+        },
+        "ai_runs_team_idx": {
+          "name": "ai_runs_team_idx",
+          "columns": [
+            "teamId",
+            "createdAt"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "ai_runs_chatId_ai_chats_id_fk": {
+          "name": "ai_runs_chatId_ai_chats_id_fk",
+          "tableFrom": "ai_runs",
+          "tableTo": "ai_chats",
+          "columnsFrom": [
+            "chatId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "ai_runs_userId_user_id_fk": {
+          "name": "ai_runs_userId_user_id_fk",
+          "tableFrom": "ai_runs",
+          "tableTo": "user",
+          "columnsFrom": [
+            "userId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "ai_runs_teamId_team_id_fk": {
+          "name": "ai_runs_teamId_team_id_fk",
+          "tableFrom": "ai_runs",
+          "tableTo": "team",
+          "columnsFrom": [
+            "teamId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "ai_tool_executions": {
+      "name": "ai_tool_executions",
+      "columns": {
+        "createdAt": {
+          "name": "createdAt",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updateCounter": {
+          "name": "updateCounter",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": 0
+        },
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "runId": {
+          "name": "runId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "namespace": {
+          "name": "namespace",
+          "type": "text(100)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "toolName": {
+          "name": "toolName",
+          "type": "text(150)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "status": {
+          "name": "status",
+          "type": "text(30)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "inputSummaryJson": {
+          "name": "inputSummaryJson",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "outputSummaryJson": {
+          "name": "outputSummaryJson",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "durationMs": {
+          "name": "durationMs",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "approvalState": {
+          "name": "approvalState",
+          "type": "text(30)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'not-required'"
+        },
+        "writeOccurred": {
+          "name": "writeOccurred",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        }
+      },
+      "indexes": {
+        "ai_tool_executions_run_idx": {
+          "name": "ai_tool_executions_run_idx",
+          "columns": [
+            "runId"
+          ],
+          "isUnique": false
+        },
+        "ai_tool_executions_tool_idx": {
+          "name": "ai_tool_executions_tool_idx",
+          "columns": [
+            "namespace",
+            "toolName"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "ai_tool_executions_runId_ai_runs_id_fk": {
+          "name": "ai_tool_executions_runId_ai_runs_id_fk",
+          "tableFrom": "ai_tool_executions",
+          "tableTo": "ai_runs",
+          "columnsFrom": [
+            "runId"
           ],
           "columnsTo": [
             "id"
@@ -901,13 +1208,6 @@
           "notNull": true,
           "autoincrement": false,
           "default": 0
-        },
-        "scheduleLeadDays": {
-          "name": "scheduleLeadDays",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
         },
         "createdAt": {
           "name": "createdAt",
@@ -2292,20 +2592,6 @@
           "notNull": true,
           "autoincrement": false
         },
-        "scheduledForWeekRecipeId": {
-          "name": "scheduledForWeekRecipeId",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "sourceRecipeRelationId": {
-          "name": "sourceRecipeRelationId",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "scheduledDate": {
           "name": "scheduledDate",
           "type": "integer",
@@ -2375,20 +2661,6 @@
           ],
           "isUnique": false
         },
-        "wr_scheduled_for_idx": {
-          "name": "wr_scheduled_for_idx",
-          "columns": [
-            "scheduledForWeekRecipeId"
-          ],
-          "isUnique": false
-        },
-        "wr_source_relation_idx": {
-          "name": "wr_source_relation_idx",
-          "columns": [
-            "sourceRecipeRelationId"
-          ],
-          "isUnique": false
-        },
         "wr_client_id_idx": {
           "name": "wr_client_id_idx",
           "columns": [
@@ -2422,32 +2694,6 @@
             "id"
           ],
           "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "week_recipes_scheduledForWeekRecipeId_week_recipes_id_fk": {
-          "name": "week_recipes_scheduledForWeekRecipeId_week_recipes_id_fk",
-          "tableFrom": "week_recipes",
-          "tableTo": "week_recipes",
-          "columnsFrom": [
-            "scheduledForWeekRecipeId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        },
-        "week_recipes_sourceRecipeRelationId_recipe_relations_id_fk": {
-          "name": "week_recipes_sourceRecipeRelationId_recipe_relations_id_fk",
-          "tableFrom": "week_recipes",
-          "tableTo": "recipe_relations",
-          "columnsFrom": [
-            "sourceRecipeRelationId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
           "onUpdate": "no action"
         }
       },
