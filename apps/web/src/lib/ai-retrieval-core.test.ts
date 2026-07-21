@@ -148,6 +148,21 @@ test("searches ingredients and recipe body with inspectable relevance evidence",
   assert.equal("ingredients" in result.data.items[0]!, false);
 });
 
+test("matches title-case stored meal types with normalized model filters", async () => {
+  const service = createSeededService(TEAM_A);
+  const result = await service.recipes.search({
+    text: "broccoli",
+    mealTypes: ["dinner"],
+    limit: 3,
+  });
+
+  assert.equal(result.ok, true);
+  if (!result.ok) return;
+  assert.deepEqual(result.data.items.map(({ id }) => id), ["rcp_broccoli"]);
+  assert.equal(result.data.items[0]?.mealType, "dinner");
+  assert.deepEqual(result.data.appliedFilters.mealTypes, ["dinner"]);
+});
+
 test("returns explicit recipe details and authorized history only", async () => {
   const service = createSeededService(TEAM_A);
   const result = await service.recipes.getMany({
@@ -211,6 +226,74 @@ test("searches weeks by normalized status, date range, and contained recipe", as
   ]);
 });
 
+test("flags duplicate current statuses and resolves this week by date", async () => {
+  const corpus: RetrievalCorpus = {
+    ...seededCorpus,
+    weeks: [
+      ...seededCorpus.weeks,
+      week({
+        id: "wk_duplicate_current",
+        name: "Stale Current Week",
+        status: "current",
+        startDate: "2026-07-13",
+        endDate: "2026-07-19",
+      }),
+    ],
+  };
+  const service = createServiceForCorpus(corpus);
+  const ambiguous = await service.weeks.search({ statuses: ["CURRENT"], limit: 10 });
+  const resolved = await service.weeks.search({
+    statuses: ["current"],
+    onDate: "2026-07-21",
+    limit: 10,
+  });
+  const selected = await service.weeks.getMany({ ids: ["wk_current"], includeRecipes: false });
+
+  assert.equal(ambiguous.ok, true);
+  if (ambiguous.ok) {
+    assert.deepEqual(ambiguous.data.items.map(({ id }) => id), [
+      "wk_current",
+      "wk_duplicate_current",
+    ]);
+    assert.ok(
+      ambiguous.data.items.every(({ dataQualityWarnings }) =>
+        dataQualityWarnings.includes("multiple_current_weeks"),
+      ),
+    );
+  }
+  assert.equal(resolved.ok, true);
+  if (resolved.ok) assert.deepEqual(resolved.data.items.map(({ id }) => id), ["wk_current"]);
+  assert.equal(selected.ok, true);
+  if (selected.ok)
+    assert.deepEqual(selected.data.items[0]?.dataQualityWarnings, ["multiple_current_weeks"]);
+});
+
+test("strips URL credentials, query parameters, and fragments from recipe details", async () => {
+  const corpus: RetrievalCorpus = {
+    recipes: [
+      recipe({
+        id: "rcp_sensitive_link",
+        name: "Sensitive Link Recipe",
+        recipeLink:
+          "https://reader:password@example.com/recipe?mcp_token=secret-token&view=full#private",
+      }),
+    ],
+    weeks: [],
+    weekRecipes: [],
+  };
+  const service = createServiceForCorpus(corpus);
+  const result = await service.recipes.getMany({
+    ids: ["rcp_sensitive_link"],
+    include: ["instructions"],
+  });
+
+  assert.equal(result.ok, true);
+  if (!result.ok) return;
+  assert.equal(result.data.items[0]?.recipeLink, "https://example.com/recipe");
+  assert.equal(JSON.stringify(result).includes("secret-token"), false);
+  assert.equal(JSON.stringify(result).includes("password"), false);
+});
+
 test("getMany and findForRecipes exclude cross-team weeks and relationships", async () => {
   const service = createSeededService(TEAM_A);
   const weeksResult = await service.weeks.getMany({
@@ -255,6 +338,23 @@ function createSeededService(teamId: string) {
     db: {} as RetrievalContext["db"],
     userId: "usr_test",
     teamId,
+    chatId: "chat_test",
+    requestId: "req_test",
+  };
+
+  return createRetrievalService({ context, provider });
+}
+
+function createServiceForCorpus(corpus: RetrievalCorpus) {
+  const provider: RetrievalCorpusProvider = {
+    async load() {
+      return corpus;
+    },
+  };
+  const context: RetrievalContext = {
+    db: {} as RetrievalContext["db"],
+    userId: "usr_test",
+    teamId: TEAM_A,
     chatId: "chat_test",
     requestId: "req_test",
   };

@@ -4,6 +4,7 @@ import {
   canonicalizeLegacyDate,
   canonicalizeNullableString,
   canonicalizeTags,
+  sanitizeExternalUrl,
   toIsoTimestamp,
   tokenizeSearchText,
 } from "./canonicalization";
@@ -199,7 +200,7 @@ export function getManyRecipes({
           ? { instructions: canonicalizeNullableString(recipe.record.recipeBody) }
           : {}),
         ...(input.include.includes("history") ? { history } : {}),
-        recipeLink: canonicalizeNullableString(recipe.record.recipeLink),
+        recipeLink: sanitizeExternalUrl(recipe.record.recipeLink),
         recipeBookId: canonicalizeNullableString(recipe.record.recipeBookId),
         page: canonicalizeNullableString(recipe.record.page),
       },
@@ -248,6 +249,7 @@ export function searchWeeks({
   const authorizedWeeks = corpus.weeks
     .filter((week) => week.teamId === teamId)
     .map(normalizeWeek);
+  const currentWeekCount = authorizedWeeks.filter((week) => week.status === "current").length;
   const authorizedWeekIds = new Set(authorizedWeeks.map((week) => week.record.id));
   const relationships = corpus.weekRecipes.filter(
     (weekRecipe) =>
@@ -297,12 +299,15 @@ export function searchWeeks({
     ok: true,
     data: {
       items: page.map(({ week, evidence }) =>
-        createWeekSummary({
-          week,
-          evidence,
-          includeRecipes: appliedFilters.includeRecipes,
-          relationships,
-          recipes: authorizedRecipes,
+        addWeekCollectionWarnings({
+          summary: createWeekSummary({
+            week,
+            evidence,
+            includeRecipes: appliedFilters.includeRecipes,
+            relationships,
+            recipes: authorizedRecipes,
+          }),
+          currentWeekCount,
         }),
       ),
       nextCursor,
@@ -331,6 +336,9 @@ export function getManyWeeks({
       .filter((week) => week.teamId === teamId && requestedIds.includes(week.id))
       .map((week) => [week.id, normalizeWeek(week)]),
   );
+  const currentWeekCount = corpus.weeks.filter(
+    (week) => week.teamId === teamId && canonicalizeCase(week.status) === "current",
+  ).length;
   const relationships = corpus.weekRecipes.filter(
     (weekRecipe) =>
       authorizedWeeks.has(weekRecipe.weekId) && authorizedRecipes.has(weekRecipe.recipeId),
@@ -347,7 +355,12 @@ export function getManyWeeks({
       relationships,
       recipes: authorizedRecipes,
     });
-    return [createWeekDetail({ summary, includeRecipes: input.includeRecipes })];
+    return [
+      createWeekDetail({
+        summary: addWeekCollectionWarnings({ summary, currentWeekCount }),
+        includeRecipes: input.includeRecipes,
+      }),
+    ];
   });
 
   if (items.length === 0) return noMatchesResult("No authorized weeks matched the requested IDs");
@@ -839,6 +852,23 @@ function createWeekDetail({
     recipeCount: summary.recipeCount,
     ...(includeRecipes && summary.recipes ? { recipes: summary.recipes } : {}),
     dataQualityWarnings: summary.dataQualityWarnings,
+  };
+}
+
+function addWeekCollectionWarnings({
+  summary,
+  currentWeekCount,
+}: {
+  summary: WeekSearchOutput["items"][number];
+  currentWeekCount: number;
+}): WeekSearchOutput["items"][number] {
+  if (summary.status !== "current" || currentWeekCount < 2) return summary;
+
+  return {
+    ...summary,
+    dataQualityWarnings: Array.from(
+      new Set([...summary.dataQualityWarnings, "multiple_current_weeks"]),
+    ),
   };
 }
 

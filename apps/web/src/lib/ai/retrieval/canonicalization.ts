@@ -23,6 +23,24 @@ export function canonicalizeCase(value: unknown): string | null {
   return canonicalizeNullableString(value)?.toLocaleLowerCase("en-US") ?? null;
 }
 
+export function sanitizeExternalUrl(value: unknown): string | null {
+  const normalizedValue = canonicalizeNullableString(value);
+  if (!normalizedValue) return null;
+
+  try {
+    const url = new URL(normalizedValue);
+    if (url.protocol !== "https:" && url.protocol !== "http:") return null;
+
+    url.username = "";
+    url.password = "";
+    url.search = "";
+    url.hash = "";
+    return url.toString();
+  } catch {
+    return null;
+  }
+}
+
 export function canonicalizeTags(value: unknown): string[] {
   let tagValues: unknown[] = [];
 

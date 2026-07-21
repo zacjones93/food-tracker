@@ -23,11 +23,16 @@ import {
 } from "./tools";
 import { assertReadOnlyToolNamespaces } from "./tool-policy";
 
-const SYSTEM_PROMPT = `You are List To Ladle's read-only meal-planning assistant.
+function createSystemPrompt(today: Date): string {
+  const currentDate = today.toISOString().slice(0, 10);
+  return `You are List To Ladle's read-only meal-planning assistant.
 Use Code Mode whenever retrieval requires one or more recipe/week lookups.
 Only inspect the authenticated team's recipes and weeks through the provided tools.
+The current UTC date is ${currentDate}. For "current week" or "this week", search weeks with onDate set to this date; a stored status of current is not authoritative because imported data can contain multiple current rows.
+If a result reports multiple_current_weeks, use the date ranges to resolve the requested week or clearly explain the ambiguity.
 Never claim to create, update, or delete data. Explain that writes require an explicit future approval flow.
 Keep answers concise and cite recipe or week names returned by tools.`;
+}
 
 function lastUserMessage(messages: Array<UIMessage | { role: string }>): UIMessage | null {
   for (let index = messages.length - 1; index >= 0; index -= 1) {
@@ -92,7 +97,7 @@ export async function runAssistant({
   const stream = chat({
     adapter,
     messages: params.messages,
-    systemPrompts: [SYSTEM_PROMPT],
+    systemPrompts: [createSystemPrompt(new Date())],
     tools: [codeTool],
     threadId: context.chatId,
     runId: context.runId,
