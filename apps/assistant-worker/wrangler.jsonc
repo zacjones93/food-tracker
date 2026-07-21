@@ -13,7 +13,7 @@
   },
   "vars": {
     "AI_MODEL": "@cf/meta/llama-4-scout-17b-16e-instruct",
-    "PROMPT_VERSION": "assistant-code-mode-v2"
+    "PROMPT_VERSION": "assistant-code-mode-v3"
   },
   "ai": {
     "binding": "AI"

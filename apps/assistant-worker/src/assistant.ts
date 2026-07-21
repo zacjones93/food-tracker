@@ -1,5 +1,5 @@
 import { DynamicWorkerExecutor } from "@cloudflare/codemode";
-import { createCodeTool, tanstackTools } from "@cloudflare/codemode/tanstack-ai";
+import { createCodeTool } from "@cloudflare/codemode/tanstack-ai";
 import { createWorkersAiChat } from "@cloudflare/tanstack-ai";
 import {
   chat,
@@ -12,6 +12,8 @@ import {
 } from "@tanstack/ai";
 
 import { AssistantWorkerError, type AssistantRequestContext } from "./context";
+import { CODE_MODE_DESCRIPTION } from "./code-mode-contract";
+import { getWorkerAssistantErrorMessage } from "./errors";
 import {
   assertAuthorizedChat,
   createPersistenceMiddleware,
@@ -19,6 +21,7 @@ import {
   startRun,
 } from "./persistence";
 import {
+  createCodeModeToolProviders,
   createReadOnlyToolNamespaces,
 } from "./tools";
 import { assertReadOnlyToolNamespaces } from "./tool-policy";
@@ -28,8 +31,12 @@ function createSystemPrompt(today: Date): string {
   return `You are List To Ladle's read-only meal-planning assistant.
 Use Code Mode whenever retrieval requires one or more recipe/week lookups.
 Only inspect the authenticated team's recipes and weeks through the provided tools.
+Inside Code Mode, call only recipes.search, recipes.getMany, weeks.search, weeks.getMany, or weeks.findForRecipes. Never call codemode.* and never shadow the recipes or weeks globals with local variables.
+Every retrieval call returns {ok:true,data:{...}} or {ok:false,error:{...}}. It never returns a bare array. Search arrays are response.data.items; recipe-week matches are response.data.matches.
+recipes.getMany requires recipe IDs. For exact titles, search first, match names case-insensitively, then pass the matching IDs.
 The current UTC date is ${currentDate}. For "current week" or "this week", search weeks with onDate set to this date; a stored status of current is not authoritative because imported data can contain multiple current rows.
-If a result reports multiple_current_weeks, use the date ranges to resolve the requested week or clearly explain the ambiguity.
+If more than one returned date range contains the current date, explain the ambiguity instead of trusting status labels.
+If generated code fails, correct it using the declared contracts and examples; do not repeat the same code.
 Never claim to create, update, or delete data. Explain that writes require an explicit future approval flow.
 Keep answers concise and cite recipe or week names returned by tools.`;
 }
@@ -87,10 +94,25 @@ export async function runAssistant({
     globalOutbound: null,
     timeout: 10_000,
   });
-  const codeTool = createCodeTool({
+  const unsafeCodeTool = createCodeTool({
     executor,
-    tools: namespaces.map((namespace) => tanstackTools(namespace.tools, namespace.name)),
+    tools: createCodeModeToolProviders(namespaces),
+    description: CODE_MODE_DESCRIPTION,
   });
+  if (!unsafeCodeTool.execute) {
+    throw new AssistantWorkerError("CODE_MODE_UNAVAILABLE", "Assistant retrieval is unavailable", 503);
+  }
+  const executeCode = unsafeCodeTool.execute;
+  const codeTool = {
+    ...unsafeCodeTool,
+    async execute(...args: Parameters<typeof executeCode>) {
+      try {
+        return await executeCode(...args);
+      } catch {
+        throw new Error(getWorkerAssistantErrorMessage("CODE_MODE_EXECUTION_FAILED"));
+      }
+    },
+  };
   const abortController = new AbortController();
   signal.addEventListener("abort", () => abortController.abort(signal.reason), { once: true });
   const adapter = createWorkersAiChat(env.AI_MODEL, { binding: env.AI });

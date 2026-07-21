@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { getPublicAssistantError } from "@/lib/assistant/errors";
 import type { AssistantMessage } from "@/lib/assistant/types";
 
 import { Message } from "./message";
@@ -218,7 +219,7 @@ export function ChatInterface({ settings, chatId: propChatId }: ChatInterfacePro
             ))}
             {error && (
               <div className="flex items-center justify-between gap-3 rounded-lg border border-destructive bg-destructive/10 p-4 text-sm text-destructive">
-                <span>{error.message}</span>
+                <span>{getPublicAssistantError()}</span>
                 <Button type="button" variant="outline" size="sm" onClick={() => void reload()}>
                   <RefreshCw className="mr-2 h-4 w-4" /> Retry
                 </Button>

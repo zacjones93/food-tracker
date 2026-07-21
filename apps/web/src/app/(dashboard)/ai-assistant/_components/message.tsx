@@ -1,3 +1,4 @@
+import { getAssistantErrorMessage } from "@/lib/assistant/errors";
 import type { AssistantMessage } from "@/lib/assistant/types";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -17,9 +18,23 @@ function formatToolOutput(output: unknown): string {
 }
 
 export function Message({ message, onApproval }: MessageProps) {
+  const firstToolErrorIndex = message.parts.findIndex((part) =>
+    (part.type === "tool-call" || part.type === "tool-result") && part.state === "error"
+  );
+
   return (
     <div className="flex flex-col gap-3">
       {message.parts.map((part, index) => {
+        const isToolError =
+          (part.type === "tool-call" || part.type === "tool-result") && part.state === "error";
+        if (isToolError) {
+          if (index !== firstToolErrorIndex) return null;
+          return (
+            <p key={`tool-error-${index}`} role="alert" className="text-sm text-destructive">
+              {getAssistantErrorMessage("CODE_MODE_EXECUTION_FAILED")}
+            </p>
+          );
+        }
         if (part.type === "text") {
           return (
             <div key={index} className="prose prose-sm dark:prose-invert max-w-none">

@@ -7,6 +7,7 @@
     "dev": "wrangler dev",
     "typecheck": "tsc --noEmit",
     "test": "tsx --test src/**/*.test.ts",
+    "test:loader": "tsx --test src/loader-runtime.test.ts",
     "cf-typegen": "wrangler types --env-interface AssistantWorkerEnv ./worker-env.d.ts",
     "build": "wrangler deploy --dry-run --outdir=dist"
   },
@@ -17,10 +18,10 @@
     "zod": "4.4.3"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20260628.1",
+    "@cloudflare/workers-types": "5.20260714.1",
     "@types/node": "^20.19.21",
     "tsx": "^4.20.6",
     "typescript": "^5",
-    "wrangler": "^4.43.0"
+    "wrangler": "4.112.0"
   }
 }

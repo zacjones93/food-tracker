@@ -4,7 +4,11 @@ import withBundleAnalyzer from '@next/bundle-analyzer';
 import { initOpenNextCloudflareForDev } from '@opennextjs/cloudflare';
 
 // added by create cloudflare to enable calling `getCloudflareContext()` in `next dev`
-initOpenNextCloudflareForDev();
+initOpenNextCloudflareForDev(
+  process.env.NODE_ENV === "production"
+    ? { persist: false, remoteBindings: false }
+    : undefined,
+);
 
 const nextConfig: NextConfig = {
   experimental: {
