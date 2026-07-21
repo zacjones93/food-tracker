@@ -1,6 +1,7 @@
 import "server-only";
 import { getSessionFromCookie } from "@/utils/auth";
-import { getAuthorizedChat, getChat, updateChatTitle } from "@/lib/ai/chat-actions";
+import { getChat, updateChatTitle } from "@/lib/ai/chat-actions";
+import { getAuthorizedChat } from "@/lib/ai/access-control";
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";

@@ -4,16 +4,12 @@ import { getDB } from "@/db/index";
 import { aiChatsTable, aiMessagesTable, aiMessagePartsTable } from "@/db/schema";
 import { and, eq, desc } from "drizzle-orm";
 import { uiMessageToDbRows, dbRowsToUIMessage } from "./message-mapping";
-import { createAiRequestError, isChatOwnedBy } from "./permissions";
-
-interface ChatOwnerContext {
-  userId: string;
-  teamId: string;
-}
-
-interface ChatContext extends ChatOwnerContext {
-  chatId: string;
-}
+import {
+  getAuthorizedChat,
+  isChatOwnedBy,
+  type AiChatAccessContext,
+} from "./access-control";
+import { createAiDomainError } from "./permissions";
 
 /**
  * Upsert a message (and its parts) into the database
@@ -149,7 +145,7 @@ export async function loadChat({
   teamId,
   limit = 1000,
   offset = 0,
-}: ChatContext & {
+}: AiChatAccessContext & {
   limit?: number;
   offset?: number;
 }): Promise<{ messages: MyUIMessage[]; hasMore: boolean }> {
@@ -212,27 +208,11 @@ export async function getChat(chatId: string) {
   });
 }
 
-/**
- * Chats are private to their creator inside the active team. Both owner dimensions
- * must match for every existing-chat operation.
- */
-export async function getAuthorizedChat({ chatId, userId, teamId }: ChatContext) {
-  const db = getDB();
-
-  return await db.query.aiChatsTable.findFirst({
-    where: and(
-      eq(aiChatsTable.id, chatId),
-      eq(aiChatsTable.userId, userId),
-      eq(aiChatsTable.teamId, teamId),
-    ),
-  });
-}
-
-async function requireOwnedChat({ chatId, userId, teamId }: ChatContext) {
+async function requireOwnedChat({ chatId, userId, teamId }: AiChatAccessContext) {
   const chat = await getAuthorizedChat({ chatId, userId, teamId });
   if (chat) return chat;
 
-  throw createAiRequestError({
+  throw createAiDomainError({
     code: "CHAT_FORBIDDEN",
     message: "Forbidden",
     status: 403,
@@ -266,7 +246,7 @@ export async function getOrCreateChat({
       return existing.id;
     }
 
-    throw createAiRequestError({
+    throw createAiDomainError({
       code: "CHAT_FORBIDDEN",
       message: "Forbidden",
       status: 403,
@@ -295,7 +275,7 @@ export async function getOrCreateChat({
     }
 
     if (conflictingChat) {
-      throw createAiRequestError({
+      throw createAiDomainError({
         code: "CHAT_CONFLICT",
         message: "Chat ID is already in use",
         status: 409,
@@ -336,7 +316,11 @@ export async function listChats({
 /**
  * Delete a chat and all its messages/parts (CASCADE handles this)
  */
-export async function deleteChat({ chatId, userId, teamId }: ChatContext): Promise<void> {
+export async function deleteChat({
+  chatId,
+  userId,
+  teamId,
+}: AiChatAccessContext): Promise<void> {
   const db = getDB();
   await requireOwnedChat({ chatId, userId, teamId });
   await db.delete(aiChatsTable).where(

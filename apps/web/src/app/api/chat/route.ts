@@ -12,17 +12,22 @@ import {
 import { google } from "@ai-sdk/google";
 import {
   aiErrorResponse,
-  createAiRequestError,
-  isAiRequestError,
+  authorizeAiRequestContext,
+  createAiDomainError,
+  createAiRequestContext,
+  isAiDomainError,
+  logAiEvent,
   requireAiAccess,
+  withAiChatContext,
 } from "@/lib/ai/permissions";
 import {
   checkDailyUsageLimit,
   checkMonthlyBudgetLimit,
+  getAuthorizedChat,
+  resolveMaxOutputTokens,
 } from "@/lib/ai/access-control";
 import { trackUsage } from "@/lib/ai/cost-tracking";
 import {
-  getAuthorizedChat,
   getOrCreateChat,
   upsertMessage,
   updateChatTitle,
@@ -47,44 +52,6 @@ interface ExtendedUsage {
   cachedInputTokens?: number;
 }
 
-interface AiLogContext {
-  requestId: string;
-  runId: string;
-  chatId?: string;
-}
-
-function getRequestId(request: Request): string {
-  const candidate = request.headers.get("x-request-id")?.trim();
-  if (candidate && candidate.length <= 128 && /^[a-zA-Z0-9._:-]+$/.test(candidate)) {
-    return candidate;
-  }
-
-  return crypto.randomUUID();
-}
-
-function logAiEvent({
-  level,
-  event,
-  context,
-  details,
-}: {
-  level: "info" | "warn" | "error";
-  event: string;
-  context: AiLogContext;
-  details?: Record<string, unknown>;
-}): void {
-  console[level](
-    JSON.stringify({
-      scope: "legacy-ai-chat",
-      event,
-      requestId: context.requestId,
-      runId: context.runId,
-      ...(context.chatId ? { chatId: context.chatId } : {}),
-      ...details,
-    }),
-  );
-}
-
 // Export UIMessage type for frontend use
 export type MyUIMessage = UIMessage<
   never,
@@ -93,25 +60,35 @@ export type MyUIMessage = UIMessage<
 >;
 
 export async function POST(req: Request): Promise<Response> {
-  const requestId = getRequestId(req);
-  const runId = crypto.randomUUID();
-  const logContext: AiLogContext = { requestId, runId };
-  logAiEvent({ level: "info", event: "request.started", context: logContext });
+  let requestContext = createAiRequestContext({
+    requestId: req.headers.get("x-request-id"),
+  });
+  logAiEvent({ level: "info", event: "request.started", context: requestContext });
 
   try {
     // Auth & permission check
     const { session, settings } = await requireAiAccess();
     const teamId = session.activeTeamId!;
-    logAiEvent({ level: "info", event: "authorization.succeeded", context: logContext });
+    const authorizedContext = authorizeAiRequestContext({
+      context: requestContext,
+      userId: session.user.id,
+      teamId,
+    });
+    requestContext = authorizedContext;
+    logAiEvent({
+      level: "info",
+      event: "authorization.succeeded",
+      context: authorizedContext,
+    });
 
     // Check daily rate limit
-    const usageLimit = await checkDailyUsageLimit(
+    const usageLimit = await checkDailyUsageLimit({
       teamId,
-      settings.maxRequestsPerDay
-    );
+      maxRequests: settings.maxRequestsPerDay,
+    });
 
     if (!usageLimit.withinLimit) {
-      throw createAiRequestError({
+      throw createAiDomainError({
         code: "DAILY_LIMIT_REACHED",
         message: `Daily limit reached (${settings.maxRequestsPerDay} requests/day)`,
         status: 429,
@@ -124,7 +101,7 @@ export async function POST(req: Request): Promise<Response> {
     });
 
     if (!monthlyBudget.withinLimit) {
-      throw createAiRequestError({
+      throw createAiDomainError({
         code: "MONTHLY_BUDGET_REACHED",
         message: "Monthly AI budget reached",
         status: 429,
@@ -139,7 +116,7 @@ export async function POST(req: Request): Promise<Response> {
     try {
       body = (await req.json()) as { chatId?: string; messages?: UIMessage[] };
     } catch (error) {
-      throw createAiRequestError({
+      throw createAiDomainError({
         code: "INVALID_JSON",
         message: "Request body must be valid JSON",
         status: 422,
@@ -148,7 +125,7 @@ export async function POST(req: Request): Promise<Response> {
     }
 
     if (!body.chatId?.trim()) {
-      throw createAiRequestError({
+      throw createAiDomainError({
         code: "INVALID_CHAT_ID",
         message: "chatId is required",
         status: 422,
@@ -156,7 +133,7 @@ export async function POST(req: Request): Promise<Response> {
     }
 
     if (!Array.isArray(body.messages)) {
-      throw createAiRequestError({
+      throw createAiDomainError({
         code: "INVALID_MESSAGES",
         message: "messages must be an array",
         status: 422,
@@ -164,7 +141,11 @@ export async function POST(req: Request): Promise<Response> {
     }
 
     const chatId = body.chatId.trim();
-    logContext.chatId = chatId;
+    const chatContext = withAiChatContext({
+      context: authorizedContext,
+      chatId,
+    });
+    requestContext = chatContext;
 
     let messages: UIMessage[];
     try {
@@ -172,7 +153,7 @@ export async function POST(req: Request): Promise<Response> {
         messages: body.messages,
       });
     } catch (error) {
-      throw createAiRequestError({
+      throw createAiDomainError({
         code: "INVALID_MESSAGES",
         message: "Invalid messages",
         status: 422,
@@ -216,11 +197,22 @@ export async function POST(req: Request): Promise<Response> {
       size: 16,
     });
 
+    const maxOutputTokens = resolveMaxOutputTokens({
+      maxTokensPerRequest: settings.maxTokensPerRequest,
+    });
+    if (!maxOutputTokens) {
+      throw createAiDomainError({
+        code: "INVALID_TOKEN_POLICY",
+        message: "AI token policy is invalid",
+        status: 500,
+      });
+    }
+
     // Stream AI response
     const result = streamText({
       model: google(modelName),
       messages: convertToModelMessages(messages),
-      maxOutputTokens: settings.maxTokensPerRequest,
+      maxOutputTokens,
       system: `You are a meal planning assistant for List To Ladle. Your role is to help users manage their recipes and weekly meal schedules efficiently.
 
 ## Your Capabilities
@@ -285,7 +277,7 @@ You can help users:
           logAiEvent({
             level: "error",
             event: "usage.persistence_failed",
-            context: logContext,
+            context: chatContext,
             details: { errorName: error instanceof Error ? error.name : "UnknownError" },
           });
         }
@@ -293,7 +285,7 @@ You can help users:
         logAiEvent({
           level: "info",
           event: "run.finished",
-          context: logContext,
+          context: chatContext,
           details: {
             finishReason,
             inputTokens: usage.inputTokens || 0,
@@ -315,7 +307,7 @@ You can help users:
         logAiEvent({
           level: "info",
           event: "persistence.started",
-          context: logContext,
+          context: chatContext,
           details: { messageCount: newMessages.length },
         });
 
@@ -338,7 +330,7 @@ You can help users:
               logAiEvent({
                 level: "error",
                 event: "persistence.message_failed",
-                context: logContext,
+                context: chatContext,
                 details: {
                   role: message.role,
                   errorName: err instanceof Error ? err.name : "UnknownError",
@@ -350,7 +342,7 @@ You can help users:
           logAiEvent({
             level: skippedCount > 0 ? "warn" : "info",
             event: "persistence.finished",
-            context: logContext,
+            context: chatContext,
             details: { savedCount, skippedCount },
           });
 
@@ -371,14 +363,14 @@ You can help users:
             logAiEvent({
               level: "info",
               event: "title.generated",
-              context: logContext,
+              context: chatContext,
             });
           }
         } catch (error) {
           logAiEvent({
             level: "error",
             event: "persistence.failed",
-            context: logContext,
+            context: chatContext,
             details: { errorName: error instanceof Error ? error.name : "UnknownError" },
           });
         }
@@ -390,22 +382,22 @@ You can help users:
       stream,
       headers: {
         "Content-Encoding": "identity", // Critical for Cloudflare streaming!
-        "x-request-id": requestId,
-        "x-run-id": runId,
+        "x-request-id": chatContext.requestId,
+        "x-run-id": chatContext.runId,
       },
     });
   } catch (error) {
-    const requestError = isAiRequestError(error) ? error : undefined;
+    const requestError = isAiDomainError(error) ? error : undefined;
     logAiEvent({
       level: "error",
       event: "request.failed",
-      context: logContext,
+      context: requestContext,
       details: {
         code: requestError?.code ?? "INTERNAL_ERROR",
         status: requestError?.status ?? 500,
         errorName: error instanceof Error ? error.name : "UnknownError",
       },
     });
-    return aiErrorResponse({ error, requestId, runId });
+    return aiErrorResponse({ error, context: requestContext });
   }
 }

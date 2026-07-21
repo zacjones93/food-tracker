@@ -1,9 +1,57 @@
 import "server-only";
 import { eq, and, gte, sql } from "drizzle-orm";
-import { teamTable, teamSettingsTable, aiUsageTable } from "@/db/schema";
+import {
+  aiChatsTable,
+  aiUsageTable,
+  teamSettingsTable,
+  teamTable,
+} from "@/db/schema";
 import { getDB } from "@/db/index";
 
 const ALLOWED_TEAM_SLUGS = ["default", "team_default"];
+
+export interface AiChatAccessContext {
+  chatId: string;
+  userId: string;
+  teamId: string;
+}
+
+export function isChatOwnedBy({
+  chat,
+  userId,
+  teamId,
+}: {
+  chat: { userId: string; teamId: string };
+  userId: string;
+  teamId: string;
+}): boolean {
+  return chat.userId === userId && chat.teamId === teamId;
+}
+
+export async function getAuthorizedChat({
+  chatId,
+  userId,
+  teamId,
+}: AiChatAccessContext) {
+  const db = getDB();
+
+  return await db.query.aiChatsTable.findFirst({
+    where: and(
+      eq(aiChatsTable.id, chatId),
+      eq(aiChatsTable.userId, userId),
+      eq(aiChatsTable.teamId, teamId),
+    ),
+  });
+}
+
+export function resolveMaxOutputTokens({
+  maxTokensPerRequest,
+}: {
+  maxTokensPerRequest: number;
+}): number | null {
+  if (!Number.isFinite(maxTokensPerRequest) || maxTokensPerRequest <= 0) return null;
+  return Math.floor(maxTokensPerRequest);
+}
 
 export function isWithinMonthlyBudget({
   currentCostUsd,
@@ -65,10 +113,13 @@ export async function checkAiAccess(teamId: string): Promise<{
   };
 }
 
-export async function checkDailyUsageLimit(
-  teamId: string,
-  maxRequests: number
-): Promise<{ withinLimit: boolean; currentCount: number }> {
+export async function checkDailyUsageLimit({
+  teamId,
+  maxRequests,
+}: {
+  teamId: string;
+  maxRequests: number;
+}): Promise<{ withinLimit: boolean; currentCount: number }> {
   const db = getDB();
 
   // Get today's usage count
