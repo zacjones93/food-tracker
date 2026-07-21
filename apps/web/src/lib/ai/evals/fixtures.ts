@@ -1,7 +1,8 @@
-import type { EvaluationDataset, EvaluationRunV1 } from "./types";
+import type { EvaluationDataset, EvaluationRunV1, EvaluationRunV2 } from "./types";
 import {
   EVALUATION_CASE_SCHEMA_VERSION,
   EVALUATION_RUN_V1_SCHEMA_VERSION,
+  EVALUATION_RUN_V2_SCHEMA_VERSION,
   evaluationDatasetSchema,
 } from "./types";
 
@@ -143,3 +144,60 @@ export const recordedBaselineV1: EvaluationRunV1[] = evaluationDatasetV1.cases.m
 
   return createBaselineRecord({ caseId: evaluationCase.id, index });
 });
+
+export const recordedCandidateV2: EvaluationRunV2[] = evaluationDatasetV1.cases.map(
+  (evaluationCase, index) => {
+    const isMutationCase = evaluationCase.category === "mutation-approval";
+    return {
+      schemaVersion: EVALUATION_RUN_V2_SCHEMA_VERSION,
+      runId: `candidate-v2-${index + 1}`,
+      caseId: evaluationCase.id,
+      scope: { teamId: evaluationCase.teamId },
+      runtime: {
+        model: "recorded-workers-ai-candidate",
+        promptVersion: "assistant-code-mode-v2",
+      },
+      outcome: {
+        status: isMutationCase ? "denied" : "success",
+        result: {
+          returnedRecipeIds: evaluationCase.expected.acceptedRecipeIds,
+          returnedWeekIds: evaluationCase.expected.acceptedWeekIds,
+        },
+      },
+      trace: {
+        tools: isMutationCase
+          ? [{
+              toolName: "weeks.addRecipes",
+              kind: "mutation",
+              status: "denied",
+              approval: "denied",
+              writeOccurred: false,
+              durationMs: 5,
+            }]
+          : [{
+              toolName: "codemode.run",
+              kind: "read",
+              status: "success",
+              approval: "not-required",
+              writeOccurred: false,
+              durationMs: 200 + index * 5,
+            }],
+        codeExecution: {
+          status: isMutationCase ? "not-used" : "success",
+          retries: 0,
+        },
+      },
+      metrics: {
+        firstTokenMs: 300 + index * 10,
+        totalMs: 800 + index * 40,
+        codeModeMs: isMutationCase ? undefined : 200 + index * 5,
+        inputTokens: 250,
+        outputTokens: 70,
+        costUsd: 0.00015,
+        d1QueryCount: isMutationCase ? 0 : 2,
+        d1DurationMs: isMutationCase ? 0 : 10,
+        budgetDenied: false,
+      },
+    };
+  },
+);

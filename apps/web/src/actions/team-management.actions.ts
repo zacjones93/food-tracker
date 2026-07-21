@@ -2,6 +2,7 @@
 
 import { createServerAction, ZSAError } from "zsa";
 import { z } from "zod";
+import { DEFAULT_TEAM_SETTINGS } from "@/lib/team-settings-policy";
 import { getDB } from "@/db";
 import {
   teamTable,
@@ -375,7 +376,7 @@ export const createTeamAction = createServerAction()
     if (!session) throw new ZSAError("NOT_AUTHORIZED", "You must be logged in");
 
     const db = getDB();
-    const { SYSTEM_ROLES_ENUM } = await import("@/db/schema");
+    const { SYSTEM_ROLES_ENUM, teamSettingsTable } = await import("@/db/schema");
 
     // Check if slug is already taken
     const existingTeam = await db.query.teamTable.findFirst({
@@ -394,6 +395,11 @@ export const createTeamAction = createServerAction()
         description: input.description,
       })
       .returning();
+
+    await db.insert(teamSettingsTable).values({
+      teamId: newTeam.id,
+      ...DEFAULT_TEAM_SETTINGS,
+    });
 
     // Add user as owner
     await db.insert(teamMembershipTable).values({

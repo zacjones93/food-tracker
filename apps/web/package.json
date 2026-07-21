@@ -11,7 +11,8 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "test": "tsx --test src/lib/**/*.test.ts src/lib/**/*.test.mts",
+    "test": "tsx --test src/lib/*.test.ts src/lib/**/*.test.ts src/lib/**/*.test.mts",
+    "eval:release": "tsx src/lib/ai/evals/run-release-gate.ts",
     "deploy": "pnpm run opennext:build && opennextjs-cloudflare deploy",
     "preview": "pnpm run opennext:build && opennextjs-cloudflare preview",
     "cf-typegen": "wrangler types --env-interface CloudflareEnv ./cloudflare-env.d.ts",
@@ -48,9 +49,6 @@
     "seed:grocery-template": "tsx scripts/seed-default-grocery-template.ts"
   },
   "dependencies": {
-    "@ai-sdk/google": "^2.0.23",
-    "@ai-sdk/react": "^2.0.80",
-    "@food-tracker/ai-v2-platform-runtime": "file:src/lib/ai-v2/platform/runtime",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
@@ -90,7 +88,6 @@
     "@tanstack/react-query": "^5.90.5",
     "@tanstack/react-table": "^8.21.3",
     "@types/bcryptjs": "^3.0.0",
-    "ai": "^5.0.80",
     "arctic": "^3.1.3",
     "bcryptjs": "^3.0.2",
     "class-variance-authority": "^0.7.1",

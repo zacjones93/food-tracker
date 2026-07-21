@@ -126,11 +126,11 @@ export const evaluationRunFileSchema = z.object({
   records: z.array(evaluationRunSchema),
 });
 
-export interface CatalogEntity extends z.infer<typeof catalogEntitySchema> {}
-export interface EvaluationCase extends z.infer<typeof evaluationCaseSchema> {}
-export interface EvaluationDataset extends z.infer<typeof evaluationDatasetSchema> {}
-export interface EvaluationRunV1 extends z.infer<typeof evaluationRunV1Schema> {}
-export interface EvaluationRunV2 extends z.infer<typeof evaluationRunV2Schema> {}
+export type CatalogEntity = z.infer<typeof catalogEntitySchema>;
+export type EvaluationCase = z.infer<typeof evaluationCaseSchema>;
+export type EvaluationDataset = z.infer<typeof evaluationDatasetSchema>;
+export type EvaluationRunV1 = z.infer<typeof evaluationRunV1Schema>;
+export type EvaluationRunV2 = z.infer<typeof evaluationRunV2Schema>;
 export type EvaluationRunRecord = z.infer<typeof evaluationRunSchema>;
 export type EvaluationCategory = z.infer<typeof evaluationCategorySchema>;
 export type ToolExecution = z.infer<typeof toolExecutionSchema>;

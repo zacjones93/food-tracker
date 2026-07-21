@@ -168,7 +168,10 @@ export async function requireAiAccess() {
     });
   }
 
-  const accessCheck = await checkAiAccess(session.activeTeamId);
+  const accessCheck = await checkAiAccess({
+    teamId: session.activeTeamId,
+    userId: session.user.id,
+  });
 
   if (!accessCheck.allowed) {
     throw createAiDomainError({

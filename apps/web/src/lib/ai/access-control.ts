@@ -3,12 +3,12 @@ import { eq, and, gte, sql } from "drizzle-orm";
 import {
   aiChatsTable,
   aiUsageTable,
+  teamMembershipTable,
   teamSettingsTable,
   teamTable,
 } from "@/db/schema";
 import { getDB } from "@/db/index";
-
-const ALLOWED_TEAM_SLUGS = ["default", "team_default"];
+import { evaluateAiTeamPolicy } from "@/lib/team-settings-policy";
 
 export interface AiChatAccessContext {
   chatId: string;
@@ -63,7 +63,13 @@ export function isWithinMonthlyBudget({
   return monthlyBudgetUsd > 0 && currentCostUsd < monthlyBudgetUsd;
 }
 
-export async function checkAiAccess(teamId: string): Promise<{
+export async function checkAiAccess({
+  teamId,
+  userId,
+}: {
+  teamId: string;
+  userId: string;
+}): Promise<{
   allowed: boolean;
   reason?: string;
   settings?: {
@@ -74,41 +80,36 @@ export async function checkAiAccess(teamId: string): Promise<{
 }> {
   const db = getDB();
 
-  // Get team details
-  const teamData = await db.query.teamTable.findFirst({
-    where: eq(teamTable.id, teamId),
-    with: {
-      settings: true,
-    },
-  });
+  const [teamData, membership] = await Promise.all([
+    db.query.teamTable.findFirst({
+      where: eq(teamTable.id, teamId),
+      with: { settings: true },
+    }),
+    db.query.teamMembershipTable.findFirst({
+      where: and(
+        eq(teamMembershipTable.teamId, teamId),
+        eq(teamMembershipTable.userId, userId),
+        eq(teamMembershipTable.isActive, 1),
+      ),
+    }),
+  ]);
 
   if (!teamData) {
     return { allowed: false, reason: "Team not found" };
   }
 
-  // Check if team is allowed (slug-based restriction)
-  if (!ALLOWED_TEAM_SLUGS.includes(teamData.slug)) {
-    return {
-      allowed: false,
-      reason: "This feature is currently restricted. Please talk to Zac or Mariah about using this feature.",
-    };
-  }
+  const policy = evaluateAiTeamPolicy({
+    hasActiveMembership: Boolean(membership),
+    settings: teamData.settings,
+  });
+  if (!policy.allowed) return policy;
 
-  // Check if AI is enabled in team settings
-  if (!teamData.settings?.aiEnabled) {
-    return {
-      allowed: false,
-      reason: "AI features are disabled for this team.",
-    };
-  }
-
-  // Return allowed with settings
   return {
     allowed: true,
     settings: {
-      monthlyBudgetUsd: parseFloat(teamData.settings.aiMonthlyBudgetUsd ?? "10.0"),
-      maxTokensPerRequest: teamData.settings.aiMaxTokensPerRequest ?? 4000,
-      maxRequestsPerDay: teamData.settings.aiMaxRequestsPerDay ?? 100,
+      monthlyBudgetUsd: parseFloat(teamData.settings!.aiMonthlyBudgetUsd ?? "10.0"),
+      maxTokensPerRequest: teamData.settings!.aiMaxTokensPerRequest ?? 4000,
+      maxRequestsPerDay: teamData.settings!.aiMaxRequestsPerDay ?? 100,
     },
   };
 }

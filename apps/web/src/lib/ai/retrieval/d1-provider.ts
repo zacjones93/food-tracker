@@ -1,7 +1,9 @@
 import "server-only";
 
 import { and, eq } from "drizzle-orm";
+import type { DrizzleD1Database } from "drizzle-orm/d1";
 
+import type * as schema from "@/db/schema";
 import { recipesTable, weekRecipesTable, weeksTable } from "@/db/schema";
 
 import { createRetrievalService, type RetrievalService } from "./service";
@@ -11,17 +13,23 @@ import type {
   RetrievalCorpusProvider,
 } from "./types";
 
-export const d1RetrievalCorpusProvider: RetrievalCorpusProvider = {
+type AppDatabase = DrizzleD1Database<typeof schema>;
+
+export const d1RetrievalCorpusProvider: RetrievalCorpusProvider<AppDatabase> = {
   async load(context) {
     return loadD1RetrievalCorpus(context);
   },
 };
 
-export function createD1RetrievalService(context: RetrievalContext): RetrievalService {
+export function createD1RetrievalService(
+  context: RetrievalContext<AppDatabase>,
+): RetrievalService {
   return createRetrievalService({ context, provider: d1RetrievalCorpusProvider });
 }
 
-async function loadD1RetrievalCorpus(context: RetrievalContext): Promise<RetrievalCorpus> {
+async function loadD1RetrievalCorpus(
+  context: RetrievalContext<AppDatabase>,
+): Promise<RetrievalCorpus> {
   const [recipes, weeks, weekRecipes] = await Promise.all([
     context.db
       .select({

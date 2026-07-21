@@ -15,6 +15,12 @@ const nextConfig: NextConfig = {
   },
   typescript: {
     ignoreBuildErrors: process.env.SKIP_LINTER === 'true'
+  },
+  webpack(config, { dev }) {
+    if (!dev && process.env.NEXT_DISABLE_WEBPACK_CACHE === "true") {
+      config.cache = false;
+    }
+    return config;
   }
 };
 

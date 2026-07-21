@@ -33,7 +33,10 @@ export default async function AIChatPage({ params }: Props) {
   }
 
   // Check AI access
-  const accessCheck = await checkAiAccess(session.activeTeamId);
+  const accessCheck = await checkAiAccess({
+    teamId: session.activeTeamId,
+    userId: session.user.id,
+  });
 
   if (!accessCheck.allowed) {
     return <BlockedAccess />;
@@ -47,7 +50,8 @@ export default async function AIChatPage({ params }: Props) {
   const chat = await db.query.aiChatsTable.findFirst({
     where: and(
       eq(aiChatsTable.id, myParams.chatId),
-      eq(aiChatsTable.teamId, session.activeTeamId)
+      eq(aiChatsTable.teamId, session.activeTeamId),
+      eq(aiChatsTable.userId, session.user.id),
     ),
   });
 

@@ -1,9 +1,5 @@
-import type { DrizzleD1Database } from "drizzle-orm/d1";
-
-import type * as schema from "@/db/schema";
-
-export interface RetrievalContext {
-  readonly db: DrizzleD1Database<typeof schema>;
+export interface RetrievalContext<Database = unknown> {
+  readonly db: Database;
   readonly userId: string;
   readonly teamId: string;
   readonly chatId: string;
@@ -54,8 +50,8 @@ export interface RetrievalCorpus {
   weekRecipes: WeekRecipeRetrievalRecord[];
 }
 
-export interface RetrievalCorpusProvider {
-  load(context: RetrievalContext): Promise<RetrievalCorpus>;
+export interface RetrievalCorpusProvider<Database = unknown> {
+  load(context: RetrievalContext<Database>): Promise<RetrievalCorpus>;
 }
 
 export const RETRIEVAL_ERROR_CODES = {

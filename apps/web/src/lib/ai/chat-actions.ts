@@ -1,9 +1,9 @@
 import "server-only";
-import type { MyUIMessage } from "@/app/api/chat/route";
+import type { AssistantMessage } from "@/lib/assistant/types";
 import { getDB } from "@/db/index";
 import { aiChatsTable, aiMessagesTable, aiMessagePartsTable } from "@/db/schema";
 import { and, eq, desc } from "drizzle-orm";
-import { uiMessageToDbRows, dbRowsToUIMessage } from "./message-mapping";
+import { assistantMessageToDbRows, dbRowsToAssistantMessage } from "./message-mapping";
 import {
   getAuthorizedChat,
   isChatOwnedBy,
@@ -21,7 +21,7 @@ export async function upsertMessage({
   userId,
   teamId,
 }: {
-  message: MyUIMessage;
+  message: AssistantMessage;
   chatId: string;
   userId: string;
   teamId: string;
@@ -30,15 +30,10 @@ export async function upsertMessage({
 
   await requireOwnedChat({ chatId, userId, teamId });
 
-  console.log("💬 upsertMessage called:", { messageId: message.id, chatId, role: message.role, partsCount: message.parts?.length || 0 });
-
-  const { messageRow, partRows } = uiMessageToDbRows(message);
-
-  console.log("🔄 Converted to DB format:", { messageRow, partCount: partRows.length });
+  const { messageRow, partRows } = assistantMessageToDbRows(message);
 
   // Skip messages with no parts (incomplete streaming)
   if (partRows.length === 0) {
-    console.log("⚠️ Skipping message with no parts (likely incomplete stream):", message.id);
     return;
   }
 
@@ -58,10 +53,8 @@ export async function upsertMessage({
       updatedAt: now,
       updateCounter: 0,
     });
-    console.log("✅ Message inserted:", message.id);
   } catch (error) {
-    console.error("❌ Failed to insert message:", error);
-    throw error;
+      throw error;
   }
 
   // Insert parts in batches to avoid D1's SQL variable limit
@@ -69,17 +62,12 @@ export async function upsertMessage({
   // With 18 columns per part, we can safely insert ~50 parts at a time
   if (partRows.length > 0) {
     const BATCH_SIZE = 50;
-    let insertedCount = 0;
-
     try {
       for (let i = 0; i < partRows.length; i += BATCH_SIZE) {
         const batch = partRows.slice(i, i + BATCH_SIZE);
         await db.insert(aiMessagePartsTable).values(batch);
-        insertedCount += batch.length;
       }
-      console.log("✅ Parts inserted:", insertedCount);
     } catch (error) {
-      console.error("❌ Failed to insert parts:", error);
       throw error;
     }
   }
@@ -94,10 +82,10 @@ export async function upsertMessage({
  * - Must start with user message
  * - Must NOT end with user message (to allow new user messages to be appended)
  */
-function validateMessageSequence(messages: MyUIMessage[]): MyUIMessage[] {
+function validateMessageSequence(messages: AssistantMessage[]): AssistantMessage[] {
   if (messages.length === 0) return messages;
 
-  const validMessages: MyUIMessage[] = [];
+  const validMessages: AssistantMessage[] = [];
   let lastRole: string | null = null;
 
   for (const message of messages) {
@@ -120,14 +108,12 @@ function validateMessageSequence(messages: MyUIMessage[]): MyUIMessage[] {
 
   // Ensure we start with user message (AI SDK requirement)
   while (validMessages.length > 0 && validMessages[0]?.role !== "user") {
-    console.warn("⚠️ First message is not from user, removing non-user message at start");
     validMessages.shift();
   }
 
   // Ensure we DON'T end with user message (to prevent consecutive user messages when appending)
   // This handles the case where a user sent a message but got no response
   if (validMessages.length > 0 && validMessages[validMessages.length - 1].role === "user") {
-    console.warn("⚠️ Removing trailing user message without assistant response");
     validMessages.pop();
   }
 
@@ -148,7 +134,7 @@ export async function loadChat({
 }: AiChatAccessContext & {
   limit?: number;
   offset?: number;
-}): Promise<{ messages: MyUIMessage[]; hasMore: boolean }> {
+}): Promise<{ messages: AssistantMessage[]; hasMore: boolean }> {
   const db = getDB();
 
   await requireOwnedChat({ chatId, userId, teamId });
@@ -180,16 +166,10 @@ export async function loadChat({
   // Convert to UIMessages and filter out messages with no parts (corrupt data)
   const uiMessages = messagesInChronologicalOrder
     .filter((msg) => msg.parts.length > 0)
-    .map((msg) => dbRowsToUIMessage(msg, msg.parts));
+    .map((msg) => dbRowsToAssistantMessage(msg, msg.parts));
 
   // Validate and filter to ensure proper message alternation
   const validMessages = validateMessageSequence(uiMessages);
-
-  console.log("📊 Message validation:", {
-    loaded: uiMessages.length,
-    valid: validMessages.length,
-    filtered: uiMessages.length - validMessages.length,
-  });
 
   return {
     messages: validMessages,
@@ -236,13 +216,10 @@ export async function getOrCreateChat({
 }): Promise<string> {
   const db = getDB();
 
-  console.log("📝 getOrCreateChat called with:", { chatId, hasTitle: Boolean(title) });
-
   // Check if chat exists
   const existing = await getChat(chatId);
   if (existing) {
     if (isChatOwnedBy({ chat: existing, userId, teamId })) {
-      console.log("✅ Chat already exists:", existing.id);
       return existing.id;
     }
 
@@ -253,7 +230,6 @@ export async function getOrCreateChat({
     });
   }
 
-  console.log("🆕 Creating new chat...");
   // Create new chat with provided ID
   try {
     const now = new Date();
@@ -266,9 +242,7 @@ export async function getOrCreateChat({
       updatedAt: now,
       updateCounter: 0,
     });
-    console.log("✅ Chat created successfully:", chatId);
   } catch (error) {
-    console.error("❌ Failed to create chat:", error);
     const conflictingChat = await getChat(chatId);
     if (conflictingChat && isChatOwnedBy({ chat: conflictingChat, userId, teamId })) {
       return conflictingChat.id;

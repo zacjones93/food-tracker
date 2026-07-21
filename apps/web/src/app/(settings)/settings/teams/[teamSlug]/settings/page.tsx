@@ -55,7 +55,6 @@ async function TeamSettingsContent({ teamSlug }: { teamSlug: string }) {
 
       <AiSettings
         teamId={team.id}
-        teamSlug={team.slug}
         currentSettings={{
           aiEnabled: team.settings?.aiEnabled ?? false,
           aiMonthlyBudgetUsd: team.settings?.aiMonthlyBudgetUsd ?? "10.0",

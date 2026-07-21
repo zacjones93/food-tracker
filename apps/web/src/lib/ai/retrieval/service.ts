@@ -59,12 +59,12 @@ export interface RetrievalService {
   weeks: WeekRetrievalService;
 }
 
-export function createRetrievalService({
+export function createRetrievalService<Database>({
   context,
   provider,
 }: {
-  context: RetrievalContext;
-  provider: RetrievalCorpusProvider;
+  context: RetrievalContext<Database>;
+  provider: RetrievalCorpusProvider<Database>;
 }): RetrievalService {
   let corpusPromise: Promise<RetrievalCorpus> | null = null;
   const loadCorpus = () => {
@@ -142,7 +142,7 @@ async function executeRetrieval<RawInput, ParsedInput, Output>({
   loadCorpus,
   retrieve,
 }: {
-  context: RetrievalContext;
+  context: RetrievalContext<unknown>;
   input: RawInput;
   inputSchema: z.ZodType<ParsedInput, RawInput>;
   outputSchema: z.ZodType<Output>;
@@ -213,7 +213,7 @@ async function executeRetrieval<RawInput, ParsedInput, Output>({
   }
 }
 
-function hasAuthorizedContext(context: RetrievalContext): boolean {
+function hasAuthorizedContext(context: RetrievalContext<unknown>): boolean {
   return Boolean(
     context.db &&
       context.userId.trim() &&

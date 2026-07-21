@@ -56,16 +56,10 @@
       {
         "binding": "WORKER_SELF_REFERENCE",
         "service": "food-tracker"
-      }
-    ],
-
-    "ai": {
-      "binding": "AI"
-    },
-
-    "worker_loaders": [
+      },
       {
-        "binding": "LOADER"
+        "binding": "ASSISTANT",
+        "service": "food-tracker-assistant"
       }
     ],
 
