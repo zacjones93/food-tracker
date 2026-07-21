@@ -1,9 +1,6 @@
 import "server-only";
 import { getSessionFromCookie } from "@/utils/auth";
-import { getChat } from "@/lib/ai/chat-actions";
-import { getDB } from "@/db";
-import { aiChatsTable } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { getAuthorizedChat, getChat, updateChatTitle } from "@/lib/ai/chat-actions";
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
@@ -27,30 +24,32 @@ export async function POST(req: Request) {
       );
     }
 
-    // Verify chat ownership
-    const chat = await getChat(chatId);
-
-    if (!chat) {
-      return NextResponse.json({ error: "Chat not found" }, { status: 404 });
+    if (!session.activeTeamId) {
+      return NextResponse.json({ error: "No active team" }, { status: 403 });
     }
 
-    if (chat.userId !== session.user.id && chat.teamId !== session.activeTeamId) {
+    // Verify chat ownership
+    const chat = await getAuthorizedChat({
+      chatId,
+      userId: session.user.id,
+      teamId: session.activeTeamId,
+    });
+
+    if (!chat) {
+      const existingChat = await getChat(chatId);
+      if (!existingChat) {
+        return NextResponse.json({ error: "Chat not found" }, { status: 404 });
+      }
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     // Update title
-    const db = getDB();
-    if (!db) {
-      return NextResponse.json(
-        { error: "Database not available" },
-        { status: 500 }
-      );
-    }
-
-    await db
-      .update(aiChatsTable)
-      .set({ title: title.trim() })
-      .where(eq(aiChatsTable.id, chatId));
+    await updateChatTitle({
+      chatId,
+      title: title.trim(),
+      userId: session.user.id,
+      teamId: session.activeTeamId,
+    });
 
     return NextResponse.json({ success: true });
   } catch (error) {

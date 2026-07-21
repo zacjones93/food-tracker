@@ -29,7 +29,12 @@ export const getChatHistoryAction = createServerAction().handler(async () => {
       updatedAt: aiChatsTable.updatedAt,
     })
     .from(aiChatsTable)
-    .where(eq(aiChatsTable.teamId, session.activeTeamId))
+    .where(
+      and(
+        eq(aiChatsTable.userId, session.user.id),
+        eq(aiChatsTable.teamId, session.activeTeamId),
+      ),
+    )
     .orderBy(desc(aiChatsTable.updatedAt))
     .limit(50);
 
@@ -102,7 +107,8 @@ export const updateChatTitleAction = createServerAction()
     const chat = await db.query.aiChatsTable.findFirst({
       where: and(
         eq(aiChatsTable.id, input.chatId),
-        eq(aiChatsTable.teamId, session.activeTeamId)
+        eq(aiChatsTable.userId, session.user.id),
+        eq(aiChatsTable.teamId, session.activeTeamId),
       ),
     });
 
@@ -116,7 +122,13 @@ export const updateChatTitleAction = createServerAction()
         title: input.title,
         updatedAt: new Date(),
       })
-      .where(eq(aiChatsTable.id, input.chatId));
+      .where(
+        and(
+          eq(aiChatsTable.id, input.chatId),
+          eq(aiChatsTable.userId, session.user.id),
+          eq(aiChatsTable.teamId, session.activeTeamId),
+        ),
+      );
 
     return { success: true };
   });
@@ -145,7 +157,8 @@ export const deleteChatAction = createServerAction()
     const chat = await db.query.aiChatsTable.findFirst({
       where: and(
         eq(aiChatsTable.id, input.chatId),
-        eq(aiChatsTable.teamId, session.activeTeamId)
+        eq(aiChatsTable.userId, session.user.id),
+        eq(aiChatsTable.teamId, session.activeTeamId),
       ),
     });
 
@@ -153,7 +166,13 @@ export const deleteChatAction = createServerAction()
       throw new ZSAError("NOT_FOUND", "Chat not found");
     }
 
-    await db.delete(aiChatsTable).where(eq(aiChatsTable.id, input.chatId));
+    await db.delete(aiChatsTable).where(
+      and(
+        eq(aiChatsTable.id, input.chatId),
+        eq(aiChatsTable.userId, session.user.id),
+        eq(aiChatsTable.teamId, session.activeTeamId),
+      ),
+    );
 
     return { success: true };
   });

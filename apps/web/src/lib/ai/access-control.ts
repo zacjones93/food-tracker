@@ -5,6 +5,16 @@ import { getDB } from "@/db/index";
 
 const ALLOWED_TEAM_SLUGS = ["default", "team_default"];
 
+export function isWithinMonthlyBudget({
+  currentCostUsd,
+  monthlyBudgetUsd,
+}: {
+  currentCostUsd: number;
+  monthlyBudgetUsd: number;
+}): boolean {
+  return monthlyBudgetUsd > 0 && currentCostUsd < monthlyBudgetUsd;
+}
+
 export async function checkAiAccess(teamId: string): Promise<{
   allowed: boolean;
   reason?: string;
@@ -80,6 +90,38 @@ export async function checkDailyUsageLimit(
   return {
     withinLimit: currentCount < maxRequests,
     currentCount,
+  };
+}
+
+export async function checkMonthlyBudgetLimit({
+  teamId,
+  monthlyBudgetUsd,
+}: {
+  teamId: string;
+  monthlyBudgetUsd: number;
+}): Promise<{ withinLimit: boolean; currentCostUsd: number }> {
+  const db = getDB();
+  const firstDayOfMonth = new Date();
+  firstDayOfMonth.setDate(1);
+  firstDayOfMonth.setHours(0, 0, 0, 0);
+
+  const usage = await db
+    .select({
+      totalCost: sql<number>`sum(CAST(${aiUsageTable.estimatedCostUsd} AS REAL))`,
+    })
+    .from(aiUsageTable)
+    .where(
+      and(
+        eq(aiUsageTable.teamId, teamId),
+        gte(aiUsageTable.createdAt, firstDayOfMonth),
+      ),
+    );
+
+  const currentCostUsd = Number(usage[0]?.totalCost ?? 0);
+
+  return {
+    withinLimit: isWithinMonthlyBudget({ currentCostUsd, monthlyBudgetUsd }),
+    currentCostUsd,
   };
 }
 

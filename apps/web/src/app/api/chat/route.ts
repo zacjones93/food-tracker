@@ -10,10 +10,23 @@ import {
   type InferUITools,
 } from "ai";
 import { google } from "@ai-sdk/google";
-import { requireAiAccess } from "@/lib/ai/permissions";
-import { checkDailyUsageLimit } from "@/lib/ai/access-control";
+import {
+  aiErrorResponse,
+  createAiRequestError,
+  isAiRequestError,
+  requireAiAccess,
+} from "@/lib/ai/permissions";
+import {
+  checkDailyUsageLimit,
+  checkMonthlyBudgetLimit,
+} from "@/lib/ai/access-control";
 import { trackUsage } from "@/lib/ai/cost-tracking";
-import { getOrCreateChat, upsertMessage, getChat, updateChatTitle } from "@/lib/ai/chat-actions";
+import {
+  getAuthorizedChat,
+  getOrCreateChat,
+  upsertMessage,
+  updateChatTitle,
+} from "@/lib/ai/chat-actions";
 import { getDB } from "@/db/index";
 import { createRecipeTools } from "@/lib/ai/tools/recipe-tools";
 import { createScheduleTools } from "@/lib/ai/tools/schedule-tools";
@@ -34,6 +47,44 @@ interface ExtendedUsage {
   cachedInputTokens?: number;
 }
 
+interface AiLogContext {
+  requestId: string;
+  runId: string;
+  chatId?: string;
+}
+
+function getRequestId(request: Request): string {
+  const candidate = request.headers.get("x-request-id")?.trim();
+  if (candidate && candidate.length <= 128 && /^[a-zA-Z0-9._:-]+$/.test(candidate)) {
+    return candidate;
+  }
+
+  return crypto.randomUUID();
+}
+
+function logAiEvent({
+  level,
+  event,
+  context,
+  details,
+}: {
+  level: "info" | "warn" | "error";
+  event: string;
+  context: AiLogContext;
+  details?: Record<string, unknown>;
+}): void {
+  console[level](
+    JSON.stringify({
+      scope: "legacy-ai-chat",
+      event,
+      requestId: context.requestId,
+      runId: context.runId,
+      ...(context.chatId ? { chatId: context.chatId } : {}),
+      ...details,
+    }),
+  );
+}
+
 // Export UIMessage type for frontend use
 export type MyUIMessage = UIMessage<
   never,
@@ -42,79 +93,110 @@ export type MyUIMessage = UIMessage<
 >;
 
 export async function POST(req: Request): Promise<Response> {
-  console.log("🚀 =================================================");
-  console.log("🚀 POST /api/chat called");
-  console.log("🚀 =================================================");
+  const requestId = getRequestId(req);
+  const runId = crypto.randomUUID();
+  const logContext: AiLogContext = { requestId, runId };
+  logAiEvent({ level: "info", event: "request.started", context: logContext });
 
   try {
     // Auth & permission check
     const { session, settings } = await requireAiAccess();
-    console.log("✅ Auth check passed:", session.user.id);
+    const teamId = session.activeTeamId!;
+    logAiEvent({ level: "info", event: "authorization.succeeded", context: logContext });
 
     // Check daily rate limit
     const usageLimit = await checkDailyUsageLimit(
-      session.activeTeamId!,
+      teamId,
       settings.maxRequestsPerDay
     );
 
     if (!usageLimit.withinLimit) {
-      return new Response(
-        JSON.stringify({
-          error: `Daily limit reached (${settings.maxRequestsPerDay} requests/day)`,
-        }),
-        { status: 429, headers: { "Content-Type": "application/json" } }
-      );
+      throw createAiRequestError({
+        code: "DAILY_LIMIT_REACHED",
+        message: `Daily limit reached (${settings.maxRequestsPerDay} requests/day)`,
+        status: 429,
+      });
+    }
+
+    const monthlyBudget = await checkMonthlyBudgetLimit({
+      teamId,
+      monthlyBudgetUsd: settings.monthlyBudgetUsd,
+    });
+
+    if (!monthlyBudget.withinLimit) {
+      throw createAiRequestError({
+        code: "MONTHLY_BUDGET_REACHED",
+        message: "Monthly AI budget reached",
+        status: 429,
+      });
     }
 
     // Get database instance
     const db = getDB();
 
     // Parse and validate request
-    const body = (await req.json()) as { chatId?: string; messages: UIMessage[] };
-    console.log("📥 Request body:", {
-      chatId: body.chatId,
-      messageCount: body.messages?.length || 0,
-      lastMessageRole: body.messages?.[body.messages.length - 1]?.role
-    });
-
-    if (!body.chatId) {
-      console.error("❌ No chatId in request body");
-      return new Response(
-        JSON.stringify({ error: "chatId is required" }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
-      );
+    let body: { chatId?: string; messages?: UIMessage[] };
+    try {
+      body = (await req.json()) as { chatId?: string; messages?: UIMessage[] };
+    } catch (error) {
+      throw createAiRequestError({
+        code: "INVALID_JSON",
+        message: "Request body must be valid JSON",
+        status: 422,
+        cause: error,
+      });
     }
 
-    const chatId: string = body.chatId;
-    console.log("✅ Using chatId:", chatId);
+    if (!body.chatId?.trim()) {
+      throw createAiRequestError({
+        code: "INVALID_CHAT_ID",
+        message: "chatId is required",
+        status: 422,
+      });
+    }
+
+    if (!Array.isArray(body.messages)) {
+      throw createAiRequestError({
+        code: "INVALID_MESSAGES",
+        message: "messages must be an array",
+        status: 422,
+      });
+    }
+
+    const chatId = body.chatId.trim();
+    logContext.chatId = chatId;
 
     let messages: UIMessage[];
     try {
       messages = await validateUIMessages({
         messages: body.messages,
       });
-    } catch {
-      return new Response("Invalid messages", { status: 400 });
+    } catch (error) {
+      throw createAiRequestError({
+        code: "INVALID_MESSAGES",
+        message: "Invalid messages",
+        status: 422,
+        cause: error,
+      });
     }
 
     // Lazily create chat if it doesn't exist
     await getOrCreateChat({
       chatId,
       userId: session.user.id,
-      teamId: session.activeTeamId!,
+      teamId,
     });
 
     // Save the new user message BEFORE calling AI
     // The last message in the array should be the user's new message
     const lastMessage = messages[messages.length - 1];
     if (lastMessage && lastMessage.role === "user") {
-      console.log("💾 Saving user message before AI call:", lastMessage.id);
-      try {
-        await upsertMessage({ message: lastMessage as MyUIMessage, chatId });
-        console.log("✅ User message saved");
-      } catch (error) {
-        console.error("❌ Failed to save user message:", error);
-      }
+      await upsertMessage({
+        message: lastMessage as MyUIMessage,
+        chatId,
+        userId: session.user.id,
+        teamId,
+      });
     }
 
     // Use Gemini 2.5 Flash for balanced speed and cost
@@ -138,6 +220,7 @@ export async function POST(req: Request): Promise<Response> {
     const result = streamText({
       model: google(modelName),
       messages: convertToModelMessages(messages),
+      maxOutputTokens: settings.maxTokensPerRequest,
       system: `You are a meal planning assistant for List To Ladle. Your role is to help users manage their recipes and weekly meal schedules efficiently.
 
 ## Your Capabilities
@@ -188,7 +271,7 @@ You can help users:
           const extendedUsage = usage as unknown as ExtendedUsage;
           await trackUsage(db, {
             userId: session.user.id,
-            teamId: session.activeTeamId!,
+            teamId,
             model: modelName,
             endpoint: "/api/chat",
             inputTokens: usage.inputTokens || 0,
@@ -199,8 +282,24 @@ You can help users:
             conversationId: chatId,
           });
         } catch (error) {
-          console.error("Failed to track usage:", error);
+          logAiEvent({
+            level: "error",
+            event: "usage.persistence_failed",
+            context: logContext,
+            details: { errorName: error instanceof Error ? error.name : "UnknownError" },
+          });
         }
+
+        logAiEvent({
+          level: "info",
+          event: "run.finished",
+          context: logContext,
+          details: {
+            finishReason,
+            inputTokens: usage.inputTokens || 0,
+            outputTokens: usage.outputTokens || 0,
+          },
+        });
       },
     });
 
@@ -209,22 +308,16 @@ You can help users:
       originalMessages: messages,
       generateMessageId, // Server-side ID generation
       onFinish: async ({ messages: allMessages }) => {
-        console.log("🎯 =================================================");
-        console.log("🎯 toUIMessageStream.onFinish CALLED");
-        console.log("🎯 =================================================");
-        console.log("🎯 Total messages:", allMessages.length, "Original:", messages.length);
-
         // Only save ASSISTANT messages (user message already saved above)
         // allMessages = originalMessages + new assistant messages
         // We saved the user message before the AI call, so only save assistant responses here
         const newMessages = allMessages.slice(messages.length);
-
-        console.log("🎯 New messages to save:", newMessages.map(m => ({
-          id: m.id,
-          role: m.role,
-          partsCount: m.parts?.length || 0,
-          partTypes: m.parts?.map(p => p.type).join(', ') || 'none'
-        })));
+        logAiEvent({
+          level: "info",
+          event: "persistence.started",
+          context: logContext,
+          details: { messageCount: newMessages.length },
+        });
 
         // Persist only new messages to database
         try {
@@ -232,33 +325,63 @@ You can help users:
           let skippedCount = 0;
 
           for (const message of newMessages) {
-            console.log(`🎯 Processing NEW message ${message.id} (${message.role}) with ${message.parts?.length || 0} parts`);
-
             try {
-              await upsertMessage({ message: message as MyUIMessage, chatId });
+              await upsertMessage({
+                message: message as MyUIMessage,
+                chatId,
+                userId: session.user.id,
+                teamId,
+              });
               savedCount++;
-              console.log(`✅ Saved message ${message.id}`);
             } catch (err) {
               skippedCount++;
-              console.error(`❌ Failed to save message ${message.id}:`, err);
+              logAiEvent({
+                level: "error",
+                event: "persistence.message_failed",
+                context: logContext,
+                details: {
+                  role: message.role,
+                  errorName: err instanceof Error ? err.name : "UnknownError",
+                },
+              });
             }
           }
 
-          console.log(`🎯 Persistence complete: ${savedCount} saved, ${skippedCount} skipped`);
+          logAiEvent({
+            level: skippedCount > 0 ? "warn" : "info",
+            event: "persistence.finished",
+            context: logContext,
+            details: { savedCount, skippedCount },
+          });
 
           // Auto-generate title if this is the first exchange
-          const chat = await getChat(chatId);
+          const chat = await getAuthorizedChat({
+            chatId,
+            userId: session.user.id,
+            teamId,
+          });
           if (chat && !chat.title && allMessages.length >= 2) {
-            console.log("🏷️  Generating title for new chat:", chatId);
             const title = await generateChatTitle(allMessages);
-            console.log("✅ Generated title:", title);
-            await updateChatTitle({ chatId, title });
+            await updateChatTitle({
+              chatId,
+              title,
+              userId: session.user.id,
+              teamId,
+            });
+            logAiEvent({
+              level: "info",
+              event: "title.generated",
+              context: logContext,
+            });
           }
         } catch (error) {
-          console.error("❌ Fatal error in persistence loop:", error);
+          logAiEvent({
+            level: "error",
+            event: "persistence.failed",
+            context: logContext,
+            details: { errorName: error instanceof Error ? error.name : "UnknownError" },
+          });
         }
-
-        console.log("🎯 =================================================");
       },
     });
 
@@ -267,21 +390,22 @@ You can help users:
       stream,
       headers: {
         "Content-Encoding": "identity", // Critical for Cloudflare streaming!
+        "x-request-id": requestId,
+        "x-run-id": runId,
       },
     });
   } catch (error) {
-    console.error("Chat API error:", error);
-
-    if (error instanceof Error) {
-      return new Response(
-        JSON.stringify({ error: error.message }),
-        { status: 403, headers: { "Content-Type": "application/json" } }
-      );
-    }
-
-    return new Response(
-      JSON.stringify({ error: "Internal server error" }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
-    );
+    const requestError = isAiRequestError(error) ? error : undefined;
+    logAiEvent({
+      level: "error",
+      event: "request.failed",
+      context: logContext,
+      details: {
+        code: requestError?.code ?? "INTERNAL_ERROR",
+        status: requestError?.status ?? 500,
+        errorName: error instanceof Error ? error.name : "UnknownError",
+      },
+    });
+    return aiErrorResponse({ error, requestId, runId });
   }
 }

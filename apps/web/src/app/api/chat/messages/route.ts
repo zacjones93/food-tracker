@@ -1,6 +1,6 @@
 import "server-only";
 import { getSessionFromCookie } from "@/utils/auth";
-import { loadChat, getChat } from "@/lib/ai/chat-actions";
+import { getAuthorizedChat, getChat, loadChat } from "@/lib/ai/chat-actions";
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
@@ -23,19 +23,33 @@ export async function GET(req: Request) {
       return NextResponse.json({ messages: [], title: null, hasMore: false });
     }
 
-    // Verify chat ownership before loading messages
-    const chat = await getChat(chatId);
-
-    if (!chat) {
-      return NextResponse.json({ messages: [], title: null, hasMore: false });
+    if (!session.activeTeamId) {
+      return NextResponse.json({ error: "No active team" }, { status: 403 });
     }
 
-    if (chat.userId !== session.user.id && chat.teamId !== session.activeTeamId) {
+    // Verify chat ownership before loading messages
+    const chat = await getAuthorizedChat({
+      chatId,
+      userId: session.user.id,
+      teamId: session.activeTeamId,
+    });
+
+    if (!chat) {
+      const existingChat = await getChat(chatId);
+      if (!existingChat) {
+        return NextResponse.json({ messages: [], title: null, hasMore: false });
+      }
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     // Load messages with pagination
-    const { messages, hasMore } = await loadChat(chatId, { limit, offset });
+    const { messages, hasMore } = await loadChat({
+      chatId,
+      userId: session.user.id,
+      teamId: session.activeTeamId,
+      limit,
+      offset,
+    });
     return NextResponse.json({
       messages,
       title: chat.title,

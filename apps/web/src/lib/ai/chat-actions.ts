@@ -2,8 +2,18 @@ import "server-only";
 import type { MyUIMessage } from "@/app/api/chat/route";
 import { getDB } from "@/db/index";
 import { aiChatsTable, aiMessagesTable, aiMessagePartsTable } from "@/db/schema";
-import { eq, desc } from "drizzle-orm";
+import { and, eq, desc } from "drizzle-orm";
 import { uiMessageToDbRows, dbRowsToUIMessage } from "./message-mapping";
+import { createAiRequestError, isChatOwnedBy } from "./permissions";
+
+interface ChatOwnerContext {
+  userId: string;
+  teamId: string;
+}
+
+interface ChatContext extends ChatOwnerContext {
+  chatId: string;
+}
 
 /**
  * Upsert a message (and its parts) into the database
@@ -12,11 +22,17 @@ import { uiMessageToDbRows, dbRowsToUIMessage } from "./message-mapping";
 export async function upsertMessage({
   message,
   chatId,
+  userId,
+  teamId,
 }: {
   message: MyUIMessage;
   chatId: string;
+  userId: string;
+  teamId: string;
 }): Promise<void> {
   const db = getDB();
+
+  await requireOwnedChat({ chatId, userId, teamId });
 
   console.log("💬 upsertMessage called:", { messageId: message.id, chatId, role: message.role, partsCount: message.parts?.length || 0 });
 
@@ -127,13 +143,19 @@ function validateMessageSequence(messages: MyUIMessage[]): MyUIMessage[] {
  * Returns messages in chronological order (oldest first) with parts reconstructed
  * Pagination works by fetching the most recent messages in DESC order, then reversing
  */
-export async function loadChat(
-  chatId: string,
-  options?: { limit?: number; offset?: number }
-): Promise<{ messages: MyUIMessage[]; hasMore: boolean }> {
+export async function loadChat({
+  chatId,
+  userId,
+  teamId,
+  limit = 1000,
+  offset = 0,
+}: ChatContext & {
+  limit?: number;
+  offset?: number;
+}): Promise<{ messages: MyUIMessage[]; hasMore: boolean }> {
   const db = getDB();
-  const limit = options?.limit || 1000; // Default to all messages
-  const offset = options?.offset || 0;
+
+  await requireOwnedChat({ chatId, userId, teamId });
 
   // First, count total messages to determine hasMore
   const allMessages = await db.query.aiMessagesTable.findMany({
@@ -191,6 +213,33 @@ export async function getChat(chatId: string) {
 }
 
 /**
+ * Chats are private to their creator inside the active team. Both owner dimensions
+ * must match for every existing-chat operation.
+ */
+export async function getAuthorizedChat({ chatId, userId, teamId }: ChatContext) {
+  const db = getDB();
+
+  return await db.query.aiChatsTable.findFirst({
+    where: and(
+      eq(aiChatsTable.id, chatId),
+      eq(aiChatsTable.userId, userId),
+      eq(aiChatsTable.teamId, teamId),
+    ),
+  });
+}
+
+async function requireOwnedChat({ chatId, userId, teamId }: ChatContext) {
+  const chat = await getAuthorizedChat({ chatId, userId, teamId });
+  if (chat) return chat;
+
+  throw createAiRequestError({
+    code: "CHAT_FORBIDDEN",
+    message: "Forbidden",
+    status: 403,
+  });
+}
+
+/**
  * Get or create chat (lazy initialization)
  * Used when client sends a chat ID that may not exist in DB yet
  */
@@ -207,13 +256,21 @@ export async function getOrCreateChat({
 }): Promise<string> {
   const db = getDB();
 
-  console.log("📝 getOrCreateChat called with:", { chatId, userId, teamId, title });
+  console.log("📝 getOrCreateChat called with:", { chatId, hasTitle: Boolean(title) });
 
   // Check if chat exists
   const existing = await getChat(chatId);
   if (existing) {
-    console.log("✅ Chat already exists:", existing.id);
-    return existing.id;
+    if (isChatOwnedBy({ chat: existing, userId, teamId })) {
+      console.log("✅ Chat already exists:", existing.id);
+      return existing.id;
+    }
+
+    throw createAiRequestError({
+      code: "CHAT_FORBIDDEN",
+      message: "Forbidden",
+      status: 403,
+    });
   }
 
   console.log("🆕 Creating new chat...");
@@ -232,6 +289,20 @@ export async function getOrCreateChat({
     console.log("✅ Chat created successfully:", chatId);
   } catch (error) {
     console.error("❌ Failed to create chat:", error);
+    const conflictingChat = await getChat(chatId);
+    if (conflictingChat && isChatOwnedBy({ chat: conflictingChat, userId, teamId })) {
+      return conflictingChat.id;
+    }
+
+    if (conflictingChat) {
+      throw createAiRequestError({
+        code: "CHAT_CONFLICT",
+        message: "Chat ID is already in use",
+        status: 409,
+        cause: error,
+      });
+    }
+
     throw error;
   }
 
@@ -246,20 +317,18 @@ export async function listChats({
   teamId,
   limit = 50,
 }: {
-  userId?: string;
-  teamId?: string;
+  userId: string;
+  teamId: string;
   limit?: number;
 }) {
   const db = getDB();
 
-  // Build where clause
-  const conditions = [];
-  if (userId) conditions.push(eq(aiChatsTable.userId, userId));
-  if (teamId) conditions.push(eq(aiChatsTable.teamId, teamId));
-
   return await db.query.aiChatsTable.findMany({
-    where: conditions.length > 0 ? (conditions.length === 1 ? conditions[0] : undefined) : undefined,
-    orderBy: [desc(aiChatsTable.createdAt)],
+    where: and(
+      eq(aiChatsTable.userId, userId),
+      eq(aiChatsTable.teamId, teamId),
+    ),
+    orderBy: [desc(aiChatsTable.updatedAt)],
     limit,
   });
 }
@@ -267,9 +336,16 @@ export async function listChats({
 /**
  * Delete a chat and all its messages/parts (CASCADE handles this)
  */
-export async function deleteChat(chatId: string): Promise<void> {
+export async function deleteChat({ chatId, userId, teamId }: ChatContext): Promise<void> {
   const db = getDB();
-  await db.delete(aiChatsTable).where(eq(aiChatsTable.id, chatId));
+  await requireOwnedChat({ chatId, userId, teamId });
+  await db.delete(aiChatsTable).where(
+    and(
+      eq(aiChatsTable.id, chatId),
+      eq(aiChatsTable.userId, userId),
+      eq(aiChatsTable.teamId, teamId),
+    ),
+  );
 }
 
 /**
@@ -278,10 +354,24 @@ export async function deleteChat(chatId: string): Promise<void> {
 export async function updateChatTitle({
   chatId,
   title,
+  userId,
+  teamId,
 }: {
   chatId: string;
   title: string;
+  userId: string;
+  teamId: string;
 }): Promise<void> {
   const db = getDB();
-  await db.update(aiChatsTable).set({ title }).where(eq(aiChatsTable.id, chatId));
+  await requireOwnedChat({ chatId, userId, teamId });
+  await db
+    .update(aiChatsTable)
+    .set({ title, updatedAt: new Date() })
+    .where(
+      and(
+        eq(aiChatsTable.id, chatId),
+        eq(aiChatsTable.userId, userId),
+        eq(aiChatsTable.teamId, teamId),
+      ),
+    );
 }
