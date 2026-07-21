@@ -42,7 +42,7 @@ export function WeekStatusSelector({ weekId, currentStatus }: WeekStatusSelector
       onValueChange={handleStatusChange}
       disabled={isPending}
     >
-      <SelectTrigger className="w-[140px]">
+      <SelectTrigger className="w-auto gap-2">
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
