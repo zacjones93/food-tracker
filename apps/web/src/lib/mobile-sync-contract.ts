@@ -22,6 +22,7 @@ const optionalNullableString = z.string().trim().max(1000).nullable().optional()
 
 export const recipePayloadSchema = z.object({
   name: z.string().trim().min(1).max(500),
+  sourceRecipeId: z.string().nullable().optional(),
   emoji: z.string().max(10).nullable().optional(),
   tags: z.array(z.string().trim().min(1).max(100)).max(100).nullable().optional(),
   mealType: z.string().trim().max(50).nullable().optional(),

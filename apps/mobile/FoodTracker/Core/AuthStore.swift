@@ -8,6 +8,8 @@ protocol FoodTrackerAPI: Sendable {
     func signUp(firstName: String, lastName: String, email: String, password: String) async throws -> MobileSession
     func switchTeam(to teamID: String) async throws -> MobileSession
     func signOut() async throws
+    func loadAccountDeletionPreview() async throws -> AccountDeletionPreview
+    func deleteAccount(password: String, confirmation: String) async throws -> AccountDeletionResult
     func loadWorkspace(cursor: String?) async throws -> FoodWorkspace
     func sync(_ envelope: SyncEnvelope) async throws -> SyncResponse
     func loadAssistantChats() async throws -> [AssistantChatSummary]
@@ -15,8 +17,20 @@ protocol FoodTrackerAPI: Sendable {
     func updateAssistantChatTitle(chatID: String, title: String) async throws
     func streamAssistant(
         chatID: String,
-        messages: [AssistantMessage]
+        messages: [AssistantMessage],
+        pageContext: AssistantPageContext?,
+        mentionedContexts: [AssistantPageContext]
     ) -> AsyncThrowingStream<AssistantStreamEvent, Error>
+    func resumeAssistant(chatID: String) -> AsyncThrowingStream<AssistantStreamEvent, Error>
+    func cancelAssistant(chatID: String, runID: String) async throws
+}
+
+extension FoodTrackerAPI {
+    func resumeAssistant(chatID: String) -> AsyncThrowingStream<AssistantStreamEvent, Error> {
+        AsyncThrowingStream { $0.finish() }
+    }
+
+    func cancelAssistant(chatID: String, runID: String) async throws {}
 }
 
 enum APIError: LocalizedError {
@@ -50,7 +64,50 @@ struct AssistantConversation: Codable, Hashable, Sendable {
     var messages: [AssistantMessage]
 }
 
+struct AccountDeletionPreview: Codable, Hashable, Sendable {
+    struct TeamImpact: Codable, Hashable, Identifiable, Sendable {
+        var id: String
+        var name: String
+    }
+
+    var canDelete: Bool
+    var deletedTeams: [TeamImpact]
+    var leftTeams: [TeamImpact]
+    var ownershipTransferRequired: [TeamImpact]
+}
+
+struct AccountDeletionResult: Codable, Hashable, Sendable {
+    var deleted: Bool
+    var deletedTeamCount: Int
+    var leftTeamCount: Int
+}
+
+struct AssistantPageContext: Codable, Hashable, Sendable {
+    enum Kind: String, Codable, Hashable, Sendable {
+        case recipe
+        case week
+    }
+
+    enum Section: String, Codable, Hashable, Sendable {
+        case meals
+        case groceries
+    }
+
+    struct ViewContext: Codable, Hashable, Sendable {
+        var section: Section?
+    }
+
+    var kind: Kind
+    var entityId: String
+    var label: String
+    var href: String
+    var view: ViewContext? = nil
+
+    var identity: String { "\(kind.rawValue):\(entityId)" }
+}
+
 enum AssistantStreamEvent: Hashable, Sendable {
+    case started(runID: String)
     case status(String)
     case textDelta(String)
 }
@@ -69,7 +126,7 @@ struct FoodTrackerAPIClient: FoodTrackerAPI {
            let URL = URL(string: configured), !configured.isEmpty {
             return URL
         }
-#if DEBUG
+#if DEBUG && targetEnvironment(simulator)
         return URL(string: "http://localhost:3000")!
 #else
         return URL(string: "https://listtoladle.com")!
@@ -109,6 +166,18 @@ struct FoodTrackerAPIClient: FoodTrackerAPI {
 
     func signOut() async throws {
         let _: SuccessResponse = try await send(path: "/api/mobile/auth/sign-out", method: "POST", body: EmptyRequest())
+    }
+
+    func loadAccountDeletionPreview() async throws -> AccountDeletionPreview {
+        try await send(path: "/api/mobile/account", method: "GET")
+    }
+
+    func deleteAccount(password: String, confirmation: String) async throws -> AccountDeletionResult {
+        try await send(
+            path: "/api/mobile/account",
+            method: "DELETE",
+            body: AccountDeletionRequest(password: password, confirmation: confirmation)
+        )
     }
 
     func loadWorkspace(cursor: String?) async throws -> FoodWorkspace {
@@ -151,12 +220,19 @@ struct FoodTrackerAPIClient: FoodTrackerAPI {
 
     func streamAssistant(
         chatID: String,
-        messages: [AssistantMessage]
+        messages: [AssistantMessage],
+        pageContext: AssistantPageContext?,
+        mentionedContexts: [AssistantPageContext]
     ) -> AsyncThrowingStream<AssistantStreamEvent, Error> {
         AsyncThrowingStream { continuation in
             let task = Task {
                 do {
-                    let request = try assistantRequest(chatID: chatID, messages: messages)
+                    let request = try assistantRequest(
+                        chatID: chatID,
+                        messages: messages,
+                        pageContext: pageContext,
+                        mentionedContexts: mentionedContexts
+                    )
                     try await streamAssistantResponse(
                         request: request,
                         continuation: continuation
@@ -172,7 +248,43 @@ struct FoodTrackerAPIClient: FoodTrackerAPI {
         }
     }
 
-    private func assistantRequest(chatID: String, messages: [AssistantMessage]) throws -> URLRequest {
+    func resumeAssistant(chatID: String) -> AsyncThrowingStream<AssistantStreamEvent, Error> {
+        AsyncThrowingStream { continuation in
+            let task = Task {
+                do {
+                    let request = try assistantRequest(
+                        path: "/api/mobile/assistant/resume",
+                        body: AssistantResumeRequest(chatId: chatID)
+                    )
+                    try await streamAssistantResponse(
+                        request: request,
+                        continuation: continuation
+                    )
+                    continuation.finish()
+                } catch is CancellationError {
+                    continuation.finish()
+                } catch {
+                    continuation.finish(throwing: error)
+                }
+            }
+            continuation.onTermination = { _ in task.cancel() }
+        }
+    }
+
+    func cancelAssistant(chatID: String, runID: String) async throws {
+        let _: AssistantCancelResponse = try await send(
+            path: "/api/mobile/assistant/cancel",
+            method: "POST",
+            body: AssistantCancelRequest(chatId: chatID, runId: runID)
+        )
+    }
+
+    private func assistantRequest(
+        chatID: String,
+        messages: [AssistantMessage],
+        pageContext: AssistantPageContext?,
+        mentionedContexts: [AssistantPageContext]
+    ) throws -> URLRequest {
         let requestMessages = messages.map { message in
             AssistantRequest.Message(
                 id: message.id,
@@ -182,7 +294,12 @@ struct FoodTrackerAPIClient: FoodTrackerAPI {
         }
         return try assistantRequest(
             path: "/api/mobile/assistant",
-            body: AssistantRequest(chatId: chatID, messages: requestMessages)
+            body: AssistantRequest(
+                chatId: chatID,
+                messages: requestMessages,
+                pageContext: pageContext,
+                mentionedContexts: mentionedContexts.isEmpty ? nil : mentionedContexts
+            )
         )
     }
 
@@ -222,6 +339,10 @@ struct FoodTrackerAPIClient: FoodTrackerAPI {
             throw APIError.server(error?.error ?? "The assistant could not respond.")
         }
 
+        if let runID = response.value(forHTTPHeaderField: "x-run-id"), !runID.isEmpty {
+            continuation.yield(.started(runID: runID))
+        }
+
         for try await line in bytes.lines {
             try Task.checkCancellation()
             guard let event = try assistantEvent(from: line) else { continue }
@@ -240,7 +361,10 @@ struct FoodTrackerAPIClient: FoodTrackerAPI {
             guard let delta = event.delta, !delta.isEmpty else { return nil }
             return .textDelta(delta)
         case "start", "RUN_STARTED":
-            return .status("Thinking through your kitchen…")
+            guard let runID = event.runId, !runID.isEmpty else {
+                return .status("Thinking through your kitchen…")
+            }
+            return .started(runID: runID)
         case "tool-input-start", "TOOL_CALL_START":
             return .status(
                 (event.toolName ?? event.toolCallName) == "codemode_execute"
@@ -324,16 +448,23 @@ private struct AssistantRequest: Codable {
 
     var chatId: String
     var messages: [Message]
+    var pageContext: AssistantPageContext?
+    var mentionedContexts: [AssistantPageContext]?
 }
 
 private struct AssistantWireEvent: Codable {
     var type: String
+    var runId: String?
     var delta: String?
     var message: String?
     var toolCallName: String?
     var toolName: String?
     var errorText: String?
 }
+
+private struct AssistantResumeRequest: Codable { var chatId: String }
+private struct AssistantCancelRequest: Codable { var chatId: String; var runId: String }
+private struct AssistantCancelResponse: Codable { var cancelled: Bool }
 
 private struct AssistantChatsResponse: Codable { var chats: [AssistantChatSummary] }
 private struct AssistantTitleRequest: Codable { var title: String }
@@ -342,6 +473,7 @@ private struct EmptyRequest: Codable {}
 private struct TeamSelectionRequest: Codable { var teamId: String }
 private struct SuccessResponse: Codable { var success: Bool }
 private struct ServerError: Codable { var error: String }
+private struct AccountDeletionRequest: Codable { var password: String; var confirmation: String }
 
 private extension URL {
     var origin: String {
@@ -357,6 +489,7 @@ private struct ServerWorkspaceDTO: Decodable {
     struct RecipeDTO: Decodable {
         var id: String
         var clientId: String?
+        var sourceRecipeId: String?
         var name: String
         var emoji: String?
         var tags: [String]?
@@ -481,6 +614,7 @@ private struct ServerWorkspaceDTO: Decodable {
                 Recipe(
                     id: value.clientId ?? value.id,
                     serverID: value.id,
+                    sourceRecipeID: value.sourceRecipeId.flatMap { recipeIDs[$0] } ?? value.sourceRecipeId,
                     name: value.name,
                     emoji: value.emoji ?? "🍽️",
                     tags: value.tags ?? [],
@@ -624,6 +758,17 @@ final class AuthStore {
         }
     }
 
+    func refreshSession() async {
+        do {
+            session = try await client.restoreSession()
+        } catch APIError.unauthorized {
+            session = nil
+            phase = .signedOut
+        } catch {
+            // Keep the last known entitlement snapshot while temporarily offline.
+        }
+    }
+
     func signIn(email: String, password: String) async -> Bool {
         await authenticate { try await client.signIn(email: email, password: password) }
     }
@@ -660,6 +805,37 @@ final class AuthStore {
         catch { errorMessage = error.localizedDescription }
         session = nil
         phase = .signedOut
+    }
+
+    func loadAccountDeletionPreview() async -> AccountDeletionPreview? {
+        isWorking = true
+        errorMessage = nil
+        defer { isWorking = false }
+        do {
+            return try await client.loadAccountDeletionPreview()
+        } catch {
+            errorMessage = error.localizedDescription
+            return nil
+        }
+    }
+
+    func deleteAccount(password: String, confirmation: String = "DELETE") async -> Bool {
+        isWorking = true
+        errorMessage = nil
+        defer { isWorking = false }
+        do {
+            let result = try await client.deleteAccount(password: password, confirmation: confirmation)
+            guard result.deleted else {
+                errorMessage = "List To Ladle could not confirm that your account was deleted."
+                return false
+            }
+            session = nil
+            phase = .signedOut
+            return true
+        } catch {
+            errorMessage = error.localizedDescription
+            return false
+        }
     }
 
     func clearError() { errorMessage = nil }

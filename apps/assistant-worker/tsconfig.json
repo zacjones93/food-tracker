@@ -7,7 +7,7 @@
     "strict": true,
     "skipLibCheck": true,
     "noEmit": true,
-    "types": ["./worker-env.d.ts"]
+    "types": ["./worker-env.d.ts", "./custom-env.d.ts"]
   },
-  "include": ["src/**/*.ts", "worker-env.d.ts"]
+  "include": ["src/**/*.ts", "worker-env.d.ts", "custom-env.d.ts"]
 }

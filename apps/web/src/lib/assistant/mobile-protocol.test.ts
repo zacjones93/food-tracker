@@ -12,11 +12,37 @@ test("serializes the legacy mobile assistant request as protocol-neutral AG-UI",
       role: "user",
       parts: [{ type: "text", text: "Find soup" }],
     }],
+    pageContext: {
+      kind: "recipe",
+      entityId: "recipe-1",
+      label: "Tomato soup",
+      href: "/recipes/recipe-1",
+    },
+    mentionedContexts: [{
+      kind: "week",
+      entityId: "week-1",
+      label: "July 20–26",
+      href: "/schedule/week-1",
+    }],
   });
   assert.equal(body.threadId, "chat-1");
   assert.equal(body.runId, "run-1");
   assert.deepEqual(body.messages[0]?.parts, [{ type: "text", content: "Find soup" }]);
-  assert.deepEqual(body.forwardedProps, { chatId: "chat-1" });
+  assert.deepEqual(body.forwardedProps, {
+    chatId: "chat-1",
+    pageContext: {
+      kind: "recipe",
+      entityId: "recipe-1",
+      label: "Tomato soup",
+      href: "/recipes/recipe-1",
+    },
+    mentionedContexts: [{
+      kind: "week",
+      entityId: "week-1",
+      label: "July 20–26",
+      href: "/schedule/week-1",
+    }],
+  });
 });
 
 test("maps TanStack text events to the stable mobile text-delta contract", () => {

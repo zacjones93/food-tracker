@@ -26,6 +26,7 @@ import { useRouter } from "next/navigation";
 
 export function SettingsForm() {
   const router = useRouter()
+  const { session, isLoading, fetchSession } = useSessionStore();
 
   const { execute: updateUserProfile } = useServerAction(updateUserProfileAction, {
     onError: (error) => {
@@ -35,14 +36,14 @@ export function SettingsForm() {
     onStart: () => {
       toast.loading("Signing you in...")
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.dismiss()
       toast.success("Signed in successfully")
+      await fetchSession?.()
       router.refresh()
     }
   })
 
-  const { session, isLoading } = useSessionStore();
   const form = useForm<z.infer<typeof userSettingsSchema>>({
     resolver: zodResolver(userSettingsSchema)
   });

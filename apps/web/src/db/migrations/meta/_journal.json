@@ -239,6 +239,55 @@
       "when": 1784666692789,
       "tag": "0033_schedule-related-recipes",
       "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "6",
+      "when": 1784671568892,
+      "tag": "0034_add-recipe-source",
+      "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "6",
+      "when": 1784676504445,
+      "tag": "0035_add-team-entitlements",
+      "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "6",
+      "when": 1784678528745,
+      "tag": "0036_add-push-devices",
+      "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "6",
+      "when": 1784760562106,
+      "tag": "0037_add-apple-subscriptions",
+      "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "6",
+      "when": 1784760603005,
+      "tag": "0038_add-push-delivery-state",
+      "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "6",
+      "when": 1784760614890,
+      "tag": "0039_scope-push-preferences-by-topic",
+      "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "6",
+      "when": 1784760644517,
+      "tag": "0040_account-deletion-fk-behavior",
+      "breakpoints": true
     }
   ]
 }

@@ -7,6 +7,8 @@ import { getUserFromDB } from "@/utils/auth";
 import { getIP } from "./get-IP";
 import { MAX_SESSIONS_PER_USER } from "@/constants";
 const SESSION_PREFIX = "session:";
+const ACCOUNT_DELETION_SESSION_BLOCK_PREFIX = "account-deletion-session-block:";
+const ACCOUNT_DELETION_SESSION_BLOCK_TTL_SECONDS = 31 * 24 * 60 * 60;
 
 export function getSessionKey(userId: string, sessionId: string): string {
   return `${SESSION_PREFIX}${userId}:${sessionId}`;
@@ -134,6 +136,11 @@ export async function getKVSession(sessionId: string, userId: string): Promise<K
     throw new Error("Can't connect to KV store");
   }
 
+  const isBlockedForAccountDeletion = await kv.get(
+    `${ACCOUNT_DELETION_SESSION_BLOCK_PREFIX}${userId}`,
+  );
+  if (isBlockedForAccountDeletion) return null;
+
   const sessionStr = await kv.get(getSessionKey(userId, sessionId));
   if (!sessionStr) return null;
 
@@ -239,6 +246,30 @@ export async function getAllSessionIdsOfUser(userId: string) {
     key: session.name,
     absoluteExpiration: session.expiration ? new Date(session.expiration * 1000) : undefined
   }))
+}
+
+export async function blockUserSessionsForAccountDeletion(userId: string): Promise<void> {
+  const kv = await getKV();
+  if (!kv) throw new Error("Can't connect to KV store");
+
+  await kv.put(`${ACCOUNT_DELETION_SESSION_BLOCK_PREFIX}${userId}`, "1", {
+    expirationTtl: ACCOUNT_DELETION_SESSION_BLOCK_TTL_SECONDS,
+  });
+}
+
+export async function unblockUserSessionsForAccountDeletion(userId: string): Promise<void> {
+  const kv = await getKV();
+  if (!kv) throw new Error("Can't connect to KV store");
+
+  await kv.delete(`${ACCOUNT_DELETION_SESSION_BLOCK_PREFIX}${userId}`);
+}
+
+export async function deleteAllSessionsOfUser(userId: string): Promise<void> {
+  const kv = await getKV();
+  if (!kv) throw new Error("Can't connect to KV store");
+
+  const sessions = await getAllSessionIdsOfUser(userId);
+  await Promise.all(sessions.map((session) => kv.delete(session.key)));
 }
 
 /**

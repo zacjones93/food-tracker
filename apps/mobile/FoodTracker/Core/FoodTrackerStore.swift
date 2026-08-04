@@ -19,6 +19,26 @@ struct JSONWorkspaceStorage: WorkspacePersisting {
         return JSONWorkspaceStorage(fileURL: root.appending(path: "\(safePrincipal).json"))
     }
 
+    static func removeAll(userID: String, root: URL? = nil) throws {
+        let workspaceRoot = root ?? FileManager.default.urls(
+            for: .applicationSupportDirectory,
+            in: .userDomainMask
+        )[0].appending(path: "FoodTracker/Workspaces", directoryHint: .isDirectory)
+        guard FileManager.default.fileExists(atPath: workspaceRoot.path) else { return }
+
+        let safeUserID = userID
+            .replacingOccurrences(of: "/", with: "_")
+            .replacingOccurrences(of: ":", with: "_")
+        let prefix = "\(safeUserID)_"
+        let files = try FileManager.default.contentsOfDirectory(
+            at: workspaceRoot,
+            includingPropertiesForKeys: nil
+        )
+        for file in files where file.lastPathComponent.hasPrefix(prefix) && file.pathExtension == "json" {
+            try FileManager.default.removeItem(at: file)
+        }
+    }
+
     func load() throws -> FoodWorkspace? {
         guard FileManager.default.fileExists(atPath: fileURL.path) else { return nil }
         return try FoodTrackerCoding.decoder.decode(FoodWorkspace.self, from: Data(contentsOf: fileURL))
@@ -55,7 +75,14 @@ final class FoodTrackerStore {
         var scheduledDate: Date?
     }
 
+    struct AssistantLaunch: Identifiable, Hashable, Sendable {
+        let id = UUID()
+        var context: AssistantPageContext
+        var suggestedPrompt: String
+    }
+
     var selectedTab: Tab = .schedule
+    private(set) var assistantLaunch: AssistantLaunch?
     private(set) var workspace: FoodWorkspace
     private(set) var activePrincipalID: String?
     private(set) var isInitialLoading: Bool
@@ -94,6 +121,22 @@ final class FoodTrackerStore {
     var groceryTemplates: [GroceryTemplate] { workspace.groceryTemplates }
     var pendingCount: Int { workspace.outbox.count }
 
+    func openAssistant(
+        context: AssistantPageContext,
+        suggestedPrompt: String
+    ) {
+        assistantLaunch = AssistantLaunch(
+            context: context,
+            suggestedPrompt: suggestedPrompt
+        )
+        selectedTab = .assistant
+    }
+
+    func consumeAssistantLaunch(id: UUID) {
+        guard assistantLaunch?.id == id else { return }
+        assistantLaunch = nil
+    }
+
     func activateWorkspace(userID: String, teamID: String) {
         let principalID = "\(userID):\(teamID)"
         guard principalID != activePrincipalID else { return }
@@ -121,6 +164,16 @@ final class FoodTrackerStore {
         workspace = .empty
         isInitialLoading = true
         syncMessage = nil
+    }
+
+    func purgeAccountData(userID: String) {
+        do {
+            try JSONWorkspaceStorage.removeAll(userID: userID)
+            persistenceMessage = nil
+        } catch {
+            persistenceMessage = "Your account was deleted, but iOS could not remove every saved offline file. Reinstall the app to clear its local storage."
+        }
+        deactivateWorkspace()
     }
 
     func scheduledRecipes(for weekID: String) -> [ScheduledRecipe] {

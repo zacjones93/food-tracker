@@ -6,8 +6,12 @@ struct RecipesView: View {
     @State private var search = ""
     @State private var mealType = "All"
     @State private var showingNewRecipe = false
+    @State private var pagination = RecipeListPagination()
 
     var body: some View {
+        let matchingRecipes = filteredRecipes
+        let visibleRecipes = pagination.visibleItems(from: matchingRecipes)
+
         ScrollView {
             LazyVStack(alignment: .leading, spacing: FoodSpacing.large) {
                 ScreenHeaderWithStatus(
@@ -32,7 +36,7 @@ struct RecipesView: View {
                     }
                     .pickerStyle(.menu)
 
-                    if filteredRecipes.isEmpty {
+                    if matchingRecipes.isEmpty {
                         FoodEmptyState(
                             symbol: search.isEmpty ? "book.closed" : "magnifyingglass",
                             title: search.isEmpty ? "Your cookbook is waiting" : "No matching recipes",
@@ -43,7 +47,7 @@ struct RecipesView: View {
                         .frame(minHeight: 360)
                     } else {
                         VStack(spacing: 0) {
-                            ForEach(filteredRecipes) { recipe in
+                            ForEach(visibleRecipes) { recipe in
                                 NavigationLink {
                                     RecipeDetailView(recipeID: recipe.id)
                                 } label: {
@@ -52,7 +56,25 @@ struct RecipesView: View {
                                         .padding(.vertical, FoodSpacing.small)
                                 }
                                 .buttonStyle(.plain)
-                                if recipe.id != filteredRecipes.last?.id { Divider().padding(.leading, 72) }
+                                if recipe.id != visibleRecipes.last?.id { Divider().padding(.leading, 72) }
+                            }
+
+                            if pagination.hasMore(totalCount: matchingRecipes.count) {
+                                Divider().padding(.leading, 72)
+                                Button {
+                                    pagination.loadNextPage(totalCount: matchingRecipes.count)
+                                } label: {
+                                    HStack {
+                                        Text("Load more recipes")
+                                        Spacer()
+                                        Text("\(pagination.remainingCount(totalCount: matchingRecipes.count)) remaining")
+                                            .foregroundStyle(Color.foodSecondaryInk)
+                                    }
+                                    .frame(minHeight: 44)
+                                    .padding(.horizontal, FoodSpacing.medium)
+                                }
+                                .buttonStyle(.plain)
+                                .accessibilityHint("Shows the next page of recipes")
                             }
                         }
                         .foodSurface()
@@ -66,6 +88,8 @@ struct RecipesView: View {
         .navigationTitle("Recipes")
         .navigationBarTitleDisplayMode(.inline)
         .searchable(text: $search, prompt: "Name or tag")
+        .onChange(of: search) { _, _ in pagination.reset() }
+        .onChange(of: mealType) { _, _ in pagination.reset() }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button("Add recipe", systemImage: "plus") { showingNewRecipe = true }
@@ -90,10 +114,41 @@ struct RecipesView: View {
     }
 }
 
+struct RecipeListPagination {
+    let pageSize: Int
+    private(set) var visibleCount: Int
+
+    init(pageSize: Int = 25) {
+        self.pageSize = max(1, pageSize)
+        visibleCount = max(1, pageSize)
+    }
+
+    func visibleItems<Element>(from items: [Element]) -> ArraySlice<Element> {
+        items.prefix(visibleCount)
+    }
+
+    func hasMore(totalCount: Int) -> Bool {
+        visibleCount < totalCount
+    }
+
+    func remainingCount(totalCount: Int) -> Int {
+        max(0, totalCount - visibleCount)
+    }
+
+    mutating func loadNextPage(totalCount: Int) {
+        visibleCount = min(totalCount, visibleCount + pageSize)
+    }
+
+    mutating func reset() {
+        visibleCount = pageSize
+    }
+}
+
 struct RecipeEditor: View {
     @Environment(FoodTrackerStore.self) private var store
     @Environment(\.dismiss) private var dismiss
     var recipe: Recipe?
+    var sourceRecipe: Recipe?
     @State private var name: String
     @State private var emoji: String
     @State private var mealType: String
@@ -106,19 +161,21 @@ struct RecipeEditor: View {
     @State private var ingredients: String
     @State private var instructions: String
 
-    init(recipe: Recipe? = nil) {
+    init(recipe: Recipe? = nil, sourceRecipe: Recipe? = nil) {
         self.recipe = recipe
-        _name = State(initialValue: recipe?.name ?? "")
-        _emoji = State(initialValue: recipe?.emoji ?? "🍽️")
-        _mealType = State(initialValue: recipe?.mealType ?? "Dinner")
-        _difficulty = State(initialValue: recipe?.difficulty ?? "Easy")
+        self.sourceRecipe = sourceRecipe
+        let template = recipe ?? sourceRecipe
+        _name = State(initialValue: sourceRecipe.map { "\($0.name) (Remix)" } ?? recipe?.name ?? "")
+        _emoji = State(initialValue: template?.emoji ?? "🍽️")
+        _mealType = State(initialValue: template?.mealType ?? "Dinner")
+        _difficulty = State(initialValue: template?.difficulty ?? "Easy")
         _visibility = State(initialValue: recipe?.visibility ?? "private")
-        _tags = State(initialValue: recipe?.tags.joined(separator: ", ") ?? "")
-        _recipeLink = State(initialValue: recipe?.recipeLink ?? "")
-        _recipeBookID = State(initialValue: recipe?.recipeBookID)
-        _page = State(initialValue: recipe?.page ?? "")
-        _ingredients = State(initialValue: recipe?.ingredients.flatMap(\.items).joined(separator: "\n") ?? "")
-        _instructions = State(initialValue: recipe?.instructions ?? "")
+        _tags = State(initialValue: template?.tags.joined(separator: ", ") ?? "")
+        _recipeLink = State(initialValue: template?.recipeLink ?? "")
+        _recipeBookID = State(initialValue: template?.recipeBookID)
+        _page = State(initialValue: template?.page ?? "")
+        _ingredients = State(initialValue: template?.ingredients.flatMap(\.items).joined(separator: "\n") ?? "")
+        _instructions = State(initialValue: template?.instructions ?? "")
     }
 
     var body: some View {
@@ -170,13 +227,13 @@ struct RecipeEditor: View {
             }
             .foodListBackground()
             .foodFormBehavior()
-            .navigationTitle(recipe == nil ? "New recipe" : "Edit recipe")
+            .navigationTitle(sourceRecipe != nil ? "Remix recipe" : recipe == nil ? "New recipe" : "Edit recipe")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
-                        var value = recipe ?? Recipe(name: name)
+                        var value = recipe ?? Recipe(sourceRecipeID: sourceRecipe?.id, name: name)
                         value.name = name.trimmingCharacters(in: .whitespacesAndNewlines)
                         value.emoji = emoji.isEmpty ? "🍽️" : emoji
                         value.mealType = mealType

@@ -40,6 +40,17 @@ interface ResolveAssistantContextInput {
   userId: string;
 }
 
+interface ResolveAssistantContextsInput {
+  pageContext: unknown;
+  mentionedContexts: unknown;
+  db: DrizzleD1Database<typeof schema>;
+  teamId: string;
+  userId: string;
+}
+
+const MAX_MENTIONED_CONTEXTS = 4;
+const MAX_RESOLVED_CONTEXT_LENGTH = 190_000;
+
 export function parseAssistantPageContext(context: unknown) {
   const result = assistantPageContextSchema.safeParse(context);
   return result.success ? (result.data as AssistantPageContext) : null;
@@ -66,11 +77,24 @@ export async function resolveAssistantPageContext({
       return null;
     }
 
+    const sourceRecipe = recipe.sourceRecipeId
+      ? await db.query.recipesTable.findFirst({
+          where: eq(recipesTable.id, recipe.sourceRecipeId),
+        })
+      : null;
+    const readableSourceRecipe = sourceRecipe && hasAccessToRecipe(sourceRecipe, userId, teamId)
+      ? sourceRecipe
+      : null;
+
     return formatResolvedContext({
       kind: "recipe",
       view: "recipe detail",
       recipe: {
         id: recipe.id,
+        sourceRecipeId: recipe.sourceRecipeId,
+        sourceRecipe: readableSourceRecipe
+          ? { id: readableSourceRecipe.id, name: readableSourceRecipe.name }
+          : null,
         name: recipe.name,
         emoji: recipe.emoji,
         mealType: recipe.mealType,
@@ -138,6 +162,62 @@ export async function resolveAssistantPageContext({
       updatedAt: week.updatedAt,
     },
   });
+}
+
+export async function resolveAssistantContexts({
+  pageContext,
+  mentionedContexts,
+  db,
+  teamId,
+  userId,
+}: ResolveAssistantContextsInput): Promise<string | null> {
+  const candidates = [
+    pageContext,
+    ...(Array.isArray(mentionedContexts)
+      ? mentionedContexts.slice(0, MAX_MENTIONED_CONTEXTS)
+      : []),
+  ];
+  const uniqueContexts = candidates.reduce<AssistantPageContext[]>((contexts, candidate) => {
+    const parsed = parseAssistantPageContext(candidate);
+    if (!parsed) return contexts;
+    const isDuplicate = contexts.some(
+      (context) => context.kind === parsed.kind && context.entityId === parsed.entityId,
+    );
+    if (!isDuplicate) contexts.push(parsed);
+    return contexts;
+  }, []);
+
+  if (uniqueContexts.length === 0) return null;
+
+  const resolvedContexts = await Promise.all(
+    uniqueContexts.map((context) =>
+      resolveAssistantPageContext({ context, db, teamId, userId }),
+    ),
+  );
+  const validContexts = resolvedContexts.filter(
+    (context): context is string => Boolean(context),
+  );
+  if (validContexts.length === 0) return null;
+
+  const separatorLength = Math.max(0, validContexts.length - 1) * 2;
+  const maxItemLength = Math.floor(
+    (MAX_RESOLVED_CONTEXT_LENGTH - separatorLength) / validContexts.length,
+  );
+  return validContexts
+    .map((context) => truncateResolvedContext({ context, maxLength: maxItemLength }))
+    .join("\n\n");
+}
+
+function truncateResolvedContext({
+  context,
+  maxLength,
+}: {
+  context: string;
+  maxLength: number;
+}) {
+  if (context.length <= maxLength) return context;
+  const suffix = "\n[Attached data truncated.]\n</ATTACHED_PAGE_DATA>";
+  return `${context.slice(0, Math.max(0, maxLength - suffix.length))}${suffix}`;
 }
 
 function formatResolvedContext(context: Record<string, unknown>) {

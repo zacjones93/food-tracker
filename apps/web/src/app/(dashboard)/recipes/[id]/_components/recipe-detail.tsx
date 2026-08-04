@@ -8,6 +8,7 @@ import type { Recipe, RecipeBook } from "@/db/schema";
 import { format } from "date-fns";
 import {
   ArrowLeft,
+  ArrowsLeftRight,
   Clock,
   ChefHat,
   Calendar,
@@ -16,6 +17,7 @@ import {
   BookOpen,
 } from "@/components/ui/themed-icons";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import { AddToSchedule } from "../../_components/add-to-schedule";
 import { AddIngredientToWeek } from "../../_components/add-ingredient-to-week";
@@ -32,6 +34,7 @@ interface RecipeDetailProps {
   recipe: Recipe & {
     recipeBook?: RecipeBook | null;
   };
+  sourceRecipe?: Pick<Recipe, "id" | "name" | "emoji"> | null;
   relationsAsMain?: Array<RecipeRelation & { sideRecipe: Recipe }>;
   relationsAsSide?: Array<RecipeRelation & { mainRecipe: Recipe }>;
 }
@@ -74,6 +77,7 @@ function normalizeIngredients(ingredients: unknown) {
 
 export function RecipeDetail({
   recipe,
+  sourceRecipe,
   relationsAsMain,
   relationsAsSide,
 }: RecipeDetailProps) {
@@ -108,12 +112,36 @@ export function RecipeDetail({
           </div>
         </div>
         {session.session?.user && (
-          <AddToSchedule recipeId={recipe.id} variant="default" />
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" asChild>
+              <Link href={`/recipes/create?sourceRecipeId=${recipe.id}`}>
+                <ArrowsLeftRight className="mr-2 h-4 w-4" />
+                Remix
+              </Link>
+            </Button>
+            <AddToSchedule recipeId={recipe.id} variant="default" />
+          </div>
         )}
       </div>
 
       {/* Metadata */}
       <Card className="p-6">
+        {sourceRecipe && (
+          <>
+            <div className="flex items-center justify-between gap-4">
+              <div className="min-w-0">
+                <div className="text-sm text-muted-foreground">Remixed from</div>
+                <div className="truncate font-medium">
+                  {sourceRecipe.emoji ? `${sourceRecipe.emoji} ` : ""}{sourceRecipe.name}
+                </div>
+              </div>
+              <Button variant="outline" size="sm" asChild>
+                <Link href={`/recipes/${sourceRecipe.id}`}>View original</Link>
+              </Button>
+            </div>
+            <Separator className="my-4" />
+          </>
+        )}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {recipe.mealType && (
             <div className="space-y-1">

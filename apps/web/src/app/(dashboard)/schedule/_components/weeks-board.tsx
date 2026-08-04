@@ -7,12 +7,15 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronUp } from "@/components/ui/themed-icons";
 import type { Week, WeekRecipe, Recipe } from "@/db/schema";
-import { WeekRecipesList } from "../[id]/_components/week-recipes-list";
+
+interface WeekSummary extends Pick<Week, "id" | "name" | "emoji" | "status"> {
+  recipes: Array<Pick<WeekRecipe, "id"> & {
+    recipe: Pick<Recipe, "id" | "name" | "emoji">;
+  }>;
+}
 
 interface WeeksBoardProps {
-  weeks: (Week & {
-    recipes: (WeekRecipe & { recipe: Recipe })[];
-  })[];
+  weeks: WeekSummary[];
 }
 
 export function WeeksBoard({ weeks }: WeeksBoardProps) {
@@ -100,9 +103,7 @@ function WeekCard({
   week,
   expanded = false,
 }: {
-  week: Week & {
-    recipes: (WeekRecipe & { recipe: Recipe })[];
-  };
+  week: WeekSummary;
   expanded?: boolean;
 }) {
   if (expanded) {
@@ -120,13 +121,7 @@ function WeekCard({
           </Link>
         </CardHeader>
         <CardContent className="pt-0">
-          <WeekRecipesList
-            weekId={week.id}
-            recipes={week.recipes}
-            weekStartDate={week.startDate}
-            weekEndDate={week.endDate}
-            embedded
-          />
+          <WeekRecipePreview week={week} />
         </CardContent>
       </Card>
     );
@@ -163,5 +158,45 @@ function WeekCard({
         </CardContent>
       </Card>
     </Link>
+  );
+}
+
+function WeekRecipePreview({ week }: { week: WeekSummary }) {
+  if (week.recipes.length === 0) {
+    return (
+      <p className="text-sm text-mystic-700 dark:text-cream-200">
+        No recipes added yet.
+      </p>
+    );
+  }
+
+  const visibleRecipes = week.recipes.slice(0, 5);
+  const remainingCount = week.recipes.length - visibleRecipes.length;
+
+  return (
+    <div className="space-y-2">
+      {visibleRecipes.map(({ id, recipe }) => (
+        <Link
+          key={id}
+          href={`/recipes/${recipe.id}`}
+          className="flex min-h-11 items-center gap-3 rounded-lg border bg-background px-3 py-2 text-sm transition-colors hover:bg-mystic-50 dark:hover:bg-cream-200/10"
+        >
+          <span className="text-lg" aria-hidden="true">
+            {recipe.emoji || "🍽️"}
+          </span>
+          <span className="min-w-0 flex-1 truncate font-medium text-mystic-900 dark:text-cream-100">
+            {recipe.name}
+          </span>
+        </Link>
+      ))}
+      {remainingCount > 0 ? (
+        <Link
+          href={`/schedule/${week.id}`}
+          className="inline-flex min-h-11 items-center text-sm font-medium text-mystic-700 hover:underline dark:text-cream-200"
+        >
+          View {remainingCount} more recipe{remainingCount === 1 ? "" : "s"}
+        </Link>
+      ) : null}
+    </div>
   );
 }

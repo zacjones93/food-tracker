@@ -1,6 +1,8 @@
 import type { ChatMiddleware, TokenUsage, UIMessage } from "@tanstack/ai";
 
 import type { AssistantRequestContext } from "./context";
+import { sanitizeAssistantText } from "./assistant-text";
+import { calculateEstimatedAiCostUsd } from "./gemini";
 import {
   getWorkerAssistantErrorMessage,
   type WorkerAssistantErrorCode,
@@ -196,6 +198,7 @@ async function finishRun({
 
 function addUsage(total: TokenUsage | null, usage: TokenUsage): TokenUsage {
   if (!total) return usage;
+  const hasReportedCost = total.cost !== undefined || usage.cost !== undefined;
   return {
     promptTokens: total.promptTokens + usage.promptTokens,
     completionTokens: total.completionTokens + usage.completionTokens,
@@ -210,7 +213,7 @@ function addUsage(total: TokenUsage | null, usage: TokenUsage): TokenUsage {
         (total.completionTokensDetails?.reasoningTokens ?? 0) +
         (usage.completionTokensDetails?.reasoningTokens ?? 0),
     },
-    cost: (total.cost ?? 0) + (usage.cost ?? 0),
+    ...(hasReportedCost ? { cost: (total.cost ?? 0) + (usage.cost ?? 0) } : {}),
   };
 }
 
@@ -228,6 +231,7 @@ async function persistUsage({
   finishReason?: string | null;
 }): Promise<void> {
   const timestamp = nowSeconds();
+  const estimatedCostUsd = calculateEstimatedAiCostUsd({ model, usage });
   await db.prepare(
     `INSERT INTO ai_usage
      (id, userId, teamId, model, endpoint, inputTokens, outputTokens,
@@ -244,7 +248,7 @@ async function persistUsage({
     usage.completionTokensDetails?.reasoningTokens ?? 0,
     usage.promptTokensDetails?.cachedTokens ?? 0,
     usage.totalTokens,
-    String(usage.cost ?? 0),
+    String(estimatedCostUsd),
     context.chatId,
     finishReason ?? null,
     timestamp,
@@ -335,15 +339,16 @@ export function createPersistenceMiddleware({
       observedUsage = addUsage(observedUsage, usage);
     },
     async onFinish(_middlewareContext, info) {
+      const safeContent = sanitizeAssistantText(info.content);
       const outcome = classifyRunOutcome({
-        content: info.content,
+        content: safeContent,
         failedToolCalls,
         successfulToolCalls,
         finishReason: info.finishReason,
       });
       const persistedContent = outcome.status === "error"
         ? getWorkerAssistantErrorMessage(outcome.errorCode ?? "EMPTY_RESPONSE")
-        : info.content.trim();
+        : safeContent;
       if (persistedContent) {
         await persistMessage({
           db,

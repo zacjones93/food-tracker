@@ -1,4 +1,6 @@
 interface Env {
-  TELNYX_API_KEY?: string;
-  TELNYX_PUBLIC_KEY?: string;
+  APNS_KEY_ID?: string;
+  APNS_PRIVATE_KEY?: string;
+  APNS_TEAM_ID?: string;
+  PUSH_TEST_TOKEN?: string;
 }

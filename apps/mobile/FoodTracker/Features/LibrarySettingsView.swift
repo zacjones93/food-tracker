@@ -68,6 +68,9 @@ struct LibrarySettingsView: View {
             }
 
             Section("About") {
+                Link(destination: FoodTrackerAPIClient.defaultBaseURL.appending(path: "/support")) {
+                    Label("Support", systemImage: "questionmark.circle")
+                }
                 Link(destination: FoodTrackerAPIClient.defaultBaseURL.appending(path: "/privacy")) {
                     Label("Privacy", systemImage: "hand.raised")
                 }
@@ -213,6 +216,7 @@ private struct AccountView: View {
     @Environment(AuthStore.self) private var auth
     @Environment(FoodTrackerStore.self) private var store
     @Environment(ConnectivityMonitor.self) private var connectivity
+    @Environment(PushNotificationCoordinator.self) private var pushNotifications
     @State private var isConfirmingSignOut = false
 
     var body: some View {
@@ -245,17 +249,159 @@ private struct AccountView: View {
                     isConfirmingSignOut = true
                 }
             }
+            Section("Danger zone") {
+                NavigationLink {
+                    DeleteAccountView()
+                } label: {
+                    Label("Delete account", systemImage: "person.crop.circle.badge.minus")
+                        .foregroundStyle(.red)
+                }
+            }
         }
         .foodListBackground()
         .navigationTitle("Account")
+        .toolbar(.hidden, for: .tabBar)
         .confirmationDialog("Sign out of this device?", isPresented: $isConfirmingSignOut, titleVisibility: .visible) {
             Button("Sign out", role: .destructive) {
                 store.deactivateWorkspace()
-                Task { await auth.signOut() }
+                Task {
+                    await pushNotifications.disableForCurrentAccount()
+                    await auth.signOut()
+                }
             }
             Button("Cancel", role: .cancel) {}
         } message: {
             Text("Your queued changes stay protected on this device for your next sign-in.")
         }
+    }
+}
+
+private struct DeleteAccountView: View {
+    @Environment(AuthStore.self) private var auth
+    @Environment(FoodTrackerStore.self) private var store
+    @Environment(ConnectivityMonitor.self) private var connectivity
+    @Environment(PushNotificationCoordinator.self) private var pushNotifications
+    @State private var confirmation = ""
+    @State private var isConfirmingDeletion = false
+    @State private var password = ""
+    @State private var preview: AccountDeletionPreview?
+
+    private var canSubmit: Bool {
+        connectivity.isOnline &&
+            preview?.canDelete == true &&
+            confirmation == "DELETE" &&
+            password.count >= 8 &&
+            !auth.isWorking
+    }
+
+    var body: some View {
+        Form {
+            Section("What will happen") {
+                Text("Your profile, assistant history, sync records, sessions on every device, and push-notification tokens will be permanently removed.")
+                if store.pendingCount > 0 {
+                    Label(
+                        "\(store.pendingCount) unsynced local change\(store.pendingCount == 1 ? "" : "s") will also be erased from this iPhone.",
+                        systemImage: "exclamationmark.triangle.fill"
+                    )
+                    .foregroundStyle(.orange)
+                }
+                teamImpactRows
+            }
+
+            if let preview, !preview.canDelete {
+                Section("Ownership transfer required") {
+                    Text("Shared kitchens are never deleted or reassigned automatically. In web team settings, make another active member an owner of each kitchen first:")
+                    ForEach(preview.ownershipTransferRequired) { team in
+                        Label(team.name, systemImage: "person.2.badge.gearshape")
+                    }
+                }
+            } else if preview != nil {
+                Section("Confirm your identity") {
+                    SecureField("Current password", text: $password)
+                        .textContentType(.password)
+                    TextField("Type DELETE", text: $confirmation)
+                        .textInputAutocapitalization(.characters)
+                        .autocorrectionDisabled()
+                    Text("Account deletion is immediate and cannot be undone.")
+                        .font(.footnote)
+                        .foregroundStyle(Color.foodSecondaryInk)
+                }
+
+                Section {
+                    Button("Delete account", role: .destructive) {
+                        isConfirmingDeletion = true
+                    }
+                    .disabled(!canSubmit)
+                }
+            }
+
+            if let errorMessage = auth.errorMessage {
+                Section {
+                    Text(errorMessage)
+                        .foregroundStyle(.red)
+                        .accessibilityLabel("Account deletion error: \(errorMessage)")
+                }
+            }
+        }
+        .foodListBackground()
+        .foodFormBehavior()
+        .navigationTitle("Delete account")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden, for: .tabBar)
+        .overlay {
+            if preview == nil && auth.isWorking {
+                ProgressView("Checking your account…")
+            }
+        }
+        .task {
+            preview = await auth.loadAccountDeletionPreview()
+        }
+        .confirmationDialog(
+            "Permanently delete your account?",
+            isPresented: $isConfirmingDeletion,
+            titleVisibility: .visible
+        ) {
+            Button("Delete permanently", role: .destructive) {
+                Task { await performDeletion() }
+            }
+            Button("Cancel", role: .cancel) {
+                password = ""
+            }
+        } message: {
+            Text("Sole-member kitchens and their associated subscriptions will be deleted now. Shared kitchen data remains for other members.")
+        }
+    }
+
+    @ViewBuilder
+    private var teamImpactRows: some View {
+        if let preview {
+            if !preview.deletedTeams.isEmpty {
+                VStack(alignment: .leading, spacing: FoodSpacing.extraSmall) {
+                    Text("Deleted kitchens").font(.headline)
+                    ForEach(preview.deletedTeams) { team in
+                        Label(team.name, systemImage: "trash")
+                    }
+                }
+            }
+            if !preview.leftTeams.isEmpty {
+                VStack(alignment: .leading, spacing: FoodSpacing.extraSmall) {
+                    Text("Shared kitchens that remain").font(.headline)
+                    ForEach(preview.leftTeams) { team in
+                        Label(team.name, systemImage: "person.2")
+                    }
+                }
+            }
+        }
+    }
+
+    private func performDeletion() async {
+        guard let userID = auth.session?.user.id else { return }
+        let didDelete = await auth.deleteAccount(password: password)
+        password = ""
+        confirmation = ""
+        guard didDelete else { return }
+
+        store.purgeAccountData(userID: userID)
+        pushNotifications.deactivate()
     }
 }

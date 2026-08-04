@@ -37,6 +37,9 @@ function fakeDatabase({ ownsTarget }: { ownsTarget: boolean }): {
               if (sql.includes("FROM grocery_items")) {
                 return ownsTarget ? { id: "gi_1" } : null;
               }
+              if (sql.includes("FROM recipes r")) {
+                return ownsTarget ? { id: "rcp_1" } : null;
+              }
               return null;
             },
             async run() {
@@ -132,4 +135,26 @@ test("multiple approved changes execute in one atomic D1 batch", async () => {
   assert.equal(result.applied.length, 2);
   assert.equal(batchCalls.length, 1);
   assert.equal(batchCalls[0]?.length, 2);
+});
+
+test("recipe remixes persist the approved source recipe ID", async () => {
+  const { db, statements, batchCalls } = fakeDatabase({ ownsTarget: true });
+  const result = await applyApprovedTeamChanges({
+    db,
+    context,
+    changes: [{
+      entity: "recipe",
+      operation: "create",
+      data: {
+        name: "Tomato soup remix",
+        sourceRecipeId: "rcp_1",
+        ingredients: [{ items: ["Tomatoes"] }],
+      },
+    }],
+  });
+
+  assert.equal(result.success, true);
+  assert.equal(batchCalls.length, 1);
+  const insert = statements.find((statement) => statement.startsWith("INSERT INTO recipes"));
+  assert.match(insert ?? "", /sourceRecipeId/);
 });

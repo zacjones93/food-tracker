@@ -30,7 +30,7 @@ import { useEffect, useState } from "react"
 import { toast } from "sonner"
 
 export function NavTeam() {
-  const { session, isLoading } = useSessionStore();
+  const { session, isLoading, fetchSession } = useSessionStore();
   const { isMobile, setOpenMobile } = useSidebar()
   const router = useRouter()
   const [teams, setTeams] = useState<Array<{ id: string; name: string; slug: string }>>([])
@@ -58,6 +58,7 @@ export function NavTeam() {
       return
     }
     toast.success("Team switched successfully")
+    await fetchSession?.()
     router.refresh()
     setOpenMobile(false)
   }

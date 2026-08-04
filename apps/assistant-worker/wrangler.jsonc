@@ -12,15 +12,26 @@
     "enabled": true
   },
   "vars": {
-    "AI_MODEL": "@cf/meta/llama-4-scout-17b-16e-instruct",
-    "PROMPT_VERSION": "assistant-code-mode-v3"
-  },
-  "ai": {
-    "binding": "AI"
+    "AI_MODEL": "gemini-2.5-flash",
+    "PROMPT_VERSION": "assistant-code-mode-v4"
   },
   "worker_loaders": [
     {
       "binding": "LOADER"
+    }
+  ],
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "ASSISTANT_CHAT_SESSIONS",
+        "class_name": "AssistantChatSession"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["AssistantChatSession"]
     }
   ],
   "d1_databases": [

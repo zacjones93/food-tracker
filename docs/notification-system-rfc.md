@@ -2,12 +2,14 @@
 
 - Status: Draft for comment
 - Date: 2026-07-19
-- Scope: In-app notifications and SMS, with room for email and push later
+- Scope: In-app notifications and native iOS push, with room for email, web push, and SMS later
 - Product: List To Ladle / Food Tracker
 
 ## Summary
 
-Build notifications as a team-scoped product capability, not as isolated SMS calls.
+Build notifications as a team-scoped product capability, not as provider-specific send calls.
+
+> **Implementation decision — 2026-07-21:** Native iOS push through APNs is the first external channel. SMS is deferred. The event, preference, recipient, queue, suppression, idempotency, and delivery-state model remains channel-neutral; SMS-specific analysis below is retained as future-channel reference rather than launch scope.
 
 The recommended first version has three notification topics:
 
@@ -15,7 +17,7 @@ The recommended first version has three notification topics:
 2. **Weekly plan summary** — on a user-selected day and time, summarize the relevant current or upcoming plan and link to the week.
 3. **Plan published** — when a team member explicitly marks a plan ready, notify opted-in team members once.
 
-Each user chooses topics and channels separately for each team. All meal-planning notifications are off until the user opts in. SMS additionally requires a verified phone number and recorded express consent.
+Each user chooses topics and channels separately for each team. All meal-planning notifications are off until the user opts in. Native push additionally requires iOS notification permission and an active, installation-scoped APNs token.
 
 The recommended platform shape is:
 
@@ -23,10 +25,10 @@ The recommended platform shape is:
 - a separate Cloudflare Worker for scheduled evaluation, queue consumption, and provider webhooks;
 - a Cron Trigger every 15 minutes for timezone-aware due-item evaluation and outbox repair;
 - Cloudflare Queues for asynchronous, at-least-once delivery with per-message retry handling and a dead-letter queue;
-- Twilio Messaging Services for the first SMS adapter, hidden behind a provider-neutral interface;
+- APNs token-based authentication for the first external adapter, hidden behind a provider-neutral interface;
 - the existing Next.js app and native iOS app for notification preferences and the in-app inbox.
 
-Cloudflare does not provide an SMS carrier product. It can own scheduling, persistence, fan-out, retries, secrets, webhooks, and observability, while an SMS provider owns carrier delivery and messaging compliance tooling.
+Cloudflare owns scheduling, persistence, fan-out, retries, secrets, and observability, while APNs owns best-effort device delivery. APNs acceptance is not treated as proof of delivery.
 
 ## Decision requested
 
@@ -34,8 +36,8 @@ Approve the following direction for an implementation plan:
 
 - Dedicated notification Worker, shared D1, one delivery queue, and one dead-letter queue.
 - Daily summary, weekly summary, and explicit plan-published topics in v1.
-- In-app and SMS in v1; email, native push, and web push are adapters for later phases.
-- Twilio for the first SMS integration unless lower per-segment cost is more important than its mature consent and opt-out tooling.
+- In-app and native iOS push in v1; email, web push, and SMS are adapters for later phases.
+- APNs token-based authentication for the first external adapter, with credentials held only in Worker secrets.
 - Explicit “Publish plan” semantics instead of inferring that a plan is complete.
 
 ## Why this fits the current app
@@ -62,9 +64,9 @@ Before any external links are sent, the production canonical URL must be fixed. 
 
 - Let each team member opt into useful household meal-planning notifications.
 - Let a user configure each team independently.
-- Let a user choose in-app and SMS independently per topic.
+- Let a user choose in-app and native push independently per topic.
 - Respect the user's IANA timezone and daylight-saving changes.
-- Produce no duplicate in-app notifications and avoid duplicate SMS wherever technically possible.
+- Produce no duplicate in-app notifications and avoid duplicate push alerts wherever technically possible.
 - Preserve a durable audit trail of what was generated, suppressed, attempted, delivered, or failed.
 - Make new channels additive without rewriting topic generation.
 - Keep notification delivery off the schedule mutation request path.
@@ -78,7 +80,7 @@ Before any external links are sent, the production canonical URL must be fixed. 
 - WebSockets or live streaming of inbox changes.
 - AI-generated notification copy.
 - Automatic inference that a week is “complete.”
-- Email, APNs, or web push delivery in the first release.
+- Email, SMS, or web push delivery in the first release.
 - A general-purpose campaign builder.
 
 ## Product model
@@ -147,10 +149,9 @@ flowchart LR
   Worker --> Queue[Delivery Queue]
   Queue --> Consumer[Queue consumer]
   Consumer --> D1
-  Consumer --> SMS[Twilio SMS]
-  SMS --> Webhook[Signed status and opt-out webhooks]
-  Webhook --> Worker
-  Worker --> D1
+  Consumer --> APNS[Apple Push Notification service]
+  APNS --> Device[iOS device]
+  Consumer --> D1
   Queue -. exhausted retries .-> DLQ[Dead-letter queue]
 ```
 
@@ -170,7 +171,7 @@ Cron Triggers run in UTC, so one fixed local-time cron per user is not workable.
 2. Load the relevant team schedule.
 3. Create a logical event and recipient snapshot with deterministic dedupe keys.
 4. Create the in-app inbox record if enabled.
-5. Create an external delivery row and enqueue only its ID if SMS is enabled.
+5. Create an external delivery row and enqueue only its ID if iOS push is enabled.
 6. Advance `nextDueAt` to the next valid local occurrence.
 
 Queues provide at-least-once delivery, configurable batches, per-message retries/delays, and dead-letter queues. At-least-once means duplicates are possible, so D1 unique constraints and delivery state—not the queue message ID—are the source of idempotency.
@@ -205,7 +206,9 @@ Preferences, unread state, membership-sensitive queries, delivery history, and d
 | Secrets / Worker secrets | Good | Store SMS credentials and encryption/HMAC keys outside source. A shared Secrets Store can be considered if several Workers need the same credential. |
 | Service Bindings | Good later | Useful for private web-to-notification RPC, but not needed for the durable D1 outbox path. |
 
-## SMS provider evaluation
+## Deferred SMS provider evaluation
+
+This section is retained for a possible later SMS adapter and is not part of the current launch path.
 
 Cloudflare will make ordinary HTTPS API calls to the provider. Keep the adapter boundary small:
 
@@ -566,13 +569,13 @@ These are planning figures, not a quote. Refresh provider and Cloudflare pricing
 
 This phase proves event semantics and preference granularity without carrier risk.
 
-### Phase 2: SMS adapter
+### Phase 2: Native push adapter
 
-- Add encrypted/verified SMS contact management and consent evidence.
 - Deploy the notification Worker, Queue, and DLQ.
-- Implement Twilio send, status, inbound opt-out, signature verification, and kill switches.
-- Start with one internal team and a hard spend cap.
-- Run duplicate, retry, stale-event, opt-out, removed-member, and provider-outage drills.
+- Add authenticated, installation-scoped APNs device-token registration.
+- Implement APNs ES256 provider authentication, invalid-token suppression, and kill switches.
+- Start with one internal team and explicitly authorized devices.
+- Run duplicate, retry, stale-event, permission-revocation, removed-member, and provider-outage drills.
 
 ### Phase 3: Native parity
 
@@ -580,12 +583,12 @@ This phase proves event semantics and preference granularity without carrier ris
 - Add dedicated notification fetch/read APIs and cached inbox behavior.
 - Verify team switching and notification link destinations visibly in the simulator.
 
-### Phase 4: Push and optional email
+### Phase 4: Optional email, web push, and SMS
 
-- Add APNs device-token registration and an `ios_push` adapter.
 - Add universal links and notification routing in iOS.
 - Consider web push with a service worker and VAPID.
 - Consider transactional email using the existing Resend/Brevo abstraction or Cloudflare Email Sending after its beta status and economics are reassessed.
+- Reassess SMS only if users need delivery outside the native app and its compliance/registration cost is justified.
 
 The event, recipient, preference, and delivery model remains unchanged; each addition is a channel adapter plus contact/device registration.
 
@@ -608,18 +611,17 @@ The event, recipient, preference, and delivery model remains unchanged; each add
 - `429`, timeout, `5xx`, permanent `4xx`, and malformed payload classification.
 - Crash/uncertain-send handling.
 - DLQ routing and explicit replay.
-- Out-of-order and duplicate status callbacks.
-- Invalid webhook signature rejection.
-- STOP disables all SMS preferences immediately.
-- Global and SMS-only kill switches.
+- APNs acceptance and invalid-token response classification.
+- Permission and device-registration revocation.
+- Global and push-only kill switches.
 
 ### End-to-end acceptance
 
 - A user can opt into one topic/channel for one team without changing another team.
 - A daily in-app item appears once at the expected local time and opens the correct destination.
-- An SMS arrives once, contains the expected compact summary, and opens an authorized page.
-- A removed teammate receives neither queued SMS nor inbox access.
-- A published plan notifies opted-in members once; ordinary edits do not create surprise SMS.
+- A push alert arrives once, contains the expected compact summary, and opens an authorized destination.
+- A removed teammate receives neither queued push nor inbox access.
+- A published plan notifies opted-in members once; ordinary edits do not create surprise push alerts.
 - The iOS inbox reflects the same server state after the native parity phase.
 
 ## Alternatives considered
@@ -654,14 +656,14 @@ The RFC recommends an answer in parentheses.
 
 1. Should daily summaries describe all meals scheduled that day, or dinner only? (**All scheduled recipes; use meal type labels when present.**)
 2. What default time should the picker suggest? (**8:00 AM local for daily; Sunday 4:00 PM local for weekly. Both remain off until enabled.**)
-3. Should a one-recipe daily SMS link directly to the recipe? (**Yes; multiple recipes link to the week.**)
+3. Should a one-recipe daily push link directly to the recipe? (**Yes; multiple recipes link to the week.**)
 4. What does publishing mean after later edits? (**Edits do not notify. A teammate explicitly republishes to create a new notification version.**)
 5. Should the notification center show only the active team or all teams? (**Active team by default, with an all-teams filter on the full inbox.**)
 6. Should team owners be able to disable a topic for the whole team? (**Yes, but they can never force-enable an external channel.**)
-7. Is Twilio's stronger operational/compliance tooling worth its higher unit cost? (**Yes for v1; keep the adapter portable.**)
+7. Should SMS remain in the launch scope? (**No. Keep the adapter model portable and revisit only if native push is insufficient.**)
 8. Should in-app notifications be on by default? (**No for these meal-planning topics, matching the requested opt-in model.**)
 9. How long should inbox and successful delivery history remain visible? (**90 days initially.**)
-10. Should SMS launch before the iOS notification center? (**Yes. Ship and validate the web notification model first, then carry the accepted behavior into mobile.**)
+10. Should native push launch before SMS? (**Yes. Validate the provider-neutral model with the two household iOS users first.**)
 
 ## Sources
 

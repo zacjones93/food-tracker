@@ -20,6 +20,11 @@ import { requirePermission } from "@/utils/team-auth";
 import { hasAccessToRecipe } from "@/utils/recipe-visibility";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
+import {
+  EntitlementError,
+  releaseTeamWeekCreation,
+  reserveTeamWeekCreation,
+} from "@/lib/entitlements";
 
 export const createWeekAction = createServerAction()
   .input(createWeekSchema)
@@ -33,19 +38,33 @@ export const createWeekAction = createServerAction()
     // Require permission
     await requirePermission(user.id, input.teamId, TEAM_PERMISSIONS.CREATE_SCHEDULES);
 
-    const db = getDB();
+    try {
+      await reserveTeamWeekCreation({ teamId: input.teamId });
+    } catch (error) {
+      if (error instanceof EntitlementError) {
+        throw new ZSAError("PRECONDITION_FAILED", error.message);
+      }
+      throw error;
+    }
 
-    const [week] = await db.insert(weeksTable)
-      .values({
-        teamId: input.teamId,
-        name: input.name,
-        emoji: input.emoji,
-        status: input.status,
-        startDate: input.startDate,
-        endDate: input.endDate,
-        weekNumber: input.weekNumber,
-      })
-      .returning();
+    const db = getDB();
+    let week;
+    try {
+      [week] = await db.insert(weeksTable)
+        .values({
+          teamId: input.teamId,
+          name: input.name,
+          emoji: input.emoji,
+          status: input.status,
+          startDate: input.startDate,
+          endDate: input.endDate,
+          weekNumber: input.weekNumber,
+        })
+        .returning();
+    } catch (error) {
+      await releaseTeamWeekCreation({ teamId: input.teamId });
+      throw error;
+    }
 
     revalidatePath("/schedule");
     revalidatePath(`/schedule/${week.id}`);
@@ -203,52 +222,30 @@ export const getWeeksAction = createServerAction()
     const weeks = await db.query.weeksTable.findMany({
       where: eq(weeksTable.teamId, session.activeTeamId!),
       orderBy: (weeks, { desc }) => [desc(weeks.startDate)],
+      columns: {
+        id: true,
+        name: true,
+        emoji: true,
+        status: true,
+      },
       with: {
         recipes: {
+          columns: {
+            id: true,
+          },
           with: {
-            recipe: true,
+            recipe: {
+              columns: {
+                id: true,
+                name: true,
+                emoji: true,
+              },
+            },
           },
           orderBy: (weekRecipes, { asc }) => [asc(weekRecipes.order)],
         },
       },
     });
-
-    // Fetch related recipes ONLY for current/upcoming weeks (not archived)
-    const currentAndUpcomingRecipeIds = weeks
-      .filter((week) => week.status === 'current' || week.status === 'upcoming')
-      .flatMap((week) => week.recipes.map((wr) => wr.recipe.id));
-
-    if (currentAndUpcomingRecipeIds.length > 0) {
-      const relatedRecipes = await db.query.recipeRelationsTable.findMany({
-        where: inArray(recipeRelationsTable.mainRecipeId, currentAndUpcomingRecipeIds),
-        with: {
-          sideRecipe: true,
-        },
-        orderBy: (relations, { asc }) => [asc(relations.order)],
-      });
-
-      // Attach related recipes to each week recipe
-      const weeksWithRelations = weeks.map((week) => ({
-        ...week,
-        recipes: week.recipes.map((wr) => ({
-          ...wr,
-          recipe: {
-            ...wr.recipe,
-            relatedRecipes: relatedRecipes
-              .filter((rel) => rel.mainRecipeId === wr.recipe.id)
-              .map((rel) => ({
-                ...rel.sideRecipe,
-                relationId: rel.id,
-                relationType: rel.relationType,
-                relationOrder: rel.order,
-                scheduleLeadDays: rel.scheduleLeadDays,
-              })),
-          },
-        })),
-      }));
-
-      return { weeks: weeksWithRelations };
-    }
 
     return { weeks };
   });

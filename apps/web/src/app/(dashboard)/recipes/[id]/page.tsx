@@ -18,6 +18,10 @@ export default async function RecipePage({ params }: RecipePageProps) {
     notFound();
   }
 
+  const [sourceData] = data.recipe.sourceRecipeId
+    ? await getPublicRecipeByIdAction({ id: data.recipe.sourceRecipeId })
+    : [null];
+
   return (
     <>
       <AssistantPageContext
@@ -30,6 +34,7 @@ export default async function RecipePage({ params }: RecipePageProps) {
       />
       <RecipeDetail
         recipe={data.recipe}
+        sourceRecipe={sourceData?.recipe ?? null}
         relationsAsMain={data.relationsAsMain}
         relationsAsSide={data.relationsAsSide}
       />

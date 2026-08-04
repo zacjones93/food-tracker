@@ -8,10 +8,14 @@ export function mobileMessagesToAgui({
   chatId,
   runId,
   messages,
+  pageContext,
+  mentionedContexts,
 }: {
   chatId: string;
   runId: string;
   messages: LegacyMobileMessage[];
+  pageContext?: unknown;
+  mentionedContexts?: unknown;
 }) {
   return {
     threadId: chatId,
@@ -25,7 +29,11 @@ export function mobileMessagesToAgui({
     })),
     tools: [],
     context: [],
-    forwardedProps: { chatId },
+    forwardedProps: {
+      chatId,
+      ...(pageContext === undefined ? {} : { pageContext }),
+      ...(mentionedContexts === undefined ? {} : { mentionedContexts }),
+    },
   };
 }
 

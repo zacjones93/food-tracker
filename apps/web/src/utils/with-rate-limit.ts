@@ -107,6 +107,11 @@ export const RATE_LIMITS = {
     limit: 15,
     windowInSeconds: Math.floor(ms("5 minutes") / 1000),
   },
+  ACCOUNT_DELETION: {
+    identifier: "account-deletion",
+    limit: 5,
+    windowInSeconds: Math.floor(ms("1 hour") / 1000),
+  },
   PURCHASE: {
     identifier: "purchase",
     limit: 25,

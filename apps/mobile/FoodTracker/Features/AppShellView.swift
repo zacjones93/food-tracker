@@ -15,8 +15,12 @@ struct AppShellView: View {
             Tab("Recipes", systemImage: "book.pages", value: FoodTrackerStore.Tab.recipes) {
                 NavigationStack { RecipesView() }
             }
-            Tab("Assistant", systemImage: "sparkles", value: FoodTrackerStore.Tab.assistant) {
-                NavigationStack { AssistantView() }
+            if hasAssistantAccess {
+                Tab("Assistant", systemImage: "sparkles", value: FoodTrackerStore.Tab.assistant) {
+                    NavigationStack {
+                        AssistantView()
+                    }
+                }
             }
             Tab("More", systemImage: "ellipsis", value: FoodTrackerStore.Tab.more) {
                 NavigationStack { LibrarySettingsView() }
@@ -50,12 +54,24 @@ struct AppShellView: View {
         }
         .onChange(of: scenePhase) { _, phase in
             guard phase == .active, connectivity.isOnline else { return }
-            Task { await synchronize() }
+            Task {
+                await auth.refreshSession()
+                await synchronize()
+            }
         }
         .onChange(of: store.pendingCount) { _, count in
             guard count > 0, connectivity.isOnline else { return }
             Task { await store.sync(using: auth.client) }
         }
+        .onChange(of: hasAssistantAccess) { _, canUseAssistant in
+            if !canUseAssistant, store.selectedTab == .assistant {
+                store.selectedTab = .schedule
+            }
+        }
+    }
+
+    private var hasAssistantAccess: Bool {
+        auth.session?.entitlements?.features.aiAssistant ?? false
     }
 
     private func synchronize() async {

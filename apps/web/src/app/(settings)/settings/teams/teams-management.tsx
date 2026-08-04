@@ -600,6 +600,12 @@ function TeamMembers({
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
+                        <SelectItem value={SYSTEM_ROLES_ENUM.OWNER}>
+                          <div className="flex items-center gap-2">
+                            <Crown className="h-4 w-4" />
+                            Owner
+                          </div>
+                        </SelectItem>
                         <SelectItem value={SYSTEM_ROLES_ENUM.ADMIN}>
                           <div className="flex items-center gap-2">
                             <Shield className="h-4 w-4" />

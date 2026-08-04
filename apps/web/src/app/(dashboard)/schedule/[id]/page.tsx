@@ -8,6 +8,8 @@ import { WeekRecipesList } from "./_components/week-recipes-list";
 import { CategorizedGroceryList } from "./_components/categorized-grocery-list";
 import { WeekStatusSelector } from "./_components/week-status-selector";
 import { AssistantPageContext } from "@/components/assistant/assistant-provider";
+import { Suspense } from "react";
+import { WeekDetailSkeleton } from "../_components/schedule-skeletons";
 
 interface ScheduleDetailPageProps {
   params: Promise<{
@@ -17,6 +19,15 @@ interface ScheduleDetailPageProps {
 
 export default async function ScheduleDetailPage({ params }: ScheduleDetailPageProps) {
   const { id } = await params;
+
+  return (
+    <Suspense fallback={<WeekDetailSkeleton />}>
+      <ScheduleDetailContent id={id} />
+    </Suspense>
+  );
+}
+
+async function ScheduleDetailContent({ id }: { id: string }) {
   const [data, error] = await getWeekByIdAction({ id });
 
   if (error || !data?.week) {

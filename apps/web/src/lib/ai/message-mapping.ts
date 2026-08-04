@@ -1,6 +1,7 @@
 import "server-only";
 
 import type { AiMessage, AiMessagePart } from "@/db/schema";
+import { sanitizeAssistantText } from "@/lib/assistant/sanitize-assistant-text";
 import type { AssistantMessage } from "@/lib/assistant/types";
 
 type PartRow = Omit<AiMessagePart, "id" | "createdAt" | "updatedAt" | "updateCounter">;
@@ -111,14 +112,17 @@ export function dbRowsToAssistantMessage(
   messageRow: AiMessage,
   partRows: AiMessagePart[],
 ): AssistantMessage {
+  const role = messageRow.role === "user" || messageRow.role === "system"
+    ? messageRow.role
+    : "assistant";
   const parts = [...partRows]
     .sort((left, right) => left.partOrder - right.partOrder)
     .map((row) => {
       const payload = parseJson(row.payloadJson);
-      return isPersistedPart(payload) ? payload : legacyPart(row);
+      const part = isPersistedPart(payload) ? payload : legacyPart(row);
+      return role === "assistant" && part.type === "text"
+        ? { ...part, content: sanitizeAssistantText(part.content) }
+        : part;
     });
-  const role = messageRow.role === "user" || messageRow.role === "system"
-    ? messageRow.role
-    : "assistant";
   return { id: messageRow.id, role, parts };
 }

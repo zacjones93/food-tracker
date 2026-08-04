@@ -59,6 +59,23 @@ struct WeekDetailView: View {
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItemGroup(placement: .topBarTrailing) {
+                        Button("Ask Ladle about \(week.name)", systemImage: "sparkles") {
+                            guard let serverID = week.serverID else { return }
+                            store.openAssistant(
+                                context: AssistantPageContext(
+                                    kind: .week,
+                                    entityId: serverID,
+                                    label: week.name,
+                                    href: "/schedule/\(serverID)",
+                                    view: .init(section: section == .meals ? .meals : .groceries)
+                                ),
+                                suggestedPrompt: section == .meals
+                                    ? "Help me improve this meal plan."
+                                    : "Review this grocery list for anything missing."
+                            )
+                        }
+                        .disabled(week.serverID == nil)
+
                         if section == .groceries {
                             Button("New category", systemImage: "folder.badge.plus") {
                                 groceryItemIDAwaitingCategory = nil

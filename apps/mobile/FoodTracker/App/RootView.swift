@@ -2,6 +2,7 @@ import SwiftUI
 
 struct RootView: View {
     @Environment(AuthStore.self) private var auth
+    @Environment(PushNotificationCoordinator.self) private var pushNotifications
 
     var body: some View {
         Group {
@@ -23,6 +24,14 @@ struct RootView: View {
                 AppShellView()
             }
         }
+        .keyboardDismissToolbar()
         .task { await auth.restoreSession() }
+        .task(id: auth.session?.user.id) {
+            guard let userID = auth.session?.user.id else {
+                pushNotifications.deactivate()
+                return
+            }
+            await pushNotifications.activate(userID: userID)
+        }
     }
 }

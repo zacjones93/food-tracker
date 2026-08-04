@@ -1,6 +1,4 @@
 import { DynamicWorkerExecutor } from "@cloudflare/codemode";
-import { createCodeTool } from "@cloudflare/codemode/tanstack-ai";
-import { createWorkersAiChat } from "@cloudflare/tanstack-ai";
 import {
   chat,
   chatParamsFromRequestBody,
@@ -10,10 +8,11 @@ import {
   toServerSentEventsResponse,
   type UIMessage,
 } from "@tanstack/ai";
+import { createGeminiChat } from "@tanstack/ai-gemini";
 
 import { AssistantWorkerError, type AssistantRequestContext } from "./context";
-import { CODE_MODE_DESCRIPTION } from "./code-mode-contract";
-import { getWorkerAssistantErrorMessage } from "./errors";
+import { createAssistantCodeTool } from "./code-mode-tool";
+import { createAssistantTextGuardMiddleware } from "./assistant-text";
 import {
   assertAuthorizedChat,
   createPersistenceMiddleware,
@@ -26,6 +25,7 @@ import {
 } from "./tools";
 import { assertReadOnlyToolNamespaces } from "./tool-policy";
 import { createApprovedMutationTool } from "./mutation-tool";
+import { GEMINI_THINKING_BUDGET_TOKENS } from "./gemini";
 
 function createSystemPrompt({
   today,
@@ -45,7 +45,9 @@ recipes.getMany requires recipe IDs. For exact titles, search first, match names
 The current UTC date is ${currentDate}. For "current week" or "this week", search weeks with onDate set to this date; a stored status of current is not authoritative because imported data can contain multiple current rows.
 If more than one returned date range contains the current date, explain the ambiguity instead of trusting status labels.
 If generated code fails, correct it using the declared contracts and examples; do not repeat the same code.
+Never show generated code, Code Mode source, tool-call JSON, tool arguments, or internal execution details to the user. Respond only with the user-facing result.
 For create, update, or delete requests, retrieve the exact team-owned IDs first and then call apply_team_changes with the smallest complete change set. Never claim a write succeeded until the approval-required tool returns success.
+When the user asks to remix, copy, or create a variation of an existing recipe, create a new recipe and set sourceRecipeId to the exact ID of the recipe it is based on. Leave the source recipe unchanged unless the user explicitly asks to edit it.
 Do not request account, membership, billing, AI-budget, or admin mutations; they are outside the assistant's authority.
 Keep answers concise and cite recipe or week names returned by tools.${
     resolvedPageContext
@@ -122,28 +124,13 @@ export async function runAssistant({
     globalOutbound: null,
     timeout: 10_000,
   });
-  const unsafeCodeTool = createCodeTool({
+  const codeTool = createAssistantCodeTool({
     executor,
     tools: createCodeModeToolProviders(namespaces),
-    description: CODE_MODE_DESCRIPTION,
   });
-  if (!unsafeCodeTool.execute) {
-    throw new AssistantWorkerError("CODE_MODE_UNAVAILABLE", "Assistant retrieval is unavailable", 503);
-  }
-  const executeCode = unsafeCodeTool.execute;
-  const codeTool = {
-    ...unsafeCodeTool,
-    async execute(...args: Parameters<typeof executeCode>) {
-      try {
-        return await executeCode(...args);
-      } catch {
-        throw new Error(getWorkerAssistantErrorMessage("CODE_MODE_EXECUTION_FAILED"));
-      }
-    },
-  };
   const abortController = new AbortController();
   signal.addEventListener("abort", () => abortController.abort(signal.reason), { once: true });
-  const adapter = createWorkersAiChat(env.AI_MODEL, { binding: env.AI });
+  const adapter = createGeminiChat(env.AI_MODEL, env.GEMINI_API_KEY);
   const stream = chat({
     adapter,
     messages: params.messages,
@@ -157,10 +144,19 @@ export async function runAssistant({
     threadId: context.chatId,
     runId: context.runId,
     abortController,
-    modelOptions: { max_tokens: context.maxOutputTokens },
+    modelOptions: {
+      maxOutputTokens: context.maxOutputTokens,
+      thinkingConfig: {
+        thinkingBudget: GEMINI_THINKING_BUDGET_TOKENS,
+        includeThoughts: false,
+      },
+    },
     maxToolCallsPerTurn: 4,
     agentLoopStrategy: combineStrategies([maxIterations(6), maxToolCalls(12)]),
-    middleware: [createPersistenceMiddleware({ db: env.DB, context, model: env.AI_MODEL })],
+    middleware: [
+      createAssistantTextGuardMiddleware(),
+      createPersistenceMiddleware({ db: env.DB, context, model: env.AI_MODEL }),
+    ],
   });
 
   return toServerSentEventsResponse(stream, {

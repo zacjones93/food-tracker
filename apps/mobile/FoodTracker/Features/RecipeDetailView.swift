@@ -7,6 +7,7 @@ struct RecipeDetailView: View {
     @Environment(\.dismiss) private var dismiss
     let recipeID: String
     @State private var showingEdit = false
+    @State private var showingRemix = false
     @State private var showingSchedule = false
     @State private var confirmingDelete = false
     @State private var browserDestination: RecipeBrowserDestination?
@@ -36,6 +37,16 @@ struct RecipeDetailView: View {
                                 },
                                 page: recipe.page
                             )
+
+                            if let sourceRecipeID = recipe.sourceRecipeID,
+                               let sourceRecipe = store.recipe(id: sourceRecipeID) {
+                                NavigationLink {
+                                    RecipeDetailView(recipeID: sourceRecipe.id)
+                                } label: {
+                                    Label("Remixed from \(sourceRecipe.name)", systemImage: "arrow.triangle.branch")
+                                        .foregroundStyle(Color.foodSecondaryInk)
+                                }
+                            }
                         }
 
                         Button { showingSchedule = true } label: {
@@ -77,8 +88,23 @@ struct RecipeDetailView: View {
                 .navigationTitle(recipe.name)
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
-                    ToolbarItem(placement: .topBarTrailing) {
+                    ToolbarItemGroup(placement: .topBarTrailing) {
+                        Button("Ask Ladle about \(recipe.name)", systemImage: "sparkles") {
+                            guard let serverID = recipe.serverID else { return }
+                            store.openAssistant(
+                                context: AssistantPageContext(
+                                    kind: .recipe,
+                                    entityId: serverID,
+                                    label: recipe.name,
+                                    href: "/recipes/\(serverID)"
+                                ),
+                                suggestedPrompt: "What would be helpful to know about this recipe?"
+                            )
+                        }
+                        .disabled(recipe.serverID == nil)
+
                         Menu("Recipe actions", systemImage: "ellipsis.circle") {
+                            Button("Remix", systemImage: "arrow.triangle.branch") { showingRemix = true }
                             Button("Edit", systemImage: "pencil") { showingEdit = true }
                             ShareLink(item: recipe.recipeLink.isEmpty ? recipe.name : recipe.recipeLink) {
                                 Label("Share", systemImage: "square.and.arrow.up")
@@ -93,6 +119,7 @@ struct RecipeDetailView: View {
                     return .handled
                 })
                 .sheet(isPresented: $showingEdit) { RecipeEditor(recipe: recipe) }
+                .sheet(isPresented: $showingRemix) { RecipeEditor(sourceRecipe: recipe) }
                 .sheet(isPresented: $showingSchedule) { WeekPickerForRecipe(recipeID: recipe.id) }
                 .sheet(item: $browserDestination) { destination in
                     RecipeBrowserView(url: destination.url)

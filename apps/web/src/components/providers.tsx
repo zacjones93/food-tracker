@@ -5,49 +5,13 @@ import { ThemeProvider as NextThemesProvider } from "next-themes"
 import { HeroUIProvider } from "@heroui/react"
 import type { SessionValidationResult } from "@/types"
 import { useSessionStore } from "@/state/session"
-import { Suspense, useEffect, useRef, RefObject, useCallback } from "react"
+import { useEffect, useRef, RefObject, useCallback } from "react"
 import { useConfigStore } from "@/state/config"
 import type { getConfig } from "@/flags"
-import { useTopLoader } from 'nextjs-toploader'
-import { usePathname, useRouter, useSearchParams, useParams } from "next/navigation"
 import { useEventListener, useDebounceCallback } from 'usehooks-ts';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-function RouterChecker() {
-  const { start, done } = useTopLoader()
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const params = useParams();
-  const fetchSession = useSessionStore((store) => store.fetchSession)
-
-  useEffect(() => {
-    const _push = router.push.bind(router);
-    const _refresh = router.refresh.bind(router);
-
-    // Monkey patch: https://github.com/vercel/next.js/discussions/42016#discussioncomment-9027313
-    router.push = (href, options) => {
-      start();
-      _push(href, options);
-    };
-
-    // Monkey patch: https://github.com/vercel/next.js/discussions/42016#discussioncomment-9027313
-    router.refresh = () => {
-      start();
-      fetchSession?.();
-      _refresh();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  useEffect(() => {
-    done();
-    fetchSession?.();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname, searchParams, params]);
-
-  return null;
-}
+const SESSION_REFRESH_INTERVAL_MS = 60 * 1000;
 
 export function ThemeProvider({
   children,
@@ -74,8 +38,10 @@ export function ThemeProvider({
   )
 
   const doFetchSession = useCallback(async () => {
+    const hadSession = useSessionStore.getState().session !== null
+
     try {
-      refetchSession() // Set loading state before fetch
+      if (!hadSession) refetchSession()
       const response = await fetch('/api/get-session')
       const sessionWithConfig = await response.json() as {
         session: SessionValidationResult
@@ -91,11 +57,19 @@ export function ThemeProvider({
       }
     } catch (error) {
       console.error('Failed to fetch session:', error)
-      clearSession()
+      if (!hadSession) clearSession()
     }
   }, [setSession, setConfig, clearSession, refetchSession])
 
   const fetchSession = useDebounceCallback(doFetchSession, 30)
+  const fetchSessionIfStale = useCallback(() => {
+    const { lastFetched } = useSessionStore.getState()
+    const hasFreshSession = lastFetched
+      ? Date.now() - lastFetched.getTime() < SESSION_REFRESH_INTERVAL_MS
+      : false
+
+    if (!hasFreshSession) fetchSession()
+  }, [fetchSession])
 
   // Initial fetch on mount
   useEffect(() => {
@@ -105,12 +79,12 @@ export function ThemeProvider({
   // Handle refetches
   useEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
-      fetchSession()
+      fetchSessionIfStale()
     }
   }, documentRef as RefObject<Document>)
 
   useEventListener('focus', () => {
-    fetchSession()
+    fetchSessionIfStale()
     // @ts-expect-error window is not defined in the server
   }, windowRef)
 
@@ -122,9 +96,6 @@ export function ThemeProvider({
   return (
     <QueryClientProvider client={queryClient}>
       <HeroUIProvider>
-        <Suspense>
-          <RouterChecker />
-        </Suspense>
         <NextThemesProvider {...props} attribute="class">
           {children}
         </NextThemesProvider>

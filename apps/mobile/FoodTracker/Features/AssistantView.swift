@@ -4,6 +4,7 @@ struct AssistantView: View {
     private static let bottomAnchor = "assistant-bottom"
 
     @Environment(AuthStore.self) private var auth
+    @Environment(FoodTrackerStore.self) private var store
     @Environment(ConnectivityMonitor.self) private var connectivity
     @Environment(\.accessibilityReduceMotion) private var accessibilityReduceMotion
     @AppStorage("assistant.active-chat-id") private var savedChatID = ""
@@ -21,6 +22,10 @@ struct AssistantView: View {
     @State private var hasLoadedInitialState = false
     @State private var errorMessage: String?
     @State private var sendTask: Task<Void, Never>?
+    @State private var activeRunID: String?
+    @State private var pageContext: AssistantPageContext?
+    @State private var mentionedContexts: [AssistantPageContext] = []
+    @State private var dismissedMentionOffset: Int?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -28,6 +33,10 @@ struct AssistantView: View {
 
             if let errorMessage {
                 errorBanner(errorMessage)
+            }
+
+            if let pageContext {
+                attachedContextBanner(pageContext)
             }
 
             composer
@@ -72,9 +81,19 @@ struct AssistantView: View {
             )
         }
         .task {
-            guard !hasLoadedInitialState else { return }
-            hasLoadedInitialState = true
-            await loadInitialConversation()
+            if !hasLoadedInitialState {
+                hasLoadedInitialState = true
+                await loadInitialConversation()
+            }
+            resumeActiveAssistantRunIfNeeded()
+        }
+        .task(id: store.assistantLaunch?.id) {
+            guard let launch = store.assistantLaunch else { return }
+            startNewChat(
+                pageContext: launch.context,
+                suggestedPrompt: launch.suggestedPrompt
+            )
+            store.consumeAssistantLaunch(id: launch.id)
         }
         .onChange(of: auth.session?.teamID) { previousTeamID, teamID in
             guard previousTeamID != teamID else { return }
@@ -83,7 +102,7 @@ struct AssistantView: View {
             startNewChat()
             Task { await loadInitialConversation() }
         }
-        .onDisappear { sendTask?.cancel() }
+        .onDisappear { disconnectFromAssistantStream() }
     }
 
     @ViewBuilder
@@ -97,7 +116,7 @@ struct AssistantView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else if messages.isEmpty {
-            AssistantWelcomeView(onSelect: sendSuggestion)
+            AssistantWelcomeView(pageContext: pageContext, onSelect: sendSuggestion)
                 .disabled(!connectivity.isOnline)
         } else {
             ScrollViewReader { proxy in
@@ -130,12 +149,54 @@ struct AssistantView: View {
     private var composer: some View {
         VStack(spacing: 0) {
             Divider().overlay(Color.foodBorder)
+
+            if activeMention != nil {
+                AssistantMentionResults(
+                    options: mentionOptions,
+                    isAtLimit: mentionedContexts.count >= 4,
+                    onSelect: selectMention
+                )
+            }
+
+            if !mentionedContexts.isEmpty {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 6) {
+                        ForEach(mentionedContexts, id: \.identity) { context in
+                            HStack(spacing: 5) {
+                                Image(systemName: context.kind == .week ? "calendar" : "fork.knife")
+                                Text(context.label).lineLimit(1)
+                                Button("Remove \(context.label) from context", systemImage: "xmark") {
+                                    mentionedContexts.removeAll { $0.identity == context.identity }
+                                }
+                                .labelStyle(.iconOnly)
+                                .buttonStyle(.plain)
+                            }
+                            .font(.caption.weight(.medium))
+                            .foregroundStyle(Color.foodDeep)
+                            .padding(.leading, 10)
+                            .padding(.trailing, 7)
+                            .padding(.vertical, 6)
+                            .background(Color.foodAccent.opacity(0.1), in: Capsule())
+                            .overlay { Capsule().stroke(Color.foodAccent.opacity(0.2), lineWidth: 0.5) }
+                        }
+                    }
+                    .padding(.horizontal, FoodSpacing.small)
+                    .padding(.top, FoodSpacing.small)
+                }
+            }
+
             HStack(alignment: .bottom, spacing: FoodSpacing.small) {
-                TextField("Ask about your recipes or weeks", text: $prompt, axis: .vertical)
+                TextField("Ask anything, or type @ to add context", text: $prompt, axis: .vertical)
                     .lineLimit(1...5)
                     .focused($isComposerFocused)
                     .submitLabel(.send)
-                    .onSubmit { send() }
+                    .onSubmit { handleComposerSubmit() }
+                    .onChange(of: prompt) { _, value in
+                        let nextMention = AssistantMentionMatch.find(in: value)
+                        if nextMention?.startOffset != dismissedMentionOffset {
+                            dismissedMentionOffset = nil
+                        }
+                    }
                     .padding(.horizontal, 14)
                     .padding(.vertical, 11)
                     .background(Color.foodSurface, in: RoundedRectangle(cornerRadius: 20))
@@ -154,7 +215,7 @@ struct AssistantView: View {
                     .foregroundStyle(Color.foodDestructive)
                     .frame(width: 44, height: 44)
                 } else {
-                    Button("Send", systemImage: "arrow.up.circle.fill") { send() }
+                    Button("Send", systemImage: "arrow.up.circle.fill") { handleComposerSubmit() }
                         .labelStyle(.iconOnly)
                         .font(.system(size: 34))
                         .foregroundStyle(Color.foodAccent)
@@ -197,12 +258,41 @@ struct AssistantView: View {
         .background(Color.foodDestructive.opacity(0.08))
     }
 
+    private func attachedContextBanner(_ context: AssistantPageContext) -> some View {
+        HStack(spacing: FoodSpacing.small) {
+            Image(systemName: context.kind == .week ? "calendar" : "fork.knife")
+                .foregroundStyle(Color.foodAccent)
+            VStack(alignment: .leading, spacing: 1) {
+                Text("USING THIS \(context.kind == .week ? "WEEK" : "RECIPE")")
+                    .font(.caption2.weight(.bold))
+                    .tracking(0.7)
+                    .foregroundStyle(Color.foodAccent)
+                Text(context.label)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Color.foodDeep)
+                    .lineLimit(1)
+            }
+            Spacer(minLength: FoodSpacing.small)
+            Button("Remove page context", systemImage: "xmark") {
+                pageContext = nil
+            }
+            .labelStyle(.iconOnly)
+            .foregroundStyle(Color.foodSecondaryInk)
+            .frame(width: 44, height: 44)
+        }
+        .padding(.horizontal, FoodSpacing.medium)
+        .padding(.vertical, FoodSpacing.small)
+        .background(Color.foodAccent.opacity(0.08))
+        .overlay(alignment: .bottom) { Divider().overlay(Color.foodBorder) }
+    }
+
     private func loadInitialConversation() async {
         guard connectivity.isOnline else { return }
         isLoadingChats = true
         defer { isLoadingChats = false }
         do {
             chats = try await auth.client.loadAssistantChats()
+            guard store.assistantLaunch == nil, pageContext == nil else { return }
             let preferredChat = chats.first { $0.id == savedChatID } ?? chats.first
             if let preferredChat { await openConversation(preferredChat) }
         } catch {
@@ -233,6 +323,9 @@ struct AssistantView: View {
             savedChatID = conversation.chat.id
             activeChatTitle = conversation.chat.displayTitle
             messages = conversation.messages
+            pageContext = nil
+            mentionedContexts = []
+            dismissedMentionOffset = nil
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -243,16 +336,87 @@ struct AssistantView: View {
         await openConversation(chat)
     }
 
-    private func startNewChat() {
+    private func startNewChat(
+        pageContext: AssistantPageContext? = nil,
+        suggestedPrompt: String = ""
+    ) {
         stopGenerating()
         chatID = Self.newChatID()
         savedChatID = chatID
         activeChatTitle = "New chat"
         messages = []
-        prompt = ""
+        prompt = suggestedPrompt
+        self.pageContext = pageContext
+        mentionedContexts = []
+        dismissedMentionOffset = nil
         errorMessage = nil
         isLoadingConversation = false
         isComposerFocused = true
+    }
+
+    private var mentionOptions: [AssistantMentionOption] {
+        guard let mention = activeMention else { return [] }
+        let query = mention.query.trimmingCharacters(in: .whitespacesAndNewlines)
+        let selectedIdentities = Set(mentionedContexts.map(\.identity))
+        let recipeOptions = store.recipes.compactMap { recipe -> AssistantMentionOption? in
+            guard let serverID = recipe.serverID else { return nil }
+            let context = AssistantPageContext(
+                kind: .recipe,
+                entityId: serverID,
+                label: recipe.name,
+                href: "/recipes/\(serverID)"
+            )
+            guard !selectedIdentities.contains(context.identity) else { return nil }
+            return AssistantMentionOption(context: context)
+        }
+        let weekOptions = store.weeks.compactMap { week -> AssistantMentionOption? in
+            guard let serverID = week.serverID else { return nil }
+            let context = AssistantPageContext(
+                kind: .week,
+                entityId: serverID,
+                label: week.name,
+                href: "/schedule/\(serverID)"
+            )
+            guard !selectedIdentities.contains(context.identity) else { return nil }
+            return AssistantMentionOption(context: context)
+        }
+
+        return Array(
+            (recipeOptions + weekOptions)
+                .filter { query.isEmpty || $0.context.label.localizedCaseInsensitiveContains(query) }
+                .sorted { left, right in
+                    let leftStartsWithQuery = left.context.label.lowercased().hasPrefix(query.lowercased())
+                    let rightStartsWithQuery = right.context.label.lowercased().hasPrefix(query.lowercased())
+                    if leftStartsWithQuery != rightStartsWithQuery { return leftStartsWithQuery }
+                    return left.context.label.localizedStandardCompare(right.context.label) == .orderedAscending
+                }
+                .prefix(8)
+        )
+    }
+
+    private func handleComposerSubmit() {
+        if activeMention != nil, let firstOption = mentionOptions.first {
+            selectMention(firstOption)
+        } else {
+            send()
+        }
+    }
+
+    private func selectMention(_ option: AssistantMentionOption) {
+        guard let mention = activeMention, mentionedContexts.count < 4 else { return }
+        dismissedMentionOffset = mention.startOffset
+        prompt = mention.replacing(in: prompt, with: option.context.label)
+        if !mentionedContexts.contains(where: { $0.identity == option.context.identity }) {
+            mentionedContexts.append(option.context)
+        }
+        isComposerFocused = true
+    }
+
+    private var activeMention: AssistantMentionMatch? {
+        guard let mention = AssistantMentionMatch.find(in: prompt),
+              mention.startOffset != dismissedMentionOffset
+        else { return nil }
+        return mention
     }
 
     private func sendSuggestion(_ suggestion: String) {
@@ -268,6 +432,7 @@ struct AssistantView: View {
         messages.append(userMessage)
         let requestMessages = messages
         let currentChatID = chatID
+        let currentMentionedContexts = mentionedContexts
         prompt = ""
         errorMessage = nil
         streamStatus = "Thinking through your kitchen…"
@@ -275,18 +440,29 @@ struct AssistantView: View {
         isComposerFocused = false
 
         sendTask = Task {
-            let assistantID = UUID().uuidString.lowercased()
+            var assistantID = ""
             var hasReceivedText = false
             do {
                 for try await event in auth.client.streamAssistant(
                     chatID: currentChatID,
-                    messages: requestMessages
+                    messages: requestMessages,
+                    pageContext: pageContext,
+                    mentionedContexts: currentMentionedContexts
                 ) {
                     try Task.checkCancellation()
                     switch event {
+                    case .started(let runID):
+                        activeRunID = runID
+                        assistantID = "\(runID)-assistant"
+                        messages.removeAll { $0.id == assistantID }
+                        hasReceivedText = false
+                        streamStatus = "Thinking through your kitchen…"
                     case .status(let status):
                         if !hasReceivedText { streamStatus = status }
                     case .textDelta(let delta):
+                        if assistantID.isEmpty {
+                            assistantID = "\(UUID().uuidString.lowercased())-assistant"
+                        }
                         streamStatus = nil
                         if hasReceivedText,
                            let index = messages.firstIndex(where: { $0.id == assistantID }) {
@@ -299,6 +475,7 @@ struct AssistantView: View {
                         }
                     }
                 }
+                try Task.checkCancellation()
                 guard hasReceivedText else {
                     throw APIError.server("The assistant finished without a text response.")
                 }
@@ -311,6 +488,9 @@ struct AssistantView: View {
                         title: title
                     )
                 }
+                mentionedContexts = []
+                dismissedMentionOffset = nil
+                activeRunID = nil
                 await refreshChats(showErrors: false)
             } catch is CancellationError {
                 // Keep any partial response visible when the user stops generation.
@@ -324,10 +504,88 @@ struct AssistantView: View {
     }
 
     private func stopGenerating() {
+        let runID = activeRunID
+        let currentChatID = chatID
+        disconnectFromAssistantStream()
+        activeRunID = nil
+        if let runID {
+            Task { try? await auth.client.cancelAssistant(chatID: currentChatID, runID: runID) }
+        }
+    }
+
+    private func disconnectFromAssistantStream() {
         sendTask?.cancel()
         sendTask = nil
         streamStatus = nil
         isSending = false
+    }
+
+    private func resumeActiveAssistantRunIfNeeded() {
+        guard connectivity.isOnline,
+              sendTask == nil,
+              !isLoadingConversation,
+              !messages.isEmpty || chats.contains(where: { $0.id == chatID })
+        else { return }
+
+        let currentChatID = chatID
+        sendTask = Task {
+            do {
+                let conversation = try await auth.client.loadAssistantConversation(chatID: currentChatID)
+                guard chatID == currentChatID else { return }
+                messages = conversation.messages
+                activeChatTitle = conversation.chat.displayTitle
+                var assistantID = ""
+                var receivedRun = false
+                var hasReceivedText = false
+                isSending = true
+                streamStatus = "Checking on Ladle…"
+
+                for try await event in auth.client.resumeAssistant(chatID: currentChatID) {
+                    try Task.checkCancellation()
+                    guard chatID == currentChatID else { return }
+                    switch event {
+                    case .started(let runID):
+                        receivedRun = true
+                        activeRunID = runID
+                        assistantID = "\(runID)-assistant"
+                        messages.removeAll { $0.id == assistantID }
+                        hasReceivedText = false
+                        streamStatus = "Ladle is still working…"
+                    case .status(let status):
+                        if !hasReceivedText { streamStatus = status }
+                    case .textDelta(let delta):
+                        guard receivedRun else { continue }
+                        streamStatus = nil
+                        if hasReceivedText,
+                           let index = messages.firstIndex(where: { $0.id == assistantID }) {
+                            messages[index].text += delta
+                        } else {
+                            messages.append(
+                                AssistantMessage(id: assistantID, role: "assistant", text: delta)
+                            )
+                            hasReceivedText = true
+                        }
+                    }
+                }
+
+                try Task.checkCancellation()
+                let completed = try await auth.client.loadAssistantConversation(chatID: currentChatID)
+                guard chatID == currentChatID else { return }
+                messages = completed.messages
+                activeChatTitle = completed.chat.displayTitle
+                activeRunID = nil
+                await refreshChats(showErrors: false)
+            } catch is CancellationError {
+                // Leaving the tab disconnects this viewer; the server run continues.
+            } catch {
+                if chatID == currentChatID { errorMessage = error.localizedDescription }
+            }
+            if chatID == currentChatID {
+                streamStatus = nil
+                isSending = false
+                sendTask = nil
+            }
+        }
     }
 
     private func suggestedTitle(from prompt: String) -> String {
@@ -351,15 +609,134 @@ struct AssistantView: View {
     }
 }
 
+struct AssistantMentionMatch {
+    let range: Range<String.Index>
+    let query: String
+    let startOffset: Int
+
+    static func find(in value: String) -> AssistantMentionMatch? {
+        guard let atIndex = value.lastIndex(of: "@") else { return nil }
+        if atIndex != value.startIndex {
+            let previousIndex = value.index(before: atIndex)
+            guard value[previousIndex].isWhitespace else { return nil }
+        }
+
+        let queryStart = value.index(after: atIndex)
+        let query = String(value[queryStart...])
+        guard !query.contains("@"), !query.contains("\n") else { return nil }
+        return AssistantMentionMatch(
+            range: atIndex..<value.endIndex,
+            query: query,
+            startOffset: value.distance(from: value.startIndex, to: atIndex)
+        )
+    }
+
+    func replacing(in value: String, with label: String) -> String {
+        "\(value[..<range.lowerBound])@\(label) "
+    }
+}
+
+private struct AssistantMentionOption: Identifiable {
+    let context: AssistantPageContext
+    var id: String { context.identity }
+}
+
+private struct AssistantMentionResults: View {
+    let options: [AssistantMentionOption]
+    let isAtLimit: Bool
+    let onSelect: (AssistantMentionOption) -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Text("ADD TO LADLE'S CONTEXT")
+                .font(.caption2.weight(.bold))
+                .tracking(0.8)
+                .foregroundStyle(Color.foodSecondaryInk)
+                .padding(.horizontal, FoodSpacing.medium)
+                .padding(.vertical, FoodSpacing.small)
+
+            Divider().overlay(Color.foodBorder)
+
+            if isAtLimit {
+                Text("Remove a context item before adding another.")
+                    .font(.subheadline)
+                    .foregroundStyle(Color.foodSecondaryInk)
+                    .padding(FoodSpacing.medium)
+            } else if options.isEmpty {
+                Text("No matching recipes or schedules.")
+                    .font(.subheadline)
+                    .foregroundStyle(Color.foodSecondaryInk)
+                    .padding(FoodSpacing.medium)
+            } else {
+                ScrollView {
+                    LazyVStack(spacing: 2) {
+                        ForEach(options) { option in
+                            Button {
+                                onSelect(option)
+                            } label: {
+                                HStack(spacing: FoodSpacing.small) {
+                                    Image(systemName: option.context.kind == .week ? "calendar" : "fork.knife")
+                                        .frame(width: 32, height: 32)
+                                        .background(Color.foodAccent.opacity(0.1), in: RoundedRectangle(cornerRadius: 9))
+                                        .foregroundStyle(Color.foodAccent)
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(option.context.label)
+                                            .font(.subheadline.weight(.semibold))
+                                            .foregroundStyle(Color.foodDeep)
+                                            .lineLimit(1)
+                                        Text(option.context.kind == .week ? "Schedule" : "Recipe")
+                                            .font(.caption)
+                                            .foregroundStyle(Color.foodSecondaryInk)
+                                    }
+                                    Spacer(minLength: 0)
+                                }
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.horizontal, FoodSpacing.small)
+                                .padding(.vertical, 6)
+                                .contentShape(Rectangle())
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                    .padding(4)
+                }
+                .frame(maxHeight: 220)
+            }
+        }
+        .background(Color.foodSurface)
+        .overlay(alignment: .bottom) { Divider().overlay(Color.foodBorder) }
+    }
+}
+
 private struct AssistantWelcomeView: View {
+    let pageContext: AssistantPageContext?
     let onSelect: (String) -> Void
 
-    private let suggestions = [
-        ("timer", "Find three dinner ideas", "Search the recipes I already have"),
-        ("carrot", "Cook from familiar ingredients", "Look across my saved recipe ingredients"),
-        ("calendar", "Plan this week's prep", "Use my current meal plan as context"),
-        ("clock.arrow.circlepath", "Rediscover an old favorite", "Find recipes I haven't made lately"),
-    ]
+    private var suggestions: [(String, String, String)] {
+        switch pageContext?.kind {
+        case .recipe:
+            [
+                ("fork.knife", "What pairs well with this recipe?", "Use the recipe attached above"),
+                ("calendar.badge.plus", "When should I make this?", "Fit it into one of my meal plans"),
+                ("wand.and.stars", "Suggest a useful variation", "Work from this recipe's ingredients and method"),
+                ("cart", "What should I shop for?", "Check what this recipe needs"),
+            ]
+        case .week:
+            [
+                ("calendar", "Help me fill the gaps this week", "Use the meal plan attached above"),
+                ("scale.3d", "Balance the effort across these meals", "Review the whole week"),
+                ("clock", "What should I prep first?", "Build a practical prep order"),
+                ("cart", "Review this grocery list", "Look for missing or duplicate items"),
+            ]
+        case nil:
+            [
+                ("timer", "Find three dinner ideas", "Search the recipes I already have"),
+                ("carrot", "Cook from familiar ingredients", "Look across my saved recipe ingredients"),
+                ("calendar", "Plan this week's prep", "Use my current meal plan as context"),
+                ("clock.arrow.circlepath", "Rediscover an old favorite", "Find recipes I haven't made lately"),
+            ]
+        }
+    }
 
     var body: some View {
         ScrollView {

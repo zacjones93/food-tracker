@@ -1,4 +1,7 @@
-import { handleAssistantRequest } from "@/lib/assistant/proxy";
+import {
+  handleAssistantRequest,
+  handleAssistantStreamRequest,
+} from "@/lib/assistant/proxy";
 import {
   adaptTanstackStreamForMobile,
   mobileMessagesToAgui,
@@ -20,20 +23,39 @@ export async function POST(request: Request) {
         role: "system" | "user" | "assistant";
         parts: Array<{ type: "text"; text: string }>;
       }>;
+      pageContext?: unknown;
+      mentionedContexts?: unknown;
     };
     if (!body.chatId || !Array.isArray(body.messages)) {
       return Response.json({ error: "Invalid assistant request" }, { status: 422 });
     }
     const runId = crypto.randomUUID();
-    const assistantResponse = await handleAssistantRequest(new Request(request.url, {
+    const startResponse = await handleAssistantRequest(new Request(request.url, {
       method: "POST",
       headers: request.headers,
       body: JSON.stringify(mobileMessagesToAgui({
         chatId: body.chatId,
         runId,
         messages: body.messages,
+        pageContext: body.pageContext,
+        mentionedContexts: body.mentionedContexts,
       })),
-      signal: request.signal,
+    }));
+    if (!startResponse.ok) return startResponse;
+    const knownRunIds = body.messages
+      .map((message) => message.id.endsWith("-assistant")
+        ? message.id.slice(0, -"-assistant".length)
+        : null)
+      .filter((value): value is string => Boolean(value));
+    const assistantResponse = await handleAssistantStreamRequest(new Request(request.url, {
+      method: "POST",
+      headers: request.headers,
+      body: JSON.stringify({
+        chatId: body.chatId,
+        knownRunIds,
+        closeOnTerminal: true,
+        replayRunId: runId,
+      }),
     }));
     if (!assistantResponse.ok || !assistantResponse.body) return assistantResponse;
     return new Response(adaptTanstackStreamForMobile(assistantResponse.body), {

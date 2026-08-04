@@ -39,9 +39,18 @@
      * https://developers.cloudflare.com/workers/wrangler/configuration/#environment-variables
      */
     "vars": {
+        "APP_URL": "https:\/\/listtoladle.com",
+        "APPLE_APP_ID": "6793734640",
+        "APPLE_BUNDLE_ID": "com.wodsmith.listtoladle",
+        "APPLE_ENABLE_ONLINE_CHECKS": "true",
         "EMAIL_FROM": "no-reply@notifications.zacjones.dev",
         "EMAIL_FROM_NAME": "Zac Jones",
-        "EMAIL_REPLY_TO": "zacjones93@gmail.com"
+        "EMAIL_REPLY_TO": "zacjones93@gmail.com",
+        "LEGAL_ENTITY_NAME": "WODSMITH LLC",
+        "LEGAL_BUSINESS_ADDRESS": "17810 N Onaway Ave, Nampa, ID 83687",
+        "LEGAL_GOVERNING_LAW": "State of Idaho, United States",
+        "PRIVACY_CONTACT_EMAIL": "support@wodsmith.com",
+        "SUPPORT_CONTACT_EMAIL": "support@wodsmith.com"
     },
     /**
      * Note: Use secrets to store sensitive data.

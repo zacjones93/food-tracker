@@ -35,6 +35,24 @@ export const createRecipeAction = createServerAction()
 
     const db = getDB();
 
+    if (input.sourceRecipeId) {
+      const sourceRecipe = await db.query.recipesTable.findFirst({
+        where: and(
+          eq(recipesTable.id, input.sourceRecipeId),
+          or(
+            eq(recipesTable.teamId, session.activeTeamId),
+            inArray(recipesTable.visibility, [
+              RECIPE_VISIBILITY.PUBLIC,
+              RECIPE_VISIBILITY.UNLISTED,
+            ]),
+          ),
+        ),
+      });
+      if (!sourceRecipe) {
+        throw new ZSAError("NOT_FOUND", "Source recipe not found");
+      }
+    }
+
     // Fetch team settings to get default visibility
     const teamSettings = await db.query.teamSettingsTable.findFirst({
       where: eq(teamSettingsTable.teamId, session.activeTeamId),
@@ -49,6 +67,7 @@ export const createRecipeAction = createServerAction()
       .values({
         teamId: session.activeTeamId,
         name: input.name,
+        sourceRecipeId: input.sourceRecipeId,
         emoji: cleanString(input.emoji),
         tags: input.tags,
         mealType: cleanString(input.mealType),

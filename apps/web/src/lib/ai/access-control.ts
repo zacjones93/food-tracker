@@ -9,6 +9,7 @@ import {
 } from "@/db/schema";
 import { getDB } from "@/db/index";
 import { evaluateAiTeamPolicy } from "@/lib/team-settings-policy";
+import { getTeamEntitlements } from "@/lib/entitlements";
 
 export interface AiChatAccessContext {
   chatId: string;
@@ -80,7 +81,7 @@ export async function checkAiAccess({
 }> {
   const db = getDB();
 
-  const [teamData, membership] = await Promise.all([
+  const [teamData, membership, entitlements] = await Promise.all([
     db.query.teamTable.findFirst({
       where: eq(teamTable.id, teamId),
       with: { settings: true },
@@ -92,14 +93,23 @@ export async function checkAiAccess({
         eq(teamMembershipTable.isActive, 1),
       ),
     }),
+    getTeamEntitlements({ teamId }),
   ]);
 
   if (!teamData) {
     return { allowed: false, reason: "Team not found" };
   }
 
+  if (!membership) {
+    return { allowed: false, reason: "You are not an active member of this team" };
+  }
+
+  if (!entitlements.features.aiAssistant) {
+    return { allowed: false, reason: "The AI assistant requires a List To Ladle Pro subscription" };
+  }
+
   const policy = evaluateAiTeamPolicy({
-    hasActiveMembership: Boolean(membership),
+    hasActiveMembership: true,
     settings: teamData.settings,
   });
   if (!policy.allowed) return policy;

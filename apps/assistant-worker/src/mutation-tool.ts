@@ -24,6 +24,7 @@ const nullableString = z.string().trim().max(1_000).nullable().optional();
 
 const recipeDataSchema = z.object({
   name: z.string().trim().min(1).max(500).optional(),
+  sourceRecipeId: identifierSchema.nullable().optional(),
   emoji: z.string().max(10).nullable().optional(),
   tags: z.array(z.string().trim().min(1).max(100)).max(100).nullable().optional(),
   mealType: z.string().trim().max(50).nullable().optional(),
@@ -325,6 +326,9 @@ async function assertReferencesOwned({
   if (entity === "recipe" && typeof data.recipeBookId === "string") {
     await assertOwnedReference({ db, entity: "recipeBook", entityId: data.recipeBookId, teamId });
   }
+  if (entity === "recipe" && typeof data.sourceRecipeId === "string") {
+    await assertOwnedReference({ db, entity: "recipe", entityId: data.sourceRecipeId, teamId });
+  }
   if (entity === "weekRecipe") {
     if (typeof data.weekId === "string") {
       await assertOwnedReference({ db, entity: "week", entityId: data.weekId, teamId });
@@ -401,14 +405,15 @@ function prepareCreateEntity({
     case "recipe":
       statement = db.prepare(
         `INSERT INTO recipes
-         (id, teamId, name, emoji, tags, mealType, difficulty, visibility,
+         (id, teamId, name, sourceRecipeId, emoji, tags, mealType, difficulty, visibility,
           recipeLink, recipeBookId, page, lastMadeDate, mealsEatenCount,
           ingredients, recipeBody, createdAt, updatedAt, updateCounter)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)`,
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)`,
       ).bind(
         id,
         context.teamId,
         data.name,
+        data.sourceRecipeId ?? null,
         data.emoji ?? null,
         databaseValue("tags", data.tags ?? []),
         data.mealType ?? null,

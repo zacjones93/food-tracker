@@ -59,6 +59,23 @@ extension View {
 
     func foodFormBehavior() -> some View {
         scrollDismissesKeyboard(.interactively)
+            .keyboardDismissToolbar()
+    }
+
+    func keyboardDismissToolbar() -> some View {
+        toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button("Done") {
+                    UIApplication.shared.sendAction(
+                        #selector(UIResponder.resignFirstResponder),
+                        to: nil,
+                        from: nil,
+                        for: nil
+                    )
+                }
+            }
+        }
     }
 }
 

@@ -6,6 +6,7 @@ import { getSessionFromCookie } from "@/utils/auth";
 import { getUserPermissions } from "@/utils/team-auth";
 import { and, eq } from "drizzle-orm";
 import { ZodError } from "zod";
+import { getTeamEntitlements } from "@/lib/entitlements";
 
 export class MobileAPIError extends Error {
   constructor(
@@ -67,12 +68,14 @@ export async function requireMobileSession() {
   };
 }
 
-export function createMobileSessionDTO(
+export async function createMobileSessionDTO(
   context: Awaited<ReturnType<typeof requireMobileSession>>,
 ) {
   const activeMembership = context.memberships.find(
     (membership) => membership.id === context.activeTeam.id,
   );
+
+  const entitlements = await getTeamEntitlements({ teamId: context.activeTeam.id });
 
   return {
     protocolVersion: 1,
@@ -92,6 +95,7 @@ export function createMobileSessionDTO(
     },
     teams: context.memberships,
     permissions: context.permissions,
+    entitlements,
   };
 }
 

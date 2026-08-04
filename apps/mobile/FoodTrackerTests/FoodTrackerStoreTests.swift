@@ -4,6 +4,28 @@ import XCTest
 
 @MainActor
 final class FoodTrackerStoreTests: XCTestCase {
+    func testOpeningAssistantSelectsTabAndCarriesPageContext() {
+        let store = FoodTrackerStore()
+        let context = AssistantPageContext(
+            kind: .recipe,
+            entityId: "recipe-1",
+            label: "Tomato soup",
+            href: "/recipes/recipe-1"
+        )
+
+        store.openAssistant(
+            context: context,
+            suggestedPrompt: "What pairs well with this?"
+        )
+
+        XCTAssertEqual(store.selectedTab, .assistant)
+        XCTAssertEqual(store.assistantLaunch?.context, context)
+        XCTAssertEqual(store.assistantLaunch?.suggestedPrompt, "What pairs well with this?")
+        let launchID = try? XCTUnwrap(store.assistantLaunch?.id)
+        if let launchID { store.consumeAssistantLaunch(id: launchID) }
+        XCTAssertNil(store.assistantLaunch)
+    }
+
     func testProductionStoreStartsEmpty() {
         let store = FoodTrackerStore()
 
@@ -28,6 +50,26 @@ final class FoodTrackerStoreTests: XCTestCase {
         await store.refresh(using: StubAPI())
 
         XCTAssertFalse(store.isInitialLoading)
+    }
+
+    func testRecipeListPaginationLoadsOnePageAtATimeAndResets() {
+        var pagination = RecipeListPagination(pageSize: 2)
+        let recipes = ["Soup", "Pasta", "Tacos", "Curry", "Salad"]
+
+        XCTAssertEqual(Array(pagination.visibleItems(from: recipes)), ["Soup", "Pasta"])
+        XCTAssertTrue(pagination.hasMore(totalCount: recipes.count))
+        XCTAssertEqual(pagination.remainingCount(totalCount: recipes.count), 3)
+
+        pagination.loadNextPage(totalCount: recipes.count)
+        XCTAssertEqual(Array(pagination.visibleItems(from: recipes)), ["Soup", "Pasta", "Tacos", "Curry"])
+        XCTAssertEqual(pagination.remainingCount(totalCount: recipes.count), 1)
+
+        pagination.loadNextPage(totalCount: recipes.count)
+        XCTAssertEqual(Array(pagination.visibleItems(from: recipes)), recipes)
+        XCTAssertFalse(pagination.hasMore(totalCount: recipes.count))
+
+        pagination.reset()
+        XCTAssertEqual(Array(pagination.visibleItems(from: recipes)), ["Soup", "Pasta"])
     }
 
     func testRecipeEditsCoalesceIntoOneDurableMutation() throws {
@@ -288,7 +330,10 @@ final class FoodTrackerStoreTests: XCTestCase {
     }
 
     func testSyncPayloadEncodesMutationPayloadAsJSONObject() throws {
-        let mutation = try PendingMutation(entity: .recipe, value: Recipe(name: "Toast"))
+        let mutation = try PendingMutation(
+            entity: .recipe,
+            value: Recipe(sourceRecipeID: "rcp-original", name: "Toast remix")
+        )
         let data = try FoodTrackerCoding.encoder.encode(SyncEnvelope(mutations: [mutation]))
         let JSON = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
         let mutations = try XCTUnwrap(JSON["mutations"] as? [[String: Any]])
@@ -296,7 +341,8 @@ final class FoodTrackerStoreTests: XCTestCase {
         XCTAssertEqual(mutations.first?["entityType"] as? String, "recipe")
         XCTAssertEqual(mutations.first?["operation"] as? String, "create")
         XCTAssertEqual(mutations.first?["clientEntityId"] as? String, mutation.entityID)
-        XCTAssertEqual((mutations.first?["payload"] as? [String: Any])?["name"] as? String, "Toast")
+        XCTAssertEqual((mutations.first?["payload"] as? [String: Any])?["name"] as? String, "Toast remix")
+        XCTAssertEqual((mutations.first?["payload"] as? [String: Any])?["sourceRecipeId"] as? String, "rcp-original")
         XCTAssertNotNil((mutations.first?["payload"] as? [String: Any])?["recipeBody"])
     }
 
@@ -346,6 +392,105 @@ final class FoodTrackerStoreTests: XCTestCase {
         XCTAssertEqual(response.acknowledged.first?.mutationID, create.id)
         XCTAssertEqual(response.acknowledged.first?.entityID, create.entityID)
         XCTAssertEqual(response.acknowledged.first?.serverID, "rcp-created")
+    }
+
+    func testAccountDeletionUsesAuthenticatedSameOriginMobileRoute() async throws {
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [URLProtocolStub.self]
+        let URLSession = URLSession(configuration: configuration)
+        let client = FoodTrackerAPIClient(
+            baseURL: URL(string: "https://food.example.test")!,
+            session: URLSession
+        )
+        var requestCount = 0
+
+        URLProtocolStub.handler = { request in
+            requestCount += 1
+            let URL = try XCTUnwrap(request.url)
+            XCTAssertEqual(URL.path, "/api/mobile/account")
+            if request.httpMethod == "GET" {
+                return (
+                    HTTPURLResponse(url: URL, statusCode: 200, httpVersion: nil, headerFields: nil)!,
+                    Data(#"{"canDelete":true,"deletedTeams":[{"id":"team-personal","name":"Personal"}],"leftTeams":[],"ownershipTransferRequired":[]}"#.utf8)
+                )
+            }
+
+            XCTAssertEqual(request.httpMethod, "DELETE")
+            XCTAssertEqual(request.value(forHTTPHeaderField: "Origin"), "https://food.example.test")
+            let body = try XCTUnwrap(
+                JSONSerialization.jsonObject(with: request.bodyData()) as? [String: String]
+            )
+            XCTAssertEqual(body["password"], "current-password")
+            XCTAssertEqual(body["confirmation"], "DELETE")
+            return (
+                HTTPURLResponse(url: URL, statusCode: 200, httpVersion: nil, headerFields: nil)!,
+                Data(#"{"deleted":true,"deletedTeamCount":1,"leftTeamCount":0}"#.utf8)
+            )
+        }
+
+        let preview = try await client.loadAccountDeletionPreview()
+        let result = try await client.deleteAccount(
+            password: "current-password",
+            confirmation: "DELETE"
+        )
+
+        XCTAssertEqual(requestCount, 2)
+        XCTAssertEqual(preview.deletedTeams.map(\.name), ["Personal"])
+        XCTAssertTrue(result.deleted)
+    }
+
+    func testAuthStoreClearsSessionOnlyAfterDeletionSucceeds() async throws {
+        let session = accountDeletionTestSession()
+        let successfulAuth = AuthStore(
+            client: AccountDeletionStubAPI(session: session, shouldFailDeletion: false)
+        )
+        let didSignInSuccessfulAuth = await successfulAuth.signIn(
+            email: session.user.email,
+            password: "password"
+        )
+        XCTAssertTrue(didSignInSuccessfulAuth)
+
+        let didDeleteSuccessfulAuth = await successfulAuth.deleteAccount(password: "password")
+        XCTAssertTrue(didDeleteSuccessfulAuth)
+        XCTAssertNil(successfulAuth.session)
+
+        let failingAuth = AuthStore(
+            client: AccountDeletionStubAPI(session: session, shouldFailDeletion: true)
+        )
+        let didSignInFailingAuth = await failingAuth.signIn(
+            email: session.user.email,
+            password: "password"
+        )
+        XCTAssertTrue(didSignInFailingAuth)
+
+        let didDeleteFailingAuth = await failingAuth.deleteAccount(password: "wrong-password")
+        XCTAssertFalse(didDeleteFailingAuth)
+        XCTAssertEqual(failingAuth.session?.user.id, session.user.id)
+        XCTAssertEqual(failingAuth.errorMessage, "The current password is incorrect")
+    }
+
+    func testAccountDeletionRemovesOnlyThatUsersWorkspaceFiles() throws {
+        let root = FileManager.default.temporaryDirectory
+            .appending(path: "account-deletion-\(UUID().uuidString)", directoryHint: .isDirectory)
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+
+        let deletedUsersFiles = [
+            root.appending(path: "user-delete_team-a.json"),
+            root.appending(path: "user-delete_team-b.json"),
+        ]
+        let otherUsersFile = root.appending(path: "user-other_team-a.json")
+        let unrelatedFile = root.appending(path: "user-delete_notes.txt")
+        for file in deletedUsersFiles + [otherUsersFile, unrelatedFile] {
+            try Data("test".utf8).write(to: file)
+        }
+
+        try JSONWorkspaceStorage.removeAll(userID: "user-delete", root: root)
+
+        XCTAssertTrue(deletedUsersFiles.allSatisfy { !FileManager.default.fileExists(atPath: $0.path) })
+        XCTAssertTrue(FileManager.default.fileExists(atPath: otherUsersFile.path))
+        XCTAssertTrue(FileManager.default.fileExists(atPath: unrelatedFile.path))
+        try JSONWorkspaceStorage.removeAll(userID: "user-delete", root: root)
     }
 
     func testAssistantHistoryAndConversationUseMobileRoutes() async throws {
@@ -398,6 +543,12 @@ final class FoodTrackerStoreTests: XCTestCase {
                 JSONSerialization.jsonObject(with: request.bodyData()) as? [String: Any]
             )
             XCTAssertEqual(object["chatId"] as? String, "ios_chat-1")
+            let context = try XCTUnwrap(object["pageContext"] as? [String: Any])
+            XCTAssertEqual(context["kind"] as? String, "recipe")
+            XCTAssertEqual(context["entityId"] as? String, "recipe-1")
+            let mentions = try XCTUnwrap(object["mentionedContexts"] as? [[String: Any]])
+            XCTAssertEqual(mentions.first?["kind"] as? String, "week")
+            XCTAssertEqual(mentions.first?["entityId"] as? String, "week-1")
             let message = try XCTUnwrap((object["messages"] as? [[String: Any]])?.first)
             let part = try XCTUnwrap((message["parts"] as? [[String: Any]])?.first)
             XCTAssertEqual(part["text"] as? String, "Find dinner")
@@ -427,7 +578,21 @@ final class FoodTrackerStoreTests: XCTestCase {
         var events: [AssistantStreamEvent] = []
         for try await event in client.streamAssistant(
             chatID: "ios_chat-1",
-            messages: [AssistantMessage(role: "user", text: "Find dinner")]
+            messages: [AssistantMessage(role: "user", text: "Find dinner")],
+            pageContext: AssistantPageContext(
+                kind: .recipe,
+                entityId: "recipe-1",
+                label: "Tomato soup",
+                href: "/recipes/recipe-1"
+            ),
+            mentionedContexts: [
+                AssistantPageContext(
+                    kind: .week,
+                    entityId: "week-1",
+                    label: "July 20–26",
+                    href: "/schedule/week-1"
+                )
+            ]
         ) {
             events.append(event)
         }
@@ -438,6 +603,75 @@ final class FoodTrackerStoreTests: XCTestCase {
             .textDelta("Try "),
             .textDelta("soup."),
         ])
+    }
+
+    func testAssistantCanResumeAndExplicitlyCancelADurableRun() async throws {
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [URLProtocolStub.self]
+        let URLSession = URLSession(configuration: configuration)
+        let client = FoodTrackerAPIClient(
+            baseURL: URL(string: "https://food.example.test")!,
+            session: URLSession
+        )
+
+        URLProtocolStub.handler = { request in
+            let URL = try XCTUnwrap(request.url)
+            let object = try XCTUnwrap(
+                JSONSerialization.jsonObject(with: request.bodyData()) as? [String: Any]
+            )
+            XCTAssertEqual(object["chatId"] as? String, "ios_chat-1")
+            if URL.path == "/api/mobile/assistant/cancel" {
+                XCTAssertEqual(object["runId"] as? String, "run-1")
+                return (
+                    HTTPURLResponse(url: URL, statusCode: 202, httpVersion: nil, headerFields: nil)!,
+                    Data(#"{"cancelled":true}"#.utf8)
+                )
+            }
+
+            XCTAssertEqual(URL.path, "/api/mobile/assistant/resume")
+            let stream = """
+            data: {"type":"RUN_STARTED","threadId":"ios_chat-1","runId":"run-1"}
+
+            data: {"type":"TOOL_CALL_START","toolCallId":"tool-1","toolCallName":"codemode_execute"}
+
+            data: {"type":"TEXT_MESSAGE_CONTENT","delta":"Dinner is ready."}
+
+            data: {"type":"RUN_FINISHED","threadId":"ios_chat-1","runId":"run-1"}
+
+            """
+            return (
+                HTTPURLResponse(
+                    url: URL,
+                    statusCode: 200,
+                    httpVersion: nil,
+                    headerFields: ["Content-Type": "text/event-stream"]
+                )!,
+                Data(stream.utf8)
+            )
+        }
+
+        var events: [AssistantStreamEvent] = []
+        for try await event in client.resumeAssistant(chatID: "ios_chat-1") {
+            events.append(event)
+        }
+        try await client.cancelAssistant(chatID: "ios_chat-1", runID: "run-1")
+
+        XCTAssertEqual(events, [
+            .started(runID: "run-1"),
+            .status("Searching your recipes and meal plans…"),
+            .textDelta("Dinner is ready."),
+        ])
+    }
+
+    func testAssistantMentionParsingAndInsertion() throws {
+        let mention = try XCTUnwrap(AssistantMentionMatch.find(in: "Compare @tomato so"))
+
+        XCTAssertEqual(mention.query, "tomato so")
+        XCTAssertEqual(
+            mention.replacing(in: "Compare @tomato so", with: "Tomato Soup"),
+            "Compare @Tomato Soup "
+        )
+        XCTAssertNil(AssistantMentionMatch.find(in: "chef@example.com"))
     }
 
     func testTeamSwitchUsesMembershipEndpointAndReloadsTeamScopedSession() async throws {
@@ -610,6 +844,12 @@ private struct StubAPI: FoodTrackerAPI {
     }
     func switchTeam(to teamID: String) async throws -> MobileSession { throw APIError.unauthorized }
     func signOut() async throws {}
+    func loadAccountDeletionPreview() async throws -> AccountDeletionPreview {
+        throw APIError.unauthorized
+    }
+    func deleteAccount(password: String, confirmation: String) async throws -> AccountDeletionResult {
+        throw APIError.unauthorized
+    }
     func loadWorkspace(cursor: String?) async throws -> FoodWorkspace { workspace }
     func sync(_ envelope: SyncEnvelope) async throws -> SyncResponse { syncResult }
     func loadAssistantChats() async throws -> [AssistantChatSummary] { [] }
@@ -619,11 +859,79 @@ private struct StubAPI: FoodTrackerAPI {
     func updateAssistantChatTitle(chatID: String, title: String) async throws {}
     func streamAssistant(
         chatID: String,
-        messages: [AssistantMessage]
+        messages: [AssistantMessage],
+        pageContext: AssistantPageContext?,
+        mentionedContexts: [AssistantPageContext]
     ) -> AsyncThrowingStream<AssistantStreamEvent, Error> {
         AsyncThrowingStream { continuation in
             continuation.yield(.textDelta("Try soup."))
             continuation.finish()
         }
     }
+}
+
+private struct AccountDeletionStubAPI: FoodTrackerAPI {
+    var session: MobileSession
+    var shouldFailDeletion: Bool
+
+    func restoreSession() async throws -> MobileSession { session }
+    func signIn(email: String, password: String) async throws -> MobileSession { session }
+    func signUp(firstName: String, lastName: String, email: String, password: String) async throws -> MobileSession {
+        session
+    }
+    func switchTeam(to teamID: String) async throws -> MobileSession { session }
+    func signOut() async throws {}
+    func loadAccountDeletionPreview() async throws -> AccountDeletionPreview {
+        AccountDeletionPreview(
+            canDelete: true,
+            deletedTeams: [.init(id: session.teamID, name: session.teamName)],
+            leftTeams: [],
+            ownershipTransferRequired: []
+        )
+    }
+    func deleteAccount(password: String, confirmation: String) async throws -> AccountDeletionResult {
+        if shouldFailDeletion { throw APIError.server("The current password is incorrect") }
+        return AccountDeletionResult(deleted: true, deletedTeamCount: 1, leftTeamCount: 0)
+    }
+    func loadWorkspace(cursor: String?) async throws -> FoodWorkspace { .empty }
+    func sync(_ envelope: SyncEnvelope) async throws -> SyncResponse {
+        SyncResponse(acknowledged: [], cursor: nil, workspace: nil)
+    }
+    func loadAssistantChats() async throws -> [AssistantChatSummary] { [] }
+    func loadAssistantConversation(chatID: String) async throws -> AssistantConversation {
+        throw APIError.server("No assistant conversation in this test")
+    }
+    func updateAssistantChatTitle(chatID: String, title: String) async throws {}
+    func streamAssistant(
+        chatID: String,
+        messages: [AssistantMessage],
+        pageContext: AssistantPageContext?,
+        mentionedContexts: [AssistantPageContext]
+    ) -> AsyncThrowingStream<AssistantStreamEvent, Error> {
+        AsyncThrowingStream { $0.finish() }
+    }
+}
+
+private func accountDeletionTestSession() -> MobileSession {
+    let team = MobileSession.Team(
+        id: "team-personal",
+        name: "Personal",
+        slug: "personal",
+        avatarURL: nil,
+        roleID: "owner"
+    )
+    return MobileSession(
+        protocolVersion: 1,
+        user: .init(
+            id: "user-delete",
+            email: "chef@example.com",
+            firstName: "Ada",
+            lastName: "Lovelace",
+            avatar: nil
+        ),
+        activeTeam: team,
+        teams: [team],
+        permissions: [],
+        entitlements: nil
+    )
 }

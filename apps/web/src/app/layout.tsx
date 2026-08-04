@@ -29,9 +29,7 @@ export const metadata: Metadata = {
   },
   description: SITE_DESCRIPTION,
   metadataBase: new URL(SITE_URL),
-  keywords: ["SaaS", "Next.js", "React", "TypeScript", "Cloudflare Workers", "Edge Computing"],
-  authors: [{ name: "Lubomir Georgiev" }],
-  creator: "Lubomir Georgiev",
+  keywords: ["meal planning", "recipes", "grocery lists", "shared kitchen", "weekly menu"],
   openGraph: {
     type: "website",
     locale: "en_US",
@@ -52,7 +50,6 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: SITE_NAME,
     description: SITE_DESCRIPTION,
-    creator: "@LubomirGeorg",
     images: ["/og-image.png"],
   },
   robots: {

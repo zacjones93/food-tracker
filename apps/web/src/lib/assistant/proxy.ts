@@ -6,10 +6,12 @@ import { getDB } from "@/db";
 import {
   checkDailyUsageLimit,
   checkMonthlyBudgetLimit,
+  getAuthorizedChat,
+  isChatOwnedBy,
   resolveMaxOutputTokens,
 } from "@/lib/ai/access-control";
-import { getOrCreateChat } from "@/lib/ai/chat-actions";
-import { resolveAssistantPageContext } from "@/lib/ai/resolve-assistant-context";
+import { getChat, getOrCreateChat } from "@/lib/ai/chat-actions";
+import { resolveAssistantContexts } from "@/lib/ai/resolve-assistant-context";
 import {
   aiErrorResponse,
   authorizeAiRequestContext,
@@ -27,8 +29,16 @@ interface AssistantWireBody {
   forwardedProps?: {
     chatId?: unknown;
     pageContext?: unknown;
+    mentionedContexts?: unknown;
     resolvedPageContext?: unknown;
   };
+}
+
+interface AssistantStreamBody {
+  chatId?: unknown;
+  knownRunIds?: unknown;
+  closeOnTerminal?: unknown;
+  replayRunId?: unknown;
 }
 
 function requiredIdentifier(value: unknown, field: string): string {
@@ -68,8 +78,9 @@ export async function handleAssistantRequest(request: Request): Promise<Response
     const [dailyUsage, monthlyBudget, resolvedPageContext] = await Promise.all([
       checkDailyUsageLimit({ teamId, maxRequests: settings.maxRequestsPerDay }),
       checkMonthlyBudgetLimit({ teamId, monthlyBudgetUsd: settings.monthlyBudgetUsd }),
-      resolveAssistantPageContext({
-        context: body.forwardedProps?.pageContext,
+      resolveAssistantContexts({
+        pageContext: body.forwardedProps?.pageContext,
+        mentionedContexts: body.forwardedProps?.mentionedContexts,
         db,
         teamId,
         userId: session.user.id,
@@ -104,6 +115,7 @@ export async function handleAssistantRequest(request: Request): Promise<Response
     const { env } = await getCloudflareContext({ async: true });
     const forwardedProps = { ...body.forwardedProps };
     delete forwardedProps.pageContext;
+    delete forwardedProps.mentionedContexts;
     const assistantBody: AssistantWireBody = {
       ...body,
       forwardedProps: {
@@ -124,7 +136,6 @@ export async function handleAssistantRequest(request: Request): Promise<Response
         "x-run-id": runId,
       },
       body: JSON.stringify(assistantBody),
-      signal: request.signal,
     }));
     logAiEvent({
       level: response.ok ? "info" : "warn",
@@ -140,6 +151,110 @@ export async function handleAssistantRequest(request: Request): Promise<Response
       context: requestContext,
       details: { errorName: error instanceof Error ? error.name : "UnknownError" },
     });
+    return aiErrorResponse({ error, context: requestContext });
+  }
+}
+
+export async function handleAssistantStreamRequest(request: Request): Promise<Response> {
+  let requestContext = createAiRequestContext({ requestId: request.headers.get("x-request-id") });
+  try {
+    const { session } = await requireAiAccess();
+    const teamId = session.activeTeamId!;
+    const body = await request.json() as AssistantStreamBody;
+    const chatId = requiredIdentifier(body.chatId, "chatId");
+    requestContext = withAiChatContext({
+      context: authorizeAiRequestContext({
+        context: requestContext,
+        userId: session.user.id,
+        teamId,
+      }),
+      chatId,
+    });
+    const chat = await getChat(chatId);
+    if (!chat) return new Response(null, { status: 204 });
+    if (!isChatOwnedBy({ chat, userId: session.user.id, teamId })) {
+      throw createAiDomainError({
+        code: "CHAT_FORBIDDEN",
+        message: "Forbidden",
+        status: 403,
+      });
+    }
+
+    const knownRunIds = Array.isArray(body.knownRunIds)
+      ? body.knownRunIds.filter((value): value is string =>
+        typeof value === "string" && value.length <= 128)
+      : [];
+    const runId = `subscription_${crypto.randomUUID()}`;
+    const { env } = await getCloudflareContext({ async: true });
+    return await env.ASSISTANT.fetch(new Request("https://assistant.internal/v1/chat/events", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "x-assistant-user-id": session.user.id,
+        "x-assistant-team-id": teamId,
+        "x-assistant-chat-id": chatId,
+        "x-assistant-max-output-tokens": "1",
+        "x-request-id": requestContext.requestId,
+        "x-run-id": runId,
+      },
+      body: JSON.stringify({
+        knownRunIds,
+        closeOnTerminal: body.closeOnTerminal === true,
+        replayRunId: typeof body.replayRunId === "string" ? body.replayRunId : null,
+      }),
+    }));
+  } catch (error) {
+    return aiErrorResponse({ error, context: requestContext });
+  }
+}
+
+export async function handleAssistantCancelRequest(request: Request): Promise<Response> {
+  let requestContext = createAiRequestContext({ requestId: request.headers.get("x-request-id") });
+  try {
+    const { session } = await requireAiAccess();
+    const teamId = session.activeTeamId!;
+    const body = await request.json() as { chatId?: unknown; runId?: unknown };
+    const chatId = requiredIdentifier(body.chatId, "chatId");
+    const runId = requiredIdentifier(body.runId, "runId");
+    requestContext = {
+      ...withAiChatContext({
+        context: authorizeAiRequestContext({
+          context: requestContext,
+          userId: session.user.id,
+          teamId,
+        }),
+        chatId,
+      }),
+      runId,
+    };
+    const chat = await getAuthorizedChat({
+      chatId,
+      userId: session.user.id,
+      teamId,
+    });
+    if (!chat) {
+      throw createAiDomainError({
+        code: "CHAT_FORBIDDEN",
+        message: "Forbidden",
+        status: 403,
+      });
+    }
+
+    const { env } = await getCloudflareContext({ async: true });
+    return await env.ASSISTANT.fetch(new Request("https://assistant.internal/v1/chat/cancel", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "x-assistant-user-id": session.user.id,
+        "x-assistant-team-id": teamId,
+        "x-assistant-chat-id": chatId,
+        "x-assistant-max-output-tokens": "1",
+        "x-request-id": requestContext.requestId,
+        "x-run-id": runId,
+      },
+      body: "{}",
+    }));
+  } catch (error) {
     return aiErrorResponse({ error, context: requestContext });
   }
 }

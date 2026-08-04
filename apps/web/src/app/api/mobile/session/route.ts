@@ -11,7 +11,7 @@ import { z } from "zod";
 export async function GET() {
   try {
     const context = await requireMobileSession();
-    return Response.json(createMobileSessionDTO(context), {
+    return Response.json(await createMobileSessionDTO(context), {
       headers: { "Cache-Control": "no-store" },
     });
   } catch (error) {

@@ -11,6 +11,7 @@ import {
 } from "@/schemas/recipe.schema";
 import {
   createRecipeAction,
+  getPublicRecipeByIdAction,
   getRecipeMetadataAction,
   createRecipeBookAction,
 } from "../recipes.actions";
@@ -69,10 +70,40 @@ import {
 } from "@/components/related-recipes-selector";
 import { getRecipesAction } from "../recipes.actions";
 
+function createRemixIngredientSections(ingredients: unknown): IngredientSection[] {
+  const sectionId = Date.now();
+  if (!Array.isArray(ingredients) || ingredients.length === 0) {
+    return [{ id: `section-${sectionId}`, items: [] }];
+  }
+
+  if (ingredients.every((ingredient) => typeof ingredient === "string")) {
+    return [{
+      id: `section-${sectionId}`,
+      items: ingredients as string[],
+    }];
+  }
+
+  const sections = ingredients.flatMap((ingredient, index) => {
+    if (!ingredient || typeof ingredient !== "object" || !("items" in ingredient)) return [];
+    const rawItems: unknown = ingredient.items;
+    const items = Array.isArray(rawItems)
+      ? rawItems.filter((item: unknown): item is string => typeof item === "string")
+      : [];
+    const title = "title" in ingredient && typeof ingredient.title === "string"
+      ? ingredient.title
+      : undefined;
+    return [{ id: `section-${sectionId}-${index}`, title, items }];
+  });
+
+  return sections.length > 0
+    ? sections
+    : [{ id: `section-${sectionId}`, items: [] }];
+}
+
 export default function CreateRecipePage({
   searchParams,
 }: {
-  searchParams: Promise<{ callback?: string }>;
+  searchParams: Promise<{ callback?: string; sourceRecipeId?: string }>;
 }) {
   const router = useRouter();
   const params = use(searchParams);
@@ -114,8 +145,14 @@ export default function CreateRecipePage({
   const [availableRecipes, setAvailableRecipes] = useState<
     Array<{ id: string; name: string; emoji: string | null }>
   >([]);
+  const [sourceRecipe, setSourceRecipe] = useState<{
+    id: string;
+    name: string;
+    emoji: string | null;
+  } | null>(null);
 
   const { execute, isPending } = useServerAction(createRecipeAction);
+  const { execute: fetchSourceRecipe } = useServerAction(getPublicRecipeByIdAction);
   const { execute: fetchMetadata } = useServerAction(getRecipeMetadataAction);
   const { execute: createRecipeBook } = useServerAction(createRecipeBookAction);
   const { execute: fetchRecipes } = useServerAction(getRecipesAction);
@@ -125,6 +162,7 @@ export default function CreateRecipePage({
     resolver: zodResolver(createRecipeSchema),
     defaultValues: {
       name: "",
+      sourceRecipeId: params.sourceRecipeId,
       emoji: "",
       tags: [],
       mealType: "",
@@ -136,6 +174,39 @@ export default function CreateRecipePage({
       page: "",
     },
   });
+
+  useEffect(() => {
+    async function loadSourceRecipe() {
+      if (!params.sourceRecipeId) return;
+
+      const [data, err] = await fetchSourceRecipe({ id: params.sourceRecipeId });
+      if (err || !data?.recipe) {
+        form.setValue("sourceRecipeId", undefined);
+        toast.error("The original recipe is no longer available");
+        return;
+      }
+
+      const recipe = data.recipe;
+      form.reset({
+        name: `${recipe.name} (Remix)`,
+        sourceRecipeId: recipe.id,
+        emoji: recipe.emoji ?? "",
+        tags: recipe.tags ?? [],
+        mealType: recipe.mealType ?? "",
+        difficulty: recipe.difficulty ?? "",
+        ingredients: recipe.ingredients,
+        recipeBody: recipe.recipeBody ?? "",
+        recipeLink: recipe.recipeLink ?? "",
+        recipeBookId: recipe.recipeBookId ?? "",
+        page: recipe.page ?? "",
+      });
+      setSelectedTags(recipe.tags ?? []);
+      setIngredientSections(createRemixIngredientSections(recipe.ingredients));
+      setSourceRecipe({ id: recipe.id, name: recipe.name, emoji: recipe.emoji });
+    }
+
+    loadSourceRecipe();
+  }, [fetchSourceRecipe, form, params.sourceRecipeId]);
 
   useEffect(() => {
     async function loadMetadata() {
@@ -299,9 +370,13 @@ export default function CreateRecipePage({
     <div className="flex flex-col gap-6 p-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Create Recipe</h1>
+          <h1 className="text-3xl font-bold tracking-tight">
+            {sourceRecipe ? "Remix Recipe" : "Create Recipe"}
+          </h1>
           <p className="text-muted-foreground">
-            Add a new recipe to your collection
+            {sourceRecipe
+              ? "Change anything you like. The original recipe will stay untouched."
+              : "Add a new recipe to your collection"}
           </p>
         </div>
         <Button variant="outline" asChild>
@@ -313,6 +388,19 @@ export default function CreateRecipePage({
       </div>
 
       <div className="max-w-2xl">
+        {sourceRecipe && (
+          <div className="mb-6 flex items-center justify-between gap-4 rounded-lg border bg-muted/30 p-4">
+            <div className="min-w-0">
+              <p className="text-sm text-muted-foreground">Remixing from</p>
+              <p className="truncate font-medium">
+                {sourceRecipe.emoji ? `${sourceRecipe.emoji} ` : ""}{sourceRecipe.name}
+              </p>
+            </div>
+            <Button variant="outline" size="sm" asChild>
+              <Link href={`/recipes/${sourceRecipe.id}`}>View original</Link>
+            </Button>
+          </div>
+        )}
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
@@ -806,7 +894,7 @@ export default function CreateRecipePage({
                 {isPending && (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin text-cream-100" />
                 )}
-                Create Recipe
+                {sourceRecipe ? "Create Remix" : "Create Recipe"}
               </Button>
               <Button
                 type="button"

@@ -1,0 +1,3 @@
+interface AssistantWorkerEnv {
+  GEMINI_API_KEY: string;
+}

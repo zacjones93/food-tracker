@@ -82,6 +82,15 @@ test("rejects unknown recipe fields instead of forwarding them to D1", () => {
   if (result.success) assert.equal("teamId" in result.data, false);
 });
 
+test("accepts recipe provenance for remixes", () => {
+  const recipe = recipePayloadSchema.parse({
+    name: "Tomato soup remix",
+    sourceRecipeId: "recipe-original",
+  });
+
+  assert.equal(recipe.sourceRecipeId, "recipe-original");
+});
+
 test("caps mutation batches and change pages", () => {
   const mutation = {
     mutationId: "mutation",

@@ -7,6 +7,7 @@ import {
   recipeBooksTable,
   recipeRelationsTable,
   recipesTable,
+  RECIPE_VISIBILITY,
   syncChangesTable,
   syncEntitiesTable,
   syncMutationsTable,
@@ -26,7 +27,12 @@ import {
   weekPayloadSchema,
   weekRecipePayloadSchema,
 } from "@/lib/mobile-sync-contract";
-import { and, eq, gt, isNull, or } from "drizzle-orm";
+import { and, eq, gt, inArray, isNull, or } from "drizzle-orm";
+import {
+  EntitlementError,
+  releaseTeamWeekCreation,
+  reserveTeamWeekCreation,
+} from "@/lib/entitlements";
 
 interface ApplyMobileMutationsParams {
   mutations: MobileMutation[];
@@ -291,11 +297,33 @@ async function assertReferencesOwned({
   if (entityType === "recipe" && typeof payload.recipeBookId === "string") {
     references.push({ field: "recipeBookId", type: "recipeBook" });
   }
+  if (entityType === "recipe" && typeof payload.sourceRecipeId === "string") {
+    references.push({ field: "sourceRecipeId", type: "recipe" });
+  }
 
   for (const reference of references) {
     const value = payload[reference.field];
     if (typeof value !== "string") continue;
     const resolved = await resolveReference({ clientOrServerId: value, entityType: reference.type, teamId });
+    if (reference.field === "sourceRecipeId") {
+      const readableSourceRecipe = await getDB().query.recipesTable.findFirst({
+        where: and(
+          eq(recipesTable.id, resolved),
+          or(
+            eq(recipesTable.teamId, teamId),
+            inArray(recipesTable.visibility, [
+              RECIPE_VISIBILITY.PUBLIC,
+              RECIPE_VISIBILITY.UNLISTED,
+            ]),
+          ),
+        ),
+      });
+      if (!readableSourceRecipe) {
+        throw new MobileAPIError(404, "sourceRecipeId was not found");
+      }
+      payload[reference.field] = resolved;
+      continue;
+    }
     if (reference.type === "recipeBook") {
       const readableBook = await getDB().query.recipeBooksTable.findFirst({
         where: and(
@@ -359,8 +387,21 @@ async function createEntity({
     }
     case "week": {
       const values = weekPayloadSchema.parse(payload);
-      const [record] = await db.insert(weeksTable).values({ ...values, clientId: clientEntityId, teamId }).returning();
-      return record;
+      try {
+        await reserveTeamWeekCreation({ teamId });
+      } catch (error) {
+        if (error instanceof EntitlementError) {
+          throw new MobileAPIError(402, error.message);
+        }
+        throw error;
+      }
+      try {
+        const [record] = await db.insert(weeksTable).values({ ...values, clientId: clientEntityId, teamId }).returning();
+        return record;
+      } catch (error) {
+        await releaseTeamWeekCreation({ teamId });
+        throw error;
+      }
     }
     case "weekRecipe": {
       const values = weekRecipePayloadSchema.parse(payload);

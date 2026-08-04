@@ -8,7 +8,9 @@ import {
   User,
   Smartphone,
   LogOut,
-  Users
+  Users,
+  Crown,
+  Trash2,
 } from "@/components/ui/themed-icons";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import {
@@ -44,9 +46,19 @@ const sidebarNavItems: SidebarNavItem[] = [
     icon: Users,
   },
   {
+    title: "Billing",
+    href: "/settings/billing" as Route,
+    icon: Crown,
+  },
+  {
     title: "Sessions",
     href: "/settings/sessions",
     icon: Smartphone,
+  },
+  {
+    title: "Account",
+    href: "/settings/account" as Route,
+    icon: Trash2,
   },
 ];
 

@@ -31,7 +31,9 @@ The app expects authenticated, JSON endpoints on the web app origin:
 
 The assistant uses stable conversation IDs, loads team- and user-scoped history from D1, and consumes the AI SDK UI message stream through the mobile assistant bridge. The native client renders text and tool progress as events arrive and can cancel an in-flight run. The assistant remains online-only; the rest of the planning and shopping workflow stays available offline.
 
-The debug configuration targets `http://localhost:3000`. Set `FoodTrackerAPIBaseURL` in the app target's generated Info.plist settings for another environment.
+Debug builds target `http://localhost:3000` in the iOS Simulator and `https://listtoladle.com` on a physical iPhone. Release builds also target `https://listtoladle.com`. A `FoodTrackerAPIBaseURL` value supplied by a custom Info.plist can override these defaults.
+
+The iOS app is a free companion to the web service. It reads the active team's server entitlements from the authenticated session, but contains no purchase, pricing, StoreKit, Stripe checkout, or external billing-management surface. The Assistant tab is omitted when the active workspace does not have assistant access; the app does not show a locked feature, plan label, or upgrade prompt. Subscription changes happen independently on the website. See `docs/app-store-launch-runbook.md` for the App Store submission model.
 
 ## Build and test
 

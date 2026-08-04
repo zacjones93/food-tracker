@@ -1,20 +1,12 @@
 import { getAssistantErrorMessage } from "@/lib/assistant/errors";
 import type { AssistantMessage } from "@/lib/assistant/types";
+import { Check, Loader2 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 interface MessageProps {
   message: AssistantMessage;
   onApproval: (approvalId: string, approved: boolean) => void;
-}
-
-function formatToolOutput(output: unknown): string {
-  if (typeof output === "string") return output;
-  try {
-    return JSON.stringify(output, null, 2);
-  } catch {
-    return "Tool result unavailable";
-  }
 }
 
 export function Message({ message, onApproval }: MessageProps) {
@@ -47,11 +39,31 @@ export function Message({ message, onApproval }: MessageProps) {
         }
         if (part.type === "tool-call") {
           const approval = part.approval;
+          const isComplete = part.state === "complete";
+          const isWaitingForApproval =
+            approval?.needsApproval && approval.approved === undefined;
           return (
-            <div key={part.id} className="rounded-md border bg-background/60 p-3 text-xs">
-              <div className="font-medium">Tool: {part.name}</div>
-              <div className="mt-1 text-muted-foreground">Status: {part.state}</div>
-              {approval?.needsApproval && approval.approved === undefined && (
+            <div
+              key={part.id}
+              className="rounded-md border bg-background/60 p-3 text-xs"
+              role="status"
+              aria-live="polite"
+            >
+              <div className="flex items-center gap-2 font-medium text-muted-foreground">
+                {isComplete ? (
+                  <Check className="h-3.5 w-3.5" />
+                ) : (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                )}
+                <span>
+                  {isWaitingForApproval
+                    ? "Agent is ready to make changes"
+                    : isComplete
+                      ? "Agent finished using a tool"
+                      : "Agent is using a tool…"}
+                </span>
+              </div>
+              {isWaitingForApproval && (
                 <div className="mt-3 flex gap-2">
                   <button
                     type="button"
@@ -69,21 +81,10 @@ export function Message({ message, onApproval }: MessageProps) {
                   </button>
                 </div>
               )}
-              {part.output !== undefined && (
-                <pre className="mt-2 max-h-64 overflow-auto whitespace-pre-wrap">
-                  {formatToolOutput(part.output)}
-                </pre>
-              )}
             </div>
           );
         }
-        if (part.type === "tool-result") {
-          return (
-            <pre key={`${part.toolCallId}-${index}`} className="max-h-64 overflow-auto rounded-md border p-3 text-xs whitespace-pre-wrap">
-              {formatToolOutput(part.content)}
-            </pre>
-          );
-        }
+        if (part.type === "tool-result") return null;
         return null;
       })}
     </div>

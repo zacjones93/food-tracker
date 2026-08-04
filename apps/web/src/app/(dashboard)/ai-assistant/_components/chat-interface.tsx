@@ -1,6 +1,6 @@
 "use client";
 
-import { fetchServerSentEvents, useChat } from "@tanstack/ai-react";
+import { useChat } from "@tanstack/ai-react";
 import {
   useInfiniteQuery,
   useMutation,
@@ -28,10 +28,12 @@ import {
   type AssistantSettings,
 } from "@/lib/ai/assistant-context";
 import { getPublicAssistantError } from "@/lib/assistant/errors";
+import { createDurableAssistantConnection } from "@/lib/assistant/durable-connection";
 import type { AssistantMessage } from "@/lib/assistant/types";
 import { cn } from "@/lib/utils";
 
 import { Message } from "./message";
+import { AssistantMentionInput } from "./assistant-mention-input";
 
 interface ChatInterfaceProps {
   settings: AssistantSettings;
@@ -53,14 +55,14 @@ export function ChatInterface({
   const [queryChatId, setQueryChatId] = useQueryState("chatId");
   const chatId = propChatId || (!isPanel ? queryChatId : null) || newChatId;
   const [input, setInput] = useState("");
+  const [mentionedContexts, setMentionedContexts] = useState<
+    AssistantPageContext[]
+  >([]);
   const [titleInput, setTitleInput] = useState("");
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const knownRunIdsRef = useRef<string[]>([]);
   const queryClient = useQueryClient();
-  const connection = useMemo(
-    () => fetchServerSentEvents("/api/assistant"),
-    [],
-  );
 
   const chatQuery = useInfiniteQuery({
     queryKey: ["chat-messages", chatId],
@@ -86,6 +88,18 @@ export function ChatInterface({
     () => chatQuery.data?.pages.flatMap((page) => page.messages) ?? [],
     [chatQuery.data?.pages],
   );
+  knownRunIdsRef.current = loadedMessages
+    .map((message) => message.id.endsWith("-assistant")
+      ? message.id.slice(0, -"-assistant".length)
+      : null)
+    .filter((runId): runId is string => Boolean(runId));
+  const durableTransport = useMemo(
+    () => createDurableAssistantConnection({
+      chatId,
+      getKnownRunIds: () => knownRunIdsRef.current,
+    }),
+    [chatId],
+  );
   const chatTitle = chatQuery.data?.pages[0]?.title;
 
   const {
@@ -94,6 +108,7 @@ export function ChatInterface({
     sendMessage,
     status,
     isLoading,
+    sessionGenerating,
     error,
     stop,
     reload,
@@ -101,19 +116,23 @@ export function ChatInterface({
   } = useChat({
     id: chatId,
     threadId: chatId,
-    forwardedProps: { chatId, pageContext },
-    connection,
+    forwardedProps: { chatId, pageContext, mentionedContexts },
+    connection: durableTransport.connection,
+    live: !chatQuery.isLoading && chatId !== newChatId,
     onFinish: () => {
       if (!isPanel && !queryChatId && !propChatId) {
         void setQueryChatId(chatId);
       }
       void queryClient.invalidateQueries({ queryKey: ["chat-history"] });
+      void queryClient.invalidateQueries({ queryKey: ["chat-messages", chatId] });
     },
   });
 
+  const isAssistantBusy = isLoading || sessionGenerating;
+
   useEffect(() => {
-    if (!isLoading && loadedMessages.length > 0) setMessages(loadedMessages);
-  }, [isLoading, loadedMessages, setMessages]);
+    if (!isAssistantBusy && loadedMessages.length > 0) setMessages(loadedMessages);
+  }, [isAssistantBusy, loadedMessages, setMessages]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -147,9 +166,13 @@ export function ChatInterface({
   async function submitMessage(event: React.FormEvent): Promise<void> {
     event.preventDefault();
     const content = input.trim();
-    if (!content || isLoading) return;
+    if (!content || isAssistantBusy) return;
     setInput("");
+    if (!isPanel && !queryChatId && !propChatId) {
+      await setQueryChatId(chatId);
+    }
     await sendMessage(content);
+    setMentionedContexts([]);
   }
 
   const suggestions = getAssistantContextSuggestions(pageContext);
@@ -326,25 +349,30 @@ export function ChatInterface({
         <div className="border-t p-4">
           <form
             onSubmit={(event) => void submitMessage(event)}
-            className="flex gap-2"
+            className="flex items-end gap-2"
           >
-            <Input
+            <AssistantMentionInput
               value={input}
-              onChange={(event) => setInput(event.target.value)}
+              contexts={mentionedContexts}
+              onChange={setInput}
+              onContextsChange={setMentionedContexts}
               placeholder={
                 pageContext
                   ? `Ask about ${pageContext.label}…`
-                  : "Ask about recipes or meal planning…"
+                  : "Ask anything, or type @ to add context…"
               }
-              disabled={isLoading}
+              disabled={isAssistantBusy}
               autoFocus={!isPanel}
             />
-            {isLoading ? (
+            {isAssistantBusy ? (
               <Button
                 type="button"
                 variant="outline"
                 size="icon"
-                onClick={stop}
+                onClick={() => {
+                  stop();
+                  void durableTransport.cancelActiveRun();
+                }}
                 aria-label="Stop response"
               >
                 <Square className="h-4 w-4" />

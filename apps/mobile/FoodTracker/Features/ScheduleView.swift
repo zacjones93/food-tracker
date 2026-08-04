@@ -25,6 +25,16 @@ struct ScheduleView: View {
                 if store.isInitialLoading {
                     ScheduleLoadingState()
                 } else {
+                    if !canCreateWeek {
+                        Label(
+                            "Your team has used its four free week creations.",
+                            systemImage: "lock.fill"
+                        )
+                        .font(.subheadline)
+                        .foregroundStyle(Color.foodSecondaryInk)
+                        .padding(FoodSpacing.medium)
+                        .foodSurface()
+                    }
                     weekSection("Current", weeks: weeks(with: .current), expanded: true)
                     weekSection("Upcoming", weeks: weeks(with: .upcoming), expanded: false)
 
@@ -59,6 +69,7 @@ struct ScheduleView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button("New week", systemImage: "plus") { showingNewWeek = true }
+                    .disabled(!canCreateWeek)
             }
         }
         .sheet(isPresented: $showingNewWeek, onDismiss: openSavedWeek) {
@@ -74,6 +85,12 @@ struct ScheduleView: View {
             await store.sync(using: auth.client)
             await store.refresh(using: auth.client)
         }
+    }
+
+    private var canCreateWeek: Bool {
+        guard let entitlements = auth.session?.entitlements else { return true }
+        if entitlements.features.weekCreationLimit == nil { return true }
+        return (entitlements.usage.weeksRemaining ?? 0) > 0
     }
 
     @ViewBuilder

@@ -4,11 +4,16 @@ import { WeeksBoard } from "./_components/weeks-board";
 import { Button } from "@/components/ui/button";
 import { Plus } from "@/components/ui/themed-icons";
 import Link from "next/link";
+import { WeeksBoardSkeleton } from "./_components/schedule-skeletons";
 
-export default async function SchedulePage() {
+async function WeeksBoardContent() {
   const [data] = await getWeeksAction();
   const weeks = data?.weeks || [];
 
+  return <WeeksBoard weeks={weeks} />;
+}
+
+export default function SchedulePage() {
   return (
     <div className="flex flex-col gap-6 p-6">
         <div className="flex flex-col sm:flex-row gap-4 items-center sm:justify-between justify-center">
@@ -24,8 +29,8 @@ export default async function SchedulePage() {
           </Button>
         </div>
 
-      <Suspense fallback={<div>Loading...</div>}>
-        <WeeksBoard weeks={weeks} />
+      <Suspense fallback={<WeeksBoardSkeleton />}>
+        <WeeksBoardContent />
       </Suspense>
     </div>
   );

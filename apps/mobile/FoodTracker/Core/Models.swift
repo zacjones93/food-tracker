@@ -30,6 +30,7 @@ struct IngredientSection: Codable, Hashable, Sendable, Identifiable {
 struct Recipe: SyncEntity {
     var id: String
     var serverID: String?
+    var sourceRecipeID: String?
     var name: String
     var emoji: String
     var tags: [String]
@@ -48,6 +49,7 @@ struct Recipe: SyncEntity {
     init(
         id: String = "local_recipe_\(UUID().uuidString.lowercased())",
         serverID: String? = nil,
+        sourceRecipeID: String? = nil,
         name: String,
         emoji: String = "🍽️",
         tags: [String] = [],
@@ -65,6 +67,7 @@ struct Recipe: SyncEntity {
     ) {
         self.id = id
         self.serverID = serverID
+        self.sourceRecipeID = sourceRecipeID
         self.name = name
         self.emoji = emoji
         self.tags = tags
@@ -341,11 +344,33 @@ struct MobileSession: Codable, Hashable, Sendable {
         }
     }
 
+    struct Entitlements: Codable, Hashable, Sendable {
+        struct Features: Codable, Hashable, Sendable {
+            var weekCreationLimit: Int?
+            var aiAssistant: Bool
+            var pushNotifications: Bool
+        }
+
+        struct Usage: Codable, Hashable, Sendable {
+            var weeksCreated: Int
+            var weeksRemaining: Int?
+        }
+
+        var planKey: String
+        var planVersion: Int
+        var providers: [String]?
+        var source: String
+        var subscriptionStatus: String
+        var features: Features
+        var usage: Usage
+    }
+
     var protocolVersion: Int
     var user: User
     var activeTeam: Team
     var teams: [Team]
     var permissions: [String]
+    var entitlements: Entitlements?
 
     var teamID: String { activeTeam.id }
     var teamName: String { activeTeam.name }
@@ -450,6 +475,7 @@ private enum SyncPayload {
         if let recipe = value as? Recipe {
             return .object([
                 "name": .string(recipe.name),
+                "sourceRecipeId": recipe.sourceRecipeID.map(JSONValue.string) ?? .null,
                 "emoji": .string(recipe.emoji),
                 "tags": .array(recipe.tags.map(JSONValue.string)),
                 "mealType": .string(recipe.mealType),

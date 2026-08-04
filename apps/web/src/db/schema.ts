@@ -126,7 +126,7 @@ export const teamMembershipTable = sqliteTable("team_membership", {
   userId: text().notNull().references(() => userTable.id, { onDelete: 'cascade' }),
   roleId: text().notNull(),
   isSystemRole: integer().default(1).notNull(),
-  invitedBy: text().references(() => userTable.id),
+  invitedBy: text().references(() => userTable.id, { onDelete: 'set null' }),
   joinedAt: integer({ mode: "timestamp" }),
   isActive: integer().default(1).notNull(),
 }, (table) => ([
@@ -158,10 +158,10 @@ export const teamInvitationTable = sqliteTable("team_invitation", {
   roleId: text().notNull(),
   isSystemRole: integer().default(1).notNull(),
   token: text({ length: 255 }).notNull().unique(),
-  invitedBy: text().notNull().references(() => userTable.id),
+  invitedBy: text().references(() => userTable.id, { onDelete: 'set null' }),
   expiresAt: integer({ mode: "timestamp" }).notNull(),
   acceptedAt: integer({ mode: "timestamp" }),
-  acceptedBy: text().references(() => userTable.id),
+  acceptedBy: text().references(() => userTable.id, { onDelete: 'set null' }),
 }, (table) => ([
   index("ti_team_idx").on(table.teamId),
   index("ti_token_idx").on(table.token),
@@ -193,6 +193,104 @@ export const teamSettingsTable = sqliteTable("team_settings", {
   aiMaxRequestsPerDay: integer().default(100),
 }, (table) => ([
   index("tset_team_idx").on(table.teamId),
+]));
+
+export interface TeamEntitlementFeatures {
+  weekCreationLimit: number | null;
+  aiAssistant: boolean;
+  pushNotifications: boolean;
+}
+
+// Immutable feature snapshots are created when a team purchases a subscription.
+// Existing subscribers keep this exact feature set when the current plan changes.
+export const teamEntitlementSnapshotsTable = sqliteTable("team_entitlement_snapshot", {
+  ...commonColumns,
+  id: text().primaryKey().$defaultFn(() => `tent_${createId()}`).notNull(),
+  teamId: text().notNull().references(() => teamTable.id, { onDelete: 'cascade' }),
+  source: text({ length: 50 }).notNull(),
+  sourceId: text({ length: 255 }).notNull(),
+  planKey: text({ length: 100 }).notNull(),
+  planVersion: integer().notNull(),
+  features: text({ mode: 'json' }).$type<TeamEntitlementFeatures>().notNull(),
+  grantedAt: integer({ mode: 'timestamp' }).$defaultFn(() => new Date()).notNull(),
+}, (table) => ([
+  index("tent_team_idx").on(table.teamId),
+  uniqueIndex("tent_source_unique").on(table.source, table.sourceId),
+]));
+
+export const teamSubscriptionsTable = sqliteTable("team_subscription", {
+  ...commonColumns,
+  id: text().primaryKey().$defaultFn(() => `tsub_${createId()}`).notNull(),
+  teamId: text().notNull().unique().references(() => teamTable.id, { onDelete: 'cascade' }),
+  stripeCustomerId: text({ length: 255 }).notNull(),
+  stripeSubscriptionId: text({ length: 255 }),
+  entitlementSnapshotId: text().references(() => teamEntitlementSnapshotsTable.id, { onDelete: 'set null' }),
+  status: text({ length: 50 }).notNull().default('none'),
+  priceId: text({ length: 255 }),
+  currentPeriodStart: integer({ mode: 'timestamp' }),
+  currentPeriodEnd: integer({ mode: 'timestamp' }),
+  cancelAtPeriodEnd: integer({ mode: 'boolean' }).notNull().default(false),
+  paymentMethod: text({ mode: 'json' }).$type<{ brand: string | null; last4: string | null } | null>(),
+  lastSyncedAt: integer({ mode: 'timestamp' }),
+}, (table) => ([
+  uniqueIndex("tsub_customer_unique").on(table.stripeCustomerId),
+  uniqueIndex("tsub_subscription_unique").on(table.stripeSubscriptionId),
+]));
+
+// StoreKit purchases remain bound to the team selected when checkout begins.
+// appAccountToken is the opaque UUID shared with Apple; it is not a user ID.
+export const appleSubscriptionBindingsTable = sqliteTable("apple_subscription_binding", {
+  ...commonColumns,
+  id: text().primaryKey().$defaultFn(() => `asub_${createId()}`).notNull(),
+  teamId: text().notNull().unique().references(() => teamTable.id, { onDelete: 'cascade' }),
+  appAccountToken: text({ length: 36 }).notNull().unique(),
+  originalTransactionId: text({ length: 255 }),
+  entitlementSnapshotId: text().references(() => teamEntitlementSnapshotsTable.id, { onDelete: 'set null' }),
+  environment: text({ length: 20 }),
+  bundleId: text({ length: 255 }),
+  productId: text({ length: 255 }),
+  status: text({ length: 50 }).notNull().default('none'),
+  autoRenewStatus: integer({ mode: 'boolean' }).notNull().default(false),
+  purchaseDate: integer({ mode: 'timestamp' }),
+  currentPeriodEnd: integer({ mode: 'timestamp' }),
+  gracePeriodExpiresAt: integer({ mode: 'timestamp' }),
+  revocationDate: integer({ mode: 'timestamp' }),
+  lastTransactionId: text({ length: 255 }),
+  lastTransactionSignedAt: integer({ mode: 'timestamp' }),
+  lastRenewalSignedAt: integer({ mode: 'timestamp' }),
+  lastSyncedAt: integer({ mode: 'timestamp' }),
+}, (table) => ([
+  uniqueIndex("asub_original_transaction_unique").on(table.originalTransactionId),
+]));
+
+// Notification UUIDs form the idempotency ledger for App Store Server
+// Notifications V2. Subscription writes are themselves monotonic by signedAt.
+export const appleServerNotificationEventsTable = sqliteTable("apple_server_notification_event", {
+  ...commonColumns,
+  id: text().primaryKey().$defaultFn(() => `asne_${createId()}`).notNull(),
+  notificationUuid: text({ length: 36 }).notNull().unique(),
+  notificationType: text({ length: 100 }),
+  subtype: text({ length: 100 }),
+  signedAt: integer({ mode: 'timestamp' }),
+  originalTransactionId: text({ length: 255 }),
+  status: text({ length: 20 }).notNull().default('pending'),
+  attempts: integer().notNull().default(1),
+  error: text({ length: 1000 }),
+  processedAt: integer({ mode: 'timestamp' }),
+}, (table) => ([
+  index("asne_status_idx").on(table.status),
+]));
+
+// Lifetime counters remain separate from snapshots so deleting a week cannot
+// reset a free team's four-creation allowance.
+export const teamFeatureUsageTable = sqliteTable("team_feature_usage", {
+  ...commonColumns,
+  id: text().primaryKey().$defaultFn(() => `tfu_${createId()}`).notNull(),
+  teamId: text().notNull().references(() => teamTable.id, { onDelete: 'cascade' }),
+  feature: text({ length: 100 }).notNull(),
+  usageCount: integer().notNull().default(0),
+}, (table) => ([
+  uniqueIndex("tfu_team_feature_unique").on(table.teamId, table.feature),
 ]));
 
 // Recipe books table
@@ -228,6 +326,10 @@ export const recipesTable = sqliteTable("recipes", {
   visibility: text({ length: 20 }).notNull().default('public'),  // "public", "private", "unlisted"
 
   // Source tracking
+  sourceRecipeId: text().references(
+    (): AnySQLiteColumn => recipesTable.id,
+    { onDelete: 'set null' },
+  ),
   recipeLink: text({ length: 1000 }),  // URL to original recipe
   recipeBookId: text().references(() => recipeBooksTable.id, { onDelete: 'set null' }),
   page: text({ length: 50 }),  // Page number in recipe book
@@ -407,6 +509,70 @@ export const syncMutationsTable = sqliteTable("sync_mutations", {
 }, (table) => ([
   index("sync_mutations_team_idx").on(table.teamId, table.appliedAt),
   index("sync_mutations_client_entity_idx").on(table.teamId, table.entityType, table.clientEntityId),
+]));
+
+// APNs device tokens are user-scoped delivery addresses. Team membership and
+// notification preferences are rechecked separately at delivery time.
+export const notificationPushDevicesTable = sqliteTable("notification_push_devices", {
+  ...commonColumns,
+  id: text().primaryKey().$defaultFn(() => `push_${createId()}`).notNull(),
+  userId: text().notNull().references(() => userTable.id, { onDelete: 'cascade' }),
+  platform: text({ length: 20 }).notNull().default('ios'),
+  installationId: text({ length: 64 }).notNull(),
+  token: text({ length: 1024 }).notNull(),
+  environment: text({ length: 20 }).notNull(),
+  bundleId: text({ length: 255 }).notNull(),
+  enabled: integer({ mode: 'boolean' }).notNull().default(true),
+  lastSeenAt: integer({ mode: 'timestamp' }).$defaultFn(() => new Date()).notNull(),
+  disabledAt: integer({ mode: 'timestamp' }),
+}, (table) => ([
+  index("push_devices_user_enabled_idx").on(table.userId, table.enabled),
+  uniqueIndex("push_devices_installation_unique").on(table.bundleId, table.environment, table.installationId),
+  uniqueIndex("push_devices_token_unique").on(table.bundleId, table.environment, table.token),
+]));
+
+// Push is opt-in per user and team. Delivery workers re-read this row and the
+// current team membership immediately before every provider call.
+export const notificationPushPreferencesTable = sqliteTable("notification_push_preferences", {
+  ...commonColumns,
+  id: text().primaryKey().$defaultFn(() => `pushpref_${createId()}`).notNull(),
+  teamId: text().notNull().references(() => teamTable.id, { onDelete: 'cascade' }),
+  userId: text().notNull().references(() => userTable.id, { onDelete: 'cascade' }),
+  topic: text({ length: 100 }).notNull(),
+  pushEnabled: integer({ mode: 'boolean' }).notNull().default(false),
+}, (table) => ([
+  uniqueIndex("push_preferences_team_user_topic_unique").on(table.teamId, table.userId, table.topic),
+]));
+
+// One row represents one logical notification for one device. Producers use
+// the dedupe key constraint as the outbox/idempotency boundary; the Worker uses
+// status + leaseExpiresAt as a compare-and-set delivery state machine.
+export const notificationPushDeliveriesTable = sqliteTable("notification_push_deliveries", {
+  ...commonColumns,
+  id: text().primaryKey().$defaultFn(() => `pushdel_${createId()}`).notNull(),
+  teamId: text().notNull().references(() => teamTable.id, { onDelete: 'cascade' }),
+  userId: text().notNull().references(() => userTable.id, { onDelete: 'cascade' }),
+  pushDeviceId: text().notNull().references(() => notificationPushDevicesTable.id, { onDelete: 'cascade' }),
+  topic: text({ length: 100 }).notNull(),
+  dedupeKey: text({ length: 255 }).notNull(),
+  title: text({ length: 255 }).notNull(),
+  body: text({ length: 2048 }).notNull(),
+  destination: text({ length: 1000 }),
+  status: text({ length: 30 }).notNull().default('pending'),
+  apnsId: text({ length: 36 }).notNull(),
+  attemptCount: integer().notNull().default(0),
+  leaseExpiresAt: integer({ mode: 'timestamp' }),
+  lastAttemptAt: integer({ mode: 'timestamp' }),
+  acceptedAt: integer({ mode: 'timestamp' }),
+  failedAt: integer({ mode: 'timestamp' }),
+  suppressedAt: integer({ mode: 'timestamp' }),
+  providerMessageId: text({ length: 255 }),
+  providerCode: text({ length: 100 }),
+  lastError: text({ length: 1000 }),
+}, (table) => ([
+  index("push_deliveries_status_lease_idx").on(table.status, table.leaseExpiresAt),
+  index("push_deliveries_team_user_idx").on(table.teamId, table.userId),
+  uniqueIndex("push_deliveries_device_dedupe_unique").on(table.pushDeviceId, table.dedupeKey),
 ]));
 
 // AI Usage tracking table
@@ -731,6 +897,11 @@ export type TeamMembership = InferSelectModel<typeof teamMembershipTable>;
 export type TeamRole = InferSelectModel<typeof teamRoleTable>;
 export type TeamInvitation = InferSelectModel<typeof teamInvitationTable>;
 export type TeamSettings = InferSelectModel<typeof teamSettingsTable>;
+export type TeamEntitlementSnapshot = InferSelectModel<typeof teamEntitlementSnapshotsTable>;
+export type TeamSubscription = InferSelectModel<typeof teamSubscriptionsTable>;
+export type AppleSubscriptionBinding = InferSelectModel<typeof appleSubscriptionBindingsTable>;
+export type AppleServerNotificationEvent = InferSelectModel<typeof appleServerNotificationEventsTable>;
+export type TeamFeatureUsage = InferSelectModel<typeof teamFeatureUsageTable>;
 export type RecipeBook = InferSelectModel<typeof recipeBooksTable>;
 export type Recipe = InferSelectModel<typeof recipesTable>;
 export type Week = InferSelectModel<typeof weeksTable>;

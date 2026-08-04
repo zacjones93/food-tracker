@@ -24,6 +24,7 @@ export const relatedRecipeSchema = z.object({
 
 export const createRecipeSchema = z.object({
   name: z.string().min(2).max(500),
+  sourceRecipeId: z.string().max(255).optional(),
   emoji: z.string().max(10).optional(),
   tags: z.array(z.string()).optional(),
   mealType: z.string().max(50).optional(),

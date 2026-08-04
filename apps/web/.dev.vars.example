@@ -1,2 +1,27 @@
 # Load .env.development* files when running `wrangler dev`
 NEXTJS_ENV=development
+
+# Stripe Billing (test mode)
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
+STRIPE_PRO_PRICE_ID=
+APP_URL=http://localhost:3000
+
+# Apple App Store subscriptions (Sandbox identifiers and credentials)
+APPLE_BUNDLE_ID=
+APPLE_APP_ID=
+APPLE_SUBSCRIPTION_PRODUCT_IDS=
+APPLE_ENABLE_ONLINE_CHECKS=true
+APPLE_ROOT_CA_1_BASE64=
+APPLE_ROOT_CA_2_BASE64=
+APPLE_ROOT_CA_3_BASE64=
+APPLE_IAP_ISSUER_ID=
+APPLE_IAP_KEY_ID=
+APPLE_IAP_PRIVATE_KEY=
+
+# Public legal and support identity (required before production launch)
+LEGAL_ENTITY_NAME=
+LEGAL_BUSINESS_ADDRESS=
+LEGAL_GOVERNING_LAW=
+PRIVACY_CONTACT_EMAIL=
+SUPPORT_CONTACT_EMAIL=
