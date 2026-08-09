@@ -28,6 +28,7 @@ export const recipePayloadSchema = z.object({
   mealType: z.string().trim().max(50).nullable().optional(),
   difficulty: z.string().trim().max(20).nullable().optional(),
   visibility: z.enum(["public", "private", "unlisted"]).optional(),
+  recipeType: z.enum(["standard", "coffee_drink"]).optional(),
   recipeLink: optionalNullableString,
   recipeBookId: z.string().nullable().optional(),
   page: z.string().max(50).nullable().optional(),

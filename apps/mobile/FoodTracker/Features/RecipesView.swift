@@ -154,6 +154,7 @@ struct RecipeEditor: View {
     @State private var mealType: String
     @State private var difficulty: String
     @State private var visibility: String
+    @State private var recipeType: Recipe.RecipeType
     @State private var tags: String
     @State private var recipeLink: String
     @State private var recipeBookID: String?
@@ -170,6 +171,7 @@ struct RecipeEditor: View {
         _mealType = State(initialValue: template?.mealType ?? "Dinner")
         _difficulty = State(initialValue: template?.difficulty ?? "Easy")
         _visibility = State(initialValue: recipe?.visibility ?? "private")
+        _recipeType = State(initialValue: template?.recipeType ?? .standard)
         _tags = State(initialValue: template?.tags.joined(separator: ", ") ?? "")
         _recipeLink = State(initialValue: template?.recipeLink ?? "")
         _recipeBookID = State(initialValue: template?.recipeBookID)
@@ -184,6 +186,18 @@ struct RecipeEditor: View {
                 Section("Recipe") {
                     TextField("Name", text: $name)
                     TextField("Emoji", text: $emoji)
+                    Picker("Recipe type", selection: $recipeType) {
+                        ForEach(Recipe.RecipeType.allCases) { type in Text(type.label).tag(type) }
+                    }
+                    if recipeType == .coffeeDrink {
+                        VStack(alignment: .leading, spacing: FoodSpacing.small) {
+                            DialYourEspressoBrand(detail: "Coffee recipe destination", size: .standard)
+                            Text(dialAvailabilityDescription)
+                                .font(.caption)
+                                .foregroundStyle(Color.foodSecondaryInk)
+                        }
+                        .padding(.vertical, FoodSpacing.extraSmall)
+                    }
                     Picker("Meal", selection: $mealType) {
                         ForEach(["Breakfast", "Lunch", "Dinner", "Snack", "Dessert"], id: \.self) { Text($0) }
                     }
@@ -239,6 +253,7 @@ struct RecipeEditor: View {
                         value.mealType = mealType
                         value.difficulty = difficulty
                         value.visibility = visibility
+                        value.recipeType = recipeType
                         value.tags = tags.split(separator: ",").map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
                         value.recipeLink = recipeLink
                         value.recipeBookID = recipeBookID
@@ -254,6 +269,14 @@ struct RecipeEditor: View {
                     .disabled(name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                 }
             }
+        }
+    }
+
+    private var dialAvailabilityDescription: String {
+        switch visibility {
+        case "public": "This coffee drink will be searchable by signed-in Dial users."
+        case "unlisted": "This coffee drink will be available in Dial by direct link, but not browse or search."
+        default: "This coffee drink is available only to the Dial team paired with this Listo team."
         }
     }
 }

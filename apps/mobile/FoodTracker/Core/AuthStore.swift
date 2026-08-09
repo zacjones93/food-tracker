@@ -489,6 +489,7 @@ private struct ServerWorkspaceDTO: Decodable {
     struct RecipeDTO: Decodable {
         var id: String
         var clientId: String?
+        var dialExternalId: String?
         var sourceRecipeId: String?
         var name: String
         var emoji: String?
@@ -496,6 +497,7 @@ private struct ServerWorkspaceDTO: Decodable {
         var mealType: String?
         var difficulty: String?
         var visibility: String
+        var recipeType: Recipe.RecipeType?
         var recipeLink: String?
         var recipeBookId: String?
         var page: String?
@@ -590,6 +592,7 @@ private struct ServerWorkspaceDTO: Decodable {
     }
 
     var cursor: String
+    var dialTeamPaired: Bool?
     var recipes: [RecipeDTO]
     var weeks: [WeekDTO]
     var weekRecipes: [WeekRecipeDTO]
@@ -610,10 +613,12 @@ private struct ServerWorkspaceDTO: Decodable {
 
         return FoodWorkspace(
             cursor: cursor,
+            dialTeamPaired: dialTeamPaired ?? false,
             recipes: recipes.map { value in
                 Recipe(
                     id: value.clientId ?? value.id,
                     serverID: value.id,
+                    dialExternalID: value.dialExternalId,
                     sourceRecipeID: value.sourceRecipeId.flatMap { recipeIDs[$0] } ?? value.sourceRecipeId,
                     name: value.name,
                     emoji: value.emoji ?? "🍽️",
@@ -621,6 +626,7 @@ private struct ServerWorkspaceDTO: Decodable {
                     mealType: value.mealType ?? "",
                     difficulty: value.difficulty ?? "",
                     visibility: value.visibility,
+                    recipeType: value.recipeType ?? .standard,
                     recipeLink: value.recipeLink ?? "",
                     recipeBookID: value.recipeBookId.flatMap { bookIDs[$0] },
                     page: value.page ?? "",

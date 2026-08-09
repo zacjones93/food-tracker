@@ -27,6 +27,7 @@ import {
   weekPayloadSchema,
   weekRecipePayloadSchema,
 } from "@/lib/mobile-sync-contract";
+import { publishDialRecipeChange } from "@/lib/dial-integration";
 import { and, eq, gt, inArray, isNull, or } from "drizzle-orm";
 import {
   EntitlementError,
@@ -383,6 +384,7 @@ async function createEntity({
     case "recipe": {
       const values = recipePayloadSchema.parse(payload);
       const [record] = await db.insert(recipesTable).values({ ...values, clientId: clientEntityId, teamId }).returning();
+      await publishDialRecipeChange({ current: record, previous: null });
       return record;
     }
     case "week": {
@@ -451,7 +453,11 @@ async function updateEntity({
   switch (entityType) {
     case "recipe": {
       const values = recipePayloadSchema.partial().parse(payload);
+      const previous = await db.query.recipesTable.findFirst({
+        where: and(eq(recipesTable.id, entityId), eq(recipesTable.teamId, teamId)),
+      });
       const [record] = await db.update(recipesTable).set(values).where(and(eq(recipesTable.id, entityId), eq(recipesTable.teamId, teamId))).returning();
+      if (previous && record) await publishDialRecipeChange({ current: record, previous });
       return record;
     }
     case "week": {
@@ -494,9 +500,16 @@ async function updateEntity({
 async function deleteEntity({ entityId, entityType, teamId }: { entityId: string; entityType: MobileEntityType; teamId: string }) {
   const db = getDB();
   switch (entityType) {
-    case "recipe":
+    case "recipe": {
+      const previous = await db.query.recipesTable.findFirst({
+        where: and(eq(recipesTable.id, entityId), eq(recipesTable.teamId, teamId)),
+      });
+      if (previous) {
+        await publishDialRecipeChange({ current: null, previous, reason: "recipe_deleted" });
+      }
       await db.delete(recipesTable).where(and(eq(recipesTable.id, entityId), eq(recipesTable.teamId, teamId)));
       break;
+    }
     case "week":
       await db.delete(weeksTable).where(and(eq(weeksTable.id, entityId), eq(weeksTable.teamId, teamId)));
       break;

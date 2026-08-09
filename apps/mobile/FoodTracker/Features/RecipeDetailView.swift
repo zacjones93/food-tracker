@@ -4,8 +4,10 @@ import SwiftUI
 
 struct RecipeDetailView: View {
     @Environment(FoodTrackerStore.self) private var store
+    @Environment(AuthStore.self) private var auth
     @Environment(\.dismiss) private var dismiss
     let recipeID: String
+    var initiallyEditing = false
     @State private var showingEdit = false
     @State private var showingRemix = false
     @State private var showingSchedule = false
@@ -46,6 +48,13 @@ struct RecipeDetailView: View {
                                     Label("Remixed from \(sourceRecipe.name)", systemImage: "arrow.triangle.branch")
                                         .foregroundStyle(Color.foodSecondaryInk)
                                 }
+                            }
+
+                            if recipe.recipeType == .coffeeDrink {
+                                DialAvailabilityView(
+                                    isTeamPaired: store.workspace.dialTeamPaired,
+                                    recipe: recipe
+                                )
                             }
                         }
 
@@ -105,11 +114,15 @@ struct RecipeDetailView: View {
 
                         Menu("Recipe actions", systemImage: "ellipsis.circle") {
                             Button("Remix", systemImage: "arrow.triangle.branch") { showingRemix = true }
-                            Button("Edit", systemImage: "pencil") { showingEdit = true }
+                            if canEditRecipes {
+                                Button("Edit", systemImage: "pencil") { showingEdit = true }
+                            }
                             ShareLink(item: recipe.recipeLink.isEmpty ? recipe.name : recipe.recipeLink) {
                                 Label("Share", systemImage: "square.and.arrow.up")
                             }
-                            Button("Delete", systemImage: "trash", role: .destructive) { confirmingDelete = true }
+                            if canDeleteRecipes {
+                                Button("Delete", systemImage: "trash", role: .destructive) { confirmingDelete = true }
+                            }
                         }
                     }
                 }
@@ -134,10 +147,70 @@ struct RecipeDetailView: View {
                 } message: {
                     Text("It will also be removed from meal plans when this change syncs.")
                 }
+                .onAppear {
+                    if initiallyEditing && canEditRecipes { showingEdit = true }
+                }
             } else {
                 FoodEmptyState(symbol: "book.closed", title: "Recipe unavailable", detail: "It may have been removed on another device.")
             }
         }
+    }
+
+    private var canEditRecipes: Bool { auth.session?.permissions.contains("edit_recipes") == true }
+    private var canDeleteRecipes: Bool { auth.session?.permissions.contains("delete_recipes") == true }
+}
+
+private struct DialAvailabilityView: View {
+    let isTeamPaired: Bool
+    let recipe: Recipe
+
+    private var isAvailable: Bool {
+        recipe.dialExternalID != nil && (recipe.visibility != "private" || isTeamPaired)
+    }
+
+    private var detail: String {
+        if recipe.visibility == "private" && !isTeamPaired {
+            return "Pair this Listo team with a Dial team on the web to share this private coffee drink."
+        }
+        if recipe.dialExternalID == nil {
+            return "Eligible for Dial. It will become available after this recipe syncs."
+        }
+        return "Available in Dial Your Espresso. Listo remains the source of truth."
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: FoodSpacing.small) {
+            HStack(alignment: .center, spacing: FoodSpacing.small) {
+                DialYourEspressoBrand(detail: "Coffee recipe destination", size: .standard)
+                Spacer()
+                Text(isAvailable ? "Available" : recipe.visibility == "private" && !isTeamPaired ? "Pair team" : "Syncing")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(statusColor)
+                    .padding(.horizontal, FoodSpacing.small)
+                    .padding(.vertical, FoodSpacing.extraSmall)
+                    .background(statusColor.opacity(0.12), in: Capsule())
+            }
+            Text(detail).font(.subheadline).foregroundStyle(Color.foodSecondaryInk)
+            if isAvailable, let externalID = recipe.dialExternalID,
+               let url = URL(string: "https://dialyourespresso.online/recipes/listo/\(externalID)") {
+                Link(destination: url) {
+                    Label("Open in Dial Your Espresso", systemImage: "arrow.up.right.square")
+                        .font(.subheadline.weight(.semibold))
+                }
+            }
+        }
+        .padding(FoodSpacing.medium)
+        .background(Color.foodSurface, in: RoundedRectangle(cornerRadius: FoodRadius.large))
+        .overlay {
+            RoundedRectangle(cornerRadius: FoodRadius.large)
+                .stroke(Color.foodBorder, lineWidth: 0.5)
+        }
+    }
+
+    private var statusColor: Color {
+        if isAvailable { return .foodSuccess }
+        if recipe.visibility == "private" && !isTeamPaired { return .foodWarning }
+        return .foodAccent
     }
 }
 

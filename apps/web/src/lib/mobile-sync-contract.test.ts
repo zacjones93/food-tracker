@@ -91,6 +91,17 @@ test("accepts recipe provenance for remixes", () => {
   assert.equal(recipe.sourceRecipeId, "recipe-original");
 });
 
+test("accepts the dedicated coffee drink recipe type", () => {
+  const recipe = recipePayloadSchema.parse({
+    name: "Cortado",
+    recipeType: "coffee_drink",
+    visibility: "unlisted",
+  });
+
+  assert.equal(recipe.recipeType, "coffee_drink");
+  assert.equal(recipe.visibility, "unlisted");
+});
+
 test("caps mutation batches and change pages", () => {
   const mutation = {
     mutationId: "mutation",

@@ -4,6 +4,7 @@ import { getDB } from "@/db";
 import {
   groceryItemsTable,
   groceryListTemplatesTable,
+  dialTeamPairingsTable,
   recipeBooksTable,
   recipeRelationsTable,
   recipesTable,
@@ -57,7 +58,7 @@ export async function getMobileWorkspace({
     .from(syncChangesTable)
     .where(eq(syncChangesTable.teamId, teamId));
 
-  const [recipes, weeks, groceryTemplates, versions] = await Promise.all([
+  const [recipes, weeks, groceryTemplates, versions, dialTeamPairing] = await Promise.all([
     canAccessRecipes ? db.query.recipesTable.findMany({
       where: eq(recipesTable.teamId, teamId),
       orderBy: (table, { asc: orderAscending }) => [orderAscending(table.name)],
@@ -75,6 +76,13 @@ export async function getMobileWorkspace({
     }) : Promise.resolve([]),
     db.query.syncEntitiesTable.findMany({
       where: eq(syncEntitiesTable.teamId, teamId),
+    }),
+    db.query.dialTeamPairingsTable.findFirst({
+      where: and(
+        eq(dialTeamPairingsTable.teamId, teamId),
+        eq(dialTeamPairingsTable.isActive, true),
+      ),
+      columns: { id: true },
     }),
   ]);
 
@@ -141,6 +149,7 @@ export async function getMobileWorkspace({
   return {
     protocolVersion: 1,
     cursor: String(cursorRows[0]?.cursor ?? 0),
+    dialTeamPaired: Boolean(dialTeamPairing),
     recipes: recipes.map((recipe) => ({
       ...recipe,
       ingredients: normalizeIngredients(recipe.ingredients),

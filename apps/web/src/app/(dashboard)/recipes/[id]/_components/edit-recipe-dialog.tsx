@@ -53,6 +53,7 @@ import { getRecipeRelationsAction } from "../../recipe-relations.actions";
 import { useServerAction } from "zsa-react";
 import { useRouter } from "next/navigation";
 import type { Recipe, RecipeBook } from "@/db/schema";
+import { RECIPE_TYPES, RECIPE_VISIBILITY } from "@/db/schema";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -65,15 +66,17 @@ import {
   RelatedRecipesSelector,
   type RelatedRecipeItem,
 } from "@/components/related-recipes-selector";
+import { DialBrand } from "@/components/dial-brand";
 
 interface EditRecipeDialogProps {
   recipe: Recipe & {
     recipeBook?: RecipeBook | null;
   };
+  initiallyOpen?: boolean;
 }
 
-export function EditRecipeDialog({ recipe }: EditRecipeDialogProps) {
-  const [open, setOpen] = useState(false);
+export function EditRecipeDialog({ initiallyOpen = false, recipe }: EditRecipeDialogProps) {
+  const [open, setOpen] = useState(initiallyOpen);
   const router = useRouter();
   const [metadata, setMetadata] = useState<{
     mealTypes: string[];
@@ -121,6 +124,7 @@ export function EditRecipeDialog({ recipe }: EditRecipeDialogProps) {
       emoji: recipe.emoji || "",
       mealType: recipe.mealType || "",
       difficulty: recipe.difficulty || "",
+      recipeType: recipe.recipeType,
       visibility: (recipe.visibility ||
         undefined) as UpdateRecipeMetadataSchema["visibility"],
       // ingredients are handled by EditIngredientsDialog separately
@@ -246,6 +250,8 @@ export function EditRecipeDialog({ recipe }: EditRecipeDialogProps) {
         values.difficulty === "" ? null : values.difficulty;
     if (values.visibility !== undefined)
       cleanedValues.visibility = values.visibility;
+    if (values.recipeType !== undefined)
+      cleanedValues.recipeType = values.recipeType;
     if (values.recipeBody !== undefined)
       cleanedValues.recipeBody =
         values.recipeBody === "" ? null : values.recipeBody;
@@ -346,6 +352,55 @@ export function EditRecipeDialog({ recipe }: EditRecipeDialogProps) {
                 </FormItem>
               )}
             />
+
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <FormField
+                control={form.control}
+                name="recipeType"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Recipe type</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                      <SelectContent>
+                        <SelectItem value={RECIPE_TYPES.STANDARD}>Standard recipe</SelectItem>
+                        <SelectItem value={RECIPE_TYPES.COFFEE_DRINK}>Coffee drink</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormDescription>Coffee drinks are automatically eligible for Dial Your Espresso.</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="visibility"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Visibility</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                      <SelectContent>
+                        <SelectItem value={RECIPE_VISIBILITY.PUBLIC}>Public</SelectItem>
+                        <SelectItem value={RECIPE_VISIBILITY.PRIVATE}>Private</SelectItem>
+                        <SelectItem value={RECIPE_VISIBILITY.UNLISTED}>Unlisted</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormDescription>Dial follows this visibility; private drinks require a paired team.</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {form.watch("recipeType") === RECIPE_TYPES.COFFEE_DRINK && (
+              <div className="rounded-xl border border-mystic-200 bg-mystic-50/60 p-4 dark:border-mystic-700 dark:bg-mystic-900/20">
+                <DialBrand
+                  detail="Dial follows this recipe and its current visibility."
+                  size="standard"
+                />
+              </div>
+            )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField

@@ -27,6 +27,7 @@
 		D40000000000000000000101 /* PushNotifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = D40000000000000000000201 /* PushNotifications.swift */; };
 		D40000000000000000000102 /* NotificationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D40000000000000000000202 /* NotificationSettingsView.swift */; };
 		D40000000000000000000103 /* PushNotificationsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D40000000000000000000203 /* PushNotificationsTests.swift */; };
+		E50000000000000000000101 /* DeepLinkRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E50000000000000000000201 /* DeepLinkRouter.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -63,6 +64,7 @@
 		D40000000000000000000202 /* NotificationSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationSettingsView.swift; sourceTree = "<group>"; };
 		D40000000000000000000203 /* PushNotificationsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationsTests.swift; sourceTree = "<group>"; };
 		D40000000000000000000204 /* FoodTracker.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = FoodTracker.entitlements; sourceTree = "<group>"; };
+		E50000000000000000000201 /* DeepLinkRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLinkRouter.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -120,6 +122,7 @@
 				A10000000000000000000207 /* DesignSystem.swift */,
 				A1000000000000000000020F /* AuthStore.swift */,
 				D40000000000000000000201 /* PushNotifications.swift */,
+				E50000000000000000000201 /* DeepLinkRouter.swift */,
 			);
 			path = Core;
 			sourceTree = "<group>";
@@ -289,6 +292,7 @@
 				A1000000000000000000010F /* AuthView.swift in Sources */,
 				D40000000000000000000101 /* PushNotifications.swift in Sources */,
 				D40000000000000000000102 /* NotificationSettingsView.swift in Sources */,
+				E50000000000000000000101 /* DeepLinkRouter.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

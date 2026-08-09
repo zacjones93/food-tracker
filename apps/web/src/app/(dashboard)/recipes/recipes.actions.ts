@@ -17,6 +17,7 @@ import { getSessionFromCookie } from "@/utils/auth";
 import { requirePermission } from "@/utils/team-auth";
 import { getRecipeVisibilityConditions } from "@/utils/recipe-visibility";
 import { teamSettingsTable } from "@/db/schema";
+import { publishDialRecipeChange } from "@/lib/dial-integration";
 
 export const createRecipeAction = createServerAction()
   .input(createRecipeSchema)
@@ -74,6 +75,7 @@ export const createRecipeAction = createServerAction()
         difficulty: cleanString(input.difficulty),
         // Use input visibility if provided, otherwise use team default
         visibility: input.visibility ?? defaultVisibility,
+        recipeType: input.recipeType,
         ingredients: input.ingredients,
         recipeBody: input.recipeBody,
         recipeLink: cleanString(input.recipeLink),
@@ -100,6 +102,8 @@ export const createRecipeAction = createServerAction()
         }
       }
     }
+
+    await publishDialRecipeChange({ current: recipe, previous: null });
 
     return { recipe };
   });
@@ -170,6 +174,8 @@ export const updateRecipeAction = createServerAction()
       }
     }
 
+    await publishDialRecipeChange({ current: recipe, previous: existingRecipe });
+
     return { recipe };
   });
 
@@ -194,6 +200,12 @@ export const deleteRecipeAction = createServerAction()
     }
 
     await requirePermission(user.id, existingRecipe.teamId, TEAM_PERMISSIONS.DELETE_RECIPES);
+
+    await publishDialRecipeChange({
+      current: null,
+      previous: existingRecipe,
+      reason: "recipe_deleted",
+    });
 
     await db.delete(recipesTable)
       .where(eq(recipesTable.id, input.id));

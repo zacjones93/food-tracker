@@ -4,6 +4,54 @@ import XCTest
 
 @MainActor
 final class FoodTrackerStoreTests: XCTestCase {
+    func testLegacyWorkspaceDecodesWithoutDialFields() throws {
+        let workspace = FoodWorkspace(
+            recipes: [Recipe(name: "Soup")],
+            weeks: [],
+            scheduledRecipes: [],
+            groceryItems: [],
+            recipeBooks: [],
+            groceryTemplates: [],
+            outbox: []
+        )
+        let encoded = try FoodTrackerCoding.encoder.encode(workspace)
+        var object = try XCTUnwrap(JSONSerialization.jsonObject(with: encoded) as? [String: Any])
+        object.removeValue(forKey: "dialTeamPaired")
+        var recipes = try XCTUnwrap(object["recipes"] as? [[String: Any]])
+        recipes[0].removeValue(forKey: "recipeType")
+        recipes[0].removeValue(forKey: "dialExternalID")
+        object["recipes"] = recipes
+
+        let legacyData = try JSONSerialization.data(withJSONObject: object)
+        let decoded = try FoodTrackerCoding.decoder.decode(FoodWorkspace.self, from: legacyData)
+
+        XCTAssertFalse(decoded.dialTeamPaired)
+        XCTAssertNil(decoded.recipes.first?.recipeType)
+        XCTAssertNil(decoded.recipes.first?.dialExternalID)
+    }
+
+    func testCoffeeDrinkDialFieldsRoundTrip() throws {
+        let workspace = FoodWorkspace(
+            dialTeamPaired: true,
+            recipes: [Recipe(dialExternalID: "lst_recipe_test", name: "Cortado", recipeType: .coffeeDrink)],
+            weeks: [],
+            scheduledRecipes: [],
+            groceryItems: [],
+            recipeBooks: [],
+            groceryTemplates: [],
+            outbox: []
+        )
+
+        let decoded = try FoodTrackerCoding.decoder.decode(
+            FoodWorkspace.self,
+            from: FoodTrackerCoding.encoder.encode(workspace)
+        )
+
+        XCTAssertTrue(decoded.dialTeamPaired)
+        XCTAssertEqual(decoded.recipes.first?.recipeType, .coffeeDrink)
+        XCTAssertEqual(decoded.recipes.first?.dialExternalID, "lst_recipe_test")
+    }
+
     func testOpeningAssistantSelectsTabAndCarriesPageContext() {
         let store = FoodTrackerStore()
         let context = AssistantPageContext(

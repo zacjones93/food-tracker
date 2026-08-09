@@ -111,6 +111,42 @@ struct ScreenHeader: View {
     }
 }
 
+struct DialYourEspressoBrand: View {
+    enum Size {
+        case compact
+        case standard
+
+        var dimension: CGFloat {
+            switch self {
+            case .compact: 28
+            case .standard: 44
+            }
+        }
+    }
+
+    let detail: String
+    var size: Size = .compact
+
+    var body: some View {
+        HStack(spacing: size == .standard ? 12 : 8) {
+            Image("DialYourEspressoMark")
+                .resizable()
+                .scaledToFit()
+                .frame(width: size.dimension, height: size.dimension)
+                .accessibilityHidden(true)
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Dial Your Espresso")
+                    .font(size == .standard ? .subheadline.weight(.semibold) : .caption.weight(.semibold))
+                    .foregroundStyle(Color.foodDeep)
+                Text(detail)
+                    .font(.caption)
+                    .foregroundStyle(Color.foodSecondaryInk)
+            }
+        }
+        .accessibilityElement(children: .combine)
+    }
+}
+
 struct SyncStatusView: View {
     let pendingCount: Int
     let isOnline: Bool

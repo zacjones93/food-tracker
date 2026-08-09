@@ -29,8 +29,13 @@ import { RelatedRecipesDisplay } from "./related-recipes-display";
 import { useSessionStore } from "@/state/session";
 import { useMemo } from "react";
 import type { RecipeRelation } from "@/db/schema";
+import type { DialAvailability } from "@/lib/dial-repository";
+import { DialBrand } from "@/components/dial-brand";
 
 interface RecipeDetailProps {
+  availability: DialAvailability;
+  canEdit: boolean;
+  initiallyEdit?: boolean;
   recipe: Recipe & {
     recipeBook?: RecipeBook | null;
   };
@@ -76,6 +81,9 @@ function normalizeIngredients(ingredients: unknown) {
 }
 
 export function RecipeDetail({
+  availability,
+  canEdit,
+  initiallyEdit = false,
   recipe,
   sourceRecipe,
   relationsAsMain,
@@ -108,7 +116,7 @@ export function RecipeDetail({
             <h1 className="text-3xl font-bold text-center md:text-left">
               {recipe.name}
             </h1>
-            {session.session?.user && <EditRecipeDialog recipe={recipe} />}
+            {canEdit && <EditRecipeDialog initiallyOpen={initiallyEdit} recipe={recipe} />}
           </div>
         </div>
         {session.session?.user && (
@@ -123,6 +131,30 @@ export function RecipeDetail({
           </div>
         )}
       </div>
+
+      {availability.eligible && (
+        <Card className="border-mystic-200 bg-mystic-50/60 p-5 dark:border-mystic-700 dark:bg-mystic-900/20">
+          <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+            <div className="min-w-0">
+              <div className="mb-3 flex flex-wrap items-center gap-3">
+                <DialBrand detail="Coffee recipe destination" size="standard" />
+                <Badge variant={availability.state === "available" ? "default" : "outline"}>
+                  {availability.state === "awaiting_team_pairing" ? "Team pairing required" : availability.state === "available" ? "Available" : "Syncing"}
+                </Badge>
+              </div>
+              <p className="text-sm text-muted-foreground">{availability.detail}</p>
+            </div>
+            {availability.openUrl && availability.state !== "awaiting_team_pairing" && (
+              <Button variant="outline" asChild>
+                <a href={availability.openUrl} rel="noopener noreferrer">
+                  Open in Dial Your Espresso
+                  <ExternalLink className="ml-2 h-4 w-4" />
+                </a>
+              </Button>
+            )}
+          </div>
+        </Card>
+      )}
 
       {/* Metadata */}
       <Card className="p-6">
@@ -267,7 +299,7 @@ export function RecipeDetail({
                     (section) => section.items
                   )}
                 />
-                <EditIngredientsDialog recipe={recipe} />
+                {canEdit && <EditIngredientsDialog recipe={recipe} />}
               </div>
             )}
           </div>
@@ -296,7 +328,7 @@ export function RecipeDetail({
             ))}
           </div>
         </Card>
-      ) : session.session?.user ? (
+      ) : canEdit ? (
         <Card className="p-12 text-center">
           <p className="text-muted-foreground mb-4">
             No ingredients added yet.
@@ -310,7 +342,7 @@ export function RecipeDetail({
         <Card className="p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold">Instructions</h2>
-            {session.session?.user && (
+            {canEdit && (
               <EditInstructionsDialog recipe={recipe} />
             )}
           </div>
@@ -318,7 +350,7 @@ export function RecipeDetail({
             <ReactMarkdown>{recipe.recipeBody}</ReactMarkdown>
           </div>
         </Card>
-      ) : session.session?.user ? (
+      ) : canEdit ? (
         <Card className="p-12 text-center">
           <p className="text-muted-foreground mb-4">
             No instructions added yet.

@@ -28,8 +28,17 @@ struct IngredientSection: Codable, Hashable, Sendable, Identifiable {
 }
 
 struct Recipe: SyncEntity {
+    enum RecipeType: String, Codable, CaseIterable, Identifiable, Sendable {
+        case standard
+        case coffeeDrink = "coffee_drink"
+
+        var id: Self { self }
+        var label: String { self == .coffeeDrink ? "Coffee drink" : "Standard recipe" }
+    }
+
     var id: String
     var serverID: String?
+    var dialExternalID: String?
     var sourceRecipeID: String?
     var name: String
     var emoji: String
@@ -37,6 +46,7 @@ struct Recipe: SyncEntity {
     var mealType: String
     var difficulty: String
     var visibility: String
+    var recipeType: RecipeType?
     var recipeLink: String
     var recipeBookID: String?
     var page: String
@@ -49,6 +59,7 @@ struct Recipe: SyncEntity {
     init(
         id: String = "local_recipe_\(UUID().uuidString.lowercased())",
         serverID: String? = nil,
+        dialExternalID: String? = nil,
         sourceRecipeID: String? = nil,
         name: String,
         emoji: String = "🍽️",
@@ -56,6 +67,7 @@ struct Recipe: SyncEntity {
         mealType: String = "Dinner",
         difficulty: String = "Easy",
         visibility: String = "private",
+        recipeType: RecipeType = .standard,
         recipeLink: String = "",
         recipeBookID: String? = nil,
         page: String = "",
@@ -67,6 +79,7 @@ struct Recipe: SyncEntity {
     ) {
         self.id = id
         self.serverID = serverID
+        self.dialExternalID = dialExternalID
         self.sourceRecipeID = sourceRecipeID
         self.name = name
         self.emoji = emoji
@@ -74,6 +87,7 @@ struct Recipe: SyncEntity {
         self.mealType = mealType
         self.difficulty = difficulty
         self.visibility = visibility
+        self.recipeType = recipeType
         self.recipeLink = recipeLink
         self.recipeBookID = recipeBookID
         self.page = page
@@ -606,6 +620,7 @@ enum JSONValue: Codable, Hashable, Sendable {
 struct FoodWorkspace: Codable, Sendable {
     var version = 1
     var cursor: String?
+    var dialTeamPaired: Bool
     var recipes: [Recipe]
     var weeks: [WeekPlan]
     var scheduledRecipes: [ScheduledRecipe]
@@ -619,6 +634,7 @@ struct FoodWorkspace: Codable, Sendable {
     init(
         version: Int = 1,
         cursor: String? = nil,
+        dialTeamPaired: Bool = false,
         recipes: [Recipe],
         weeks: [WeekPlan],
         scheduledRecipes: [ScheduledRecipe],
@@ -631,6 +647,7 @@ struct FoodWorkspace: Codable, Sendable {
     ) {
         self.version = version
         self.cursor = cursor
+        self.dialTeamPaired = dialTeamPaired
         self.recipes = recipes
         self.weeks = weeks
         self.scheduledRecipes = scheduledRecipes
@@ -643,7 +660,7 @@ struct FoodWorkspace: Codable, Sendable {
     }
 
     private enum CodingKeys: String, CodingKey {
-        case version, cursor, recipes, weeks, scheduledRecipes, recipeRelations
+        case version, cursor, dialTeamPaired, recipes, weeks, scheduledRecipes, recipeRelations
         case groceryItems, recipeBooks, groceryTemplates, versions, outbox
     }
 
@@ -651,6 +668,7 @@ struct FoodWorkspace: Codable, Sendable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         version = try container.decodeIfPresent(Int.self, forKey: .version) ?? 1
         cursor = try container.decodeIfPresent(String.self, forKey: .cursor)
+        dialTeamPaired = try container.decodeIfPresent(Bool.self, forKey: .dialTeamPaired) ?? false
         recipes = try container.decodeIfPresent([Recipe].self, forKey: .recipes) ?? []
         weeks = try container.decodeIfPresent([WeekPlan].self, forKey: .weeks) ?? []
         scheduledRecipes = try container.decodeIfPresent([ScheduledRecipe].self, forKey: .scheduledRecipes) ?? []

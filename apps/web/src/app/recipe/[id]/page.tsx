@@ -1,6 +1,7 @@
 import { getPublicRecipeByIdAction } from "@/app/(dashboard)/recipes/recipes.actions";
 import { RecipeDetail } from "@/app/(dashboard)/recipes/[id]/_components/recipe-detail";
 import { notFound } from "next/navigation";
+import { getDialRecipeAvailability } from "@/lib/dial-integration";
 
 interface RecipePageProps {
   params: Promise<{
@@ -17,5 +18,6 @@ export default async function PublicRecipePage({ params }: RecipePageProps) {
     notFound();
   }
 
-  return <RecipeDetail recipe={data.recipe} />;
+  const availability = await getDialRecipeAvailability(data.recipe);
+  return <RecipeDetail availability={availability} canEdit={false} recipe={data.recipe} />;
 }

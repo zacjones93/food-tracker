@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { RECIPE_VISIBILITY } from "@/db/schema";
+import { RECIPE_TYPES, RECIPE_VISIBILITY } from "@/db/schema";
 import { RELATION_TYPES } from "./recipe-relation.schema";
 
 // Ingredient section schema - lenient to handle various data formats
@@ -30,6 +30,7 @@ export const createRecipeSchema = z.object({
   mealType: z.string().max(50).optional(),
   difficulty: z.string().max(20).optional(),
   visibility: z.enum([RECIPE_VISIBILITY.PUBLIC, RECIPE_VISIBILITY.PRIVATE, RECIPE_VISIBILITY.UNLISTED]).default(RECIPE_VISIBILITY.PUBLIC),
+  recipeType: z.enum([RECIPE_TYPES.STANDARD, RECIPE_TYPES.COFFEE_DRINK]).default(RECIPE_TYPES.STANDARD),
   ingredients: z.array(ingredientSectionSchema).nullable().optional(),
   recipeBody: z.string().nullable().optional(),
   recipeLink: z.string().max(1000).optional(),
@@ -48,6 +49,7 @@ export const updateRecipeSchema = z.object({
   mealType: z.string().max(50).nullable().optional(),
   difficulty: z.string().max(20).nullable().optional(),
   visibility: z.enum([RECIPE_VISIBILITY.PUBLIC, RECIPE_VISIBILITY.PRIVATE, RECIPE_VISIBILITY.UNLISTED]).optional(),
+  recipeType: z.enum([RECIPE_TYPES.STANDARD, RECIPE_TYPES.COFFEE_DRINK]).optional(),
   ingredients: z.array(ingredientSectionSchema).nullable().optional(),
   recipeBody: z.string().nullable().optional(),
   recipeLink: z.string().max(1000).nullable().optional(),
@@ -65,6 +67,7 @@ export const updateRecipeMetadataSchema = z.object({
   mealType: z.string().max(50).nullable().optional(),
   difficulty: z.string().max(20).nullable().optional(),
   visibility: z.enum([RECIPE_VISIBILITY.PUBLIC, RECIPE_VISIBILITY.PRIVATE, RECIPE_VISIBILITY.UNLISTED]).optional(),
+  recipeType: z.enum([RECIPE_TYPES.STANDARD, RECIPE_TYPES.COFFEE_DRINK]).optional(),
   recipeBody: z.string().nullable().optional(),
   recipeLink: z.string().max(1000).nullable().optional(),
   recipeBookId: z.string().nullable().optional(),

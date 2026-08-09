@@ -7,6 +7,7 @@ struct FoodTrackerApp: App {
     @State private var store = FoodTrackerStore()
     @State private var connectivity = ConnectivityMonitor()
     @State private var pushNotifications = PushNotificationCoordinator()
+    @State private var deepLinks = DeepLinkRouter()
 
     var body: some Scene {
         WindowGroup {
@@ -15,9 +16,11 @@ struct FoodTrackerApp: App {
                 .environment(store)
                 .environment(connectivity)
                 .environment(pushNotifications)
+                .environment(deepLinks)
                 .tint(Color.foodAccent)
                 .preferredColorScheme(nil)
                 .task { appDelegate.connect(to: pushNotifications) }
+                .onOpenURL { deepLinks.handle($0) }
         }
     }
 }

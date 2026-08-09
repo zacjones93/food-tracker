@@ -1,4 +1,4 @@
-# Icon Library Research for List to Ladle
+# Icon Library Research for List To Ladle
 
 ## Top 3 Recommendations
 
@@ -89,7 +89,7 @@ Create visual hierarchy that matches your design:
 - **Duotone** - Magical two-color effects
 
 ### 3. **Retro-Mystical Aesthetic**
-Phosphor's slightly playful, vintage-modern aesthetic aligns perfectly with "List to Ladle's" mystical personality.
+Phosphor's slightly playful, vintage-modern aesthetic aligns perfectly with "List To Ladle's" mystical personality.
 
 ### 4. **Comprehensive Collection**
 With 1,248+ free icons (9,072 in pro), you'll never run out of options for:

@@ -10,6 +10,7 @@ import {
   LogOut,
   Users,
   Crown,
+  CookingPot,
   Trash2,
 } from "@/components/ui/themed-icons";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
@@ -49,6 +50,11 @@ const sidebarNavItems: SidebarNavItem[] = [
     title: "Billing",
     href: "/settings/billing" as Route,
     icon: Crown,
+  },
+  {
+    title: "Integrations",
+    href: "/settings/integrations" as Route,
+    icon: CookingPot,
   },
   {
     title: "Sessions",

@@ -288,6 +288,13 @@
       "when": 1784760644517,
       "tag": "0040_account-deletion-fk-behavior",
       "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "6",
+      "when": 1786227496024,
+      "tag": "0041_dial_your_espresso_integration",
+      "breakpoints": true
     }
   ]
 }

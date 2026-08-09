@@ -67,6 +67,16 @@ export const RECIPE_VISIBILITY = {
   UNLISTED: 'unlisted',  // Everyone can see, hidden from search
 } as const;
 
+export const RECIPE_TYPES = {
+  STANDARD: 'standard',
+  COFFEE_DRINK: 'coffee_drink',
+} as const;
+
+const recipeTypeTuple: [typeof RECIPE_TYPES.STANDARD, typeof RECIPE_TYPES.COFFEE_DRINK] = [
+  RECIPE_TYPES.STANDARD,
+  RECIPE_TYPES.COFFEE_DRINK,
+];
+
 const commonColumns = {
   createdAt: integer({
     mode: "timestamp",
@@ -324,6 +334,12 @@ export const recipesTable = sqliteTable("recipes", {
   mealType: text({ length: 50 }),  // "Lunch", "Dinner", "Breakfast"
   difficulty: text({ length: 20 }),  // "Easy", "Medium", "Hard"
   visibility: text({ length: 20 }).notNull().default('public'),  // "public", "private", "unlisted"
+  recipeType: text({ enum: recipeTypeTuple }).notNull().default(RECIPE_TYPES.STANDARD),
+
+  // Public integration identifiers are intentionally distinct from database IDs.
+  // They remain stable across withdraw/re-publish cycles in Dial Your Espresso.
+  dialExternalId: text({ length: 255 }),
+  dialRevision: integer().notNull().default(0),
 
   // Source tracking
   sourceRecipeId: text().references(
@@ -346,7 +362,84 @@ export const recipesTable = sqliteTable("recipes", {
   index("recipes_book_idx").on(table.recipeBookId),
   index("recipes_team_idx").on(table.teamId),
   index("recipes_visibility_idx").on(table.visibility),
+  index("recipes_type_visibility_idx").on(table.recipeType, table.visibility),
+  uniqueIndex("recipes_dial_external_id_idx").on(table.dialExternalId),
   uniqueIndex("recipes_team_client_id_idx").on(table.teamId, table.clientId),
+]));
+
+// Dial requests an opaque intent through a service binding, then a signed-in
+// Listo user explicitly approves it on the web. Email is display/discovery data
+// only and is never consulted when authorizing or consuming an intent.
+export const dialConnectionIntentsTable = sqliteTable("dial_connection_intents", {
+  ...commonColumns,
+  id: text().primaryKey().$defaultFn(() => `dint_${createId()}`).notNull(),
+  tokenHash: text({ length: 64 }).notNull().unique(),
+  requestedScopes: text({ mode: 'json' }).$type<Array<'account' | 'team'>>().notNull(),
+  dialUserRef: text({ length: 255 }),
+  dialUserLabel: text({ length: 255 }),
+  dialTeamRef: text({ length: 255 }),
+  dialTeamLabel: text({ length: 255 }),
+  emailHint: text({ length: 255 }),
+  returnUrl: text({ length: 1000 }).notNull(),
+  status: text({ length: 20 }).notNull().default('pending'),
+  expiresAt: integer({ mode: 'timestamp' }).notNull(),
+  approvedByUserId: text().references(() => userTable.id, { onDelete: 'set null' }),
+  approvedTeamId: text().references(() => teamTable.id, { onDelete: 'set null' }),
+  approvedAt: integer({ mode: 'timestamp' }),
+  consumedAt: integer({ mode: 'timestamp' }),
+  result: text({ mode: 'json' }).$type<{
+    accountLinkId?: string;
+    teamPairingId?: string;
+  }>(),
+}, (table) => ([
+  index("dial_intents_status_expiry_idx").on(table.status, table.expiresAt),
+]));
+
+export const dialTeamPairingsTable = sqliteTable("dial_team_pairings", {
+  ...commonColumns,
+  id: text().primaryKey().$defaultFn(() => `dtp_${createId()}`).notNull(),
+  teamId: text().notNull().references(() => teamTable.id, { onDelete: 'cascade' }),
+  dialTeamRef: text({ length: 255 }).notNull(),
+  dialTeamLabel: text({ length: 255 }),
+  connectedByUserId: text().references(() => userTable.id, { onDelete: 'set null' }),
+  isActive: integer({ mode: 'boolean' }).notNull().default(true),
+  disconnectedAt: integer({ mode: 'timestamp' }),
+}, (table) => ([
+  uniqueIndex("dial_pairings_listo_team_unique").on(table.teamId),
+  uniqueIndex("dial_pairings_dial_team_unique").on(table.dialTeamRef),
+]));
+
+export const dialAccountLinksTable = sqliteTable("dial_account_links", {
+  ...commonColumns,
+  id: text().primaryKey().$defaultFn(() => `dal_${createId()}`).notNull(),
+  userId: text().notNull().references(() => userTable.id, { onDelete: 'cascade' }),
+  dialUserRef: text({ length: 255 }).notNull(),
+  dialUserLabel: text({ length: 255 }),
+  isActive: integer({ mode: 'boolean' }).notNull().default(true),
+  disconnectedAt: integer({ mode: 'timestamp' }),
+}, (table) => ([
+  uniqueIndex("dial_links_listo_user_unique").on(table.userId),
+  uniqueIndex("dial_links_dial_user_unique").on(table.dialUserRef),
+]));
+
+// Durable outbox for the Queue producer. The event key is stable and unique,
+// so at-least-once Queue delivery is idempotent at both ends.
+export const dialRecipeEventsTable = sqliteTable("dial_recipe_events", {
+  ...commonColumns,
+  id: text().primaryKey().$defaultFn(() => `dre_${createId()}`).notNull(),
+  eventKey: text({ length: 500 }).notNull().unique(),
+  recipeId: text().references(() => recipesTable.id, { onDelete: 'set null' }),
+  recipeExternalId: text({ length: 255 }).notNull(),
+  revision: integer().notNull(),
+  eventType: text({ length: 30 }).notNull(),
+  payload: text({ mode: 'json' }).$type<Record<string, unknown>>().notNull(),
+  status: text({ length: 20 }).notNull().default('pending'),
+  queuedAt: integer({ mode: 'timestamp' }),
+  deliveredAt: integer({ mode: 'timestamp' }),
+  lastError: text({ length: 1000 }),
+}, (table) => ([
+  index("dial_events_status_created_idx").on(table.status, table.createdAt),
+  index("dial_events_recipe_revision_idx").on(table.recipeExternalId, table.revision),
 ]));
 
 // Weeks table

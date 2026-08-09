@@ -69,6 +69,8 @@ import {
   type RelatedRecipeItem,
 } from "@/components/related-recipes-selector";
 import { getRecipesAction } from "../recipes.actions";
+import { RECIPE_TYPES, RECIPE_VISIBILITY } from "@/db/schema";
+import { DialBrand } from "@/components/dial-brand";
 
 function createRemixIngredientSections(ingredients: unknown): IngredientSection[] {
   const sectionId = Date.now();
@@ -162,6 +164,8 @@ export default function CreateRecipePage({
     resolver: zodResolver(createRecipeSchema),
     defaultValues: {
       name: "",
+      recipeType: RECIPE_TYPES.STANDARD,
+      visibility: RECIPE_VISIBILITY.PUBLIC,
       sourceRecipeId: params.sourceRecipeId,
       emoji: "",
       tags: [],
@@ -189,6 +193,8 @@ export default function CreateRecipePage({
       const recipe = data.recipe;
       form.reset({
         name: `${recipe.name} (Remix)`,
+        recipeType: recipe.recipeType,
+        visibility: recipe.visibility as CreateRecipeSchema["visibility"],
         sourceRecipeId: recipe.id,
         emoji: recipe.emoji ?? "",
         tags: recipe.tags ?? [],
@@ -433,6 +439,55 @@ export default function CreateRecipePage({
                 </FormItem>
               )}
             />
+
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <FormField
+                control={form.control}
+                name="recipeType"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Recipe type</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                      <SelectContent>
+                        <SelectItem value={RECIPE_TYPES.STANDARD}>Standard recipe</SelectItem>
+                        <SelectItem value={RECIPE_TYPES.COFFEE_DRINK}>Coffee drink</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormDescription>Coffee drinks automatically become eligible for Dial Your Espresso.</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="visibility"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Visibility</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                      <SelectContent>
+                        <SelectItem value={RECIPE_VISIBILITY.PUBLIC}>Public</SelectItem>
+                        <SelectItem value={RECIPE_VISIBILITY.PRIVATE}>Private</SelectItem>
+                        <SelectItem value={RECIPE_VISIBILITY.UNLISTED}>Unlisted</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormDescription>Dial uses this same visibility; private drinks require a paired team.</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {form.watch("recipeType") === RECIPE_TYPES.COFFEE_DRINK && (
+              <div className="rounded-xl border border-mystic-200 bg-mystic-50/60 p-4 dark:border-mystic-700 dark:bg-mystic-900/20">
+                <DialBrand
+                  detail="This recipe will appear in Dial using the visibility you chose above."
+                  size="standard"
+                />
+              </div>
+            )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
