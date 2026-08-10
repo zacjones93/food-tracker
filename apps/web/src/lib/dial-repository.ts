@@ -32,6 +32,16 @@ export interface DialAvailability {
   deliveryStatus?: string;
 }
 
+export function dialRecipeOpenUrl({
+  dialAppOrigin,
+  externalId,
+}: {
+  dialAppOrigin: string;
+  externalId: string;
+}): string {
+  return `${dialAppOrigin}/drinks/${encodeURIComponent(externalId)}`;
+}
+
 interface RecordRecipeEventInput {
   current: RecipeRecord | null;
   previous: RecipeRecord | null;
@@ -456,7 +466,10 @@ export function createDialRepository({ configuration, db }: {
     }
     const externalId = recipe.dialExternalId ?? undefined;
     const openUrl = externalId
-      ? `${configuration.dialAppOrigin}/recipes/listo/${encodeURIComponent(externalId)}`
+      ? dialRecipeOpenUrl({
+        dialAppOrigin: configuration.dialAppOrigin,
+        externalId,
+      })
       : undefined;
     if (recipe.visibility === schema.RECIPE_VISIBILITY.PRIVATE) {
       const pairing = await activeTeamPairing({ db, teamId: recipe.teamId });

@@ -192,7 +192,7 @@ private struct DialAvailabilityView: View {
             }
             Text(detail).font(.subheadline).foregroundStyle(Color.foodSecondaryInk)
             if isAvailable, let externalID = recipe.dialExternalID,
-               let url = URL(string: "https://dialyourespresso.online/recipes/listo/\(externalID)") {
+               let url = URL(string: "https://dialyourespresso.online/drinks/\(externalID)") {
                 Link(destination: url) {
                     Label("Open in Dial Your Espresso", systemImage: "arrow.up.right.square")
                         .font(.subheadline.weight(.semibold))
