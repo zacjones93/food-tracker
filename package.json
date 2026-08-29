@@ -13,7 +13,8 @@
     }
   },
   "scripts": {
-    "dev": "turbo run dev --filter=@food-tracker/web",
+    "dev": "ASSISTANT_LOCAL_URL=http://127.0.0.1:8787 turbo run dev --filter=@food-tracker/web",
+    "dev:assistant": "pnpm --filter @food-tracker/assistant-worker dev",
     "build": "turbo run build --filter=@food-tracker/web",
     "build:prod": "turbo run build:prod --filter=@food-tracker/web",
     "build:analyze": "pnpm --filter @food-tracker/web build:analyze",

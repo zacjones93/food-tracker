@@ -77,12 +77,12 @@ export default function TermsPage() {
       <section className="mb-8">
         <h2 className="mb-4 text-2xl font-semibold text-foreground">5. AI assistant</h2>
         <p className="text-muted-foreground">
-          The assistant sends prompts and relevant team context to Google Gemini and may return
-          incomplete, inaccurate, or unsuitable results. Review all output and every proposed change
-          before relying on it. AI output is not medical, nutritional, allergy, food-safety, or other
-          professional advice. You are responsible for ingredient, dietary, allergy, storage,
-          preparation, and cooking decisions. Do not submit secrets or sensitive personal information
-          that is unnecessary for meal planning.
+          The assistant sends prompts and relevant team context through Cloudflare AI Gateway to
+          OpenAI and may return incomplete, inaccurate, or unsuitable results. Review all output and
+          every proposed change before relying on it. AI output is not medical, nutritional, allergy,
+          food-safety, or other professional advice. You are responsible for ingredient, dietary,
+          allergy, storage, preparation, and cooking decisions. Do not submit secrets or sensitive
+          personal information that is unnecessary for meal planning.
         </p>
       </section>
 

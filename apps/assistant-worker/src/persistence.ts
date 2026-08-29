@@ -2,7 +2,7 @@ import type { ChatMiddleware, TokenUsage, UIMessage } from "@tanstack/ai";
 
 import type { AssistantRequestContext } from "./context";
 import { sanitizeAssistantText } from "./assistant-text";
-import { calculateEstimatedAiCostUsd } from "./gemini";
+import { calculateEstimatedAiCostUsd } from "./ai-model";
 import {
   getWorkerAssistantErrorMessage,
   type WorkerAssistantErrorCode,
@@ -30,29 +30,59 @@ function boundedJson(value: unknown, maxLength = 16_000): string {
 }
 
 export function summarizeToolInput(value: unknown): Record<string, unknown> {
-  if (typeof value !== "object" || value === null) return { kind: typeof value };
-  if ("code" in value && typeof value.code === "string") {
-    return { kind: "code", codeLength: value.code.length };
+  if (typeof value !== "object" || value === null)
+    return { kind: typeof value };
+  const code =
+    "typescriptCode" in value
+      ? value.typescriptCode
+      : "code" in value
+        ? value.code
+        : null;
+  if (typeof code === "string") {
+    return { kind: "code", codeLength: code.length };
   }
   return { kind: "object", keys: Object.keys(value).sort().slice(0, 20) };
 }
 
+export function didToolExecutionFail({
+  toolName,
+  ok,
+  result,
+}: {
+  toolName: string;
+  ok: boolean;
+  result: unknown;
+}): boolean {
+  if (!ok) return true;
+  return (
+    toolName === "execute_typescript" &&
+    typeof result === "object" &&
+    result !== null &&
+    "success" in result &&
+    result.success === false
+  );
+}
+
 export function summarizeToolOutput(value: unknown): Record<string, unknown> {
   if (Array.isArray(value)) return { kind: "array", itemCount: value.length };
-  if (typeof value !== "object" || value === null) return { kind: typeof value };
+  if (typeof value !== "object" || value === null)
+    return { kind: typeof value };
   if ("result" in value) {
     const result = value.result;
     return {
       kind: "code-result",
       ...(Array.isArray(result) ? { itemCount: result.length } : {}),
       resultKind: Array.isArray(result) ? "array" : typeof result,
-      logCount: "logs" in value && Array.isArray(value.logs) ? value.logs.length : 0,
+      logCount:
+        "logs" in value && Array.isArray(value.logs) ? value.logs.length : 0,
     };
   }
   return { kind: "object", keys: Object.keys(value).sort().slice(0, 20) };
 }
 
-function partLegacyColumns(part: UIMessage["parts"][number]): Record<string, unknown> {
+function partLegacyColumns(
+  part: UIMessage["parts"][number],
+): Record<string, unknown> {
   if (part.type === "text") return { textContent: part.content };
   if (part.type === "tool-call") {
     return {
@@ -80,9 +110,12 @@ export async function assertAuthorizedChat({
   db: D1Database;
   context: AssistantRequestContext;
 }): Promise<void> {
-  const chat = await db.prepare(
-    "SELECT id FROM ai_chats WHERE id = ? AND userId = ? AND teamId = ? LIMIT 1",
-  ).bind(context.chatId, context.userId, context.teamId).first<{ id: string }>();
+  const chat = await db
+    .prepare(
+      "SELECT id FROM ai_chats WHERE id = ? AND userId = ? AND teamId = ? LIMIT 1",
+    )
+    .bind(context.chatId, context.userId, context.teamId)
+    .first<{ id: string }>();
   if (!chat) throw new Error("Chat authorization failed");
 }
 
@@ -98,38 +131,46 @@ export async function persistMessage({
   if (message.parts.length === 0) return;
   const timestamp = nowSeconds();
   const statements: D1PreparedStatement[] = [
-    db.prepare("DELETE FROM ai_message_parts WHERE messageId = ?").bind(message.id),
+    db
+      .prepare("DELETE FROM ai_message_parts WHERE messageId = ?")
+      .bind(message.id),
     db.prepare("DELETE FROM ai_messages WHERE id = ?").bind(message.id),
-    db.prepare(
-      `INSERT INTO ai_messages
+    db
+      .prepare(
+        `INSERT INTO ai_messages
        (id, chatId, role, createdAt, updatedAt, updateCounter)
        VALUES (?, ?, ?, ?, ?, 0)`,
-    ).bind(message.id, chatId, message.role, timestamp, timestamp),
+      )
+      .bind(message.id, chatId, message.role, timestamp, timestamp),
   ];
 
   message.parts.forEach((part, partOrder) => {
     const legacy = partLegacyColumns(part);
-    statements.push(db.prepare(
-      `INSERT INTO ai_message_parts
+    statements.push(
+      db
+        .prepare(
+          `INSERT INTO ai_message_parts
        (id, messageId, partOrder, partType, payloadJson, text_content,
         tool_name, tool_call_id, tool_args, tool_result, tool_state,
         createdAt, updatedAt, updateCounter)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)`,
-    ).bind(
-      `aimp_${crypto.randomUUID()}`,
-      message.id,
-      partOrder,
-      part.type,
-      boundedJson(part),
-      legacy.textContent ?? null,
-      legacy.toolName ?? null,
-      legacy.toolCallId ?? null,
-      legacy.toolArgs ?? null,
-      legacy.toolResult ?? null,
-      legacy.toolState ?? null,
-      timestamp,
-      timestamp,
-    ));
+        )
+        .bind(
+          `aimp_${crypto.randomUUID()}`,
+          message.id,
+          partOrder,
+          part.type,
+          boundedJson(part),
+          legacy.textContent ?? null,
+          legacy.toolName ?? null,
+          legacy.toolCallId ?? null,
+          legacy.toolArgs ?? null,
+          legacy.toolResult ?? null,
+          legacy.toolState ?? null,
+          timestamp,
+          timestamp,
+        ),
+    );
   });
 
   await db.batch(statements);
@@ -147,21 +188,24 @@ export async function startRun({
   promptVersion: string;
 }): Promise<void> {
   const timestamp = nowSeconds();
-  await db.prepare(
-    `INSERT INTO ai_runs
+  await db
+    .prepare(
+      `INSERT INTO ai_runs
      (id, chatId, userId, teamId, model, promptVersion, status,
       createdAt, updatedAt, updateCounter)
      VALUES (?, ?, ?, ?, ?, ?, 'running', ?, ?, 0)`,
-  ).bind(
-    context.runId,
-    context.chatId,
-    context.userId,
-    context.teamId,
-    model,
-    promptVersion,
-    timestamp,
-    timestamp,
-  ).run();
+    )
+    .bind(
+      context.runId,
+      context.chatId,
+      context.userId,
+      context.teamId,
+      model,
+      promptVersion,
+      timestamp,
+      timestamp,
+    )
+    .run();
 }
 
 async function finishRun({
@@ -174,26 +218,29 @@ async function finishRun({
 }: {
   db: D1Database;
   context: AssistantRequestContext;
-  status: "completed" | "partial" | "aborted" | "error";
+  status: "completed" | "partial" | "interrupted" | "aborted" | "error";
   finishReason?: string | null;
   errorCode?: string;
   usage?: unknown;
 }): Promise<void> {
-  await db.prepare(
-    `UPDATE ai_runs
+  await db
+    .prepare(
+      `UPDATE ai_runs
         SET status = ?, finishReason = ?, errorCode = ?, usageJson = ?,
             updatedAt = ?, updateCounter = updateCounter + 1
       WHERE id = ? AND userId = ? AND teamId = ?`,
-  ).bind(
-    status,
-    finishReason ?? null,
-    errorCode ?? null,
-    usage === undefined ? null : boundedJson(usage),
-    nowSeconds(),
-    context.runId,
-    context.userId,
-    context.teamId,
-  ).run();
+    )
+    .bind(
+      status,
+      finishReason ?? null,
+      errorCode ?? null,
+      usage === undefined ? null : boundedJson(usage),
+      nowSeconds(),
+      context.runId,
+      context.userId,
+      context.teamId,
+    )
+    .run();
 }
 
 function addUsage(total: TokenUsage | null, usage: TokenUsage): TokenUsage {
@@ -232,28 +279,31 @@ async function persistUsage({
 }): Promise<void> {
   const timestamp = nowSeconds();
   const estimatedCostUsd = calculateEstimatedAiCostUsd({ model, usage });
-  await db.prepare(
-    `INSERT INTO ai_usage
+  await db
+    .prepare(
+      `INSERT INTO ai_usage
      (id, userId, teamId, model, endpoint, inputTokens, outputTokens,
       reasoningTokens, cachedInputTokens, totalTokens, estimatedCostUsd,
       conversationId, finishReason, createdAt, updatedAt, updateCounter)
      VALUES (?, ?, ?, ?, '/api/assistant', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)`,
-  ).bind(
-    `aiu_${crypto.randomUUID()}`,
-    context.userId,
-    context.teamId,
-    model,
-    usage.promptTokens,
-    usage.completionTokens,
-    usage.completionTokensDetails?.reasoningTokens ?? 0,
-    usage.promptTokensDetails?.cachedTokens ?? 0,
-    usage.totalTokens,
-    String(estimatedCostUsd),
-    context.chatId,
-    finishReason ?? null,
-    timestamp,
-    timestamp,
-  ).run();
+    )
+    .bind(
+      `aiu_${crypto.randomUUID()}`,
+      context.userId,
+      context.teamId,
+      model,
+      usage.promptTokens,
+      usage.completionTokens,
+      usage.completionTokensDetails?.reasoningTokens ?? 0,
+      usage.promptTokensDetails?.cachedTokens ?? 0,
+      usage.totalTokens,
+      String(estimatedCostUsd),
+      context.chatId,
+      finishReason ?? null,
+      timestamp,
+      timestamp,
+    )
+    .run();
 }
 
 export function classifyRunOutcome({
@@ -302,6 +352,7 @@ export function createPersistenceMiddleware({
   model: string;
 }): ChatMiddleware {
   const toolInputs = new Map<string, unknown>();
+  const approvalRequiredToolCalls = new Set<string>();
   let failedToolCalls = 0;
   let successfulToolCalls = 0;
   let observedUsage: TokenUsage | null = null;
@@ -310,30 +361,73 @@ export function createPersistenceMiddleware({
     name: "food-tracker-persistence",
     onBeforeToolCall(_middlewareContext, hookContext) {
       toolInputs.set(hookContext.toolCallId, hookContext.args);
+      if (hookContext.tool?.needsApproval === true) {
+        approvalRequiredToolCalls.add(hookContext.toolCallId);
+      }
     },
     async onAfterToolCall(_middlewareContext, info) {
-      if (!info.ok) failedToolCalls += 1;
+      const didFail = didToolExecutionFail({
+        toolName: info.toolName,
+        ok: info.ok,
+        result: info.ok ? info.result : undefined,
+      });
+      if (didFail) failedToolCalls += 1;
       else successfulToolCalls += 1;
-      const [namespace = "codemode", toolName = info.toolName] = info.toolName.split(".", 2);
+      const [namespace = "codemode", toolName = info.toolName] =
+        info.toolName.split(".", 2);
+      const wasApproved = approvalRequiredToolCalls.has(info.toolCallId);
       const timestamp = nowSeconds();
-      await db.prepare(
-        `INSERT INTO ai_tool_executions
+      await db
+        .prepare(
+          `INSERT INTO ai_tool_executions
          (id, runId, namespace, toolName, status, inputSummaryJson,
           outputSummaryJson, durationMs, approvalState, writeOccurred,
           createdAt, updatedAt, updateCounter)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'not-required', 0, ?, ?, 0)`,
-      ).bind(
-        `aitx_${crypto.randomUUID()}`,
-        context.runId,
-        namespace,
-        toolName,
-        info.ok ? "completed" : "error",
-        boundedJson(summarizeToolInput(toolInputs.get(info.toolCallId))),
-        boundedJson(info.ok ? summarizeToolOutput(info.result) : { error: "Tool execution failed" }),
-        Math.max(0, Math.round(info.duration)),
-        timestamp,
-        timestamp,
-      ).run();
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)`,
+        )
+        .bind(
+          `aitx_${crypto.randomUUID()}`,
+          context.runId,
+          namespace,
+          toolName,
+          didFail ? "error" : "completed",
+          boundedJson(summarizeToolInput(toolInputs.get(info.toolCallId))),
+          boundedJson(
+            didFail
+              ? { error: "Tool execution failed" }
+              : summarizeToolOutput(info.result),
+          ),
+          Math.max(0, Math.round(info.duration)),
+          wasApproved ? "approved" : "not-required",
+          wasApproved && !didFail ? 1 : 0,
+          timestamp,
+          timestamp,
+        )
+        .run();
+    },
+    async onToolPhaseComplete(_middlewareContext, info) {
+      if (
+        info.needsApproval.length === 0 &&
+        info.needsClientExecution.length === 0
+      ) return;
+      const finishReason = info.needsApproval.length > 0
+        ? "approval-required"
+        : "client-tool-required";
+      const usage = observedUsage ?? EMPTY_USAGE;
+      await finishRun({
+        db,
+        context,
+        status: "interrupted",
+        finishReason,
+        usage,
+      });
+      await persistUsage({
+        db,
+        context,
+        model,
+        usage,
+        finishReason,
+      });
     },
     onUsage(_middlewareContext, usage) {
       observedUsage = addUsage(observedUsage, usage);
@@ -346,9 +440,12 @@ export function createPersistenceMiddleware({
         successfulToolCalls,
         finishReason: info.finishReason,
       });
-      const persistedContent = outcome.status === "error"
-        ? getWorkerAssistantErrorMessage(outcome.errorCode ?? "EMPTY_RESPONSE")
-        : safeContent;
+      const persistedContent =
+        outcome.status === "error"
+          ? getWorkerAssistantErrorMessage(
+              outcome.errorCode ?? "EMPTY_RESPONSE",
+            )
+          : safeContent;
       if (persistedContent) {
         await persistMessage({
           db,
@@ -386,7 +483,13 @@ export function createPersistenceMiddleware({
         errorCode: info.reason ? "ABORTED" : undefined,
         usage,
       });
-      await persistUsage({ db, context, model, usage, finishReason: "aborted" });
+      await persistUsage({
+        db,
+        context,
+        model,
+        usage,
+        finishReason: "aborted",
+      });
     },
     async onError() {
       const usage = observedUsage ?? EMPTY_USAGE;

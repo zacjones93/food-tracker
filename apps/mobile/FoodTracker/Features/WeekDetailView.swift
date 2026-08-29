@@ -155,17 +155,28 @@ struct WeekDetailView: View {
     @ViewBuilder
     private func meals(_ week: WeekPlan) -> some View {
         let scheduled = store.scheduledRecipes(for: week.id)
-        let days = mealDays(for: week)
+        let scheduledByDay = Dictionary(grouping: scheduled) {
+            ScheduleDay(date: $0.scheduledDate).id
+        }
+        let scheduledByID = scheduled.reduce(into: [String: ScheduledRecipe]()) {
+            $0[$1.id] = $1
+        }
+        let recipesByID = store.recipes.reduce(into: [String: Recipe]()) {
+            $0[$1.id] = $1
+        }
+        let days = mealDays(for: week, scheduled: scheduled)
         let visibleDays = days.filter { day in
-            day.date != nil || days.count == 1 || scheduled.contains(where: { $0.scheduledDate == nil })
+            day.date != nil || days.count == 1 || !(scheduledByDay[day.id] ?? []).isEmpty
         }
         VStack(alignment: .leading, spacing: FoodSpacing.large) {
             ForEach(visibleDays) { day in
                 mealSection(
                     day,
-                    items: scheduled.filter { day.contains($0.scheduledDate) },
+                    items: scheduledByDay[day.id] ?? [],
                     days: days,
-                    isOutsideScheduleRange: isOutsideScheduleRange(day.date, week: week)
+                    isOutsideScheduleRange: isOutsideScheduleRange(day.date, week: week),
+                    scheduledByID: scheduledByID,
+                    recipesByID: recipesByID
                 )
             }
         }
@@ -175,7 +186,9 @@ struct WeekDetailView: View {
         _ day: ScheduleDay,
         items: [ScheduledRecipe],
         days: [ScheduleDay],
-        isOutsideScheduleRange: Bool
+        isOutsideScheduleRange: Bool,
+        scheduledByID: [String: ScheduledRecipe],
+        recipesByID: [String: Recipe]
     ) -> some View {
         VStack(alignment: .leading, spacing: FoodSpacing.small) {
             HStack(spacing: FoodSpacing.small) {
@@ -220,7 +233,7 @@ struct WeekDetailView: View {
                     setMealDropTarget(dropZone, isTargeted: isTargeted)
                 }
             } else {
-                VStack(spacing: 0) {
+                LazyVStack(spacing: 0) {
                     mealInsertionDropZone(
                         day: day,
                         before: items.first?.id,
@@ -228,8 +241,18 @@ struct WeekDetailView: View {
                     )
 
                     ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
-                        if let recipe = store.recipe(id: item.recipeID) {
-                            mealRow(item, recipe: recipe, day: day, dayItems: items, days: days)
+                        if let recipe = recipesByID[item.recipeID] {
+                            let parentRecipe = item.scheduledForWeekRecipeID
+                                .flatMap { scheduledByID[$0] }
+                                .flatMap { recipesByID[$0.recipeID] }
+                            mealRow(
+                                item,
+                                recipe: recipe,
+                                parentRecipe: parentRecipe,
+                                day: day,
+                                dayItems: items,
+                                days: days
+                            )
                         }
 
                         let nextID = items.indices.contains(index + 1) ? items[index + 1].id : nil
@@ -248,6 +271,7 @@ struct WeekDetailView: View {
     private func mealRow(
         _ item: ScheduledRecipe,
         recipe: Recipe,
+        parentRecipe: Recipe?,
         day: ScheduleDay,
         dayItems: [ScheduledRecipe],
         days: [ScheduleDay]
@@ -277,9 +301,7 @@ struct WeekDetailView: View {
             } label: {
                 VStack(alignment: .leading, spacing: FoodSpacing.extraSmall) {
                     RecipeRow(recipe: recipe)
-                    if let parentID = item.scheduledForWeekRecipeID,
-                       let parent = store.scheduledRecipe(id: parentID),
-                       let parentRecipe = store.recipe(id: parent.recipeID) {
+                    if let parentRecipe {
                         Label("Prep for \(parentRecipe.name)", systemImage: "clock.badge.checkmark")
                             .font(.caption)
                             .foregroundStyle(Color.foodSecondaryInk)
@@ -564,7 +586,7 @@ struct WeekDetailView: View {
         .accessibilityHint("Use Item actions to edit or move this item")
     }
 
-    private func mealDays(for week: WeekPlan) -> [ScheduleDay] {
+    private func mealDays(for week: WeekPlan, scheduled: [ScheduledRecipe]) -> [ScheduleDay] {
         let calendar = Calendar.autoupdatingCurrent
         var datesByDay = [Date: Date]()
         if let startDate = week.startDate ?? week.endDate,
@@ -577,8 +599,8 @@ struct WeekDetailView: View {
                 date = next
             }
         }
-        for scheduled in store.scheduledRecipes(for: week.id) {
-            guard let date = scheduled.scheduledDate else { continue }
+        for item in scheduled {
+            guard let date = item.scheduledDate else { continue }
             let day = calendar.startOfDay(for: date)
             datesByDay[day] = day
         }

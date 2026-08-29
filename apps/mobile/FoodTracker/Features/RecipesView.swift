@@ -5,6 +5,7 @@ struct RecipesView: View {
     @Environment(ConnectivityMonitor.self) private var connectivity
     @State private var search = ""
     @State private var mealType = "All"
+    @State private var sort = RecipeSort.nameAscending
     @State private var showingNewRecipe = false
     @State private var pagination = RecipeListPagination()
 
@@ -31,10 +32,22 @@ struct RecipesView: View {
                             .foodSurface()
                     }
                 } else {
-                    Picker("Meal type", selection: $mealType) {
-                        ForEach(mealTypes, id: \.self) { Text($0) }
+                    HStack(spacing: FoodSpacing.small) {
+                        Picker("Meal type", selection: $mealType) {
+                            ForEach(mealTypes, id: \.self) { Text($0) }
+                        }
+                        .pickerStyle(.menu)
+
+                        Spacer(minLength: FoodSpacing.small)
+
+                        Picker("Sort recipes", selection: $sort) {
+                            ForEach(RecipeSort.allCases) { option in
+                                Label(option.title, systemImage: option.systemImage)
+                                    .tag(option)
+                            }
+                        }
+                        .pickerStyle(.menu)
                     }
-                    .pickerStyle(.menu)
 
                     if matchingRecipes.isEmpty {
                         FoodEmptyState(
@@ -90,6 +103,7 @@ struct RecipesView: View {
         .searchable(text: $search, prompt: "Name or tag")
         .onChange(of: search) { _, _ in pagination.reset() }
         .onChange(of: mealType) { _, _ in pagination.reset() }
+        .onChange(of: sort) { _, _ in pagination.reset() }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button("Add recipe", systemImage: "plus") { showingNewRecipe = true }
@@ -103,14 +117,63 @@ struct RecipesView: View {
     }
 
     private var filteredRecipes: [Recipe] {
-        store.recipes.filter { recipe in
+        let recipes = store.recipes.filter { recipe in
             let matchesType = mealType == "All" || recipe.mealType == mealType
             let matchesSearch = search.isEmpty || recipe.name.localizedCaseInsensitiveContains(search) || recipe.tags.contains {
                 $0.localizedCaseInsensitiveContains(search)
             }
             return matchesType && matchesSearch
         }
-        .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+
+        return recipes.sorted(by: sort.areInIncreasingOrder)
+    }
+}
+
+enum RecipeSort: String, CaseIterable, Identifiable {
+    case nameAscending
+    case nameDescending
+    case recentlyUpdated
+    case mostMade
+
+    var id: Self { self }
+
+    var title: String {
+        switch self {
+        case .nameAscending: "Name, A–Z"
+        case .nameDescending: "Name, Z–A"
+        case .recentlyUpdated: "Recently updated"
+        case .mostMade: "Most made"
+        }
+    }
+
+    var systemImage: String {
+        switch self {
+        case .nameAscending: "textformat.abc"
+        case .nameDescending: "textformat.abc.dottedunderline"
+        case .recentlyUpdated: "clock.arrow.circlepath"
+        case .mostMade: "fork.knife"
+        }
+    }
+
+    func areInIncreasingOrder(_ left: Recipe, _ right: Recipe) -> Bool {
+        switch self {
+        case .nameAscending:
+            return compareNames(left, right) == .orderedAscending
+        case .nameDescending:
+            return compareNames(left, right) == .orderedDescending
+        case .recentlyUpdated:
+            if left.updatedAt != right.updatedAt { return left.updatedAt > right.updatedAt }
+        case .mostMade:
+            if left.mealsEatenCount != right.mealsEatenCount {
+                return left.mealsEatenCount > right.mealsEatenCount
+            }
+        }
+
+        return compareNames(left, right) == .orderedAscending
+    }
+
+    private func compareNames(_ left: Recipe, _ right: Recipe) -> ComparisonResult {
+        left.name.localizedCaseInsensitiveCompare(right.name)
     }
 }
 

@@ -1,39 +1,46 @@
 import { toolDefinition, type Tool } from "@tanstack/ai";
 import { z } from "zod";
 
+import foodPlanningMutationModule, {
+  type FoodPlanningEntity,
+  type FoodPlanningMutationChange,
+  type FoodPlanningOperation,
+} from "../../web/src/lib/food-planning/mutation";
 import {
-  ASSISTANT_TEAM_PERMISSIONS,
   assertAssistantTeamPermission,
   type AssistantTeamPermission,
 } from "./authorization";
 import type { AssistantRequestContext } from "./context";
 
-const entitySchema = z.enum([
-  "recipe",
-  "recipeBook",
-  "recipeRelation",
-  "week",
-  "weekRecipe",
-  "groceryItem",
-  "groceryTemplate",
-  "teamSettings",
-]);
-const operationSchema = z.enum(["create", "update", "delete"]);
+const {
+  FOOD_PLANNING_ENTITIES,
+  FOOD_PLANNING_MUTABLE_FIELDS,
+  FOOD_PLANNING_MUTATION_PERMISSIONS,
+  FOOD_PLANNING_OPERATIONS,
+  getFoodPlanningReferences,
+  parseFoodPlanningMutationData,
+  RECIPE_NAME_MIN_LENGTH,
+  RECIPE_RELATION_TYPES,
+} = foodPlanningMutationModule;
+
+const entitySchema = z.enum(FOOD_PLANNING_ENTITIES);
+const operationSchema = z.enum(FOOD_PLANNING_OPERATIONS);
 const identifierSchema = z.string().trim().min(1).max(255);
-const nullableString = z.string().trim().max(1_000).nullable().optional();
+const nullableStringSchema = z.string().trim().max(1_000).nullable().optional();
+const optionalIsoDateSchema = z.string().datetime().nullable().optional();
 
 const recipeDataSchema = z.object({
-  name: z.string().trim().min(1).max(500).optional(),
+  name: z.string().trim().min(RECIPE_NAME_MIN_LENGTH).max(500).optional(),
   sourceRecipeId: identifierSchema.nullable().optional(),
   emoji: z.string().max(10).nullable().optional(),
   tags: z.array(z.string().trim().min(1).max(100)).max(100).nullable().optional(),
   mealType: z.string().trim().max(50).nullable().optional(),
   difficulty: z.string().trim().max(20).nullable().optional(),
   visibility: z.enum(["public", "private", "unlisted"]).optional(),
-  recipeLink: nullableString,
+  recipeLink: nullableStringSchema,
   recipeBookId: identifierSchema.nullable().optional(),
   page: z.string().max(50).nullable().optional(),
-  lastMadeDate: z.string().datetime().nullable().optional(),
+  lastMadeDate: optionalIsoDateSchema,
   mealsEatenCount: z.number().int().min(0).optional(),
   ingredients: z.array(z.object({
     title: z.string().max(500).optional(),
@@ -45,14 +52,16 @@ const weekDataSchema = z.object({
   name: z.string().trim().min(1).max(255).optional(),
   emoji: z.string().max(10).nullable().optional(),
   status: z.enum(["current", "upcoming", "archived"]).optional(),
-  startDate: z.string().datetime().nullable().optional(),
-  endDate: z.string().datetime().nullable().optional(),
+  startDate: optionalIsoDateSchema,
+  endDate: optionalIsoDateSchema,
   weekNumber: z.number().int().nullable().optional(),
 });
 const weekRecipeDataSchema = z.object({
   weekId: identifierSchema.optional(),
   recipeId: identifierSchema.optional(),
-  scheduledDate: z.string().datetime().nullable().optional(),
+  scheduledForWeekRecipeId: identifierSchema.nullable().optional(),
+  sourceRecipeRelationId: identifierSchema.nullable().optional(),
+  scheduledDate: optionalIsoDateSchema,
   order: z.number().int().min(0).optional(),
   made: z.boolean().optional(),
 });
@@ -63,9 +72,7 @@ const groceryItemDataSchema = z.object({
   order: z.number().int().min(0).optional(),
   category: z.string().trim().max(100).nullable().optional(),
 });
-const recipeBookDataSchema = z.object({
-  name: z.string().trim().min(1).max(500).optional(),
-});
+const recipeBookDataSchema = z.object({ name: z.string().trim().min(1).max(500).optional() });
 const groceryTemplateDataSchema = z.object({
   name: z.string().trim().min(1).max(255).optional(),
   template: z.array(z.object({
@@ -80,26 +87,36 @@ const groceryTemplateDataSchema = z.object({
 const recipeRelationDataSchema = z.object({
   mainRecipeId: identifierSchema.optional(),
   sideRecipeId: identifierSchema.optional(),
-  relationType: z.string().trim().min(1).max(50).optional(),
+  relationType: z.enum(RECIPE_RELATION_TYPES).optional(),
   order: z.number().int().min(0).optional(),
+  scheduleLeadDays: z.number().int().min(0).max(365).nullable().optional(),
 });
 const teamSettingsDataSchema = z.object({
   recipeVisibilityMode: z.enum(["all", "team_only"]).optional(),
   defaultRecipeVisibility: z.enum(["public", "private", "unlisted"]).optional(),
   autoAddIngredientsToGrocery: z.boolean().optional(),
 });
-
+const mutationDataSchema = z.object({
+  ...recipeDataSchema.shape,
+  ...weekDataSchema.shape,
+  ...weekRecipeDataSchema.shape,
+  ...groceryItemDataSchema.shape,
+  ...recipeBookDataSchema.shape,
+  ...groceryTemplateDataSchema.shape,
+  ...recipeRelationDataSchema.shape,
+  ...teamSettingsDataSchema.shape,
+});
 const mutationChangeSchema = z.object({
   entity: entitySchema,
   operation: operationSchema,
   id: identifierSchema.optional(),
-  data: z.record(z.string(), z.unknown()).default({}),
-}).superRefine((change, context) => {
+  data: mutationDataSchema.default({}),
+}).superRefine((change, refinement) => {
   if (change.entity === "teamSettings" && change.operation !== "update") {
-    context.addIssue({ code: "custom", message: "teamSettings supports update only" });
+    refinement.addIssue({ code: "custom", message: "teamSettings supports update only" });
   }
   if (change.entity !== "teamSettings" && change.operation !== "create" && !change.id) {
-    context.addIssue({ code: "custom", message: "id is required for update and delete" });
+    refinement.addIssue({ code: "custom", message: "id is required for update and delete" });
   }
 });
 
@@ -117,84 +134,9 @@ const approvedMutationOutputSchema = z.object({
   })),
 });
 
-type Entity = z.infer<typeof entitySchema>;
-type Operation = z.infer<typeof operationSchema>;
-type MutationChange = z.infer<typeof mutationChangeSchema>;
-
-const PERMISSIONS: Record<Entity, Record<Operation, AssistantTeamPermission>> = {
-  recipe: {
-    create: ASSISTANT_TEAM_PERMISSIONS.createRecipes,
-    update: ASSISTANT_TEAM_PERMISSIONS.editRecipes,
-    delete: ASSISTANT_TEAM_PERMISSIONS.deleteRecipes,
-  },
-  recipeBook: {
-    create: ASSISTANT_TEAM_PERMISSIONS.createRecipes,
-    update: ASSISTANT_TEAM_PERMISSIONS.editRecipes,
-    delete: ASSISTANT_TEAM_PERMISSIONS.deleteRecipes,
-  },
-  recipeRelation: {
-    create: ASSISTANT_TEAM_PERMISSIONS.editRecipes,
-    update: ASSISTANT_TEAM_PERMISSIONS.editRecipes,
-    delete: ASSISTANT_TEAM_PERMISSIONS.editRecipes,
-  },
-  week: {
-    create: ASSISTANT_TEAM_PERMISSIONS.createSchedules,
-    update: ASSISTANT_TEAM_PERMISSIONS.editSchedules,
-    delete: ASSISTANT_TEAM_PERMISSIONS.deleteSchedules,
-  },
-  weekRecipe: {
-    create: ASSISTANT_TEAM_PERMISSIONS.editSchedules,
-    update: ASSISTANT_TEAM_PERMISSIONS.editSchedules,
-    delete: ASSISTANT_TEAM_PERMISSIONS.editSchedules,
-  },
-  groceryItem: {
-    create: ASSISTANT_TEAM_PERMISSIONS.editSchedules,
-    update: ASSISTANT_TEAM_PERMISSIONS.editSchedules,
-    delete: ASSISTANT_TEAM_PERMISSIONS.editSchedules,
-  },
-  groceryTemplate: {
-    create: ASSISTANT_TEAM_PERMISSIONS.createGroceryTemplates,
-    update: ASSISTANT_TEAM_PERMISSIONS.editGroceryTemplates,
-    delete: ASSISTANT_TEAM_PERMISSIONS.deleteGroceryTemplates,
-  },
-  teamSettings: {
-    create: ASSISTANT_TEAM_PERMISSIONS.editTeamSettings,
-    update: ASSISTANT_TEAM_PERMISSIONS.editTeamSettings,
-    delete: ASSISTANT_TEAM_PERMISSIONS.editTeamSettings,
-  },
-};
-
-const DATA_SCHEMAS = {
-  recipe: recipeDataSchema,
-  recipeBook: recipeBookDataSchema,
-  recipeRelation: recipeRelationDataSchema,
-  week: weekDataSchema,
-  weekRecipe: weekRecipeDataSchema,
-  groceryItem: groceryItemDataSchema,
-  groceryTemplate: groceryTemplateDataSchema,
-  teamSettings: teamSettingsDataSchema,
-} as const;
-
-const REQUIRED_CREATE_FIELDS: Partial<Record<Entity, string[]>> = {
-  recipe: ["name"],
-  recipeBook: ["name"],
-  recipeRelation: ["mainRecipeId", "sideRecipeId"],
-  week: ["name"],
-  weekRecipe: ["weekId", "recipeId"],
-  groceryItem: ["weekId", "name"],
-  groceryTemplate: ["name", "template"],
-};
-
-const MUTABLE_COLUMNS: Record<Entity, ReadonlySet<string>> = {
-  recipe: new Set(Object.keys(recipeDataSchema.shape)),
-  recipeBook: new Set(Object.keys(recipeBookDataSchema.shape)),
-  recipeRelation: new Set(Object.keys(recipeRelationDataSchema.shape)),
-  week: new Set(Object.keys(weekDataSchema.shape)),
-  weekRecipe: new Set(Object.keys(weekRecipeDataSchema.shape)),
-  groceryItem: new Set(Object.keys(groceryItemDataSchema.shape)),
-  groceryTemplate: new Set(Object.keys(groceryTemplateDataSchema.shape)),
-  teamSettings: new Set(Object.keys(teamSettingsDataSchema.shape)),
-};
+type Entity = FoodPlanningEntity;
+type Operation = FoodPlanningOperation;
+type MutationChange = FoodPlanningMutationChange;
 
 const TABLES: Record<Entity, string> = {
   recipe: "recipes",
@@ -208,20 +150,7 @@ const TABLES: Record<Entity, string> = {
 };
 
 function parseData(change: MutationChange): Record<string, unknown> {
-  if (change.operation === "delete") return {};
-  const parsed = DATA_SCHEMAS[change.entity].parse(change.data) as Record<string, unknown>;
-  const entries = Object.entries(parsed).filter(([, value]) => value !== undefined);
-  if (change.operation === "create") {
-    for (const field of REQUIRED_CREATE_FIELDS[change.entity] ?? []) {
-      if (!entries.some(([key]) => key === field)) {
-        throw new Error(`${change.entity}.${field} is required for create`);
-      }
-    }
-  }
-  if (change.operation === "update" && entries.length === 0) {
-    throw new Error(`${change.entity} update requires at least one field`);
-  }
-  return Object.fromEntries(entries);
+  return parseFoodPlanningMutationData(change);
 }
 
 function prefixedId(entity: Entity): string {
@@ -303,13 +232,32 @@ async function assertOwnedReference({
   teamId,
 }: {
   db: D1Database;
-  entity: "recipe" | "recipeBook" | "week";
+  entity: Exclude<Entity, "teamSettings">;
   entityId: string;
   teamId: string;
 }): Promise<void> {
   if (!await ownedEntityExists({ db, entity, entityId, teamId })) {
     throw new Error(`${entity} was not found in the active team`);
   }
+}
+
+async function assertReadableReference({
+  db,
+  entity,
+  entityId,
+  teamId,
+}: {
+  db: D1Database;
+  entity: "recipe" | "recipeBook";
+  entityId: string;
+  teamId: string;
+}): Promise<void> {
+  const sql = entity === "recipeBook"
+    ? "SELECT id FROM recipe_books WHERE id = ? AND (teamId = ? OR teamId IS NULL) LIMIT 1"
+    : `SELECT id FROM recipes
+        WHERE id = ? AND (teamId = ? OR visibility IN ('public', 'unlisted')) LIMIT 1`;
+  const readable = await db.prepare(sql).bind(entityId, teamId).first<{ id: string }>();
+  if (!readable) throw new Error(`${entity} was not readable by the active team`);
 }
 
 async function assertReferencesOwned({
@@ -323,30 +271,25 @@ async function assertReferencesOwned({
   data: Record<string, unknown>;
   teamId: string;
 }): Promise<void> {
-  if (entity === "recipe" && typeof data.recipeBookId === "string") {
-    await assertOwnedReference({ db, entity: "recipeBook", entityId: data.recipeBookId, teamId });
-  }
-  if (entity === "recipe" && typeof data.sourceRecipeId === "string") {
-    await assertOwnedReference({ db, entity: "recipe", entityId: data.sourceRecipeId, teamId });
-  }
-  if (entity === "weekRecipe") {
-    if (typeof data.weekId === "string") {
-      await assertOwnedReference({ db, entity: "week", entityId: data.weekId, teamId });
+  for (const reference of getFoodPlanningReferences({ entity, data })) {
+    if (reference.access === "readable") {
+      if (reference.entity !== "recipe" && reference.entity !== "recipeBook") {
+        throw new Error(`Unsupported readable reference ${reference.entity}`);
+      }
+      await assertReadableReference({
+        db,
+        entity: reference.entity,
+        entityId: reference.id,
+        teamId,
+      });
+      continue;
     }
-    if (typeof data.recipeId === "string") {
-      await assertOwnedReference({ db, entity: "recipe", entityId: data.recipeId, teamId });
-    }
-  }
-  if (entity === "groceryItem" && typeof data.weekId === "string") {
-    await assertOwnedReference({ db, entity: "week", entityId: data.weekId, teamId });
-  }
-  if (entity === "recipeRelation") {
-    if (typeof data.mainRecipeId === "string") {
-      await assertOwnedReference({ db, entity: "recipe", entityId: data.mainRecipeId, teamId });
-    }
-    if (typeof data.sideRecipeId === "string") {
-      await assertOwnedReference({ db, entity: "recipe", entityId: data.sideRecipeId, teamId });
-    }
+    await assertOwnedReference({
+      db,
+      entity: reference.entity,
+      entityId: reference.id,
+      teamId,
+    });
   }
 }
 
@@ -364,7 +307,9 @@ async function preflightChange({
   await assertAssistantTeamPermission({
     db,
     context,
-    permission: PERMISSIONS[change.entity][change.operation],
+    permission: FOOD_PLANNING_MUTATION_PERMISSIONS[change.entity][
+      change.operation
+    ] as AssistantTeamPermission,
   });
   if (change.entity === "teamSettings") {
     const settings = await db.prepare(
@@ -439,14 +384,16 @@ function prepareCreateEntity({
     case "recipeRelation":
       statement = db.prepare(
         `INSERT INTO recipe_relations
-         (id, mainRecipeId, sideRecipeId, relationType, "order", createdAt, updatedAt)
-         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+         (id, mainRecipeId, sideRecipeId, relationType, "order", scheduleLeadDays,
+          createdAt, updatedAt)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       ).bind(
         id,
         data.mainRecipeId,
         data.sideRecipeId,
         data.relationType ?? "side",
         data.order ?? 0,
+        data.scheduleLeadDays ?? null,
         now,
         now,
       );
@@ -473,12 +420,15 @@ function prepareCreateEntity({
     case "weekRecipe":
       statement = db.prepare(
         `INSERT INTO week_recipes
-         (id, weekId, recipeId, scheduledDate, "order", made, createdAt, updatedAt)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+         (id, weekId, recipeId, scheduledForWeekRecipeId, sourceRecipeRelationId,
+          scheduledDate, "order", made, createdAt, updatedAt)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       ).bind(
         id,
         data.weekId,
         data.recipeId,
+        data.scheduledForWeekRecipeId ?? null,
+        data.sourceRecipeRelationId ?? null,
         databaseValue("scheduledDate", data.scheduledDate ?? null),
         data.order ?? 0,
         databaseValue("made", data.made ?? false),
@@ -555,7 +505,7 @@ function prepareUpdateEntity({
   data: Record<string, unknown>;
 }): { id: string; statement: D1PreparedStatement } {
   const entries = Object.entries(data).filter(([key, value]) =>
-    value !== undefined && MUTABLE_COLUMNS[entity].has(key),
+    value !== undefined && FOOD_PLANNING_MUTABLE_FIELDS[entity].has(key),
   );
   const setters = entries.map(([key]) => `"${key}" = ?`);
   const bindings = entries.map(([key, value]) => databaseValue(key, value));
@@ -598,6 +548,123 @@ function prepareDeleteEntity({
   return db.prepare(
     `DELETE FROM ${TABLES[entity]} WHERE ${ownership}`,
   ).bind(...bindings);
+}
+
+interface EntitlementRow {
+  currentPeriodEnd: number | null;
+  features: string | null;
+  gracePeriodExpiresAt: number | null;
+  status: string;
+}
+
+function weekCreationLimit(features: string | null): number | null | undefined {
+  if (!features) return undefined;
+  try {
+    const parsed: unknown = JSON.parse(features);
+    if (!parsed || typeof parsed !== "object" || !("weekCreationLimit" in parsed)) {
+      return undefined;
+    }
+    const value = (parsed as { weekCreationLimit: unknown }).weekCreationLimit;
+    return value === null || typeof value === "number" ? value : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+async function getAssistantWeekCreationLimit({
+  db,
+  teamId,
+}: {
+  db: D1Database;
+  teamId: string;
+}): Promise<number | null> {
+  const [apple, stripe] = await Promise.all([
+    db.prepare(
+      `SELECT a.status, a.currentPeriodEnd, a.gracePeriodExpiresAt, s.features
+         FROM apple_subscription_binding a
+         JOIN team_entitlement_snapshot s ON s.id = a.entitlementSnapshotId
+        WHERE a.teamId = ? LIMIT 1`,
+    ).bind(teamId).first<EntitlementRow>(),
+    db.prepare(
+      `SELECT t.status, t.currentPeriodEnd, NULL AS gracePeriodExpiresAt, s.features
+         FROM team_subscription t
+         JOIN team_entitlement_snapshot s ON s.id = t.entitlementSnapshotId
+        WHERE t.teamId = ? LIMIT 1`,
+    ).bind(teamId).first<EntitlementRow>(),
+  ]);
+  const now = Math.floor(Date.now() / 1_000);
+  const appleIsActive = apple?.status === "active" && (apple.currentPeriodEnd ?? 0) > now;
+  const appleIsInGrace = apple?.status === "grace_period" &&
+    (apple.gracePeriodExpiresAt ?? 0) > now;
+  if (apple && (appleIsActive || appleIsInGrace)) {
+    const limit = weekCreationLimit(apple.features);
+    if (limit !== undefined) return limit;
+  }
+  if (stripe && ["active", "trialing"].includes(stripe.status)) {
+    const limit = weekCreationLimit(stripe.features);
+    if (limit !== undefined) return limit;
+  }
+  return 4;
+}
+
+async function reserveAssistantWeekCreations({
+  count,
+  db,
+  teamId,
+}: {
+  count: number;
+  db: D1Database;
+  teamId: string;
+}): Promise<void> {
+  if (count === 0) return;
+  const limit = await getAssistantWeekCreationLimit({ db, teamId });
+  const now = Math.floor(Date.now() / 1_000);
+  await db.prepare(
+    `INSERT INTO team_feature_usage
+       (id, teamId, feature, usageCount, createdAt, updatedAt)
+     SELECT ?, ?, 'week_creations', 0, ?, ?
+      WHERE NOT EXISTS (
+        SELECT 1 FROM team_feature_usage
+         WHERE teamId = ? AND feature = 'week_creations'
+      )`,
+  ).bind(
+    `tfu_${crypto.randomUUID().replaceAll("-", "")}`,
+    teamId,
+    now,
+    now,
+    teamId,
+  ).run();
+  const sql = limit === null
+    ? `UPDATE team_feature_usage SET usageCount = usageCount + ?, updatedAt = ?
+        WHERE teamId = ? AND feature = 'week_creations'`
+    : `UPDATE team_feature_usage SET usageCount = usageCount + ?, updatedAt = ?
+        WHERE teamId = ? AND feature = 'week_creations' AND usageCount + ? <= ?`;
+  const bindings = limit === null
+    ? [count, now, teamId]
+    : [count, now, teamId, count, limit];
+  const reserved = await db.prepare(sql).bind(...bindings).run();
+  if ((reserved.meta.changes ?? 0) !== 1) {
+    throw new Error(
+      "Your team has used its four free week creations. Subscribe to create another week.",
+    );
+  }
+}
+
+async function releaseAssistantWeekCreations({
+  count,
+  db,
+  teamId,
+}: {
+  count: number;
+  db: D1Database;
+  teamId: string;
+}): Promise<void> {
+  if (count === 0) return;
+  await db.prepare(
+    `UPDATE team_feature_usage
+        SET usageCount = MAX(0, usageCount - ?), updatedAt = ?
+      WHERE teamId = ? AND feature = 'week_creations'`,
+  ).bind(count, Math.floor(Date.now() / 1_000), teamId).run();
 }
 
 export async function applyApprovedTeamChanges({
@@ -663,7 +730,17 @@ export async function applyApprovedTeamChanges({
     }));
     applied.push({ entity: change.entity, operation: change.operation, id: change.id });
   }
-  const results = await db.batch(statements);
+  const weekCreations = prepared.filter(({ change }) =>
+    change.entity === "week" && change.operation === "create"
+  ).length;
+  await reserveAssistantWeekCreations({ count: weekCreations, db, teamId: context.teamId });
+  let results: D1Result<unknown>[];
+  try {
+    results = await db.batch(statements);
+  } catch (error) {
+    await releaseAssistantWeekCreations({ count: weekCreations, db, teamId: context.teamId });
+    throw error;
+  }
   for (const [index, result] of results.entries()) {
     if ((result.meta.changes ?? 0) !== 1) {
       const change = applied[index];

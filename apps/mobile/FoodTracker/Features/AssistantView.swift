@@ -1,3 +1,4 @@
+import Foundation
 import SwiftUI
 
 struct AssistantView: View {
@@ -23,6 +24,8 @@ struct AssistantView: View {
     @State private var errorMessage: String?
     @State private var sendTask: Task<Void, Never>?
     @State private var activeRunID: String?
+    @State private var pendingApprovalBatch: AssistantApprovalBatch?
+    @State private var approvalDecisions: [String: Bool] = [:]
     @State private var pageContext: AssistantPageContext?
     @State private var mentionedContexts: [AssistantPageContext] = []
     @State private var dismissedMentionOffset: Int?
@@ -115,7 +118,7 @@ struct AssistantView: View {
                     .foregroundStyle(Color.foodSecondaryInk)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-        } else if messages.isEmpty {
+        } else if messages.isEmpty, pendingApprovalBatch == nil {
             AssistantWelcomeView(pageContext: pageContext, onSelect: sendSuggestion)
                 .disabled(!connectivity.isOnline)
         } else {
@@ -128,6 +131,15 @@ struct AssistantView: View {
 
                         if let streamStatus, isSending {
                             AssistantActivityRow(status: streamStatus)
+                        }
+
+                        if let pendingApprovalBatch {
+                            AssistantApprovalView(
+                                batch: pendingApprovalBatch,
+                                decisions: approvalDecisions,
+                                isSubmitting: isSending,
+                                onDecision: recordApprovalDecision
+                            )
                         }
 
                         Color.clear
@@ -204,7 +216,9 @@ struct AssistantView: View {
                         RoundedRectangle(cornerRadius: 20)
                             .stroke(Color.foodBorder, lineWidth: 0.5)
                     }
-                    .disabled(isSending || !connectivity.isOnline)
+                    .disabled(
+                        isSending || pendingApprovalBatch != nil || !connectivity.isOnline
+                    )
 
                 if isSending {
                     Button("Stop generating", systemImage: "stop.circle.fill") {
@@ -224,6 +238,7 @@ struct AssistantView: View {
                             prompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
                                 || !connectivity.isOnline
                                 || isLoadingConversation
+                                || pendingApprovalBatch != nil
                         )
                 }
             }
@@ -323,6 +338,8 @@ struct AssistantView: View {
             savedChatID = conversation.chat.id
             activeChatTitle = conversation.chat.displayTitle
             messages = conversation.messages
+            pendingApprovalBatch = nil
+            approvalDecisions = [:]
             pageContext = nil
             mentionedContexts = []
             dismissedMentionOffset = nil
@@ -345,6 +362,8 @@ struct AssistantView: View {
         savedChatID = chatID
         activeChatTitle = "New chat"
         messages = []
+        pendingApprovalBatch = nil
+        approvalDecisions = [:]
         prompt = suggestedPrompt
         self.pageContext = pageContext
         mentionedContexts = []
@@ -438,6 +457,8 @@ struct AssistantView: View {
         streamStatus = "Thinking through your kitchen…"
         isSending = true
         isComposerFocused = false
+        pendingApprovalBatch = nil
+        approvalDecisions = [:]
 
         sendTask = Task {
             var assistantID = ""
@@ -473,10 +494,15 @@ struct AssistantView: View {
                             )
                             hasReceivedText = true
                         }
+                    case .approvalRequired(let batch):
+                        pendingApprovalBatch = batch
+                        approvalDecisions = [:]
+                        activeRunID = nil
+                        streamStatus = nil
                     }
                 }
                 try Task.checkCancellation()
-                guard hasReceivedText else {
+                guard hasReceivedText || pendingApprovalBatch != nil else {
                     throw APIError.server("The assistant finished without a text response.")
                 }
 
@@ -500,6 +526,100 @@ struct AssistantView: View {
             streamStatus = nil
             isSending = false
             sendTask = nil
+        }
+    }
+
+    private func recordApprovalDecision(_ approval: AssistantApproval, approved: Bool) {
+        guard let batch = pendingApprovalBatch,
+              batch.approvals.contains(where: { $0.id == approval.id }),
+              !isSending
+        else { return }
+        approvalDecisions[approval.id] = approved
+        guard batch.approvals.allSatisfy({ approvalDecisions[$0.id] != nil }) else { return }
+        submitApprovalBatch(batch)
+    }
+
+    private func submitApprovalBatch(_ batch: AssistantApprovalBatch) {
+        let decisions = approvalDecisions
+        let currentChatID = chatID
+        let requestMessages = messages
+        let shouldRefreshWorkspace = decisions.values.contains(true)
+        errorMessage = nil
+        streamStatus = "Sending your decision…"
+        isSending = true
+
+        sendTask = Task {
+            var assistantID = ""
+            var hasReceivedText = false
+            var nextApprovalBatch: AssistantApprovalBatch?
+            do {
+                for try await event in auth.client.respondToAssistantApprovals(
+                    chatID: currentChatID,
+                    messages: requestMessages,
+                    batch: batch,
+                    decisions: decisions
+                ) {
+                    try Task.checkCancellation()
+                    guard chatID == currentChatID else { return }
+                    switch event {
+                    case .started(let runID):
+                        activeRunID = runID
+                        assistantID = "\(runID)-assistant"
+                        messages.removeAll { $0.id == assistantID }
+                        hasReceivedText = false
+                        streamStatus = "Applying your decision…"
+                    case .status(let status):
+                        if !hasReceivedText { streamStatus = status }
+                    case .textDelta(let delta):
+                        if assistantID.isEmpty {
+                            assistantID = "\(UUID().uuidString.lowercased())-assistant"
+                        }
+                        streamStatus = nil
+                        if hasReceivedText,
+                           let index = messages.firstIndex(where: { $0.id == assistantID }) {
+                            messages[index].text += delta
+                        } else {
+                            messages.append(
+                                AssistantMessage(id: assistantID, role: "assistant", text: delta)
+                            )
+                            hasReceivedText = true
+                        }
+                    case .approvalRequired(let nextBatch):
+                        nextApprovalBatch = nextBatch
+                        activeRunID = nil
+                        streamStatus = nil
+                    }
+                }
+
+                try Task.checkCancellation()
+                guard hasReceivedText || nextApprovalBatch != nil else {
+                    throw APIError.server("The assistant finished without a text response.")
+                }
+                let completed = try await auth.client.loadAssistantConversation(
+                    chatID: currentChatID
+                )
+                guard chatID == currentChatID else { return }
+                messages = completed.messages
+                activeChatTitle = completed.chat.displayTitle
+                pendingApprovalBatch = nextApprovalBatch
+                approvalDecisions = [:]
+                activeRunID = nil
+                if shouldRefreshWorkspace { await store.refresh(using: auth.client) }
+                await refreshChats(showErrors: false)
+            } catch is CancellationError {
+                // Keep the pending approval visible if the response stream disconnects.
+                pendingApprovalBatch = batch
+                approvalDecisions = [:]
+            } catch {
+                pendingApprovalBatch = batch
+                approvalDecisions = [:]
+                errorMessage = error.localizedDescription
+            }
+            if chatID == currentChatID {
+                streamStatus = nil
+                isSending = false
+                sendTask = nil
+            }
         }
     }
 
@@ -565,6 +685,11 @@ struct AssistantView: View {
                             )
                             hasReceivedText = true
                         }
+                    case .approvalRequired(let batch):
+                        pendingApprovalBatch = batch
+                        approvalDecisions = [:]
+                        activeRunID = nil
+                        streamStatus = nil
                     }
                 }
 
@@ -705,6 +830,104 @@ private struct AssistantMentionResults: View {
         }
         .background(Color.foodSurface)
         .overlay(alignment: .bottom) { Divider().overlay(Color.foodBorder) }
+    }
+}
+
+private struct AssistantApprovalView: View {
+    let batch: AssistantApprovalBatch
+    let decisions: [String: Bool]
+    let isSubmitting: Bool
+    let onDecision: (AssistantApproval, Bool) -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: FoodSpacing.medium) {
+            Label("Your approval is required", systemImage: "checkmark.shield")
+                .font(.headline)
+                .foregroundStyle(Color.foodDeep)
+
+            Text("Ladle will not make these changes unless you explicitly approve them.")
+                .font(.subheadline)
+                .foregroundStyle(Color.foodSecondaryInk)
+
+            ForEach(batch.approvals) { approval in
+                VStack(alignment: .leading, spacing: FoodSpacing.small) {
+                    Text(title(for: approval))
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(Color.foodDeep)
+
+                    DisclosureGroup("Review exact details") {
+                        Text(prettyArguments(approval.arguments))
+                            .font(.caption.monospaced())
+                            .foregroundStyle(Color.foodSecondaryInk)
+                            .textSelection(.enabled)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.top, 6)
+                    }
+                    .font(.caption.weight(.medium))
+                    .tint(Color.foodAccent)
+
+                    if let approved = decisions[approval.id] {
+                        Label(
+                            approved ? "Approved" : "Denied",
+                            systemImage: approved ? "checkmark.circle.fill" : "xmark.circle.fill"
+                        )
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(approved ? Color.foodAccent : Color.foodDestructive)
+                    } else {
+                        HStack(spacing: FoodSpacing.small) {
+                            Button("Deny", role: .destructive) {
+                                onDecision(approval, false)
+                            }
+                            .buttonStyle(.bordered)
+                            .frame(maxWidth: .infinity)
+
+                            Button("Approve") {
+                                onDecision(approval, true)
+                            }
+                            .buttonStyle(.borderedProminent)
+                            .tint(Color.foodAccent)
+                            .frame(maxWidth: .infinity)
+                        }
+                        .disabled(isSubmitting)
+                    }
+                }
+                .padding(FoodSpacing.medium)
+                .background(Color.foodPaper, in: RoundedRectangle(cornerRadius: FoodRadius.large))
+                .overlay {
+                    RoundedRectangle(cornerRadius: FoodRadius.large)
+                        .stroke(Color.foodBorder, lineWidth: 0.5)
+                }
+            }
+
+            if isSubmitting {
+                Label("Sending your decision…", systemImage: "hourglass")
+                    .font(.caption)
+                    .foregroundStyle(Color.foodSecondaryInk)
+            }
+        }
+        .padding(FoodSpacing.medium)
+        .background(Color.foodAccent.opacity(0.08), in: RoundedRectangle(cornerRadius: 20))
+        .accessibilityElement(children: .contain)
+    }
+
+    private func title(for approval: AssistantApproval) -> String {
+        switch approval.toolName {
+        case "create_recipe_from_url": "Import this recipe into your kitchen?"
+        case "apply_team_changes": "Apply these changes to your kitchen?"
+        default: approval.message ?? "Allow this assistant change?"
+        }
+    }
+
+    private func prettyArguments(_ arguments: String) -> String {
+        guard let data = arguments.data(using: .utf8),
+              let object = try? JSONSerialization.jsonObject(with: data),
+              let prettyData = try? JSONSerialization.data(
+                  withJSONObject: object,
+                  options: [.prettyPrinted, .sortedKeys]
+              ),
+              let value = String(data: prettyData, encoding: .utf8)
+        else { return arguments }
+        return value
     }
 }
 

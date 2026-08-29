@@ -107,15 +107,18 @@ export default function PrivacyPage() {
       </section>
 
       <section className="mb-8">
-        <h2 className="mb-4 text-2xl font-semibold text-foreground">5. AI and Google Gemini</h2>
+        <h2 className="mb-4 text-2xl font-semibold text-foreground">
+          5. AI, Cloudflare AI Gateway, and OpenAI
+        </h2>
         <p className="text-muted-foreground">
           When you use the AI assistant, List To Ladle sends your prompt and the relevant team
-          context selected for the request to Google&apos;s Gemini API. Google processes that data to
-          return a response under the terms and data-handling settings of our configured Google AI
-          service account. Assistant conversations and operational records are also stored by List
-          To Ladle so you can revisit conversations, resume runs, enforce team limits, and audit
-          user-approved changes. Do not submit information you do not want processed by the AI
-          service.
+          context selected for the request through Cloudflare AI Gateway to OpenAI&apos;s GPT model.
+          Cloudflare and OpenAI process that data to route and return a response under the
+          data-handling settings of our configured services. AI Gateway may retain request and
+          response logs according to our gateway settings. Assistant conversations and operational
+          records are also stored by List To Ladle so you can revisit conversations, resume runs,
+          enforce team limits, and audit user-approved changes. Do not submit information you do not
+          want processed by the AI service.
         </p>
       </section>
 
@@ -123,8 +126,12 @@ export default function PrivacyPage() {
         <h2 className="mb-4 text-2xl font-semibold text-foreground">6. Service providers</h2>
         <p className="text-muted-foreground">We use providers to operate specific parts of the service:</p>
         <ul className="mt-2 list-disc space-y-2 pl-6 text-muted-foreground">
-          <li>Cloudflare for application hosting, database, key-value storage, security, and networking.</li>
-          <li>Google Gemini for AI generation, and Google OAuth if you choose Google sign-in.</li>
+          <li>
+            Cloudflare for application hosting, database, key-value storage, security, networking,
+            and AI Gateway routing and logging.
+          </li>
+          <li>OpenAI for AI generation.</li>
+          <li>Google for OAuth if you choose Google sign-in.</li>
           <li>Stripe for subscription checkout, payment processing, and the billing portal.</li>
           <li>Apple Push Notification service for optional iOS notifications.</li>
           <li>Resend or Brevo, depending on deployment configuration, for transactional email.</li>

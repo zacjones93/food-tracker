@@ -37,7 +37,13 @@ function fakeDatabase({ ownsTarget }: { ownsTarget: boolean }): {
               if (sql.includes("FROM grocery_items")) {
                 return ownsTarget ? { id: "gi_1" } : null;
               }
-              if (sql.includes("FROM recipes r")) {
+              if (
+                sql.includes("FROM recipes r") ||
+                sql.includes("FROM recipes\n") ||
+                sql.includes("FROM weeks w") ||
+                sql.includes("FROM week_recipes wr") ||
+                sql.includes("FROM recipe_relations rr")
+              ) {
                 return ownsTarget ? { id: "rcp_1" } : null;
               }
               return null;
@@ -66,6 +72,11 @@ test("mutation contract requires IDs and keeps settings update-only", () => {
     reason: "Create settings",
     changes: [{ entity: "teamSettings", operation: "create", data: {} }],
   }).success, false);
+});
+
+test("mutation tool schema stays compatible with provider function declarations", () => {
+  const jsonSchema = approvedMutationInputSchema.toJSONSchema();
+  assert.doesNotMatch(JSON.stringify(jsonSchema), /"propertyNames"/u);
 });
 
 test("write tool always requires explicit approval", () => {
@@ -157,4 +168,64 @@ test("recipe remixes persist the approved source recipe ID", async () => {
   assert.equal(batchCalls.length, 1);
   const insert = statements.find((statement) => statement.startsWith("INSERT INTO recipes"));
   assert.match(insert ?? "", /sourceRecipeId/);
+});
+
+test("preparation assignments and recipe relations keep their linkage metadata", async () => {
+  const { db, statements, batchCalls } = fakeDatabase({ ownsTarget: true });
+  const result = await applyApprovedTeamChanges({
+    db,
+    context,
+    changes: [
+      {
+        entity: "recipeRelation",
+        operation: "create",
+        data: {
+          mainRecipeId: "rcp_1",
+          sideRecipeId: "rcp_2",
+          relationType: "side",
+          scheduleLeadDays: 2,
+        },
+      },
+      {
+        entity: "weekRecipe",
+        operation: "create",
+        data: {
+          weekId: "wk_1",
+          recipeId: "rcp_2",
+          scheduledForWeekRecipeId: "wr_main",
+          sourceRecipeRelationId: "rr_1",
+        },
+      },
+    ],
+  });
+
+  assert.equal(result.applied.length, 2);
+  assert.equal(batchCalls[0]?.length, 2);
+  assert.match(
+    statements.find((statement) => statement.startsWith("INSERT INTO recipe_relations")) ?? "",
+    /scheduleLeadDays/u,
+  );
+  assert.match(
+    statements.find((statement) => statement.startsWith("INSERT INTO week_recipes")) ?? "",
+    /scheduledForWeekRecipeId.*sourceRecipeRelationId/su,
+  );
+});
+
+test("week creation reserves the same lifetime entitlement used by web and mobile", async () => {
+  const { db, statements, batchCalls } = fakeDatabase({ ownsTarget: true });
+
+  const result = await applyApprovedTeamChanges({
+    db,
+    context,
+    changes: [{
+      entity: "week",
+      operation: "create",
+      data: { name: "Next week" },
+    }],
+  });
+
+  assert.equal(result.applied.length, 1);
+  assert.equal(batchCalls[0]?.length, 1);
+  assert.ok(statements.some((statement) => statement.includes("INSERT INTO team_feature_usage")));
+  assert.ok(statements.some((statement) => statement.includes("usageCount = usageCount + ?")));
 });

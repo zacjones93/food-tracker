@@ -36,8 +36,8 @@ export default function SupportPage() {
         </p>
         <p className="mt-3 text-muted-foreground">
           Include the email on your account, the device and browser you use, what you expected, what
-          happened, and any error message. Do not send passwords, full payment-card numbers, Gemini
-          API keys, or APNs device tokens.
+          happened, and any error message. Do not send passwords, full payment-card numbers, AI
+          provider credentials, or APNs device tokens.
         </p>
       </section>
 

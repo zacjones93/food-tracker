@@ -3,7 +3,13 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$", ".env", ".env.*", ".dev.vars", ".dev.vars.*"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        ".env",
+        ".env.*",
+        ".dev.vars",
+        ".dev.vars.*"
+      ],
       "outputs": [".next/**", "!.next/cache/**"]
     },
     "@food-tracker/mobile#build": {
@@ -12,12 +18,24 @@
     },
     "build:prod": {
       "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$", ".env", ".env.*", ".dev.vars", ".dev.vars.*"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        ".env",
+        ".env.*",
+        ".dev.vars",
+        ".dev.vars.*"
+      ],
       "outputs": [".open-next/**", "dist/**"]
     },
     "opennext:build": {
       "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$", ".env", ".env.*", ".dev.vars", ".dev.vars.*"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        ".env",
+        ".env.*",
+        ".dev.vars",
+        ".dev.vars.*"
+      ],
       "outputs": [".open-next/**"]
     },
     "typecheck": {
@@ -34,6 +52,7 @@
     },
     "dev": {
       "cache": false,
+      "env": ["ASSISTANT_LOCAL_URL"],
       "persistent": true
     }
   }

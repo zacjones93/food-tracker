@@ -22,6 +22,12 @@ protocol FoodTrackerAPI: Sendable {
         mentionedContexts: [AssistantPageContext]
     ) -> AsyncThrowingStream<AssistantStreamEvent, Error>
     func resumeAssistant(chatID: String) -> AsyncThrowingStream<AssistantStreamEvent, Error>
+    func respondToAssistantApprovals(
+        chatID: String,
+        messages: [AssistantMessage],
+        batch: AssistantApprovalBatch,
+        decisions: [String: Bool]
+    ) -> AsyncThrowingStream<AssistantStreamEvent, Error>
     func cancelAssistant(chatID: String, runID: String) async throws
 }
 
@@ -31,6 +37,17 @@ extension FoodTrackerAPI {
     }
 
     func cancelAssistant(chatID: String, runID: String) async throws {}
+
+    func respondToAssistantApprovals(
+        chatID: String,
+        messages: [AssistantMessage],
+        batch: AssistantApprovalBatch,
+        decisions: [String: Bool]
+    ) -> AsyncThrowingStream<AssistantStreamEvent, Error> {
+        AsyncThrowingStream {
+            $0.finish(throwing: APIError.server("This app cannot respond to assistant approvals."))
+        }
+    }
 }
 
 enum APIError: LocalizedError {
@@ -106,10 +123,24 @@ struct AssistantPageContext: Codable, Hashable, Sendable {
     var identity: String { "\(kind.rawValue):\(entityId)" }
 }
 
+struct AssistantApproval: Codable, Hashable, Identifiable, Sendable {
+    var id: String
+    var toolCallId: String
+    var toolName: String
+    var arguments: String
+    var message: String?
+}
+
+struct AssistantApprovalBatch: Codable, Hashable, Sendable {
+    var parentRunId: String
+    var approvals: [AssistantApproval]
+}
+
 enum AssistantStreamEvent: Hashable, Sendable {
     case started(runID: String)
     case status(String)
     case textDelta(String)
+    case approvalRequired(AssistantApprovalBatch)
 }
 
 struct FoodTrackerAPIClient: FoodTrackerAPI {
@@ -271,6 +302,56 @@ struct FoodTrackerAPIClient: FoodTrackerAPI {
         }
     }
 
+    func respondToAssistantApprovals(
+        chatID: String,
+        messages: [AssistantMessage],
+        batch: AssistantApprovalBatch,
+        decisions: [String: Bool]
+    ) -> AsyncThrowingStream<AssistantStreamEvent, Error> {
+        AsyncThrowingStream { continuation in
+            let task = Task {
+                do {
+                    let requestMessages = messages.map { message in
+                        AssistantRequest.Message(
+                            id: message.id,
+                            role: message.role,
+                            parts: [.init(type: "text", text: message.text)]
+                        )
+                    }
+                    let approvalDecisions = try batch.approvals.map { approval in
+                        guard let approved = decisions[approval.id] else {
+                            throw APIError.server("Choose Approve or Deny for every requested change.")
+                        }
+                        return AssistantApprovalDecisionRequest(
+                            approvalId: approval.id,
+                            toolCallId: approval.toolCallId,
+                            approved: approved
+                        )
+                    }
+                    let request = try assistantRequest(
+                        path: "/api/mobile/assistant/approval",
+                        body: AssistantApprovalResponseRequest(
+                            chatId: chatID,
+                            parentRunId: batch.parentRunId,
+                            messages: requestMessages,
+                            decisions: approvalDecisions
+                        )
+                    )
+                    try await streamAssistantResponse(
+                        request: request,
+                        continuation: continuation
+                    )
+                    continuation.finish()
+                } catch is CancellationError {
+                    continuation.finish()
+                } catch {
+                    continuation.finish(throwing: error)
+                }
+            }
+            continuation.onTermination = { _ in task.cancel() }
+        }
+    }
+
     func cancelAssistant(chatID: String, runID: String) async throws {
         let _: AssistantCancelResponse = try await send(
             path: "/api/mobile/assistant/cancel",
@@ -367,12 +448,23 @@ struct FoodTrackerAPIClient: FoodTrackerAPI {
             return .started(runID: runID)
         case "tool-input-start", "TOOL_CALL_START":
             return .status(
-                (event.toolName ?? event.toolCallName) == "codemode_execute"
+                ["execute_typescript", "codemode_execute"].contains(
+                    event.toolName ?? event.toolCallName ?? ""
+                )
                     ? "Searching your recipes and meal plans…"
                     : "Checking your kitchen…"
             )
         case "tool-output-available", "TOOL_CALL_END", "TOOL_CALL_RESULT":
             return .status("Putting it together…")
+        case "approval-required":
+            guard let parentRunId = event.parentRunId,
+                  !parentRunId.isEmpty,
+                  let approvals = event.approvals,
+                  !approvals.isEmpty
+            else { throw APIError.invalidResponse }
+            return .approvalRequired(
+                AssistantApprovalBatch(parentRunId: parentRunId, approvals: approvals)
+            )
         case "error", "RUN_ERROR":
             throw APIError.server(event.errorText ?? event.message ?? "The assistant could not finish that response.")
         default:
@@ -455,14 +547,27 @@ private struct AssistantRequest: Codable {
 private struct AssistantWireEvent: Codable {
     var type: String
     var runId: String?
+    var parentRunId: String?
     var delta: String?
     var message: String?
     var toolCallName: String?
     var toolName: String?
     var errorText: String?
+    var approvals: [AssistantApproval]?
 }
 
 private struct AssistantResumeRequest: Codable { var chatId: String }
+private struct AssistantApprovalDecisionRequest: Codable {
+    var approvalId: String
+    var toolCallId: String
+    var approved: Bool
+}
+private struct AssistantApprovalResponseRequest: Codable {
+    var chatId: String
+    var parentRunId: String
+    var messages: [AssistantRequest.Message]
+    var decisions: [AssistantApprovalDecisionRequest]
+}
 private struct AssistantCancelRequest: Codable { var chatId: String; var runId: String }
 private struct AssistantCancelResponse: Codable { var cancelled: Bool }
 

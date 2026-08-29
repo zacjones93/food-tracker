@@ -17,6 +17,10 @@ import {
 } from "@/db/schema";
 import { MobileAPIError } from "@/lib/mobile-auth";
 import {
+  FOOD_PLANNING_MUTATION_PERMISSIONS,
+  getFoodPlanningReferences,
+} from "@/lib/food-planning/mutation";
+import {
   groceryItemPayloadSchema,
   groceryTemplatePayloadSchema,
   type MobileEntityType,
@@ -47,47 +51,6 @@ interface OwnedEntity {
   record: Record<string, unknown>;
   updatedAt: Date | null;
 }
-
-const entityPermissions: Record<
-  MobileEntityType,
-  Record<MobileMutation["operation"], string>
-> = {
-  recipe: {
-    create: TEAM_PERMISSIONS.CREATE_RECIPES,
-    update: TEAM_PERMISSIONS.EDIT_RECIPES,
-    delete: TEAM_PERMISSIONS.DELETE_RECIPES,
-  },
-  recipeBook: {
-    create: TEAM_PERMISSIONS.CREATE_RECIPES,
-    update: TEAM_PERMISSIONS.EDIT_RECIPES,
-    delete: TEAM_PERMISSIONS.DELETE_RECIPES,
-  },
-  recipeRelation: {
-    create: TEAM_PERMISSIONS.EDIT_RECIPES,
-    update: TEAM_PERMISSIONS.EDIT_RECIPES,
-    delete: TEAM_PERMISSIONS.EDIT_RECIPES,
-  },
-  week: {
-    create: TEAM_PERMISSIONS.CREATE_SCHEDULES,
-    update: TEAM_PERMISSIONS.EDIT_SCHEDULES,
-    delete: TEAM_PERMISSIONS.DELETE_SCHEDULES,
-  },
-  weekRecipe: {
-    create: TEAM_PERMISSIONS.EDIT_SCHEDULES,
-    update: TEAM_PERMISSIONS.EDIT_SCHEDULES,
-    delete: TEAM_PERMISSIONS.EDIT_SCHEDULES,
-  },
-  groceryItem: {
-    create: TEAM_PERMISSIONS.EDIT_SCHEDULES,
-    update: TEAM_PERMISSIONS.EDIT_SCHEDULES,
-    delete: TEAM_PERMISSIONS.EDIT_SCHEDULES,
-  },
-  groceryTemplate: {
-    create: TEAM_PERMISSIONS.CREATE_GROCERY_TEMPLATES,
-    update: TEAM_PERMISSIONS.EDIT_GROCERY_TEMPLATES,
-    delete: TEAM_PERMISSIONS.DELETE_GROCERY_TEMPLATES,
-  },
-};
 
 function asRecord(value: unknown): Record<string, unknown> {
   return value as Record<string, unknown>;
@@ -278,29 +241,8 @@ async function assertReferencesOwned({
   payload: Record<string, unknown>;
   teamId: string;
 }) {
-  const references: Array<{ field: string; type: MobileEntityType }> = [];
-  if (entityType === "groceryItem") references.push({ field: "weekId", type: "week" });
-  if (entityType === "weekRecipe") {
-    references.push({ field: "weekId", type: "week" }, { field: "recipeId", type: "recipe" });
-    if (typeof payload.scheduledForWeekRecipeId === "string") {
-      references.push({ field: "scheduledForWeekRecipeId", type: "weekRecipe" });
-    }
-    if (typeof payload.sourceRecipeRelationId === "string") {
-      references.push({ field: "sourceRecipeRelationId", type: "recipeRelation" });
-    }
-  }
-  if (entityType === "recipeRelation") {
-    references.push(
-      { field: "mainRecipeId", type: "recipe" },
-      { field: "sideRecipeId", type: "recipe" },
-    );
-  }
-  if (entityType === "recipe" && typeof payload.recipeBookId === "string") {
-    references.push({ field: "recipeBookId", type: "recipeBook" });
-  }
-  if (entityType === "recipe" && typeof payload.sourceRecipeId === "string") {
-    references.push({ field: "sourceRecipeId", type: "recipe" });
-  }
+  const references = getFoodPlanningReferences({ entity: entityType, data: payload })
+    .map(({ field, entity }) => ({ field, type: entity as MobileEntityType }));
 
   for (const reference of references) {
     const value = payload[reference.field];
@@ -732,7 +674,7 @@ async function applyMobileMutation({
     return { kind: "acknowledged" as const, result: existingReceipt.result };
   }
 
-  const permission = entityPermissions[mutation.entityType][mutation.operation];
+  const permission = FOOD_PLANNING_MUTATION_PERMISSIONS[mutation.entityType][mutation.operation];
   if (!permissions.includes(permission)) throw new MobileAPIError(403, `Missing permission ${permission}`);
 
   if (mutation.operation === "create") {

@@ -1,4 +1,3 @@
-import { tanstackTools } from "@cloudflare/codemode/tanstack-ai";
 import { toolDefinition, type Tool } from "@tanstack/ai";
 
 import {
@@ -16,7 +15,6 @@ import {
 import { createRetrievalService } from "../../web/src/lib/ai/retrieval/service";
 import type { AssistantRequestContext } from "./context";
 import { workerRetrievalCorpusProvider } from "./corpus";
-import { CODE_MODE_NAMESPACE_TYPES } from "./code-mode-contract";
 import {
   ASSISTANT_TEAM_PERMISSIONS,
   assertAssistantTeamPermission,
@@ -58,7 +56,8 @@ export function createReadOnlyToolNamespaces({
   const recipeTools: Tool[] = [
     toolDefinition({
       name: "search",
-      description: "Search the authenticated team's recipes. Input uses text, mealTypes[], filters, limit, and cursor. Returns {ok:true,data:{items,nextCursor,appliedFilters}} or {ok:false,error}. Example: recipes.search({text:'chicken',mealTypes:['Dinner'],limit:3}).",
+      description:
+        "Search the authenticated team's recipes. Input uses text, mealTypes[], filters, limit, and cursor. Returns {ok:true,data:{items,nextCursor,appliedFilters}} or {ok:false,error}. Example: recipes.search({text:'chicken',mealTypes:['Dinner'],limit:3}).",
       inputSchema: recipeSearchInputSchema,
       outputSchema: recipeSearchResultSchema,
     }).server(async (input) => {
@@ -67,7 +66,8 @@ export function createReadOnlyToolNamespaces({
     }),
     toolDefinition({
       name: "getMany",
-      description: "Load authenticated-team recipe details by recipe IDs, never names. Returns {ok:true,data:{items,missingIds}} or {ok:false,error}. Example: recipes.getMany({ids:['recipe-id'],include:['ingredients','instructions']}).",
+      description:
+        "Load authenticated-team recipe details by recipe IDs, never names. Returns {ok:true,data:{items,missingIds}} or {ok:false,error}. Example: recipes.getMany({ids:['recipe-id'],include:['ingredients','instructions']}).",
       inputSchema: recipeGetManyInputSchema,
       outputSchema: recipeGetManyResultSchema,
     }).server(async (input) => {
@@ -79,7 +79,8 @@ export function createReadOnlyToolNamespaces({
   const weekTools: Tool[] = [
     toolDefinition({
       name: "search",
-      description: "Search authenticated-team meal-plan weeks. Use onDate for current-week resolution and includeRecipes:true for scheduled recipes. Returns {ok:true,data:{items,nextCursor,appliedFilters}} or {ok:false,error}.",
+      description:
+        "Search authenticated-team meal-plan weeks. Use onDate for current-week resolution and includeRecipes:true for scheduled recipes. Returns {ok:true,data:{items,nextCursor,appliedFilters}} or {ok:false,error}.",
       inputSchema: weekSearchInputSchema,
       outputSchema: weekSearchResultSchema,
     }).server(async (input) => {
@@ -88,7 +89,8 @@ export function createReadOnlyToolNamespaces({
     }),
     toolDefinition({
       name: "getMany",
-      description: "Load authenticated-team meal-plan weeks by IDs. Returns {ok:true,data:{items,missingIds}} or {ok:false,error}.",
+      description:
+        "Load authenticated-team meal-plan weeks by IDs. Returns {ok:true,data:{items,missingIds}} or {ok:false,error}.",
       inputSchema: weekGetManyInputSchema,
       outputSchema: weekGetManyResultSchema,
     }).server(async (input) => {
@@ -97,7 +99,8 @@ export function createReadOnlyToolNamespaces({
     }),
     toolDefinition({
       name: "findForRecipes",
-      description: "Find authenticated-team weeks containing recipe IDs. Returns {ok:true,data:{matches,nextCursor}} or {ok:false,error}.",
+      description:
+        "Find authenticated-team weeks containing recipe IDs. Returns {ok:true,data:{matches,nextCursor}} or {ok:false,error}.",
       inputSchema: weeksFindForRecipesInputSchema,
       outputSchema: weeksFindForRecipesResultSchema,
     }).server(async (input) => {
@@ -111,11 +114,4 @@ export function createReadOnlyToolNamespaces({
     { name: "weeks", tools: weekTools },
     ...createAdditionalReadOnlyNamespaces({ db, context }),
   ];
-}
-
-export function createCodeModeToolProviders(namespaces: ReadOnlyToolNamespace[]) {
-  return namespaces.map((namespace) => ({
-    ...tanstackTools(namespace.tools, namespace.name),
-    types: CODE_MODE_NAMESPACE_TYPES[namespace.name],
-  }));
 }

@@ -6,10 +6,11 @@ import remarkGfm from "remark-gfm";
 
 interface MessageProps {
   message: AssistantMessage;
-  onApproval: (approvalId: string, approved: boolean) => void;
+  pendingApprovalIds: ReadonlySet<string>;
+  onApproval: (decision: { approvalId: string; approved: boolean }) => void;
 }
 
-export function Message({ message, onApproval }: MessageProps) {
+export function Message({ message, pendingApprovalIds, onApproval }: MessageProps) {
   const firstToolErrorIndex = message.parts.findIndex((part) =>
     (part.type === "tool-call" || part.type === "tool-result") && part.state === "error"
   );
@@ -41,7 +42,9 @@ export function Message({ message, onApproval }: MessageProps) {
           const approval = part.approval;
           const isComplete = part.state === "complete";
           const isWaitingForApproval =
-            approval?.needsApproval && approval.approved === undefined;
+            approval?.needsApproval &&
+            approval.approved === undefined &&
+            pendingApprovalIds.has(approval.id);
           return (
             <div
               key={part.id}
@@ -68,14 +71,14 @@ export function Message({ message, onApproval }: MessageProps) {
                   <button
                     type="button"
                     className="rounded bg-primary px-3 py-1 text-primary-foreground"
-                    onClick={() => onApproval(approval.id, true)}
+                    onClick={() => onApproval({ approvalId: approval.id, approved: true })}
                   >
                     Approve
                   </button>
                   <button
                     type="button"
                     className="rounded border px-3 py-1"
-                    onClick={() => onApproval(approval.id, false)}
+                    onClick={() => onApproval({ approvalId: approval.id, approved: false })}
                   >
                     Deny
                   </button>

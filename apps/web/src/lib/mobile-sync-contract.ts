@@ -1,4 +1,9 @@
 import { z } from "zod";
+import {
+  recipeNameSchema,
+  recipeRelationTypeSchema,
+  scheduleLeadDaysSchema,
+} from "@/lib/food-planning/mutation";
 
 export const mobileEntityTypeSchema = z.enum([
   "recipeBook",
@@ -21,7 +26,7 @@ const optionalNullableDate = dateValueSchema.nullable().optional();
 const optionalNullableString = z.string().trim().max(1000).nullable().optional();
 
 export const recipePayloadSchema = z.object({
-  name: z.string().trim().min(1).max(500),
+  name: recipeNameSchema,
   sourceRecipeId: z.string().nullable().optional(),
   emoji: z.string().max(10).nullable().optional(),
   tags: z.array(z.string().trim().min(1).max(100)).max(100).nullable().optional(),
@@ -92,9 +97,9 @@ export const groceryTemplatePayloadSchema = z.object({
 export const recipeRelationPayloadSchema = z.object({
   mainRecipeId: z.string(),
   sideRecipeId: z.string(),
-  relationType: z.string().trim().min(1).max(50).optional(),
+  relationType: recipeRelationTypeSchema.optional(),
   order: z.number().int().min(0).optional(),
-  scheduleLeadDays: z.number().int().min(0).max(365).nullable().optional(),
+  scheduleLeadDays: scheduleLeadDaysSchema,
 });
 
 const rawMutationSchema = z.object({
