@@ -18,6 +18,12 @@ test("removes serialized Code Mode tool calls from user-facing text", () => {
   );
 });
 
+test("removes serialized TanStack execute_typescript calls from user-facing text", () => {
+  const response = `I found three dinner ideas.\n\n{"name":"execute_typescript","arguments":{"typescriptCode":"return await external_recipeSearch({ text: \\"chicken\\" });"}}`;
+
+  assert.equal(sanitizeAssistantText(response), "I found three dinner ideas.");
+});
+
 test("removes fenced generated code while preserving surrounding prose", () => {
   const response = `I found three dinner ideas.\n\n\`\`\`javascript\nasync () => {\n  return recipes.search({ mealTypes: ["Dinner"] });\n}\n\`\`\`\n\nThey are all saved in your recipe collection.`;
 
@@ -28,7 +34,8 @@ test("removes fenced generated code while preserving surrounding prose", () => {
 });
 
 test("truncates incomplete generated code so partial streams cannot leak it", () => {
-  const response = "I found the current week.\n\nasync () => { const result = await weeks.search(";
+  const response =
+    "I found the current week.\n\nasync () => { const result = await weeks.search(";
 
   assert.equal(sanitizeAssistantText(response), "I found the current week.");
 });
@@ -75,5 +82,8 @@ test("buffers streamed text and emits only the sanitized response", async () => 
       : null,
     "I found the current week.",
   );
-  assert.doesNotMatch(JSON.stringify(endOutput), /codemode_execute|async\s*\(\s*\)/iu);
+  assert.doesNotMatch(
+    JSON.stringify(endOutput),
+    /codemode_execute|async\s*\(\s*\)/iu,
+  );
 });

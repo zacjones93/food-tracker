@@ -1,64 +1,6 @@
 import Foundation
 import Observation
 
-protocol WorkspacePersisting: Sendable {
-    func load() throws -> FoodWorkspace?
-    func save(_ workspace: FoodWorkspace) throws
-    func removeAll() throws
-}
-
-struct JSONWorkspaceStorage: WorkspacePersisting {
-    let fileURL: URL
-
-    static func principal(userID: String, teamID: String) -> JSONWorkspaceStorage {
-        let safePrincipal = "\(userID)_\(teamID)"
-            .replacingOccurrences(of: "/", with: "_")
-            .replacingOccurrences(of: ":", with: "_")
-        let root = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-            .appending(path: "FoodTracker/Workspaces", directoryHint: .isDirectory)
-        return JSONWorkspaceStorage(fileURL: root.appending(path: "\(safePrincipal).json"))
-    }
-
-    static func removeAll(userID: String, root: URL? = nil) throws {
-        let workspaceRoot = root ?? FileManager.default.urls(
-            for: .applicationSupportDirectory,
-            in: .userDomainMask
-        )[0].appending(path: "FoodTracker/Workspaces", directoryHint: .isDirectory)
-        guard FileManager.default.fileExists(atPath: workspaceRoot.path) else { return }
-
-        let safeUserID = userID
-            .replacingOccurrences(of: "/", with: "_")
-            .replacingOccurrences(of: ":", with: "_")
-        let prefix = "\(safeUserID)_"
-        let files = try FileManager.default.contentsOfDirectory(
-            at: workspaceRoot,
-            includingPropertiesForKeys: nil
-        )
-        for file in files where file.lastPathComponent.hasPrefix(prefix) && file.pathExtension == "json" {
-            try FileManager.default.removeItem(at: file)
-        }
-    }
-
-    func load() throws -> FoodWorkspace? {
-        guard FileManager.default.fileExists(atPath: fileURL.path) else { return nil }
-        return try FoodTrackerCoding.decoder.decode(FoodWorkspace.self, from: Data(contentsOf: fileURL))
-    }
-
-    func save(_ workspace: FoodWorkspace) throws {
-        try FileManager.default.createDirectory(
-            at: fileURL.deletingLastPathComponent(),
-            withIntermediateDirectories: true
-        )
-        let data = try FoodTrackerCoding.encoder.encode(workspace)
-        try data.write(to: fileURL, options: [.atomic, .completeFileProtection])
-    }
-
-    func removeAll() throws {
-        guard FileManager.default.fileExists(atPath: fileURL.path) else { return }
-        try FileManager.default.removeItem(at: fileURL)
-    }
-}
-
 @MainActor
 @Observable
 final class FoodTrackerStore {
@@ -91,12 +33,13 @@ final class FoodTrackerStore {
     private(set) var syncMessage: String?
     private(set) var persistenceMessage: String?
 
-    @ObservationIgnored private var storage: (any WorkspacePersisting)?
+    @ObservationIgnored private var offlineSync: OfflineSyncModule
 
     init(storage: (any WorkspacePersisting)? = nil, seedIfEmpty: Bool = false) {
-        self.storage = storage
+        let offlineSync = OfflineSyncModule(storage: storage)
+        self.offlineSync = offlineSync
         do {
-            if let savedWorkspace = try storage?.load() {
+            if let savedWorkspace = try offlineSync.load() {
                 workspace = savedWorkspace
                 isInitialLoading = false
             } else if seedIfEmpty {
@@ -141,9 +84,9 @@ final class FoodTrackerStore {
         let principalID = "\(userID):\(teamID)"
         guard principalID != activePrincipalID else { return }
         activePrincipalID = principalID
-        storage = JSONWorkspaceStorage.principal(userID: userID, teamID: teamID)
+        offlineSync.use(storage: JSONWorkspaceStorage.principal(userID: userID, teamID: teamID))
         do {
-            if let savedWorkspace = try storage?.load() {
+            if let savedWorkspace = try offlineSync.load() {
                 workspace = savedWorkspace
                 isInitialLoading = false
             } else {
@@ -160,7 +103,7 @@ final class FoodTrackerStore {
 
     func deactivateWorkspace() {
         activePrincipalID = nil
-        storage = nil
+        offlineSync.use(storage: nil)
         workspace = .empty
         isInitialLoading = true
         syncMessage = nil
@@ -452,7 +395,10 @@ final class FoodTrackerStore {
             isInitialLoading = false
         }
         do {
-            merge(try await client.loadWorkspace(cursor: workspace.cursor))
+            offlineSync.merge(
+                try await client.loadWorkspace(cursor: workspace.cursor),
+                into: &workspace
+            )
             syncMessage = nil
             persist()
         } catch {
@@ -466,13 +412,7 @@ final class FoodTrackerStore {
         defer { isSyncing = false }
         do {
             let response = try await client.sync(SyncEnvelope(cursor: workspace.cursor, mutations: workspace.outbox))
-            for acknowledgement in response.acknowledged {
-                apply(acknowledgement)
-            }
-            let acknowledgedIDs = Set(response.acknowledged.map(\.mutationID))
-            workspace.outbox.removeAll { acknowledgedIDs.contains($0.id) }
-            workspace.cursor = response.cursor ?? workspace.cursor
-            if let remote = response.workspace { merge(remote) }
+            offlineSync.reconcile(response, in: &workspace)
             syncMessage = response.conflicts.isEmpty
                 ? nil
                 : "\(response.conflicts.count) change\(response.conflicts.count == 1 ? " needs" : "s need") review because the same item changed elsewhere. Your local copy is still safe."
@@ -493,28 +433,14 @@ final class FoodTrackerStore {
 
     private func queue<Entity: SyncEntity>(_ kind: SyncEntityKind, value: Entity) {
         do {
-            var mutation = try PendingMutation(entity: kind, value: value)
-            mutation.baseVersion = version(for: kind, value: value)
-            if let existing = workspace.outbox.first(where: { $0.entity == kind && $0.entityID == value.id }) {
-                mutation.id = existing.id
-            }
-            workspace.outbox.removeAll { $0.entity == kind && $0.entityID == value.id }
-            workspace.outbox.append(mutation)
+            try offlineSync.enqueue(kind, value: value, in: &workspace)
         } catch {
             persistenceMessage = "That change is visible now, but could not be added to the sync queue."
         }
     }
 
     private func queueDelete(_ kind: SyncEntityKind, id: String, serverID: String?) {
-        let existing = workspace.outbox.first { $0.entity == kind && $0.entityID == id }
-        workspace.outbox.removeAll { $0.entity == kind && $0.entityID == id }
-        if serverID == nil, existing?.operation == .create { return }
-        var mutation = PendingMutation(entity: kind, entityID: id, serverEntityID: serverID)
-        mutation.baseVersion = workspace.versions?.first {
-            $0.entityType == kind && ($0.clientID == id || $0.entityID == serverID)
-        }?.version ?? 0
-        if let existing { mutation.id = existing.id }
-        workspace.outbox.append(mutation)
+        offlineSync.enqueueDelete(kind, id: id, serverID: serverID, in: &workspace)
     }
 
     private func replace<Entity: SyncEntity>(_ values: inout [Entity], with value: Entity) {
@@ -564,68 +490,11 @@ final class FoodTrackerStore {
 
     private func persist() {
         do {
-            try storage?.save(workspace)
+            try offlineSync.persist(workspace)
             persistenceMessage = nil
         } catch {
             persistenceMessage = "Your latest change could not be saved to this iPhone."
         }
-    }
-
-    private func apply(_ acknowledgement: SyncResponse.Acknowledgement) {
-        guard let kind = workspace.outbox.first(where: { $0.id == acknowledgement.mutationID })?.entity else { return }
-        switch kind {
-        case .recipe: setServerID(acknowledgement.serverID, id: acknowledgement.entityID, in: &workspace.recipes)
-        case .week: setServerID(acknowledgement.serverID, id: acknowledgement.entityID, in: &workspace.weeks)
-        case .scheduledRecipe: setServerID(acknowledgement.serverID, id: acknowledgement.entityID, in: &workspace.scheduledRecipes)
-        case .recipeRelation: setServerID(acknowledgement.serverID, id: acknowledgement.entityID, in: &workspace.recipeRelations)
-        case .groceryItem: setServerID(acknowledgement.serverID, id: acknowledgement.entityID, in: &workspace.groceryItems)
-        case .recipeBook: setServerID(acknowledgement.serverID, id: acknowledgement.entityID, in: &workspace.recipeBooks)
-        case .groceryTemplate: setServerID(acknowledgement.serverID, id: acknowledgement.entityID, in: &workspace.groceryTemplates)
-        }
-    }
-
-    private func setServerID<Entity: SyncEntity>(_ serverID: String?, id: String, in values: inout [Entity]) {
-        guard let serverID, let index = values.firstIndex(where: { $0.id == id }) else { return }
-        values[index].serverID = serverID
-    }
-
-    private func merge(_ remote: FoodWorkspace) {
-        let pending = Dictionary(grouping: workspace.outbox, by: { $0.entity }).mapValues { Set($0.map(\.entityID)) }
-        workspace.recipes = merged(remote.recipes, local: workspace.recipes, pending: pending[.recipe] ?? [])
-        workspace.weeks = merged(remote.weeks, local: workspace.weeks, pending: pending[.week] ?? [])
-        workspace.scheduledRecipes = merged(remote.scheduledRecipes, local: workspace.scheduledRecipes, pending: pending[.scheduledRecipe] ?? [])
-        workspace.recipeRelations = merged(remote.recipeRelations, local: workspace.recipeRelations, pending: pending[.recipeRelation] ?? [])
-        workspace.groceryItems = merged(remote.groceryItems, local: workspace.groceryItems, pending: pending[.groceryItem] ?? [])
-        workspace.recipeBooks = merged(remote.recipeBooks, local: workspace.recipeBooks, pending: pending[.recipeBook] ?? [])
-        workspace.groceryTemplates = merged(remote.groceryTemplates, local: workspace.groceryTemplates, pending: pending[.groceryTemplate] ?? [])
-        workspace.versions = remote.versions ?? workspace.versions
-        workspace.cursor = remote.cursor ?? workspace.cursor
-    }
-
-    private func version<Entity: SyncEntity>(for kind: SyncEntityKind, value: Entity) -> Int {
-        workspace.versions?.first {
-            $0.entityType == kind && ($0.clientID == value.id || $0.entityID == value.serverID)
-        }?.version ?? 0
-    }
-
-    private func merged<Entity: SyncEntity>(_ remote: [Entity], local: [Entity], pending: Set<String>) -> [Entity] {
-        var result = remote
-        for localValue in local {
-            let remoteIndex = result.firstIndex {
-                $0.id == localValue.id ||
-                    (localValue.serverID != nil && ($0.serverID == localValue.serverID || $0.id == localValue.serverID))
-            }
-            if pending.contains(localValue.id) {
-                if let remoteIndex {
-                    var pendingValue = localValue
-                    pendingValue.serverID = pendingValue.serverID ?? result[remoteIndex].serverID ?? result[remoteIndex].id
-                    result[remoteIndex] = pendingValue
-                } else {
-                    result.append(localValue)
-                }
-            }
-        }
-        return result
     }
 }
 

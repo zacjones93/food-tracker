@@ -1,6 +1,8 @@
-import { DynamicWorkerExecutor, type ResolvedProvider } from "@cloudflare/codemode";
+import { DynamicWorkerExecutor } from "@cloudflare/codemode";
+import { stripTypeScript, type ToolBinding } from "@tanstack/ai-code-mode";
 
 import { CODE_MODE_ACCEPTANCE_EXAMPLES } from "./code-mode-contract";
+import { createDynamicWorkerIsolateDriver } from "./code-mode-tool";
 
 interface LoaderSmokeEnv {
   LOADER: WorkerLoader;
@@ -83,7 +85,11 @@ async function searchRecipeFixture(...args: unknown[]) {
   }
   return {
     ok: false,
-    error: { code: "NO_MATCHES", message: "No fixture match", retryable: false },
+    error: {
+      code: "NO_MATCHES",
+      message: "No fixture match",
+      retryable: false,
+    },
   };
 }
 
@@ -99,8 +105,25 @@ async function getRecipeFixtures(...args: unknown[]) {
     ok: true,
     data: {
       items: [
-        { ...recipeSummary({ id: "wings", name: "Cilantro Lime Chicken Wings" }), ingredients: ["lime"], instructions: "Bake", recipeLink: null, recipeBookId: null, page: null },
-        { ...recipeSummary({ id: "paper", name: "Paper-wrapped Chicken" }), ingredients: ["paper"], instructions: "Wrap", recipeLink: null, recipeBookId: null, page: null },
+        {
+          ...recipeSummary({
+            id: "wings",
+            name: "Cilantro Lime Chicken Wings",
+          }),
+          ingredients: ["lime"],
+          instructions: "Bake",
+          recipeLink: null,
+          recipeBookId: null,
+          page: null,
+        },
+        {
+          ...recipeSummary({ id: "paper", name: "Paper-wrapped Chicken" }),
+          ingredients: ["paper"],
+          instructions: "Wrap",
+          recipeLink: null,
+          recipeBookId: null,
+          page: null,
+        },
       ],
       missingIds: [],
     },
@@ -116,19 +139,36 @@ async function searchWeekFixture(...args: unknown[]) {
   return {
     ok: true,
     data: {
-      items: [{
-        id: "current-week",
-        name: "Jul 21-27",
-        emoji: null,
-        status: "current",
-        startDate: "2026-07-21T00:00:00.000Z",
-        endDate: "2026-07-27T23:59:59.000Z",
-        weekNumber: 30,
-        recipeCount: 1,
-        recipes: [{ recipeId: "chicken-1", name: "Chicken One", emoji: null, mealType: "Dinner", made: false, order: 1, scheduledDate: null }],
-        relevance: { score: 1, matchedFields: ["dateRange"], matchedTerms: [], matchedFilters: ["onDate"] },
-        dataQualityWarnings: [],
-      }],
+      items: [
+        {
+          id: "current-week",
+          name: "Jul 21-27",
+          emoji: null,
+          status: "current",
+          startDate: "2026-07-21T00:00:00.000Z",
+          endDate: "2026-07-27T23:59:59.000Z",
+          weekNumber: 30,
+          recipeCount: 1,
+          recipes: [
+            {
+              recipeId: "chicken-1",
+              name: "Chicken One",
+              emoji: null,
+              mealType: "Dinner",
+              made: false,
+              order: 1,
+              scheduledDate: null,
+            },
+          ],
+          relevance: {
+            score: 1,
+            matchedFields: ["dateRange"],
+            matchedTerms: [],
+            matchedFilters: ["onDate"],
+          },
+          dataQualityWarnings: [],
+        },
+      ],
       nextCursor: null,
       appliedFilters: {},
     },
@@ -140,8 +180,12 @@ function hasArrayLength(value: unknown, length: number): boolean {
 }
 
 function hasDetailItems(value: unknown): boolean {
-  return typeof value === "object" && value !== null &&
-    "items" in value && hasArrayLength(value.items, 2);
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "items" in value &&
+    hasArrayLength(value.items, 2)
+  );
 }
 
 export default {
@@ -156,50 +200,63 @@ export default {
       globalOutbound: null,
       timeout: 5_000,
     });
-    const providers: ResolvedProvider[] = [
-      {
-        name: "recipes",
-        fns: {
-          search: searchRecipeFixture,
-          getMany: getRecipeFixtures,
-        },
+    const bindings: Record<string, ToolBinding> = {
+      external_recipeSearch: {
+        name: "external_recipeSearch",
+        description: "Search recipes",
+        inputSchema: {},
+        execute: searchRecipeFixture,
       },
-      {
-        name: "weeks",
-        fns: {
-          search: searchWeekFixture,
-        },
+      external_recipeGetMany: {
+        name: "external_recipeGetMany",
+        description: "Get recipe details",
+        inputSchema: {},
+        execute: getRecipeFixtures,
       },
-    ];
-
-    const chickenSearch = await executor.execute(
-      CODE_MODE_ACCEPTANCE_EXAMPLES.chickenSearch,
-      providers,
+      external_weekSearch: {
+        name: "external_weekSearch",
+        description: "Search weeks",
+        inputSchema: {},
+        execute: searchWeekFixture,
+      },
+    };
+    const driver = createDynamicWorkerIsolateDriver({ executor });
+    const isolateContext = await driver.createContext({
+      bindings,
+      timeout: 5_000,
+    });
+    const chickenSearch = await isolateContext.execute(
+      await stripTypeScript(CODE_MODE_ACCEPTANCE_EXAMPLES.chickenSearch),
     );
-    const currentSchedule = await executor.execute(
-      CODE_MODE_ACCEPTANCE_EXAMPLES.currentSchedule,
-      providers,
+    const currentSchedule = await isolateContext.execute(
+      await stripTypeScript(CODE_MODE_ACCEPTANCE_EXAMPLES.currentSchedule),
     );
-    const twoRecipeComparison = await executor.execute(
-      CODE_MODE_ACCEPTANCE_EXAMPLES.twoRecipeComparison,
-      providers,
+    const twoRecipeComparison = await isolateContext.execute(
+      await stripTypeScript(CODE_MODE_ACCEPTANCE_EXAMPLES.twoRecipeComparison),
     );
+    await isolateContext.dispose();
     const cases = {
-      chickenSearch: !chickenSearch.error && hasArrayLength(chickenSearch.result, 3),
-      currentSchedule: !currentSchedule.error && hasArrayLength(currentSchedule.result, 1),
+      chickenSearch:
+        chickenSearch.success && hasArrayLength(chickenSearch.value, 3),
+      currentSchedule:
+        currentSchedule.success && hasArrayLength(currentSchedule.value, 1),
       twoRecipeComparison:
-        !twoRecipeComparison.error && hasDetailItems(twoRecipeComparison.result),
+        twoRecipeComparison.success &&
+        hasDetailItems(twoRecipeComparison.value),
     };
     const ok = Object.values(cases).every(Boolean);
-    return Response.json({
-      ok,
-      binding: loaderType,
-      cases,
-      errors: {
-        chickenSearch: Boolean(chickenSearch.error),
-        currentSchedule: Boolean(currentSchedule.error),
-        twoRecipeComparison: Boolean(twoRecipeComparison.error),
+    return Response.json(
+      {
+        ok,
+        binding: loaderType,
+        cases,
+        errors: {
+          chickenSearch: !chickenSearch.success,
+          currentSchedule: !currentSchedule.success,
+          twoRecipeComparison: !twoRecipeComparison.success,
+        },
       },
-    }, { status: ok ? 200 : 500 });
+      { status: ok ? 200 : 500 },
+    );
   },
 };

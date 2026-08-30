@@ -1,11 +1,35 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { calculateEstimatedAiCostUsd, GEMINI_MODEL } from "./gemini";
+import {
+  AI_MODEL,
+  calculateEstimatedAiCostUsd,
+  createGeminiAdapter,
+  createAiModelOptions,
+  GEMINI_THINKING_BUDGET_TOKENS,
+} from "./ai-model";
+
+test("configures the Gemini adapter with a bounded thinking budget", () => {
+  const adapter = createGeminiAdapter({
+    apiKey: "test-key",
+    model: AI_MODEL,
+  });
+
+  assert.equal(adapter.model, AI_MODEL);
+  assert.equal(adapter.name, "gemini");
+  assert.equal(GEMINI_THINKING_BUDGET_TOKENS, 512);
+  assert.deepEqual(createAiModelOptions({ maxOutputTokens: 4_096 }), {
+    maxOutputTokens: 4_096,
+    thinkingConfig: {
+      thinkingBudget: 512,
+      includeThoughts: false,
+    },
+  });
+});
 
 test("prices Gemini 2.5 Flash text input and output tokens", () => {
   const cost = calculateEstimatedAiCostUsd({
-    model: GEMINI_MODEL,
+    model: AI_MODEL,
     usage: {
       promptTokens: 1_000_000,
       completionTokens: 1_000_000,
@@ -18,7 +42,7 @@ test("prices Gemini 2.5 Flash text input and output tokens", () => {
 
 test("prices cached input, audio input, and thinking at their correct rates", () => {
   const cost = calculateEstimatedAiCostUsd({
-    model: GEMINI_MODEL,
+    model: AI_MODEL,
     usage: {
       promptTokens: 1_000_000,
       completionTokens: 500_000,
@@ -42,7 +66,7 @@ test("prefers provider-reported cost and does not price unknown models", () => {
     cost: 0.123,
   };
 
-  assert.equal(calculateEstimatedAiCostUsd({ model: GEMINI_MODEL, usage }), 0.123);
+  assert.equal(calculateEstimatedAiCostUsd({ model: AI_MODEL, usage }), 0.123);
   assert.equal(
     calculateEstimatedAiCostUsd({
       model: "unknown",

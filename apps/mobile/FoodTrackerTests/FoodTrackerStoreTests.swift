@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 import XCTest
 @testable import FoodTracker
 
@@ -118,6 +119,58 @@ final class FoodTrackerStoreTests: XCTestCase {
 
         pagination.reset()
         XCTAssertEqual(Array(pagination.visibleItems(from: recipes)), ["Soup", "Pasta"])
+    }
+
+    func testRecipeHeavyWeekDetailRendersFirstFrameQuickly() throws {
+        let storage = TestStorage()
+        let calendar = Calendar(identifier: .gregorian)
+        let startDate = try XCTUnwrap(
+            calendar.date(from: DateComponents(year: 2026, month: 8, day: 2))
+        )
+        let endDate = try XCTUnwrap(calendar.date(byAdding: .day, value: 6, to: startDate))
+        let week = WeekPlan(
+            id: "performance-week",
+            name: "Recipe-heavy week",
+            startDate: startDate,
+            endDate: endDate
+        )
+        let recipes = (0..<600).map {
+            Recipe(id: "performance-recipe-\($0)", name: "Performance recipe \($0)")
+        }
+        let scheduledRecipes = (0..<240).map { index in
+            ScheduledRecipe(
+                id: "performance-scheduled-recipe-\(index)",
+                weekID: week.id,
+                recipeID: recipes[index].id,
+                scheduledDate: calendar.date(
+                    byAdding: .day,
+                    value: index % 7,
+                    to: startDate
+                ),
+                order: index
+            )
+        }
+        storage.workspace = FoodWorkspace(
+            recipes: recipes,
+            weeks: [week],
+            scheduledRecipes: scheduledRecipes,
+            groceryItems: [],
+            recipeBooks: [],
+            groceryTemplates: [],
+            outbox: []
+        )
+        let store = FoodTrackerStore(storage: storage)
+        let renderer = ImageRenderer(
+            content: NavigationStack {
+                WeekDetailView(weekID: week.id)
+            }
+            .environment(store)
+            .frame(width: 430, height: 932)
+        )
+
+        measure(metrics: [XCTClockMetric()]) {
+            XCTAssertNotNil(renderer.uiImage)
+        }
     }
 
     func testRecipeEditsCoalesceIntoOneDurableMutation() throws {
@@ -680,7 +733,7 @@ final class FoodTrackerStoreTests: XCTestCase {
             let stream = """
             data: {"type":"RUN_STARTED","threadId":"ios_chat-1","runId":"run-1"}
 
-            data: {"type":"TOOL_CALL_START","toolCallId":"tool-1","toolCallName":"codemode_execute"}
+            data: {"type":"TOOL_CALL_START","toolCallId":"tool-1","toolCallName":"execute_typescript"}
 
             data: {"type":"TEXT_MESSAGE_CONTENT","delta":"Dinner is ready."}
 
@@ -708,6 +761,99 @@ final class FoodTrackerStoreTests: XCTestCase {
             .started(runID: "run-1"),
             .status("Searching your recipes and meal plans…"),
             .textDelta("Dinner is ready."),
+        ])
+    }
+
+    func testAssistantApprovalRequiresAndForwardsExplicitMobileDecisions() async throws {
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [URLProtocolStub.self]
+        let URLSession = URLSession(configuration: configuration)
+        let client = FoodTrackerAPIClient(
+            baseURL: URL(string: "https://food.example.test")!,
+            session: URLSession
+        )
+
+        URLProtocolStub.handler = { request in
+            let URL = try XCTUnwrap(request.url)
+            if URL.path == "/api/mobile/assistant/resume" {
+                let stream = #"""
+                data: {"type":"approval-required","parentRunId":"parent-run","approvals":[{"id":"approval_tool-1","toolCallId":"tool-1","toolName":"create_recipe_from_url","arguments":"{\"url\":\"https://example.com/soup\"}"},{"id":"approval_tool-2","toolCallId":"tool-2","toolName":"apply_team_changes","arguments":"{\"changes\":[]}"}]}
+
+                data: [DONE]
+
+                """#
+                return (
+                    HTTPURLResponse(
+                        url: URL,
+                        statusCode: 200,
+                        httpVersion: nil,
+                        headerFields: ["Content-Type": "text/event-stream"]
+                    )!,
+                    Data(stream.utf8)
+                )
+            }
+
+            XCTAssertEqual(URL.path, "/api/mobile/assistant/approval")
+            XCTAssertEqual(request.value(forHTTPHeaderField: "Origin"), "https://food.example.test")
+            let object = try XCTUnwrap(
+                JSONSerialization.jsonObject(with: request.bodyData()) as? [String: Any]
+            )
+            XCTAssertEqual(object["chatId"] as? String, "ios_chat-1")
+            XCTAssertEqual(object["parentRunId"] as? String, "parent-run")
+            let decisions = try XCTUnwrap(object["decisions"] as? [[String: Any]])
+            XCTAssertEqual(decisions.count, 2)
+            XCTAssertEqual(decisions[0]["approvalId"] as? String, "approval_tool-1")
+            XCTAssertEqual(decisions[0]["toolCallId"] as? String, "tool-1")
+            XCTAssertEqual(decisions[0]["approved"] as? Bool, true)
+            XCTAssertNil(decisions[0]["toolName"])
+            XCTAssertNil(decisions[0]["arguments"])
+            XCTAssertEqual(decisions[1]["approvalId"] as? String, "approval_tool-2")
+            XCTAssertEqual(decisions[1]["toolCallId"] as? String, "tool-2")
+            XCTAssertEqual(decisions[1]["approved"] as? Bool, false)
+            let stream = """
+            data: {"type":"start","runId":"child-run"}
+
+            data: {"type":"text-delta","delta":"I imported only the approved recipe."}
+
+            data: [DONE]
+
+            """
+            return (
+                HTTPURLResponse(
+                    url: URL,
+                    statusCode: 200,
+                    httpVersion: nil,
+                    headerFields: ["Content-Type": "text/event-stream"]
+                )!,
+                Data(stream.utf8)
+            )
+        }
+
+        var resumeEvents: [AssistantStreamEvent] = []
+        for try await event in client.resumeAssistant(chatID: "ios_chat-1") {
+            resumeEvents.append(event)
+        }
+        guard case .approvalRequired(let batch) = try XCTUnwrap(resumeEvents.first) else {
+            return XCTFail("Expected an explicit approval event")
+        }
+        XCTAssertEqual(batch.parentRunId, "parent-run")
+        XCTAssertEqual(batch.approvals.map(\.toolName), [
+            "create_recipe_from_url",
+            "apply_team_changes",
+        ])
+
+        var responseEvents: [AssistantStreamEvent] = []
+        for try await event in client.respondToAssistantApprovals(
+            chatID: "ios_chat-1",
+            messages: [AssistantMessage(role: "user", text: "Import this recipe")],
+            batch: batch,
+            decisions: ["approval_tool-1": true, "approval_tool-2": false]
+        ) {
+            responseEvents.append(event)
+        }
+        XCTAssertEqual(responseEvents, [
+            .started(runID: "child-run"),
+            .textDelta("I imported only the approved recipe."),
         ])
     }
 

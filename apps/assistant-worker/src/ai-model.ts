@@ -1,14 +1,42 @@
 import type { TokenUsage } from "@tanstack/ai";
+import {
+  createGeminiChat,
+  type GeminiTextModel,
+} from "@tanstack/ai-gemini";
 
-export const GEMINI_MODEL = "gemini-2.5-flash" as const;
+export const AI_MODEL = "gemini-2.5-flash" as const;
 export const GEMINI_THINKING_BUDGET_TOKENS = 512;
 
 const GEMINI_2_5_FLASH_USD_PER_MILLION_TOKENS = {
-  standardInput: 0.30,
-  audioInput: 1.00,
+  standardInput: 0.3,
+  audioInput: 1,
   cachedInput: 0.03,
-  outputAndThinking: 2.50,
+  outputAndThinking: 2.5,
 } as const;
+
+export function createGeminiAdapter({
+  apiKey,
+  model,
+}: {
+  apiKey: string;
+  model: GeminiTextModel;
+}) {
+  return createGeminiChat(model, apiKey);
+}
+
+export function createAiModelOptions({
+  maxOutputTokens,
+}: {
+  maxOutputTokens: number;
+}) {
+  return {
+    maxOutputTokens,
+    thinkingConfig: {
+      thinkingBudget: GEMINI_THINKING_BUDGET_TOKENS,
+      includeThoughts: false,
+    },
+  } as const;
+}
 
 export function calculateEstimatedAiCostUsd({
   model,
@@ -18,7 +46,7 @@ export function calculateEstimatedAiCostUsd({
   usage: TokenUsage;
 }): number {
   if (usage.cost !== undefined) return usage.cost;
-  if (model !== GEMINI_MODEL) return 0;
+  if (model !== AI_MODEL) return 0;
 
   const cachedInputTokens = Math.min(
     usage.promptTokens,

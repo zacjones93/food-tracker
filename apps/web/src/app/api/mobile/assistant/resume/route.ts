@@ -21,6 +21,7 @@ export async function POST(request: Request): Promise<Response> {
         chatId: body.chatId,
         knownRunIds: [],
         closeOnTerminal: true,
+        replayLatestInterrupted: true,
       }),
     }));
     if (response.status === 204 || !response.body) return response;

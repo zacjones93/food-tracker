@@ -29,6 +29,10 @@ import {
 } from "@/lib/ai/assistant-context";
 import { getPublicAssistantError } from "@/lib/assistant/errors";
 import { createDurableAssistantConnection } from "@/lib/assistant/durable-connection";
+import {
+  getPendingAssistantToolApprovalIds,
+  resolveAssistantToolApproval,
+} from "@/lib/assistant/tool-approval";
 import type { AssistantMessage } from "@/lib/assistant/types";
 import { cn } from "@/lib/utils";
 
@@ -112,9 +116,8 @@ export function ChatInterface({
     error,
     stop,
     reload,
-    addToolApprovalResponse,
+    interrupts,
   } = useChat({
-    id: chatId,
     threadId: chatId,
     forwardedProps: { chatId, pageContext, mentionedContexts },
     connection: durableTransport.connection,
@@ -127,6 +130,10 @@ export function ChatInterface({
       void queryClient.invalidateQueries({ queryKey: ["chat-messages", chatId] });
     },
   });
+  const pendingApprovalIds = useMemo(
+    () => getPendingAssistantToolApprovalIds({ interrupts }),
+    [interrupts],
+  );
 
   const isAssistantBusy = isLoading || sessionGenerating;
 
@@ -317,9 +324,14 @@ export function ChatInterface({
                 >
                   <Message
                     message={message}
-                    onApproval={(id, approved) =>
-                      void addToolApprovalResponse({ id, approved })
-                    }
+                    pendingApprovalIds={pendingApprovalIds}
+                    onApproval={({ approvalId, approved }) => {
+                      const interrupt = interrupts.find(
+                        (item) => item.id === approvalId,
+                      );
+                      if (!interrupt || interrupt.kind === "unbound") return;
+                      resolveAssistantToolApproval({ interrupt, approved });
+                    }}
                   />
                 </div>
                 {message.role === "user" && (

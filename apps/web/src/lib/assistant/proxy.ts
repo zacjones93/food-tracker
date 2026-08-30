@@ -1,8 +1,10 @@
 import "server-only";
 
 import { getCloudflareContext } from "@opennextjs/cloudflare";
+import { and, desc, eq } from "drizzle-orm";
 
 import { getDB } from "@/db";
+import { aiRunsTable } from "@/db/schema";
 import {
   checkDailyUsageLimit,
   checkMonthlyBudgetLimit,
@@ -39,6 +41,35 @@ interface AssistantStreamBody {
   knownRunIds?: unknown;
   closeOnTerminal?: unknown;
   replayRunId?: unknown;
+  replayLatestInterrupted?: unknown;
+}
+
+const LOCAL_ASSISTANT_HOSTS = new Set(["127.0.0.1", "localhost", "[::1]"]);
+
+function resolveLocalAssistantUrl({ path }: { path: string }): URL | null {
+  const localBaseUrl = process.env.ASSISTANT_LOCAL_URL?.trim();
+  if (process.env.NODE_ENV !== "development" || !localBaseUrl) return null;
+
+  const url = new URL(path, `${localBaseUrl.replace(/\/+$/u, "")}/`);
+  if (url.protocol !== "http:" || !LOCAL_ASSISTANT_HOSTS.has(url.hostname)) {
+    throw new TypeError("ASSISTANT_LOCAL_URL must use HTTP on a loopback host");
+  }
+  return url;
+}
+
+async function fetchAssistantService({
+  path,
+  init,
+}: {
+  path: string;
+  init: RequestInit;
+}): Promise<Response> {
+  const localUrl = resolveLocalAssistantUrl({ path });
+  const request = new Request(localUrl ?? `https://assistant.internal${path}`, init);
+  if (localUrl) return fetch(request);
+
+  const { env } = await getCloudflareContext({ async: true });
+  return env.ASSISTANT.fetch(request);
 }
 
 function requiredIdentifier(value: unknown, field: string): string {
@@ -112,7 +143,6 @@ export async function handleAssistantRequest(request: Request): Promise<Response
     }
 
     await getOrCreateChat({ chatId, userId: session.user.id, teamId });
-    const { env } = await getCloudflareContext({ async: true });
     const forwardedProps = { ...body.forwardedProps };
     delete forwardedProps.pageContext;
     delete forwardedProps.mentionedContexts;
@@ -124,19 +154,22 @@ export async function handleAssistantRequest(request: Request): Promise<Response
         resolvedPageContext,
       },
     };
-    const response = await env.ASSISTANT.fetch(new Request("https://assistant.internal/v1/chat", {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        "x-assistant-user-id": session.user.id,
-        "x-assistant-team-id": teamId,
-        "x-assistant-chat-id": chatId,
-        "x-assistant-max-output-tokens": String(maxOutputTokens),
-        "x-request-id": requestContext.requestId,
-        "x-run-id": runId,
+    const response = await fetchAssistantService({
+      path: "/v1/chat",
+      init: {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "x-assistant-user-id": session.user.id,
+          "x-assistant-team-id": teamId,
+          "x-assistant-chat-id": chatId,
+          "x-assistant-max-output-tokens": String(maxOutputTokens),
+          "x-request-id": requestContext.requestId,
+          "x-run-id": runId,
+        },
+        body: JSON.stringify(assistantBody),
       },
-      body: JSON.stringify(assistantBody),
-    }));
+    });
     logAiEvent({
       level: response.ok ? "info" : "warn",
       event: "service.responded",
@@ -184,25 +217,42 @@ export async function handleAssistantStreamRequest(request: Request): Promise<Re
       ? body.knownRunIds.filter((value): value is string =>
         typeof value === "string" && value.length <= 128)
       : [];
+    let replayRunId = typeof body.replayRunId === "string" ? body.replayRunId : null;
+    if (!replayRunId && body.replayLatestInterrupted === true) {
+      const interruptedRun = await getDB().query.aiRunsTable.findFirst({
+        where: and(
+          eq(aiRunsTable.chatId, chatId),
+          eq(aiRunsTable.userId, session.user.id),
+          eq(aiRunsTable.teamId, teamId),
+          eq(aiRunsTable.status, "interrupted"),
+          eq(aiRunsTable.finishReason, "approval-required"),
+        ),
+        columns: { id: true },
+        orderBy: [desc(aiRunsTable.createdAt)],
+      });
+      replayRunId = interruptedRun?.id ?? null;
+    }
     const runId = `subscription_${crypto.randomUUID()}`;
-    const { env } = await getCloudflareContext({ async: true });
-    return await env.ASSISTANT.fetch(new Request("https://assistant.internal/v1/chat/events", {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        "x-assistant-user-id": session.user.id,
-        "x-assistant-team-id": teamId,
-        "x-assistant-chat-id": chatId,
-        "x-assistant-max-output-tokens": "1",
-        "x-request-id": requestContext.requestId,
-        "x-run-id": runId,
+    return await fetchAssistantService({
+      path: "/v1/chat/events",
+      init: {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "x-assistant-user-id": session.user.id,
+          "x-assistant-team-id": teamId,
+          "x-assistant-chat-id": chatId,
+          "x-assistant-max-output-tokens": "1",
+          "x-request-id": requestContext.requestId,
+          "x-run-id": runId,
+        },
+        body: JSON.stringify({
+          knownRunIds,
+          closeOnTerminal: body.closeOnTerminal === true,
+          replayRunId,
+        }),
       },
-      body: JSON.stringify({
-        knownRunIds,
-        closeOnTerminal: body.closeOnTerminal === true,
-        replayRunId: typeof body.replayRunId === "string" ? body.replayRunId : null,
-      }),
-    }));
+    });
   } catch (error) {
     return aiErrorResponse({ error, context: requestContext });
   }
@@ -240,20 +290,22 @@ export async function handleAssistantCancelRequest(request: Request): Promise<Re
       });
     }
 
-    const { env } = await getCloudflareContext({ async: true });
-    return await env.ASSISTANT.fetch(new Request("https://assistant.internal/v1/chat/cancel", {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        "x-assistant-user-id": session.user.id,
-        "x-assistant-team-id": teamId,
-        "x-assistant-chat-id": chatId,
-        "x-assistant-max-output-tokens": "1",
-        "x-request-id": requestContext.requestId,
-        "x-run-id": runId,
+    return await fetchAssistantService({
+      path: "/v1/chat/cancel",
+      init: {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "x-assistant-user-id": session.user.id,
+          "x-assistant-team-id": teamId,
+          "x-assistant-chat-id": chatId,
+          "x-assistant-max-output-tokens": "1",
+          "x-request-id": requestContext.requestId,
+          "x-run-id": runId,
+        },
+        body: "{}",
       },
-      body: "{}",
-    }));
+    });
   } catch (error) {
     return aiErrorResponse({ error, context: requestContext });
   }

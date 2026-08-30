@@ -1,4 +1,4 @@
-import { z } from "zod/v4";
+import { z } from "zod4";
 
 import { canonicalizeLegacyDate } from "./canonicalization";
 

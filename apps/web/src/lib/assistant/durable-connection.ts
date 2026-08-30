@@ -34,6 +34,7 @@ function assistantRequestBody({
     threadId: runContext.threadId,
     runId: runContext.runId,
     ...(runContext.parentRunId ? { parentRunId: runContext.parentRunId } : {}),
+    ...(runContext.resume ? { resume: runContext.resume } : {}),
     state: {},
     messages: uiMessagesToWire(messages as Array<UIMessage>),
     tools: runContext.clientTools ?? [],

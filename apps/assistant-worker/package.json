@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "wrangler dev",
+    "dev": "wrangler dev --persist-to ../web/.wrangler/state --port 8787 --ip 127.0.0.1",
     "typecheck": "tsc --noEmit",
     "test": "tsx --test src/**/*.test.ts",
     "test:loader": "tsx --test src/loader-runtime.test.ts",
@@ -13,8 +13,9 @@
   },
   "dependencies": {
     "@cloudflare/codemode": "0.4.3",
-    "@tanstack/ai": "0.42.0",
-    "@tanstack/ai-gemini": "0.20.1",
+    "@tanstack/ai": "0.43.0",
+    "@tanstack/ai-code-mode": "0.3.9",
+    "@tanstack/ai-gemini": "0.21.0",
     "zod": "4.4.3"
   },
   "devDependencies": {

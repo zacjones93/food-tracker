@@ -1,6 +1,10 @@
 import { z } from "zod";
 import { RECIPE_TYPES, RECIPE_VISIBILITY } from "@/db/schema";
-import { RELATION_TYPES } from "./recipe-relation.schema";
+import {
+  recipeNameSchema,
+  recipeRelationTypeSchema,
+  scheduleLeadDaysSchema,
+} from "@/lib/food-planning/mutation";
 
 // Ingredient section schema - lenient to handle various data formats
 export const ingredientSectionSchema = z.object({
@@ -11,19 +15,12 @@ export const ingredientSectionSchema = z.object({
 // Related recipe schema for create/update
 export const relatedRecipeSchema = z.object({
   recipeId: z.string(),
-  relationType: z.enum([
-    RELATION_TYPES.SIDE,
-    RELATION_TYPES.BASE,
-    RELATION_TYPES.SAUCE,
-    RELATION_TYPES.TOPPING,
-    RELATION_TYPES.DESSERT,
-    RELATION_TYPES.CUSTOM,
-  ]),
-  scheduleLeadDays: z.number().int().min(0).max(365).nullable().optional(),
+  relationType: recipeRelationTypeSchema,
+  scheduleLeadDays: scheduleLeadDaysSchema,
 });
 
 export const createRecipeSchema = z.object({
-  name: z.string().min(2).max(500),
+  name: recipeNameSchema,
   sourceRecipeId: z.string().max(255).optional(),
   emoji: z.string().max(10).optional(),
   tags: z.array(z.string()).optional(),
@@ -43,7 +40,7 @@ export const createRecipeSchema = z.object({
 // null = clear field, undefined = don't update field
 export const updateRecipeSchema = z.object({
   id: z.string(),
-  name: z.string().min(2).max(500).optional(),
+  name: recipeNameSchema.optional(),
   emoji: z.string().max(10).nullable().optional(),
   tags: z.array(z.string()).nullable().optional(),
   mealType: z.string().max(50).nullable().optional(),
@@ -61,7 +58,7 @@ export const updateRecipeSchema = z.object({
 // Update recipe metadata schema - excludes ingredients (handled by separate dialog)
 export const updateRecipeMetadataSchema = z.object({
   id: z.string(),
-  name: z.string().min(2).max(500).optional(),
+  name: recipeNameSchema.optional(),
   emoji: z.string().max(10).nullable().optional(),
   tags: z.array(z.string()).nullable().optional(),
   mealType: z.string().max(50).nullable().optional(),

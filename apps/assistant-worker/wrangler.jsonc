@@ -9,37 +9,37 @@
   "preview_urls": false,
   "minify": true,
   "observability": {
-    "enabled": true
+    "enabled": true,
   },
   "vars": {
     "AI_MODEL": "gemini-2.5-flash",
-    "PROMPT_VERSION": "assistant-code-mode-v4"
+    "PROMPT_VERSION": "assistant-code-mode-v9",
   },
   "worker_loaders": [
     {
-      "binding": "LOADER"
-    }
+      "binding": "LOADER",
+    },
   ],
   "durable_objects": {
     "bindings": [
       {
         "name": "ASSISTANT_CHAT_SESSIONS",
-        "class_name": "AssistantChatSession"
-      }
-    ]
+        "class_name": "AssistantChatSession",
+      },
+    ],
   },
   "migrations": [
     {
       "tag": "v1",
-      "new_sqlite_classes": ["AssistantChatSession"]
-    }
+      "new_sqlite_classes": ["AssistantChatSession"],
+    },
   ],
   "d1_databases": [
     {
       "binding": "DB",
       "database_name": "food-tracker-db",
       "database_id": "715b9c2b-d8db-43ae-b094-b80d83d81c39",
-      "migrations_dir": "../web/src/db/migrations"
-    }
-  ]
+      "migrations_dir": "../web/src/db/migrations",
+    },
+  ],
 }

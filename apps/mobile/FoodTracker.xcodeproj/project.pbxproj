@@ -11,6 +11,7 @@
 		A10000000000000000000102 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000202 /* RootView.swift */; };
 		A10000000000000000000104 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000205 /* Models.swift */; };
 		A10000000000000000000105 /* FoodTrackerStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000206 /* FoodTrackerStore.swift */; };
+		A10000000000000000000110 /* OfflineSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000211 /* OfflineSync.swift */; };
 		A10000000000000000000106 /* DesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000207 /* DesignSystem.swift */; };
 		A10000000000000000000107 /* AppShellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000208 /* AppShellView.swift */; };
 		A10000000000000000000108 /* ScheduleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000209 /* ScheduleView.swift */; };
@@ -22,6 +23,7 @@
 		A1000000000000000000010E /* AuthStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000000000000000000020F /* AuthStore.swift */; };
 		A1000000000000000000010F /* AuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000210 /* AuthView.swift */; };
 		B20000000000000000000101 /* FoodTrackerStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000201 /* FoodTrackerStoreTests.swift */; };
+		B20000000000000000000105 /* OfflineSyncModuleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000205 /* OfflineSyncModuleTests.swift */; };
 		C30000000000000000000101 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = C30000000000000000000201 /* PrivacyInfo.xcprivacy */; };
 		C30000000000000000000102 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000203 /* Assets.xcassets */; };
 		D40000000000000000000101 /* PushNotifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = D40000000000000000000201 /* PushNotifications.swift */; };
@@ -47,6 +49,7 @@
 		A10000000000000000000204 /* FoodTracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FoodTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A10000000000000000000205 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		A10000000000000000000206 /* FoodTrackerStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodTrackerStore.swift; sourceTree = "<group>"; };
+		A10000000000000000000211 /* OfflineSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfflineSync.swift; sourceTree = "<group>"; };
 		A10000000000000000000207 /* DesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystem.swift; sourceTree = "<group>"; };
 		A10000000000000000000208 /* AppShellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppShellView.swift; sourceTree = "<group>"; };
 		A10000000000000000000209 /* ScheduleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleView.swift; sourceTree = "<group>"; };
@@ -58,6 +61,7 @@
 		A1000000000000000000020F /* AuthStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthStore.swift; sourceTree = "<group>"; };
 		A10000000000000000000210 /* AuthView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthView.swift; sourceTree = "<group>"; };
 		B20000000000000000000201 /* FoodTrackerStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodTrackerStoreTests.swift; sourceTree = "<group>"; };
+		B20000000000000000000205 /* OfflineSyncModuleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfflineSyncModuleTests.swift; sourceTree = "<group>"; };
 		B20000000000000000000202 /* FoodTrackerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FoodTrackerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C30000000000000000000201 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		D40000000000000000000201 /* PushNotifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotifications.swift; sourceTree = "<group>"; };
@@ -119,6 +123,7 @@
 			children = (
 				A10000000000000000000205 /* Models.swift */,
 				A10000000000000000000206 /* FoodTrackerStore.swift */,
+				A10000000000000000000211 /* OfflineSync.swift */,
 				A10000000000000000000207 /* DesignSystem.swift */,
 				A1000000000000000000020F /* AuthStore.swift */,
 				D40000000000000000000201 /* PushNotifications.swift */,
@@ -166,6 +171,7 @@
 			isa = PBXGroup;
 			children = (
 				B20000000000000000000201 /* FoodTrackerStoreTests.swift */,
+				B20000000000000000000205 /* OfflineSyncModuleTests.swift */,
 				D40000000000000000000203 /* PushNotificationsTests.swift */,
 			);
 			path = FoodTrackerTests;
@@ -280,6 +286,7 @@
 				A10000000000000000000102 /* RootView.swift in Sources */,
 				A10000000000000000000104 /* Models.swift in Sources */,
 				A10000000000000000000105 /* FoodTrackerStore.swift in Sources */,
+				A10000000000000000000110 /* OfflineSync.swift in Sources */,
 				A10000000000000000000106 /* DesignSystem.swift in Sources */,
 				A10000000000000000000107 /* AppShellView.swift in Sources */,
 				A10000000000000000000108 /* ScheduleView.swift in Sources */,
@@ -301,6 +308,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B20000000000000000000101 /* FoodTrackerStoreTests.swift in Sources */,
+				B20000000000000000000105 /* OfflineSyncModuleTests.swift in Sources */,
 				D40000000000000000000103 /* PushNotificationsTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -439,7 +447,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = FoodTracker/FoodTracker.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = TV6G82BJ4U;
 				ENABLE_PREVIEWS = YES;
@@ -478,7 +486,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = FoodTracker/FoodTracker.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = TV6G82BJ4U;
 				ENABLE_PREVIEWS = YES;
