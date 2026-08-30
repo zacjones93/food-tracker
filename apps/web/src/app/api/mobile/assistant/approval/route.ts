@@ -26,6 +26,32 @@ interface MobileApprovalBody {
   decisions?: MobileApprovalDecision[];
 }
 
+class ApprovalReplayTimeoutError extends Error {}
+
+async function readResponseTextWithDeadline({
+  response,
+  timeoutMs = 10_000,
+}: {
+  response: Response;
+  timeoutMs?: number;
+}): Promise<string> {
+  const responseText = response.text();
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      responseText,
+      new Promise<never>((_resolve, reject) => {
+        timeout = setTimeout(() => {
+          void response.body?.cancel().catch(() => undefined);
+          reject(new ApprovalReplayTimeoutError("Approval replay timed out"));
+        }, timeoutMs);
+      }),
+    ]);
+  } finally {
+    if (timeout) clearTimeout(timeout);
+  }
+}
+
 export async function POST(request: Request): Promise<Response> {
   try {
     assertMobileMutationOrigin(request);
@@ -60,10 +86,13 @@ export async function POST(request: Request): Promise<Response> {
     let trustedApprovals: ReturnType<typeof trustedMobileApprovalsFromTanstackEvents>;
     try {
       trustedApprovals = trustedMobileApprovalsFromTanstackEvents({
-        eventStream: await parentResponse.text(),
+        eventStream: await readResponseTextWithDeadline({ response: parentResponse }),
         parentRunId: body.parentRunId,
       });
     } catch (error) {
+      if (error instanceof ApprovalReplayTimeoutError) {
+        return Response.json({ error: "Approval replay timed out" }, { status: 504 });
+      }
       if (error instanceof TypeError || error instanceof SyntaxError) {
         return Response.json(
           { error: "Approval request is no longer pending" },

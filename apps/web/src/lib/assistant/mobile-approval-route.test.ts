@@ -20,6 +20,8 @@ test("the mobile approval route replays the scoped parent before starting a chil
   const source = await routeSource;
   assert.match(source, /replayRunId: body\.parentRunId/u);
   assert.match(source, /trustedMobileApprovalsFromTanstackEvents/u);
+  assert.match(source, /readResponseTextWithDeadline/u);
+  assert.match(source, /response\.body\?\.cancel/u);
   assert.ok(
     source.indexOf("replayRunId: body.parentRunId") <
       source.lastIndexOf("mobileApprovalResponseToAgui({"),

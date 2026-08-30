@@ -26,7 +26,7 @@ const extractedRecipeSchema = z.object({
 
 const recipeUrlOutputSchema = z.object({
   success: z.literal(true),
-  sourceFingerprint: z.string().regex(/^rfi_[0-9a-f]{8}$/u),
+  sourceFingerprint: z.string().regex(/^rfi_[0-9a-f]{64}$/u),
   recipe: extractedRecipeSchema,
   warnings: z.array(z.string().max(500)).max(20),
 });
@@ -61,7 +61,7 @@ const indexedEditSchema = z.object({
 
 const approvedRecipeImportInputSchema = z.object({
   url: z.string().url().max(2_048),
-  sourceFingerprint: z.string().regex(/^rfi_[0-9a-f]{8}$/u),
+  sourceFingerprint: z.string().regex(/^rfi_[0-9a-f]{64}$/u),
   name: z.string().trim().min(1).max(500).optional(),
   emoji: z.string().min(1).max(10).optional(),
   tags: z.array(z.string().trim().min(1).max(100)).max(100).optional(),
@@ -144,14 +144,17 @@ function uniqueStrings(values: string[]): string[] {
   return result;
 }
 
-function createRecipeFingerprint(recipe: z.infer<typeof extractedRecipeSchema>): string {
+async function createRecipeFingerprint(
+  recipe: z.infer<typeof extractedRecipeSchema>,
+): Promise<string> {
   const value = JSON.stringify(recipe);
-  let hash = 0x811c9dc5;
-  for (let index = 0; index < value.length; index += 1) {
-    hash ^= value.charCodeAt(index);
-    hash = Math.imul(hash, 0x01000193);
-  }
-  return `rfi_${(hash >>> 0).toString(16).padStart(8, "0")}`;
+  const digest = await crypto.subtle.digest(
+    "SHA-256",
+    new TextEncoder().encode(value),
+  );
+  const hex = Array.from(new Uint8Array(digest), (byte) =>
+    byte.toString(16).padStart(2, "0")).join("");
+  return `rfi_${hex}`;
 }
 
 function stringsFromValue(value: unknown, { splitCommas = false } = {}): string[] {
@@ -306,10 +309,10 @@ function recipeScore(recipe: JsonRecord): number {
     (cleanText(recipe.name ?? recipe.headline) ? 5 : 0);
 }
 
-export function extractRecipeFromHtml({
+export async function extractRecipeFromHtml({
   html,
   sourceUrl,
-}: ExtractRecipeFromHtmlInput): z.infer<typeof recipeUrlOutputSchema> {
+}: ExtractRecipeFromHtmlInput): Promise<z.infer<typeof recipeUrlOutputSchema>> {
   const recipes = parseRecipeJsonLd(html).sort((left, right) =>
     recipeScore(right) - recipeScore(left));
   const recipe = recipes[0];
@@ -340,7 +343,7 @@ export function extractRecipeFromHtml({
   });
   return recipeUrlOutputSchema.parse({
     success: true,
-    sourceFingerprint: createRecipeFingerprint(extractedRecipe),
+    sourceFingerprint: await createRecipeFingerprint(extractedRecipe),
     recipe: extractedRecipe,
     warnings,
   });
@@ -442,7 +445,7 @@ Returns fields shaped for a recipe create plus existingVocabulary from the authe
     outputSchema: recipeUrlToolOutputSchema,
   }).server(async ({ url }) => {
     const page = await fetchRecipePage({ fetcher, sourceUrl: url });
-    const candidate = extractRecipeFromHtml(page);
+    const candidate = await extractRecipeFromHtml(page);
     const existingVocabulary = await loadVocabulary();
     return recipeUrlToolOutputSchema.parse({ ...candidate, existingVocabulary });
   });
@@ -500,7 +503,7 @@ Pass the exact URL and sourceFingerprint from extraction. Include only compact e
     instructionEdits,
   }) => {
     const page = await fetchRecipePage({ fetcher, sourceUrl: url });
-    const candidate = extractRecipeFromHtml(page);
+    const candidate = await extractRecipeFromHtml(page);
     if (candidate.sourceFingerprint !== sourceFingerprint) {
       throw new Error("The source recipe changed after extraction; extract it again before approval");
     }

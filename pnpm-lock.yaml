@@ -283,6 +283,9 @@ importers:
       zod:
         specifier: ^3.25.28
         version: 3.25.76
+      zod4:
+        specifier: npm:zod@4.4.3
+        version: zod@4.4.3
       zsa:
         specifier: ^0.6.0
         version: 0.6.0(zod@3.25.76)

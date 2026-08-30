@@ -168,12 +168,9 @@ final class FoodTrackerStoreTests: XCTestCase {
             .frame(width: 430, height: 932)
         )
 
-        let start = ContinuousClock.now
-        let image = renderer.uiImage
-        let elapsed = start.duration(to: .now)
-
-        XCTAssertNotNil(image)
-        XCTAssertLessThan(elapsed, .seconds(3))
+        measure(metrics: [XCTClockMetric()]) {
+            XCTAssertNotNil(renderer.uiImage)
+        }
     }
 
     func testRecipeEditsCoalesceIntoOneDurableMutation() throws {

@@ -645,7 +645,7 @@ async function reserveAssistantWeekCreations({
   const reserved = await db.prepare(sql).bind(...bindings).run();
   if ((reserved.meta.changes ?? 0) !== 1) {
     throw new Error(
-      "Your team has used its four free week creations. Subscribe to create another week.",
+      `Your team has used its ${limit} included week creations. Subscribe to create another week.`,
     );
   }
 }
@@ -734,20 +734,19 @@ export async function applyApprovedTeamChanges({
     change.entity === "week" && change.operation === "create"
   ).length;
   await reserveAssistantWeekCreations({ count: weekCreations, db, teamId: context.teamId });
-  let results: D1Result<unknown>[];
   try {
-    results = await db.batch(statements);
+    const results = await db.batch(statements);
+    for (const [index, result] of results.entries()) {
+      if ((result.meta.changes ?? 0) !== 1) {
+        const change = applied[index];
+        throw new Error(
+          `${change.entity} ${change.operation} did not match exactly one active-team record`,
+        );
+      }
+    }
   } catch (error) {
     await releaseAssistantWeekCreations({ count: weekCreations, db, teamId: context.teamId });
     throw error;
-  }
-  for (const [index, result] of results.entries()) {
-    if ((result.meta.changes ?? 0) !== 1) {
-      const change = applied[index];
-      throw new Error(
-        `${change.entity} ${change.operation} did not match exactly one active-team record`,
-      );
-    }
   }
   return { success: true, applied };
 }

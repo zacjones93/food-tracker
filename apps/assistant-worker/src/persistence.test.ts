@@ -175,6 +175,8 @@ test("approved server tools record approval and a successful write", async () =>
   const audit = statements.find(({ sql }) =>
     sql.includes("INSERT INTO ai_tool_executions"));
   assert.ok(audit);
+  assert.equal(audit.values[2], "codemode");
+  assert.equal(audit.values[3], "create_recipe_from_url");
   assert.equal(audit.values[8], "approved");
   assert.equal(audit.values[9], 1);
 });

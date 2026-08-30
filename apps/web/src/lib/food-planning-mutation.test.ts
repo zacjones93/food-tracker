@@ -117,3 +117,21 @@ test("mutation dependency order and permission rules are transport-independent",
     "edit_recipes",
   );
 });
+
+test("mixed mutations create dependencies before deleting dependents", () => {
+  const ordered = orderFoodPlanningMutations([
+    { entity: "recipe", operation: "delete" },
+    { entity: "groceryItem", operation: "create" },
+    { entity: "recipeBook", operation: "delete" },
+    { entity: "week", operation: "create" },
+    { entity: "weekRecipe", operation: "delete" },
+  ]);
+
+  assert.deepEqual(ordered, [
+    { entity: "week", operation: "create" },
+    { entity: "groceryItem", operation: "create" },
+    { entity: "weekRecipe", operation: "delete" },
+    { entity: "recipe", operation: "delete" },
+    { entity: "recipeBook", operation: "delete" },
+  ]);
+});

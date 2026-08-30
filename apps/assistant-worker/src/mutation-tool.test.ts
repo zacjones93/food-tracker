@@ -17,7 +17,13 @@ const context: AssistantRequestContext = {
   maxOutputTokens: 4_000,
 };
 
-function fakeDatabase({ ownsTarget }: { ownsTarget: boolean }): {
+function fakeDatabase({
+  ownsTarget,
+  batchChanges = 1,
+}: {
+  ownsTarget: boolean;
+  batchChanges?: number;
+}): {
   db: D1Database;
   statements: string[];
   batchCalls: D1PreparedStatement[][];
@@ -57,7 +63,7 @@ function fakeDatabase({ ownsTarget }: { ownsTarget: boolean }): {
     },
     async batch(batchStatements: D1PreparedStatement[]) {
       batchCalls.push(batchStatements);
-      return batchStatements.map(() => ({ meta: { changes: 1 } }));
+      return batchStatements.map(() => ({ meta: { changes: batchChanges } }));
     },
   } as unknown as D1Database;
   return { db, statements, batchCalls };
@@ -228,4 +234,23 @@ test("week creation reserves the same lifetime entitlement used by web and mobil
   assert.equal(batchCalls[0]?.length, 1);
   assert.ok(statements.some((statement) => statement.includes("INSERT INTO team_feature_usage")));
   assert.ok(statements.some((statement) => statement.includes("usageCount = usageCount + ?")));
+});
+
+test("failed week verification releases the reserved entitlement", async () => {
+  const { db, statements } = fakeDatabase({ ownsTarget: true, batchChanges: 0 });
+
+  await assert.rejects(
+    applyApprovedTeamChanges({
+      db,
+      context,
+      changes: [{
+        entity: "week",
+        operation: "create",
+        data: { name: "Conflicting week" },
+      }],
+    }),
+    /did not match exactly one active-team record/u,
+  );
+
+  assert.ok(statements.some((statement) => statement.includes("usageCount = MAX")));
 });

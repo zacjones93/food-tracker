@@ -121,45 +121,64 @@ struct OfflineSyncModule {
     }
 
     func merge(_ remote: FoodWorkspace, into workspace: inout FoodWorkspace) {
-        let pending = Dictionary(grouping: workspace.outbox, by: { $0.entity })
-            .mapValues { Set($0.map(\.entityID)) }
+        let pendingChanges = pendingIdentifiers(in: workspace.outbox, deleting: false)
+        let pendingDeletes = pendingIdentifiers(in: workspace.outbox, deleting: true)
         workspace.recipes = merged(
             remote.recipes,
             local: workspace.recipes,
-            pending: pending[.recipe] ?? []
+            pending: pendingChanges[.recipe] ?? [],
+            deleted: pendingDeletes[.recipe] ?? []
         )
         workspace.weeks = merged(
             remote.weeks,
             local: workspace.weeks,
-            pending: pending[.week] ?? []
+            pending: pendingChanges[.week] ?? [],
+            deleted: pendingDeletes[.week] ?? []
         )
         workspace.scheduledRecipes = merged(
             remote.scheduledRecipes,
             local: workspace.scheduledRecipes,
-            pending: pending[.scheduledRecipe] ?? []
+            pending: pendingChanges[.scheduledRecipe] ?? [],
+            deleted: pendingDeletes[.scheduledRecipe] ?? []
         )
         workspace.recipeRelations = merged(
             remote.recipeRelations,
             local: workspace.recipeRelations,
-            pending: pending[.recipeRelation] ?? []
+            pending: pendingChanges[.recipeRelation] ?? [],
+            deleted: pendingDeletes[.recipeRelation] ?? []
         )
         workspace.groceryItems = merged(
             remote.groceryItems,
             local: workspace.groceryItems,
-            pending: pending[.groceryItem] ?? []
+            pending: pendingChanges[.groceryItem] ?? [],
+            deleted: pendingDeletes[.groceryItem] ?? []
         )
         workspace.recipeBooks = merged(
             remote.recipeBooks,
             local: workspace.recipeBooks,
-            pending: pending[.recipeBook] ?? []
+            pending: pendingChanges[.recipeBook] ?? [],
+            deleted: pendingDeletes[.recipeBook] ?? []
         )
         workspace.groceryTemplates = merged(
             remote.groceryTemplates,
             local: workspace.groceryTemplates,
-            pending: pending[.groceryTemplate] ?? []
+            pending: pendingChanges[.groceryTemplate] ?? [],
+            deleted: pendingDeletes[.groceryTemplate] ?? []
         )
         workspace.versions = remote.versions ?? workspace.versions
         workspace.cursor = remote.cursor ?? workspace.cursor
+    }
+
+    private func pendingIdentifiers(
+        in mutations: [PendingMutation],
+        deleting: Bool
+    ) -> [SyncEntityKind: Set<String>] {
+        Dictionary(grouping: mutations.filter { ($0.operation == .delete) == deleting }, by: \.entity)
+            .mapValues { mutations in
+                Set(mutations.flatMap { mutation in
+                    [mutation.entityID, mutation.serverEntityID].compactMap { $0 }
+                })
+            }
     }
 
     private func apply(
@@ -229,9 +248,13 @@ struct OfflineSyncModule {
     private func merged<Entity: SyncEntity>(
         _ remote: [Entity],
         local: [Entity],
-        pending: Set<String>
+        pending: Set<String>,
+        deleted: Set<String>
     ) -> [Entity] {
-        var result = remote
+        var result = remote.filter { remoteValue in
+            !deleted.contains(remoteValue.id) &&
+                !(remoteValue.serverID.map { deleted.contains($0) } ?? false)
+        }
         for localValue in local {
             let remoteIndex = result.firstIndex {
                 $0.id == localValue.id ||

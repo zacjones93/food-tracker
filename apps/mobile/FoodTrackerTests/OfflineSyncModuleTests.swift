@@ -80,4 +80,32 @@ final class OfflineSyncModuleTests: XCTestCase {
         XCTAssertEqual(workspace.recipes.first?.serverID, "rcp_1")
         XCTAssertEqual(workspace.cursor, "12")
     }
+
+    func testRemoteMergeDoesNotResurrectAPendingCanonicalDelete() {
+        let local = Recipe(id: "local_recipe", serverID: "rcp_1", name: "Delete me")
+        var workspace = FoodWorkspace(
+            recipes: [],
+            weeks: [],
+            scheduledRecipes: [],
+            groceryItems: [],
+            recipeBooks: [],
+            groceryTemplates: [],
+            outbox: []
+        )
+        let sync = OfflineSyncModule()
+        sync.enqueueDelete(.recipe, id: local.id, serverID: local.serverID, in: &workspace)
+
+        let remote = FoodWorkspace(
+            recipes: [Recipe(id: "rcp_1", name: "Stale remote value")],
+            weeks: [],
+            scheduledRecipes: [],
+            groceryItems: [],
+            recipeBooks: [],
+            groceryTemplates: [],
+            outbox: []
+        )
+        sync.merge(remote, into: &workspace)
+
+        XCTAssertTrue(workspace.recipes.isEmpty)
+    }
 }

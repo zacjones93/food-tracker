@@ -154,7 +154,7 @@ export function createFoodPlanningRetrieval({
         includeItems,
         limit,
       }: SearchInput & { includeItems: boolean }) {
-        const conditions = ["(teamId = ? OR isDefault = 1)"];
+        const conditions = ["(teamId = ? OR (teamId IS NULL AND isDefault = 1))"];
         const bindings: unknown[] = [teamId];
         if (text) {
           conditions.push("lower(name) LIKE ?");

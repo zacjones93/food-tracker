@@ -373,8 +373,13 @@ export function createPersistenceMiddleware({
       });
       if (didFail) failedToolCalls += 1;
       else successfulToolCalls += 1;
-      const [namespace = "codemode", toolName = info.toolName] =
-        info.toolName.split(".", 2);
+      const separatorIndex = info.toolName.indexOf(".");
+      const namespace = separatorIndex === -1
+        ? "codemode"
+        : info.toolName.slice(0, separatorIndex);
+      const toolName = separatorIndex === -1
+        ? info.toolName
+        : info.toolName.slice(separatorIndex + 1);
       const wasApproved = approvalRequiredToolCalls.has(info.toolCallId);
       const timestamp = nowSeconds();
       await db

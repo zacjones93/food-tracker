@@ -283,11 +283,12 @@ export function orderFoodPlanningMutations<
   Change extends Pick<FoodPlanningMutationChange, "entity" | "operation">,
 >(changes: readonly Change[]): Change[] {
   return changes.map((change, index) => ({ change, index })).sort((left, right) => {
+    const leftPhase = left.change.operation === "delete" ? 1 : 0;
+    const rightPhase = right.change.operation === "delete" ? 1 : 0;
+    if (leftPhase !== rightPhase) return leftPhase - rightPhase;
     const leftOrder = DEPENDENCY_ORDER.indexOf(left.change.entity);
     const rightOrder = DEPENDENCY_ORDER.indexOf(right.change.entity);
-    const direction = left.change.operation === "delete" && right.change.operation === "delete"
-      ? -1
-      : 1;
+    const direction = leftPhase === 1 ? -1 : 1;
     return direction * (leftOrder - rightOrder) || left.index - right.index;
   }).map(({ change }) => change);
 }

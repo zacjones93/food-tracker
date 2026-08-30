@@ -121,6 +121,7 @@
     "ua-parser-js": "^2.0.0",
     "usehooks-ts": "^3.1.0",
     "zod": "^3.25.28",
+    "zod4": "npm:zod@4.4.3",
     "zsa": "^0.6.0",
     "zsa-react": "^0.2.3",
     "zustand": "^5.0.5"

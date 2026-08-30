@@ -26,11 +26,11 @@ const recipeJsonLd = {
 };
 const recipeHtml = `<html><head><script type="application/ld+json">${JSON.stringify(recipeJsonLd)}</script></head></html>`;
 
-test("extracts a mutation-ready recipe and repairs compressed instruction numbering", () => {
-  const result = extractRecipeFromHtml({ html: recipeHtml, sourceUrl });
+test("extracts a mutation-ready recipe and repairs compressed instruction numbering", async () => {
+  const result = await extractRecipeFromHtml({ html: recipeHtml, sourceUrl });
 
   assert.equal(result.recipe.name, "Quick Cajun Chicken and Rice");
-  assert.match(result.sourceFingerprint, /^rfi_[0-9a-f]{8}$/u);
+  assert.match(result.sourceFingerprint, /^rfi_[0-9a-f]{64}$/u);
   assert.equal(result.recipe.emoji, "🍗");
   assert.equal(result.recipe.recipeLink, sourceUrl);
   assert.equal(result.recipe.mealType, "Dinner");
@@ -49,7 +49,7 @@ test("extracts a mutation-ready recipe and repairs compressed instruction number
   assert.equal(result.warnings.length, 1);
 });
 
-test("repairs an obvious source typo without changing the ingredient quantity", () => {
+test("repairs an obvious source typo without changing the ingredient quantity", async () => {
   const html = `<script type="application/ld+json">${JSON.stringify({
     ...recipeJsonLd,
     recipeIngredient: [
@@ -57,7 +57,7 @@ test("repairs an obvious source typo without changing the ingredient quantity", 
     ],
   })}</script>`;
 
-  const result = extractRecipeFromHtml({ html, sourceUrl });
+  const result = await extractRecipeFromHtml({ html, sourceUrl });
 
   assert.deepEqual(result.recipe.ingredients, [{
     items: ["1-2 tablespoons cajun seasoning, use this to your taste"],
@@ -177,7 +177,7 @@ test("approval-gated URL import applies compact agent edits through the team mut
     runId: "run_1",
     maxOutputTokens: 4_000,
   };
-  const candidate = extractRecipeFromHtml({ html: recipeHtml, sourceUrl });
+  const candidate = await extractRecipeFromHtml({ html: recipeHtml, sourceUrl });
   const tool = createApprovedRecipeUrlImportTool({
     db,
     context,

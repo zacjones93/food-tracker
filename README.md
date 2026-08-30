@@ -145,6 +145,7 @@ Have a look at the [project plan](./cursor-docs/project-plan.md) to get an overv
 4. `pnpm db:migrate:local` - Creates a local SQLite database and applies migrations
 5. Create a Google AI Studio API key.
 6. Copy `apps/assistant-worker/.dev.vars.example` to `apps/assistant-worker/.dev.vars` and set `GOOGLE_GENERATIVE_AI_API_KEY`.
+   Existing local files and deployed Worker secrets must rename `GEMINI_API_KEY` to `GOOGLE_GENERATIVE_AI_API_KEY`.
 7. Run `pnpm dev:assistant` in one terminal. The assistant Worker shares the web app's local D1 state and listens on port 8787.
 8. Run `pnpm dev` in another terminal.
 9. Open http://localhost:3000

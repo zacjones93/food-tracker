@@ -109,3 +109,25 @@ test("food-planning settings keep existing defaults when no row exists", async (
     autoAddIngredientsToGrocery: true,
   });
 });
+
+test("global grocery templates must be both unowned and explicitly default", async () => {
+  const calls: Array<{ sql: string; bindings: unknown[] }> = [];
+  const query: FoodPlanningQueryPort = {
+    async all({ sql, bindings }) {
+      calls.push({ sql, bindings });
+      return [];
+    },
+    async first() {
+      return null;
+    },
+  };
+  const retrieval = createFoodPlanningRetrieval({ query, teamId: "team_a" });
+
+  await retrieval.groceryTemplates.search({ includeItems: false, limit: 10 });
+
+  assert.match(
+    calls[0]?.sql ?? "",
+    /teamId = \? OR \(teamId IS NULL AND isDefault = 1\)/u,
+  );
+  assert.deepEqual(calls[0]?.bindings, ["team_a", 10]);
+});
