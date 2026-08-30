@@ -233,6 +233,29 @@ final class FoodTrackerStoreTests: XCTestCase {
         XCTAssertEqual(storage.workspace?.groceryItems.first?.weekID, week.id)
     }
 
+    func testNewRecipeCanBeCreatedAndScheduledOffline() throws {
+        let storage = TestStorage()
+        let week = WeekPlan(id: "week-1", name: "Plan")
+        storage.workspace = FoodWorkspace(
+            recipes: [],
+            weeks: [week],
+            scheduledRecipes: [],
+            groceryItems: [],
+            recipeBooks: [],
+            groceryTemplates: [],
+            outbox: []
+        )
+        let store = FoodTrackerStore(storage: storage)
+        let recipe = Recipe(name: "Tomato soup")
+
+        store.saveRecipe(recipe)
+        store.scheduleRecipe(recipeID: recipe.id, weekID: week.id)
+
+        XCTAssertEqual(store.recipe(id: recipe.id)?.name, "Tomato soup")
+        XCTAssertEqual(store.scheduledRecipes(for: week.id).map(\.recipeID), [recipe.id])
+        XCTAssertEqual(storage.workspace?.outbox.map(\.entity), [.recipe, .scheduledRecipe])
+    }
+
     func testMealCanMoveToAnotherScheduleDayAndReorderOffline() throws {
         let storage = TestStorage()
         let calendar = Calendar(identifier: .gregorian)

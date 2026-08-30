@@ -786,6 +786,8 @@ private struct RecipePicker: View {
     @State private var search = ""
     @State private var selectedRecipeID: String?
     @State private var preparations: [PreparationPickerItem] = []
+    @State private var showingNewRecipe = false
+    @State private var shouldDismissAfterCreate = false
 
     var body: some View {
         NavigationStack {
@@ -794,11 +796,13 @@ private struct RecipePicker: View {
                     preparationForm(for: selectedRecipe)
                 } else if filteredRecipes.isEmpty {
                     FoodEmptyState(
-                        symbol: search.isEmpty ? "checkmark.circle" : "magnifyingglass",
-                        title: search.isEmpty ? "All recipes added" : "No recipes found",
-                        detail: search.isEmpty
-                            ? "This schedule already contains every available recipe."
-                            : "Try another recipe name."
+                        symbol: trimmedSearch.isEmpty ? "checkmark.circle" : "magnifyingglass",
+                        title: trimmedSearch.isEmpty ? "All recipes added" : "No recipes found",
+                        detail: trimmedSearch.isEmpty
+                            ? "This schedule already contains every available recipe. Create another to add it here."
+                            : "Create this recipe and it will be added to \(destinationName).",
+                        actionTitle: "Create recipe",
+                        action: { showingNewRecipe = true }
                     )
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
@@ -835,6 +839,16 @@ private struct RecipePicker: View {
             }
         }
         .presentationDetents([.large])
+        .sheet(isPresented: $showingNewRecipe, onDismiss: finishRecipeCreation) {
+            RecipeEditor(initialName: trimmedSearch) { recipe in
+                store.scheduleRecipe(recipeID: recipe.id, weekID: weekID, date: scheduledDate)
+                shouldDismissAfterCreate = true
+            }
+        }
+    }
+
+    private var trimmedSearch: String {
+        search.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     private var filteredRecipes: [Recipe] {
@@ -846,6 +860,11 @@ private struct RecipePicker: View {
 
     private var selectedRecipe: Recipe? {
         selectedRecipeID.flatMap(store.recipe(id:))
+    }
+
+    private func finishRecipeCreation() {
+        guard shouldDismissAfterCreate else { return }
+        dismiss()
     }
 
     private func select(_ recipe: Recipe) {

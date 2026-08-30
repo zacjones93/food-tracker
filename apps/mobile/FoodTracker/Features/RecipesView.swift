@@ -212,6 +212,7 @@ struct RecipeEditor: View {
     @Environment(\.dismiss) private var dismiss
     var recipe: Recipe?
     var sourceRecipe: Recipe?
+    var onSave: ((Recipe) -> Void)?
     @State private var name: String
     @State private var emoji: String
     @State private var mealType: String
@@ -225,11 +226,17 @@ struct RecipeEditor: View {
     @State private var ingredients: String
     @State private var instructions: String
 
-    init(recipe: Recipe? = nil, sourceRecipe: Recipe? = nil) {
+    init(
+        recipe: Recipe? = nil,
+        sourceRecipe: Recipe? = nil,
+        initialName: String = "",
+        onSave: ((Recipe) -> Void)? = nil
+    ) {
         self.recipe = recipe
         self.sourceRecipe = sourceRecipe
+        self.onSave = onSave
         let template = recipe ?? sourceRecipe
-        _name = State(initialValue: sourceRecipe.map { "\($0.name) (Remix)" } ?? recipe?.name ?? "")
+        _name = State(initialValue: sourceRecipe.map { "\($0.name) (Remix)" } ?? recipe?.name ?? initialName)
         _emoji = State(initialValue: template?.emoji ?? "🍽️")
         _mealType = State(initialValue: template?.mealType ?? "Dinner")
         _difficulty = State(initialValue: template?.difficulty ?? "Easy")
@@ -327,6 +334,7 @@ struct RecipeEditor: View {
                         )]
                         value.instructions = instructions
                         store.saveRecipe(value)
+                        onSave?(value)
                         dismiss()
                     }
                     .disabled(name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
