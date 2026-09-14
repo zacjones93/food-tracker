@@ -5,7 +5,11 @@ import DashboardLayout from "@/app/(dashboard)/layout";
 import { SITE_NAME } from "@/constants";
 import { getSessionFromCookie } from "@/utils/auth";
 
-export default async function SharedRecipeLayout({ children }: { children: React.ReactNode }) {
+interface SharedRecipeLayoutProps {
+  children: React.ReactNode;
+}
+
+export default async function SharedRecipeLayout({ children }: SharedRecipeLayoutProps) {
   const session = await getSessionFromCookie();
   if (session) return <DashboardLayout>{children}</DashboardLayout>;
 

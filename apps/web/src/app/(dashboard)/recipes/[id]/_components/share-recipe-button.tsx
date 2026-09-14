@@ -8,9 +8,11 @@ import { Forward } from "@/components/ui/themed-icons";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { recipeShareUrl, shareRecipeLink } from "@/lib/recipe-sharing";
 
-export function ShareRecipeButton({ recipe }: {
+interface ShareRecipeButtonProps {
   recipe: { id: string; name: string; visibility: string };
-}) {
+}
+
+export function ShareRecipeButton({ recipe }: ShareRecipeButtonProps) {
   const [isSharing, setIsSharing] = useState(false);
   const [manualUrl, setManualUrl] = useState("");
 
