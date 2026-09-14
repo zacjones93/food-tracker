@@ -26,13 +26,14 @@ import { EditIngredientsDialog } from "./edit-ingredients-dialog";
 import { EditInstructionsDialog } from "./edit-instructions-dialog";
 import { EditRecipeDialog } from "./edit-recipe-dialog";
 import { RelatedRecipesDisplay } from "./related-recipes-display";
-import { useSessionStore } from "@/state/session";
+import { ShareRecipeButton } from "./share-recipe-button";
 import { useMemo } from "react";
 import type { RecipeRelation } from "@/db/schema";
 import type { DialAvailability } from "@/lib/dial-repository";
 import { DialBrand } from "@/components/dial-brand";
 
 interface RecipeDetailProps {
+  isAuthenticated: boolean;
   availability: DialAvailability;
   canEdit: boolean;
   initiallyEdit?: boolean;
@@ -81,6 +82,7 @@ function normalizeIngredients(ingredients: unknown) {
 }
 
 export function RecipeDetail({
+  isAuthenticated,
   availability,
   canEdit,
   initiallyEdit = false,
@@ -90,7 +92,6 @@ export function RecipeDetail({
   relationsAsSide,
 }: RecipeDetailProps) {
   const router = useRouter();
-  const session = useSessionStore();
 
   // Normalize ingredients to handle backward compatibility
   const normalizedIngredients = useMemo(
@@ -119,18 +120,36 @@ export function RecipeDetail({
             {canEdit && <EditRecipeDialog initiallyOpen={initiallyEdit} recipe={recipe} />}
           </div>
         </div>
-        {session.session?.user && (
-          <div className="flex flex-wrap gap-2">
-            <Button variant="outline" asChild>
+        <div className="flex w-full flex-wrap gap-2 md:w-auto [&>button]:flex-1 md:[&>button]:flex-none">
+          <ShareRecipeButton recipe={recipe} />
+          {isAuthenticated && <>
+            <Button variant="outline" className="w-full md:w-auto" asChild>
               <Link href={`/recipes/create?sourceRecipeId=${recipe.id}`}>
                 <ArrowsLeftRight className="mr-2 h-4 w-4" />
                 Remix
               </Link>
             </Button>
             <AddToSchedule recipeId={recipe.id} variant="default" />
-          </div>
-        )}
+          </>}
+        </div>
       </div>
+
+      {!isAuthenticated && (
+        <Card className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+          <div>
+            <h2 className="font-semibold">Save this recipe to your week</h2>
+            <p className="text-sm text-muted-foreground">Create an account to plan meals and build your grocery list.</p>
+          </div>
+          <div className="flex shrink-0 flex-wrap gap-2">
+            <Button variant="outline" asChild>
+              <Link href={`/sign-in?redirect=${encodeURIComponent(`/recipes/${recipe.id}`)}`}>Log in</Link>
+            </Button>
+            <Button asChild>
+              <Link href={`/sign-up?redirect=${encodeURIComponent(`/recipes/${recipe.id}`)}`}>Create account</Link>
+            </Button>
+          </div>
+        </Card>
+      )}
 
       {availability.eligible && (
         <Card className="border-mystic-200 bg-mystic-50/60 p-5 dark:border-mystic-700 dark:bg-mystic-900/20">
@@ -292,7 +311,7 @@ export function RecipeDetail({
         <Card className="p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold">Ingredients</h2>
-            {session.session?.user && (
+            {isAuthenticated && (
               <div className="flex gap-2">
                 <AddAllIngredientsToWeek
                   ingredients={normalizedIngredients.flatMap(
@@ -318,7 +337,7 @@ export function RecipeDetail({
                         •
                       </span>
                       <span className="flex-1">{ingredient}</span>
-                      {session.session?.user && (
+                      {isAuthenticated && (
                         <AddIngredientToWeek ingredient={ingredient} />
                       )}
                     </li>

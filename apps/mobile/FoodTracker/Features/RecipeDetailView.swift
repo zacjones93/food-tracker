@@ -98,6 +98,18 @@ struct RecipeDetailView: View {
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItemGroup(placement: .topBarTrailing) {
+                        if let serverID = recipe.serverID {
+                            ShareLink(
+                                item: FoodTrackerAPIClient.defaultBaseURL.appending(path: "/recipes/\(serverID)"),
+                                subject: Text(recipe.name)
+                            ) {
+                                Label("Share recipe", systemImage: "square.and.arrow.up")
+                            }
+                            .accessibilityHint(recipe.visibility == "private" ? "Only your team can open this private recipe." : "Share a link to this recipe.")
+                        } else {
+                            Button("Share after syncing", systemImage: "square.and.arrow.up") {}
+                                .disabled(true)
+                        }
                         Button("Ask Ladle about \(recipe.name)", systemImage: "sparkles") {
                             guard let serverID = recipe.serverID else { return }
                             store.openAssistant(
@@ -116,9 +128,6 @@ struct RecipeDetailView: View {
                             Button("Remix", systemImage: "arrow.triangle.branch") { showingRemix = true }
                             if canEditRecipes {
                                 Button("Edit", systemImage: "pencil") { showingEdit = true }
-                            }
-                            ShareLink(item: recipe.recipeLink.isEmpty ? recipe.name : recipe.recipeLink) {
-                                Label("Share", systemImage: "square.and.arrow.up")
                             }
                             if canDeleteRecipes {
                                 Button("Delete", systemImage: "trash", role: .destructive) { confirmingDelete = true }

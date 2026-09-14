@@ -18,6 +18,7 @@ import { requirePermission } from "@/utils/team-auth";
 import { getRecipeVisibilityConditions } from "@/utils/recipe-visibility";
 import { teamSettingsTable } from "@/db/schema";
 import { publishDialRecipeChange } from "@/lib/dial-integration";
+import { canViewRecipeByLink } from "@/lib/recipe-access";
 
 export const createRecipeAction = createServerAction()
   .input(createRecipeSchema)
@@ -652,8 +653,12 @@ export const getPublicRecipeByIdAction = createServerAction()
 
     return {
       recipe,
-      relationsAsMain,
-      relationsAsSide,
+      relationsAsMain: relationsAsMain.filter(({ sideRecipe }) =>
+        canViewRecipeByLink({ recipe: sideRecipe, activeTeamId: session?.activeTeamId })
+      ),
+      relationsAsSide: relationsAsSide.filter(({ mainRecipe }) =>
+        canViewRecipeByLink({ recipe: mainRecipe, activeTeamId: session?.activeTeamId })
+      ),
     };
   });
 
