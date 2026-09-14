@@ -1,5 +1,5 @@
-import { getPublicRecipeByIdAction } from "../recipes.actions";
-import { RecipeDetail } from "./_components/recipe-detail";
+import { getPublicRecipeByIdAction } from "@/app/(dashboard)/recipes/recipes.actions";
+import { RecipeDetail } from "@/app/(dashboard)/recipes/[id]/_components/recipe-detail";
 import { notFound } from "next/navigation";
 import { AssistantPageContext } from "@/components/assistant/assistant-provider";
 import { TEAM_PERMISSIONS } from "@/db/schema";
@@ -37,15 +37,16 @@ export default async function RecipePage({ params, searchParams }: RecipePagePro
 
   return (
     <>
-      <AssistantPageContext
+      {session && <AssistantPageContext
         context={{
           kind: "recipe",
           entityId: data.recipe.id,
           label: data.recipe.name,
           href: `/recipes/${data.recipe.id}`,
         }}
-      />
+      />}
       <RecipeDetail
+        isAuthenticated={Boolean(session)}
         recipe={data.recipe}
         availability={availability}
         canEdit={canEdit}
