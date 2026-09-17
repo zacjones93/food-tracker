@@ -152,9 +152,10 @@ export function WeekForm({ mode, weekId, initialValues }: WeekFormProps) {
   const { execute: fetchTemplates } = useServerAction(
     getGroceryListTemplatesAction
   );
-  const { execute: applyTemplate } = useServerAction(applyTemplateToWeekAction);
+  const { execute: applyTemplate, isPending: isApplyingTemplate } =
+    useServerAction(applyTemplateToWeekAction);
 
-  const isPending = isCreating || isUpdating;
+  const isPending = isCreating || isUpdating || isApplyingTemplate;
 
   const [templates, setTemplates] = useState<GroceryListTemplate[]>([]);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>("");

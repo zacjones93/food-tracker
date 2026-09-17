@@ -216,9 +216,11 @@ export const applyTemplateToWeekAction = createServerAction()
       }
     }
 
-    // Insert all items
-    if (groceryItems.length > 0) {
-      await db.insert(groceryItemsTable).values(groceryItems);
+    // D1 allows 100 bound parameters per query. Each item also binds its
+    // generated ID and timestamps, so keep inserts to ten items per query.
+    const batchSize = 10;
+    for (let offset = 0; offset < groceryItems.length; offset += batchSize) {
+      await db.insert(groceryItemsTable).values(groceryItems.slice(offset, offset + batchSize));
     }
 
     revalidatePath(`/schedule/${input.weekId}`);

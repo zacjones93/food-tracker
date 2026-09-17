@@ -1152,3 +1152,47 @@ private func accountDeletionTestSession() -> MobileSession {
         entitlements: nil
     )
 }
+
+extension FoodTrackerStoreTests {
+    func testNewWeekReceivesNewTemplateItemsAndPersistsTheirSyncMutations() throws {
+        let storage = TestStorage()
+        let store = FoodTrackerStore(storage: storage)
+        let template = GroceryTemplate(name: "Weekly staples", categories: [
+            GroceryTemplateCategory(category: "Produce", order: 0, items: (0..<40).map {
+                GroceryTemplateItem(name: "Item \($0)", order: $0)
+            }),
+            GroceryTemplateCategory(category: "Dairy", order: 1, items: [
+                GroceryTemplateItem(name: "Milk", order: 0)
+            ])
+        ])
+        store.saveGroceryTemplate(template)
+        let week = WeekPlan(name: "New week")
+        store.saveWeek(week)
+        store.applyTemplate(try XCTUnwrap(store.groceryTemplates.first), to: week.id)
+
+        let items = store.groceryItems(for: week.id)
+        XCTAssertEqual(items.count, 41)
+        XCTAssertEqual(Set(items.map(\.name)), Set((0..<40).map { "Item \($0)" } + ["Milk"]))
+        XCTAssertTrue(items.allSatisfy { !$0.isChecked })
+        XCTAssertEqual(items.filter { $0.category == "Produce" }.count, 40)
+        XCTAssertEqual(items.first { $0.name == "Milk" }?.category, "Dairy")
+
+        let saved = try XCTUnwrap(storage.workspace)
+        XCTAssertEqual(saved.groceryItems.count, 41)
+        XCTAssertEqual(saved.outbox.filter { $0.entity == .week }.count, 1)
+        XCTAssertEqual(saved.outbox.filter { $0.entity == .groceryTemplate }.count, 1)
+        let itemMutations = saved.outbox.filter { $0.entity == .groceryItem }
+        XCTAssertEqual(itemMutations.count, 41)
+        for mutation in itemMutations {
+            XCTAssertEqual(mutation.operation, .create)
+            guard case .object(let payload) = mutation.payload else {
+                return XCTFail("Expected a grocery item payload")
+            }
+            XCTAssertEqual(payload["weekId"], .string(week.id))
+        }
+
+        let reopened = FoodTrackerStore(storage: storage)
+        XCTAssertEqual(reopened.groceryItems(for: week.id).count, 41)
+        XCTAssertEqual(reopened.pendingCount, 43)
+    }
+}
