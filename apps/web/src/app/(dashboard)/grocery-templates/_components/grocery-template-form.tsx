@@ -132,7 +132,7 @@ export function GroceryTemplateForm({ template }: GroceryTemplateFormProps) {
   };
 
   const onInvalid = () => {
-    toast.error("Fix the highlighted fields before saving");
+    toast.error("Template has invalid fields. Names must be 2-255 characters, categories 1-100, items up to 500.");
   };
 
   const onSubmit = async (data: FormValues) => {
