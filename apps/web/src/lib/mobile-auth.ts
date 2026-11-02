@@ -3,7 +3,7 @@ import "server-only";
 import { getDB } from "@/db";
 import { teamMembershipTable, teamTable } from "@/db/schema";
 import { getSessionFromCookie } from "@/utils/auth";
-import { getUserPermissions } from "@/utils/team-auth";
+import { getMembershipPermissions, getUserTeamMembership } from "@/utils/team-auth";
 import { and, eq } from "drizzle-orm";
 import { ZodError } from "zod";
 import { getTeamEntitlements } from "@/lib/entitlements";
@@ -24,39 +24,33 @@ export async function requireMobileSession() {
   if (!session.activeTeamId) throw new MobileAPIError(403, "No active team selected");
 
   const db = getDB();
-  const membership = await db.query.teamMembershipTable.findFirst({
-    where: and(
-      eq(teamMembershipTable.userId, session.user.id),
-      eq(teamMembershipTable.teamId, session.activeTeamId),
-      eq(teamMembershipTable.isActive, 1),
-    ),
-  });
+  const membership = await getUserTeamMembership(session.user.id, session.activeTeamId);
 
   if (!membership) throw new MobileAPIError(403, "Active team membership is no longer valid");
 
-  const activeTeam = await db.query.teamTable.findFirst({
-    where: eq(teamTable.id, session.activeTeamId),
-  });
-  if (!activeTeam) throw new MobileAPIError(403, "Active team no longer exists");
-
-  const memberships = await db
-    .select({
-      id: teamTable.id,
-      name: teamTable.name,
-      slug: teamTable.slug,
-      avatarUrl: teamTable.avatarUrl,
-      roleId: teamMembershipTable.roleId,
-    })
-    .from(teamMembershipTable)
-    .innerJoin(teamTable, eq(teamMembershipTable.teamId, teamTable.id))
-    .where(
-      and(
-        eq(teamMembershipTable.userId, session.user.id),
-        eq(teamMembershipTable.isActive, 1),
+  const [activeTeam, memberships, permissions] = await Promise.all([
+    db.query.teamTable.findFirst({
+      where: eq(teamTable.id, session.activeTeamId),
+    }),
+    db
+      .select({
+        id: teamTable.id,
+        name: teamTable.name,
+        slug: teamTable.slug,
+        avatarUrl: teamTable.avatarUrl,
+        roleId: teamMembershipTable.roleId,
+      })
+      .from(teamMembershipTable)
+      .innerJoin(teamTable, eq(teamMembershipTable.teamId, teamTable.id))
+      .where(
+        and(
+          eq(teamMembershipTable.userId, session.user.id),
+          eq(teamMembershipTable.isActive, 1),
+        ),
       ),
-    );
-
-  const permissions = await getUserPermissions(session.user.id, session.activeTeamId);
+    getMembershipPermissions({ membership }),
+  ]);
+  if (!activeTeam) throw new MobileAPIError(403, "Active team no longer exists");
 
   return {
     session,

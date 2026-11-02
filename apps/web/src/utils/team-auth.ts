@@ -1,10 +1,11 @@
 import "server-only";
 
+import { cache } from "react";
 import { getDB } from "@/db";
 import { teamMembershipTable, teamRoleTable, SYSTEM_ROLES_ENUM, TEAM_PERMISSIONS } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 
-export async function getUserTeamMembership(userId: string, teamId: string) {
+export const getUserTeamMembership = cache(async function getUserTeamMembership(userId: string, teamId: string) {
   const db = getDB();
 
   const membership = await db.query.teamMembershipTable.findFirst({
@@ -16,12 +17,18 @@ export async function getUserTeamMembership(userId: string, teamId: string) {
   });
 
   return membership;
-}
+});
 
-export async function getUserPermissions(userId: string, teamId: string): Promise<string[]> {
-  const db = getDB();
-
+export const getUserPermissions = cache(async function getUserPermissions(userId: string, teamId: string): Promise<string[]> {
   const membership = await getUserTeamMembership(userId, teamId);
+  return getMembershipPermissions({ membership });
+});
+
+// Route handlers pass the membership they already authorized: React cache is RSC-only.
+export async function getMembershipPermissions({ membership }: {
+  membership: typeof teamMembershipTable.$inferSelect | undefined;
+}): Promise<string[]> {
+  const db = getDB();
   if (!membership) return [];
 
   // System role

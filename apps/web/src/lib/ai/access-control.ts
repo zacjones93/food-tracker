@@ -3,13 +3,11 @@ import { eq, and, gte, sql } from "drizzle-orm";
 import {
   aiChatsTable,
   aiUsageTable,
-  teamMembershipTable,
   teamSettingsTable,
-  teamTable,
 } from "@/db/schema";
 import { getDB } from "@/db/index";
 import { evaluateAiTeamPolicy } from "@/lib/team-settings-policy";
-import { getTeamEntitlements } from "@/lib/entitlements";
+import { resolveTeamAccess } from "@/lib/team-access";
 
 export interface AiChatAccessContext {
   chatId: string;
@@ -79,22 +77,7 @@ export async function checkAiAccess({
     maxRequestsPerDay: number;
   };
 }> {
-  const db = getDB();
-
-  const [teamData, membership, entitlements] = await Promise.all([
-    db.query.teamTable.findFirst({
-      where: eq(teamTable.id, teamId),
-      with: { settings: true },
-    }),
-    db.query.teamMembershipTable.findFirst({
-      where: and(
-        eq(teamMembershipTable.teamId, teamId),
-        eq(teamMembershipTable.userId, userId),
-        eq(teamMembershipTable.isActive, 1),
-      ),
-    }),
-    getTeamEntitlements({ teamId }),
-  ]);
+  const { teamData, membership, entitlements } = await resolveTeamAccess({ teamId, userId });
 
   if (!teamData) {
     return { allowed: false, reason: "Team not found" };
