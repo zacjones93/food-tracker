@@ -29,7 +29,7 @@ import {
   createGroceryListTemplateAction,
   updateGroceryListTemplateAction,
 } from "../../schedule/grocery-templates.actions";
-import { groceryTemplateCategorySchema } from "@/schemas/grocery-template.schema";
+import { groceryTemplateItemSchema } from "@/schemas/grocery-template.schema";
 import { useSessionStore } from "@/state/session";
 import {
   DndContext,
@@ -49,9 +49,16 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
+// Blank item rows are dropped on submit, so they must not fail validation.
 const formSchema = z.object({
   name: z.string().min(2).max(255),
-  categories: z.array(groceryTemplateCategorySchema),
+  categories: z.array(
+    z.object({
+      category: z.string().min(1).max(100),
+      order: z.number().int().default(0),
+      items: z.array(groceryTemplateItemSchema.extend({ name: z.string().max(500) })),
+    })
+  ),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -124,12 +131,23 @@ export function GroceryTemplateForm({ template }: GroceryTemplateFormProps) {
     }
   };
 
+  const onInvalid = () => {
+    toast.error("Fix the highlighted fields before saving");
+  };
+
   const onSubmit = async (data: FormValues) => {
+    const categories = data.categories.map((category) => ({
+      ...category,
+      items: category.items
+        .filter((item) => item.name.trim())
+        .map((item, order) => ({ name: item.name.trim(), order })),
+    }));
+
     if (template) {
       const [, error] = await updateTemplate({
         id: template.id,
         name: data.name,
-        template: data.categories,
+        template: categories,
       });
 
       if (error) {
@@ -144,7 +162,7 @@ export function GroceryTemplateForm({ template }: GroceryTemplateFormProps) {
       const [, error] = await createTemplate({
         teamId,
         name: data.name,
-        template: data.categories,
+        template: categories,
       });
 
       if (error) {
@@ -158,7 +176,7 @@ export function GroceryTemplateForm({ template }: GroceryTemplateFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-6">
       <div className="space-y-2">
         <Label htmlFor="name" className="text-mystic-900 dark:text-cream-100">
           Template Name
