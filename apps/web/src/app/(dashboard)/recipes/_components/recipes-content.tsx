@@ -25,6 +25,12 @@ export function RecipesContent({ initialData }: { initialData: RecipesData | nul
   });
   const [searchInput, setSearchInput] = useState(filters.search ?? "");
   const [data, setData] = useState(initialData);
+  const [serverData, setServerData] = useState(initialData);
+  // router.refresh() (after scheduling or switching teams) sends fresh server data.
+  if (initialData !== serverData) {
+    setServerData(initialData);
+    setData(initialData);
+  }
   const [error, setError] = useState<string>();
   const { execute, isPending } = useServerAction(getRecipesAction);
   const queryKey = JSON.stringify(filters);
