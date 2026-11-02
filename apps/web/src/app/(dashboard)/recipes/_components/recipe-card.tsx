@@ -3,19 +3,16 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import type { Recipe } from "@/db/schema";
+import type { RecipeListItem } from "@/lib/recipe-list-queries";
 import { ArrowRight } from "@/components/ui/themed-icons";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { AddToSchedule } from "./add-to-schedule";
 
-interface RecipeWithWeekInfo extends Recipe {
-  latestWeekId: string | null;
-  latestWeekName: string | null;
-}
+
 
 interface RecipeCardProps {
-  recipe: RecipeWithWeekInfo;
+  recipe: RecipeListItem;
 }
 
 export function RecipeCard({ recipe }: RecipeCardProps) {

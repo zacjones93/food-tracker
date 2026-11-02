@@ -1,74 +1,71 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQueryStates, parseAsString, parseAsInteger, parseAsArrayOf } from "nuqs";
 import { useServerAction } from "zsa-react";
 import { getRecipesAction } from "../recipes.actions";
-import { RecipeFilters } from "./recipe-filters";
 import { RecipesTable } from "./recipes-table";
+import { Input } from "@/components/ui/input";
 
-export function RecipesContent() {
-  const [filters] = useQueryStates(
-    {
-      search: parseAsString,
-      mealType: parseAsString,
-      difficulty: parseAsString,
-      seasons: parseAsArrayOf(parseAsString),
-      minMealsEaten: parseAsInteger,
-      maxMealsEaten: parseAsInteger,
-      recipeBookId: parseAsString,
-      page: parseAsInteger.withDefault(1),
-    },
-    {
-      history: "push",
-    }
-  );
+type RecipesData = NonNullable<Awaited<ReturnType<typeof getRecipesAction>>[0]>;
 
-  const { execute: fetchRecipes, data, isPending, error } = useServerAction(getRecipesAction);
+export function RecipesContent({ initialData }: { initialData: RecipesData | null }) {
+  const [filters, setFilters] = useQueryStates({
+    search: parseAsString,
+    mealType: parseAsString,
+    difficulty: parseAsString,
+    tags: parseAsArrayOf(parseAsString),
+    seasons: parseAsArrayOf(parseAsString),
+    minMealsEaten: parseAsInteger,
+    maxMealsEaten: parseAsInteger,
+    recipeBookId: parseAsString,
+    sortBy: parseAsString,
+    page: parseAsInteger.withDefault(1),
+  });
+  const [searchInput, setSearchInput] = useState(filters.search ?? "");
+  const [data, setData] = useState(initialData);
+  const [error, setError] = useState<string>();
+  const { execute, isPending } = useServerAction(getRecipesAction);
+  const queryKey = JSON.stringify(filters);
+  const loadedKey = useRef(queryKey);
 
-  // Fetch recipes whenever filters change
+  useEffect(() => { setSearchInput(filters.search ?? ""); }, [filters.search]);
   useEffect(() => {
-    fetchRecipes({
-      search: filters.search || undefined,
-      page: filters.page,
-      limit: 25,
-      mealType: filters.mealType || undefined,
-      difficulty: filters.difficulty || undefined,
-      seasons: filters.seasons || undefined,
-      minMealsEaten: filters.minMealsEaten || undefined,
-      maxMealsEaten: filters.maxMealsEaten || undefined,
-      recipeBookId: filters.recipeBookId || undefined,
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    filters.search,
-    filters.page,
-    filters.mealType,
-    filters.difficulty,
-    filters.seasons,
-    filters.minMealsEaten,
-    filters.maxMealsEaten,
-    filters.recipeBookId,
-  ]);
+    if (searchInput === (filters.search ?? "")) return;
+    const timer = setTimeout(() => setFilters({ search: searchInput || null, page: 1 }), 200);
+    return () => clearTimeout(timer);
+  }, [searchInput, filters.search, setFilters]);
 
-  const recipes = data?.recipes || [];
-  const pagination = data?.pagination;
+  useEffect(() => {
+    if (loadedKey.current === queryKey) return;
+    let cancelled = false;
+    const input = JSON.parse(queryKey);
+    execute({
+      ...input,
+      search: input.search ?? undefined,
+      mealType: input.mealType ?? undefined,
+      difficulty: input.difficulty ?? undefined,
+      tags: input.tags ?? undefined,
+      seasons: input.seasons ?? undefined,
+      minMealsEaten: input.minMealsEaten ?? undefined,
+      maxMealsEaten: input.maxMealsEaten ?? undefined,
+      recipeBookId: input.recipeBookId ?? undefined,
+      sortBy: input.sortBy ?? undefined,
+      limit: 20,
+    }).then(([result, failure]) => {
+      if (cancelled) return;
+      setError(failure?.message);
+      if (result) { setData(result); loadedKey.current = queryKey; }
+    });
+    return () => { cancelled = true; };
+  }, [queryKey, execute]);
 
   return (
-    <div className="flex flex-col gap-6">
-      <RecipeFilters />
-
-      {error && (
-        <div className="flex justify-center py-12 text-red-500">
-          Error: {error.message}
-        </div>
-      )}
-
-      {isPending && !data ? (
-        <div className="flex justify-center py-12">Loading recipes...</div>
-      ) : (
-        <RecipesTable recipes={recipes} pagination={pagination} />
-      )}
+    <div className="space-y-4" aria-busy={isPending}>
+      <Input aria-label="Search recipes" placeholder="Search recipes..." value={searchInput} onChange={event => setSearchInput(event.target.value)} />
+      {error && <p role="alert">Error: {error}</p>}
+      {isPending && <p role="status">Loading recipes...</p>}
+      <RecipesTable recipes={data?.recipes ?? []} pagination={data?.pagination} />
     </div>
   );
 }

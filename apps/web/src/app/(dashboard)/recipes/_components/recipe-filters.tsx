@@ -113,7 +113,7 @@ export function RecipeFilters() {
       filters.maxMealsEaten !== null,
     ].filter(Boolean).length + (filters.seasons?.length || 0);
 
-  const FilterFields = () => (
+  const filterFields = (
     <>
       {/* Sort By */}
       <div className="space-y-2">
@@ -297,7 +297,7 @@ export function RecipeFilters() {
               <SheetTitle>Filter Recipes</SheetTitle>
             </SheetHeader>
             <div className="mt-6 space-y-4 overflow-y-auto h-[calc(100%-80px)]">
-              <FilterFields />
+              {filterFields}
               {hasActiveFilters && (
                 <div className="pt-4">
                   <Button
@@ -319,7 +319,7 @@ export function RecipeFilters() {
       {/* Desktop: Card with all filters */}
       <Card className="p-4 hidden md:block">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-4">
-          <FilterFields />
+          {filterFields}
         </div>
 
         {hasActiveFilters && (
