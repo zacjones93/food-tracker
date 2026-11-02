@@ -6,6 +6,7 @@ import { useServerAction } from "zsa-react";
 import { getRecipesAction } from "../recipes.actions";
 import { RecipesTable } from "./recipes-table";
 import { Input } from "@/components/ui/input";
+import { Search } from "@/components/ui/themed-icons";
 
 type RecipesData = NonNullable<Awaited<ReturnType<typeof getRecipesAction>>[0]>;
 
@@ -62,7 +63,10 @@ export function RecipesContent({ initialData }: { initialData: RecipesData | nul
 
   return (
     <div className="space-y-4" aria-busy={isPending}>
-      <Input aria-label="Search recipes" placeholder="Search recipes..." value={searchInput} onChange={event => setSearchInput(event.target.value)} />
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-cream-100" />
+        <Input aria-label="Search recipes" placeholder="Search recipes..." value={searchInput} onChange={event => setSearchInput(event.target.value)} className="pl-9" />
+      </div>
       {error && <p role="alert">Error: {error}</p>}
       {isPending && <p role="status">Loading recipes...</p>}
       <RecipesTable recipes={data?.recipes ?? []} pagination={data?.pagination} />
