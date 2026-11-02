@@ -18,6 +18,7 @@ import { requirePermission } from "@/utils/team-auth";
 import { getRecipeVisibilityConditions } from "@/utils/recipe-visibility";
 import { teamSettingsTable } from "@/db/schema";
 import { publishDialRecipeChange } from "@/lib/dial-integration";
+import { getRecipeScheduleStats, recipeListColumns, type RecipeScheduleStats } from "@/lib/recipe-list-queries";
 import { canViewRecipeByLink } from "@/lib/recipe-access";
 
 export const createRecipeAction = createServerAction()
@@ -372,61 +373,27 @@ export const getRecipesAction = createServerAction()
       conditions.push(eq(recipesTable.recipeBookId, recipeBookId));
     }
 
-    const whereClause = and(...conditions);
-
-    // Fetch all matching recipes (before pagination) with week count and latest week
-    let allRecipes = await db
-      .select({
-        recipe: recipesTable,
-        weekCount: sql<number>`count(distinct case when ${weeksTable.teamId} = ${session.activeTeamId} then ${weekRecipesTable.weekId} end)`.as('weekCount'),
-        latestWeekId: sql<string | null>`(
-          select ${weeksTable.id}
-          from ${weekRecipesTable}
-          inner join ${weeksTable} on ${weeksTable.id} = ${weekRecipesTable.weekId}
-          where ${weekRecipesTable.recipeId} = ${recipesTable.id}
-            and ${weeksTable.teamId} = ${session.activeTeamId}
-          order by ${weeksTable.startDate} desc
-          limit 1
-        )`.as('latestWeekId'),
-        latestWeekName: sql<string | null>`(
-          select ${weeksTable.name}
-          from ${weekRecipesTable}
-          inner join ${weeksTable} on ${weeksTable.id} = ${weekRecipesTable.weekId}
-          where ${weekRecipesTable.recipeId} = ${recipesTable.id}
-            and ${weeksTable.teamId} = ${session.activeTeamId}
-          order by ${weeksTable.startDate} desc
-          limit 1
-        )`.as('latestWeekName'),
-      })
-      .from(recipesTable)
-      .leftJoin(weekRecipesTable, eq(recipesTable.id, weekRecipesTable.recipeId))
-      .leftJoin(weeksTable, eq(weekRecipesTable.weekId, weeksTable.id))
-      .where(whereClause)
-      .groupBy(recipesTable.id);
-
-    // Filter by tags in memory (since JSON filtering is complex in SQLite/D1)
-    // Must be done BEFORE pagination to get correct counts
-    if (tags && tags.length > 0) {
-      allRecipes = allRecipes.filter(item =>
-        item.recipe.tags && tags.some(tag => item.recipe.tags?.includes(tag))
-      );
+    // Match tags exactly, with OR within each filter and AND between filters.
+    for (const values of [tags, seasons]) {
+      if (values?.length) conditions.push(sql`exists (
+        select 1 from json_each(${recipesTable.tags})
+        where value in (select value from json_each(${JSON.stringify(values)}))
+      )`);
     }
 
-    // Filter by seasons in memory (seasonal tags are part of the tags array)
-    if (seasons && seasons.length > 0) {
-      allRecipes = allRecipes.filter(item =>
-        item.recipe.tags && seasons.some(season => item.recipe.tags?.includes(season))
-      );
-    }
+    // Matching and ordering need only list metadata, never recipe content.
+    let allRecipes = (await db.select({ id: recipesTable.id, name: recipesTable.name, createdAt: recipesTable.createdAt }).from(recipesTable)
+      .where(and(...conditions)).orderBy(recipesTable.id))
+      .map(recipe => ({ recipe, weekCount: 0, latestWeekId: null as string | null, latestWeekName: null as string | null }));
 
-    // Filter by mealsEaten count in memory (now calculated from weeks)
-    if (minMealsEaten !== undefined) {
-      allRecipes = allRecipes.filter(item => (item.weekCount || 0) >= minMealsEaten);
-    }
-
-    if (maxMealsEaten !== undefined) {
-      allRecipes = allRecipes.filter(item => (item.weekCount || 0) <= maxMealsEaten);
-    }
+    // Count-dependent filters/sorts must see all candidates before pagination.
+    const needsCounts = sortBy === "mostEaten" || minMealsEaten !== undefined || maxMealsEaten !== undefined;
+    const stats = needsCounts
+      ? await getRecipeScheduleStats({ db, teamId: session.activeTeamId, recipeIds: allRecipes.map(item => item.recipe.id) })
+      : new Map<string, RecipeScheduleStats>();
+    if (needsCounts) allRecipes = allRecipes.map(item => ({ ...item, ...stats.get(item.recipe.id) }));
+    if (minMealsEaten !== undefined) allRecipes = allRecipes.filter(item => item.weekCount >= minMealsEaten);
+    if (maxMealsEaten !== undefined) allRecipes = allRecipes.filter(item => item.weekCount <= maxMealsEaten);
 
     // Sort based on sortBy parameter
     allRecipes.sort((a, b) => {
@@ -451,13 +418,18 @@ export const getRecipesAction = createServerAction()
 
     // Apply pagination to filtered and sorted results
     const paginatedResults = allRecipes.slice((page - 1) * limit, page * limit);
-
-    // Transform results to include week info with recipe
+    const pageIds = paginatedResults.map(item => item.recipe.id);
+    const [pageRows, pageStats] = pageIds.length ? await Promise.all([
+      db.select(recipeListColumns).from(recipesTable)
+        .where(inArray(recipesTable.id, sql`(select value from json_each(${JSON.stringify(pageIds)}))`)),
+      needsCounts ? Promise.resolve(stats) : getRecipeScheduleStats({ db, teamId: session.activeTeamId, recipeIds: pageIds }),
+    ]) : [[], new Map()];
+    const details = new Map(pageRows.map(recipe => [recipe.id, recipe]));
     const recipes = paginatedResults.map(item => ({
-      ...item.recipe,
-      mealsEatenCount: item.weekCount || 0,
-      latestWeekId: item.latestWeekId,
-      latestWeekName: item.latestWeekName,
+      ...details.get(item.recipe.id)!,
+      mealsEatenCount: pageStats.get(item.recipe.id)?.weekCount ?? 0,
+      latestWeekId: pageStats.get(item.recipe.id)?.latestWeekId ?? null,
+      latestWeekName: pageStats.get(item.recipe.id)?.latestWeekName ?? null,
     }));
 
     return {
@@ -542,36 +514,19 @@ export const getRecipeMetadataAction = createServerAction()
       visibilityMode
     );
 
-    const recipes = await db.select({
-      mealType: recipesTable.mealType,
-      difficulty: recipesTable.difficulty,
-      tags: recipesTable.tags,
-    })
-      .from(recipesTable)
-      .where(visibilityConditions);
-
-    // Extract unique meal types
-    const mealTypes = [...new Set(
-      recipes
-        .map(r => r.mealType)
-        .filter((t): t is string => !!t)
-    )].sort();
-
-    // Extract unique difficulties
-    const difficulties = [...new Set(
-      recipes
-        .map(r => r.difficulty)
-        .filter((d): d is string => !!d)
-    )].sort();
-
-    // Extract unique tags
-    const allTags = recipes
-      .flatMap(r => r.tags || [])
-      .filter((t): t is string => !!t);
-    const tags = [...new Set(allTags)].sort();
-
-    // Get all recipe books
-    const recipeBooks = await db.select().from(recipeBooksTable);
+    const metadataQuery = db.all<{ kind: string; value: string }>(sql`
+      with visible as materialized (select mealType, difficulty, tags from ${recipesTable} where ${visibilityConditions})
+      select 'mealType' as kind, mealType as value from visible where mealType != ''
+      union select 'difficulty', difficulty from visible where difficulty != ''
+      union select 'tag', value from visible, json_each(visible.tags) where value != ''
+    `);
+    const [metadata, recipeBooks] = await Promise.all([
+      metadataQuery,
+      db.select().from(recipeBooksTable),
+    ]);
+    const mealTypes = metadata.filter(row => row.kind === 'mealType').map(row => row.value).sort();
+    const difficulties = metadata.filter(row => row.kind === 'difficulty').map(row => row.value).sort();
+    const tags = metadata.filter(row => row.kind === 'tag').map(row => row.value).sort();
 
     return {
       mealTypes: mealTypes || [],

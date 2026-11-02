@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import type { Recipe } from "@/db/schema";
+import type { RecipeListItem } from "@/lib/recipe-list-queries";
 import {
   ChevronLeft,
   ChevronRight,
@@ -24,13 +24,10 @@ import Link from "next/link";
 import { AddToSchedule } from "./add-to-schedule";
 import { RecipeCard } from "./recipe-card";
 
-interface RecipeWithWeekInfo extends Recipe {
-  latestWeekId: string | null;
-  latestWeekName: string | null;
-}
+
 
 interface RecipesTableProps {
-  recipes: RecipeWithWeekInfo[];
+  recipes: RecipeListItem[];
   pagination?: {
     page: number;
     limit: number;

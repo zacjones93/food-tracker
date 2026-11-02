@@ -464,6 +464,7 @@ export const weeksTable = sqliteTable("weeks", {
   // Grocery list stored as page content (markdown checklist)
 }, (table) => ([
   index("weeks_team_idx").on(table.teamId),
+  index("weeks_team_start_idx").on(table.teamId, table.startDate),
   index("weeks_status_idx").on(table.status),
   index("weeks_start_date_idx").on(table.startDate),
   uniqueIndex("weeks_team_client_id_idx").on(table.teamId, table.clientId),
@@ -507,6 +508,7 @@ export const weekRecipesTable = sqliteTable("week_recipes", {
 }, (table) => ([
   index("wr_week_idx").on(table.weekId),
   index("wr_recipe_idx").on(table.recipeId),
+  index("wr_recipe_week_idx").on(table.recipeId, table.weekId),
   index("wr_unique_idx").on(table.weekId, table.recipeId),
   index("wr_scheduled_date_idx").on(table.scheduledDate),
   index("wr_scheduled_for_idx").on(table.scheduledForWeekRecipeId),

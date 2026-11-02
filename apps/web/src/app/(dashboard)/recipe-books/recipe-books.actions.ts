@@ -2,7 +2,7 @@
 
 import { createServerAction, ZSAError } from "zsa";
 import { getDB } from "@/db";
-import { recipeBooksTable, TEAM_PERMISSIONS } from "@/db/schema";
+import { recipeBooksTable, recipesTable, TEAM_PERMISSIONS } from "@/db/schema";
 import {
   createRecipeBookSchema,
   updateRecipeBookSchema,
@@ -10,7 +10,7 @@ import {
   getRecipeBookByIdSchema,
   getRecipeBooksSchema,
 } from "@/schemas/recipe-book.schema";
-import { and, eq, isNull, like, or } from "drizzle-orm";
+import { and, eq, isNull, like, or, sql, getTableColumns } from "drizzle-orm";
 import { getSessionFromCookie } from "@/utils/auth";
 import { requirePermission } from "@/utils/team-auth";
 
@@ -155,25 +155,19 @@ export const getRecipeBooksAction = createServerAction()
       ? and(ownershipClause, like(recipeBooksTable.name, `%${search}%`))
       : ownershipClause;
 
-    // Fetch all recipe books with recipe counts (need all to sort by count)
-    const allRecipeBooks = await db.query.recipeBooksTable.findMany({
-      where: whereClause,
-      with: {
-        recipes: {
-          columns: { id: true },
-          where: (recipes, { eq: equals }) => equals(recipes.teamId, session.activeTeamId!),
-        },
-      },
-    });
-
-    // Transform to include recipe count and sort by count descending
-    const recipeBooksWithCount = allRecipeBooks
-      .map(book => ({
-        ...book,
-        recipeCount: book.recipes.length,
-        recipes: undefined, // Remove the recipes array from the response
-      }))
-      .sort((a, b) => b.recipeCount - a.recipeCount);
+    // Count in SQL rather than constructing and decoding an array of recipe IDs.
+    const counts = db.select({
+      recipeBookId: recipesTable.recipeBookId,
+      recipeCount: sql<number>`count(*)`.as("recipeCount"),
+    }).from(recipesTable).where(eq(recipesTable.teamId, session.activeTeamId))
+      .groupBy(recipesTable.recipeBookId).as("recipeCounts");
+    const recipeBooksWithCount = await db.select({
+      ...getTableColumns(recipeBooksTable),
+      recipeCount: sql<number>`coalesce(${counts.recipeCount}, 0)`,
+    }).from(recipeBooksTable)
+      .leftJoin(counts, eq(counts.recipeBookId, recipeBooksTable.id))
+      .where(whereClause);
+    recipeBooksWithCount.sort((a, b) => b.recipeCount - a.recipeCount);
 
     const total = recipeBooksWithCount.length;
 

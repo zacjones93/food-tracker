@@ -1,5 +1,7 @@
 import "server-only";
 
+import { cache } from "react";
+import { alias } from "drizzle-orm/sqlite-core";
 import { getDB } from "@/db";
 import {
   appleSubscriptionBindingsTable,
@@ -17,6 +19,8 @@ import {
 } from "./features";
 
 const WEEK_CREATIONS_FEATURE = "week_creations";
+const stripeSnapshots = alias(teamEntitlementSnapshotsTable, "stripeSnapshot");
+const appleSnapshots = alias(teamEntitlementSnapshotsTable, "appleSnapshot");
 
 export interface TeamEntitlements {
   planKey: string;
@@ -40,37 +44,48 @@ export class EntitlementError extends Error {
   }
 }
 
-export async function getTeamEntitlements({
-  teamId,
-}: {
-  teamId: string;
-}): Promise<TeamEntitlements> {
+export function getTeamEntitlements({ teamId }: { teamId: string }): Promise<TeamEntitlements> {
+  return getCachedTeamEntitlements(teamId);
+}
+
+// Primitive key deduplicates layout/page reads even when callers create new objects.
+const getCachedTeamEntitlements = cache(async function loadTeamEntitlements(teamId: string): Promise<TeamEntitlements> {
   const db = getDB();
-  const [subscription, appleSubscription, usage] = await Promise.all([
-    db.query.teamSubscriptionsTable.findFirst({
-      where: eq(teamSubscriptionsTable.teamId, teamId),
-    }),
-    db.query.appleSubscriptionBindingsTable.findFirst({
-      where: eq(appleSubscriptionBindingsTable.teamId, teamId),
-    }),
-    db.query.teamFeatureUsageTable.findFirst({
-      where: and(
+  const [stripeRows, appleRows, usageRows] = await db.batch([
+    db.select({
+      status: teamSubscriptionsTable.status,
+      currentPeriodEnd: teamSubscriptionsTable.currentPeriodEnd,
+      id: stripeSnapshots.id,
+      planKey: stripeSnapshots.planKey,
+      planVersion: stripeSnapshots.planVersion,
+      features: stripeSnapshots.features,
+    })
+      .from(teamSubscriptionsTable)
+      .leftJoin(stripeSnapshots, eq(stripeSnapshots.id, teamSubscriptionsTable.entitlementSnapshotId))
+      .where(eq(teamSubscriptionsTable.teamId, teamId)).limit(1),
+    db.select({
+      status: appleSubscriptionBindingsTable.status,
+      currentPeriodEnd: appleSubscriptionBindingsTable.currentPeriodEnd,
+      gracePeriodExpiresAt: appleSubscriptionBindingsTable.gracePeriodExpiresAt,
+      id: appleSnapshots.id,
+      planKey: appleSnapshots.planKey,
+      planVersion: appleSnapshots.planVersion,
+      features: appleSnapshots.features,
+    })
+      .from(appleSubscriptionBindingsTable)
+      .leftJoin(appleSnapshots, eq(appleSnapshots.id, appleSubscriptionBindingsTable.entitlementSnapshotId))
+      .where(eq(appleSubscriptionBindingsTable.teamId, teamId)).limit(1),
+    db.select({ usageCount: teamFeatureUsageTable.usageCount }).from(teamFeatureUsageTable)
+      .where(and(
         eq(teamFeatureUsageTable.teamId, teamId),
         eq(teamFeatureUsageTable.feature, WEEK_CREATIONS_FEATURE),
-      ),
-    }),
+      )).limit(1),
   ]);
-
-  const stripeSnapshot = subscription?.entitlementSnapshotId
-    ? await db.query.teamEntitlementSnapshotsTable.findFirst({
-        where: eq(teamEntitlementSnapshotsTable.id, subscription.entitlementSnapshotId),
-      })
-    : null;
-  const appleSnapshot = appleSubscription?.entitlementSnapshotId
-    ? await db.query.teamEntitlementSnapshotsTable.findFirst({
-        where: eq(teamEntitlementSnapshotsTable.id, appleSubscription.entitlementSnapshotId),
-      })
-    : null;
+  const subscription = stripeRows[0];
+  const stripeSnapshot = stripeRows[0]?.id ? stripeRows[0] : null;
+  const appleSubscription = appleRows[0];
+  const appleSnapshot = appleRows[0]?.id ? appleRows[0] : null;
+  const usage = usageRows[0];
   const hasStripeAccess = Boolean(
     subscription &&
     stripeSnapshot &&
@@ -91,9 +106,9 @@ export async function getTeamEntitlements({
   const activeSnapshot = hasAppleAccess ? appleSnapshot : (hasStripeAccess ? stripeSnapshot : null);
   const plan = activeSnapshot
     ? {
-        key: activeSnapshot.planKey,
-        version: activeSnapshot.planVersion,
-        features: activeSnapshot.features,
+        key: activeSnapshot.planKey!,
+        version: activeSnapshot.planVersion!,
+        features: activeSnapshot.features!,
       }
     : FREE_PLAN;
   const weeksCreated = usage?.usageCount ?? 0;
@@ -119,7 +134,7 @@ export async function getTeamEntitlements({
       }),
     },
   };
-}
+});
 
 export async function requireTeamFeature({
   feature,

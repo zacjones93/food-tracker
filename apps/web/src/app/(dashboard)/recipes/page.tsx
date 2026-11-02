@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { getRecipesAction } from "./recipes.actions";
-import { RecipesTableWrapper } from "./_components/recipes-table-wrapper";
+import { RecipesContent as RecipesList } from "./_components/recipes-content";
 import { RecipeFilters } from "./_components/recipe-filters";
 import { Button } from "@/components/ui/button";
 import { Plus } from "@/components/ui/themed-icons";
@@ -9,6 +9,8 @@ import { Plus } from "@/components/ui/themed-icons";
 interface RecipesPageProps {
   searchParams: Promise<{
     page?: string;
+    search?: string;
+    tags?: string | string[];
     mealType?: string;
     difficulty?: string;
     seasons?: string | string[];
@@ -25,12 +27,14 @@ async function RecipesContent({ searchParams }: RecipesPageProps) {
   const seasons = params.seasons
     ? Array.isArray(params.seasons)
       ? params.seasons
-      : [params.seasons]
+      : params.seasons.split(",")
     : undefined;
 
   const [data] = await getRecipesAction({
     page: params.page ? parseInt(params.page) : 1,
-    limit: 10000, // Fetch all for client-side search
+    limit: 20,
+    search: params.search,
+    tags: params.tags ? (Array.isArray(params.tags) ? params.tags : params.tags.split(",")) : undefined,
     mealType: params.mealType,
     difficulty: params.difficulty,
     seasons,
@@ -40,10 +44,7 @@ async function RecipesContent({ searchParams }: RecipesPageProps) {
     sortBy: params.sortBy as "newest" | "mostEaten" | "name" | undefined,
   });
 
-  const recipes = data?.recipes || [];
-  const pagination = data?.pagination;
-
-  return <RecipesTableWrapper recipes={recipes} pagination={pagination} />;
+  return <RecipesList initialData={data} />;
 }
 
 export default async function RecipesPage({ searchParams }: RecipesPageProps) {

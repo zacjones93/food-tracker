@@ -15,7 +15,7 @@ import {
   weeksTable,
 } from "@/db/schema";
 import { normalizeIngredients } from "@/utils/ingredient-helpers";
-import { and, asc, eq, exists, isNull, max, or } from "drizzle-orm";
+import { and, asc, eq, exists, inArray, isNull, max, or } from "drizzle-orm";
 import { alias } from "drizzle-orm/sqlite-core";
 
 const sideRecipesTable = alias(recipesTable, "sideRecipes");
@@ -58,7 +58,7 @@ export async function getMobileWorkspace({
     .from(syncChangesTable)
     .where(eq(syncChangesTable.teamId, teamId));
 
-  const [recipes, weeks, groceryTemplates, versions, dialTeamPairing] = await Promise.all([
+  const [recipes, weeks, groceryTemplates, versions, dialTeamPairing, weekRecipes, groceryItems, recipeRelations, recipeBooks] = await Promise.all([
     canAccessRecipes ? db.query.recipesTable.findMany({
       where: eq(recipesTable.teamId, teamId),
       orderBy: (table, { asc: orderAscending }) => [orderAscending(table.name)],
@@ -75,7 +75,8 @@ export async function getMobileWorkspace({
       orderBy: (table, { asc: orderAscending }) => [orderAscending(table.name)],
     }) : Promise.resolve([]),
     db.query.syncEntitiesTable.findMany({
-      where: eq(syncEntitiesTable.teamId, teamId),
+      columns: { entityType: true, entityId: true, clientId: true, version: true, deletedAt: true, updatedAt: true },
+      where: and(eq(syncEntitiesTable.teamId, teamId), inArray(syncEntitiesTable.entityType, [...visibleEntityTypes])),
     }),
     db.query.dialTeamPairingsTable.findFirst({
       where: and(
@@ -84,9 +85,7 @@ export async function getMobileWorkspace({
       ),
       columns: { id: true },
     }),
-  ]);
 
-  const [weekRecipes, groceryItems, recipeRelations, recipeBooks] = await Promise.all([
     !canAccessSchedules
       ? Promise.resolve([])
       : db
